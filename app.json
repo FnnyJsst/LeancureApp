@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "react_native",
+    "slug": "react_native",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": ["INTERNET", "RECEIVE_BOOT_COMPLETED"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      [
+        "expo-font",
+        {
+          "Montserrat": ["/assets/fonts/Montserrat-Regular.ttf"]
+        }
+      ]
+    ]
+  }
+}
