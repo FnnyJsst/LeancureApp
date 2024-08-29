@@ -6,6 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 // DrawerLabel is a component that displays the label of the channel in the drawer
 const DrawerLabel = ({ label, iconName, iconColor, iconSize, onMoveUp, onMoveDown, onEdit, onDelete }) => {
+  // States to change the color of the icons when the user presses them
   const [upColor, setUpColor] = useState('black');
   const [downColor, setDownColor] = useState('black');
   const [pencilColor, setPencilColor] = useState('black');

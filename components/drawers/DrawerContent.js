@@ -16,7 +16,7 @@ export default function DrawerContent(props) {
     'Montserrat-medium': require('../../assets/fonts/Montserrat-Medium.ttf'),
   });
 
-  // Functions to open and close both modal windows
+  // Functions to open and close both modal windows for importing and adding channels
   const openImportModal = () => {
     setImportModalVisible(true);
   };

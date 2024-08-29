@@ -31,6 +31,7 @@ export default function AddChannels({ visible, onClose }) {
       addUrl(formattedUrl);
       setUrl('');
       onClose();
+    // If the URL is not valid, we show an alert
     } else {
       alert("Veuillez entrer une URL valide");
     }
