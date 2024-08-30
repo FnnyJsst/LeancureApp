@@ -3,12 +3,13 @@ import { StyleSheet, ActivityIndicator } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { useFonts } from 'expo-font';
 import ChannelsImport from '../modals/ChannelsImport';
-import AddChannels from '../modals/AddChannels';
+import ImportChannelDialog from '../modals/ImportChannelDialog';
 import Header from '../Header'; 
 
 export default function DrawerContent(props) {
   const [isImportModalVisible, setImportModalVisible] = useState(false);
-  const [isAddModalVisible, setAddModalVisible] = useState(false);
+  const [dialogVisible, setDialogVisible] = useState(false);
+
 
   // Fonts
   const [fontsLoaded, error] = useFonts({
@@ -24,11 +25,11 @@ export default function DrawerContent(props) {
     setImportModalVisible(false);
   };
 
-  const openAddModal = () => {
-    setAddModalVisible(true);
+  const openDialog = () => {
+    setDialogVisible(true);
   };
-  const closeAddModal = () => {
-    setAddModalVisible(false);
+  const closeDialog = () => {
+    setDialogVisible(false);
   };
 
   // If the fonts are not loaded, show an activity indicator
@@ -42,12 +43,12 @@ export default function DrawerContent(props) {
         title="CHANNELS MANAGEMENT" 
         onBackPress={() => props.navigation.closeDrawer()} 
         onImportPress={openImportModal} 
-        onAddPress={openAddModal} 
+        onDialogPress={openDialog}
         showIcons={true} 
       />
       <DrawerItemList {...props} />
       <ChannelsImport visible={isImportModalVisible} onClose={closeImportModal} />
-      <AddChannels visible={isAddModalVisible} onClose={closeAddModal} />
+      <ImportChannelDialog visible={dialogVisible} onClose={() => setDialogVisible(false)} />
     </DrawerContentScrollView>
   );
 }
