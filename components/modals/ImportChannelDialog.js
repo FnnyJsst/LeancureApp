@@ -1,8 +1,8 @@
-// Chemin: src/components/ImportChannelDialog.js
 import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, Alert, Animated } from 'react-native';
 import TitleModal from '../text/TitleModal';
 import Button from '../buttons/Button';
+import HTMLParser from 'react-native-html-parser';
 
 const ImportChannelDialog = ({ visible, onClose }) => {
   const [url, setUrl] = useState('');
@@ -23,15 +23,32 @@ const ImportChannelDialog = ({ visible, onClose }) => {
     if (url && validateUrl(url)) {
       const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
       fetch(fullUrl)
-        .then(response => response.json())
+        .then(response => {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            return response.json();
+          } else if (contentType && contentType.includes('text/html')) {
+            return response.text();
+          } else {
+            throw new Error(`Invalid content type: ${contentType}`);
+          }
+        })
         .then(data => {
-          // Traitez les données téléchargées ici
-          console.log(data);
+          if (typeof data === 'string') {
+            // Traitez les données HTML ici
+            console.log('HTML Response:', data);
+            const channels = parseHtml(data);
+            console.log('Parsed Channels:', channels);
+            // Vous pouvez utiliser un parseur HTML pour extraire les informations nécessaires
+          } else {
+            // Traitez les données JSON ici
+            console.log('JSON Response:', data);
+          }
           onClose();
         })
         .catch(error => {
           console.error(error);
-          setError('Erreur lors du téléchargement des channels.');
+          setError(`Erreur lors du téléchargement des channels: ${error.message}`);
         });
     } else {
       setError('URL invalide.');
@@ -44,6 +61,22 @@ const ImportChannelDialog = ({ visible, onClose }) => {
     }
   };
 
+  const parseHtml = (html) => {
+    const channels = [];
+    const parser = new HTMLParser.DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const links = doc.getElementsByTagName('a');
+    for (let i = 0; i < links.length; i++) {
+      const link = links[i];
+      const title = link.getAttribute('titre');
+      const href = link.getAttribute('href');
+      if (title && href) {
+        channels.push({ title, href });
+      }
+    }
+    return channels;
+  };
+
   return (
     <Modal 
       visible={visible} 
@@ -53,19 +86,20 @@ const ImportChannelDialog = ({ visible, onClose }) => {
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-        <TitleModal title="IMPORT CHANNELS" />
+          <TitleModal title="IMPORT CHANNELS" />
           <TextInput
             style={styles.input}
-            placeholder="Paste URL here"
+            placeholder="Paste URL or IP here"
             value={url}
             onChangeText={setUrl}
           />
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          <View style={styles.buttonContainer}></View>
+          <View style={styles.buttonContainer}>
             <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
-              <Button title="OK" backgroundColor="#FF4500" color="white"onPress={handleDownload} />
+              <Button title="OK" backgroundColor="#FF4500" color="white" onPress={handleDownload} />
             </Animated.View>
             <Button title="Cancel" backgroundColor="#d9d9d9" color="black" onPress={onClose} />
+          </View>
         </View>
       </View>
     </Modal>
@@ -85,10 +119,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f4f4f4',
     borderRadius: 10,
     alignItems: 'center',
-  },
-  title: {
-    fontSize: 18,
-    marginBottom: 10,
   },
   input: {
     width: '100%',

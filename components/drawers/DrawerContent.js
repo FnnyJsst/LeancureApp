@@ -5,6 +5,7 @@ import { useFonts } from 'expo-font';
 import ChannelsImport from '../modals/ChannelsImport';
 import ImportChannelDialog from '../modals/ImportChannelDialog';
 import Header from '../Header'; 
+import NewChannelsList from '../modals/NewChannelsList';
 
 export default function DrawerContent(props) {
   const [isImportModalVisible, setImportModalVisible] = useState(false);
