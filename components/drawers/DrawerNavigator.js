@@ -64,14 +64,22 @@ export default function DrawerNavigator() {
   const [currentEditIndex, setCurrentEditIndex] = useState(null);
   
   // We use the useEffect hook to update the order of the screens in the drawer when the urls change
-  useEffect(() => {
-    setScreensOrder(urls);
-  }, [urls]);
+  // useEffect(() => {
+  //   setScreensOrder(urls);
+  // }, [urls]);
 
-  useEffect(() => {
-    // Force re-render when titles change
-    setScreensOrder([...urls]);
-  }, [titles]);
+  // useEffect(() => {
+  //   // Force re-render when titles change
+  //   setScreensOrder([...urls]);
+  // }, [titles]);
+
+  //   // Vérifiez que urls et titles sont des tableaux avant de les utiliser
+  //   if (Array.isArray(urls) && Array.isArray(titles)) {
+  //     screens = getDrawerScreens(urls, titles, handleMoveUp, handleMoveDown, handleEdit, handleDelete);
+  //   } else {
+  //     console.error('urls ou titles ne sont pas des tableaux', urls, titles);
+  //     return null;
+  //   }
 
   // Functions to move the channels up and down in the drawer
   const handleMoveUp = (index) => {

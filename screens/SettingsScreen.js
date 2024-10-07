@@ -16,17 +16,20 @@ import TimerModal from '../components/modals/TimerModal';
 import ChannelsList from '../components/modals/ChannelsList';
 import { getDrawerScreens } from '../components/drawers/DrawerNavigator'; // Import the function to get drawer screens
 import { useUrls } from '../context/UrlContext';
+import PasswordModal from '../components/modals/PasswordModal';
 
 export default function SettingsScreen() {
 
   const navigation = useNavigation();
   const { urls, titles } = useUrls(); // Get URLs and titles from context
-  const screens = getDrawerScreens(urls).map(screen => screen.name); // Extract screen names
+  const screens = Array.isArray(urls) ? getDrawerScreens(urls, titles).map(screen => screen.name) : []; // Extract screen names
 
   const [isEnabled, setIsEnabled] = useState(false);
   const [accessText, setAccessText] = useState('Read-only access');
   const [modalVisible, setModalVisible] = useState(false);
   const [ChannelsListVisible, setChannelsListVisible] = useState(false);
+  const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
+
 
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
@@ -47,6 +50,8 @@ export default function SettingsScreen() {
 
   const openChannelsListModal = () => setChannelsListVisible(true); 
   const closeCHannelsListModal = () => setChannelsListVisible(false); 
+  const openPasswordModal = () => setPasswordModalVisible(true);
+  const closePasswordModal = () => setPasswordModalVisible(false);
 
   return (
     <ScrollView>
@@ -61,7 +66,7 @@ export default function SettingsScreen() {
             icon={<MaterialIcons name="exit-to-app" size={24} color="black" />}
             onPress={handleQuitApp}
           />
-            <HorizontalLine />
+          <HorizontalLine />
           <TitleSettings title="CHANNELS MANAGEMENT" />
           <View style={styles.configContainer}>
             <SettingsButton
@@ -97,6 +102,7 @@ export default function SettingsScreen() {
           <SettingsButton
             title="Password"
             icon={<Feather name="lock" size={24} />}
+            onPress={openPasswordModal}
           />
           <Text style={styles.text}>No password has been defined</Text>
           <HorizontalLine />
@@ -104,7 +110,7 @@ export default function SettingsScreen() {
         </View>
       </View>
       <TimerModal visible={modalVisible} onClose={closeModal} />
-      <ChannelsList visible={ChannelsListVisible} onClose={closeCHannelsListModal} screens={screens} titles={urls.map((url, index) => titles[index] || `WebView ${index + 1}`)} />
+      <PasswordModal visible={isPasswordModalVisible} onClose={closePasswordModal} />
     </ScrollView>
   );
 }

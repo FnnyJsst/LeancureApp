@@ -11,9 +11,9 @@ export default function Header({ title, onBackPress, onImportPress, onDialogPres
       <Text style={styles.headerText}>{title}</Text>
       {showIcons && (
         <>
-          <TouchableOpacity onPress={onImportPress}>
+          {/* <TouchableOpacity onPress={onImportPress}>
             <Feather name="download" size={20} style={styles.icon} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <View style={styles.iconContainer}>
             <TouchableOpacity onPress={onDialogPress}>
               <Entypo name="add-to-list" size={20} style={styles.icon} />

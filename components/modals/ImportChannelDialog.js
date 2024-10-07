@@ -96,9 +96,9 @@ const ImportChannelDialog = ({ visible, onClose }) => {
           {error ? <Text style={styles.error}>{error}</Text> : null}
           <View style={styles.buttonContainer}>
             <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
-              <Button title="OK" backgroundColor="#FF4500" color="white" onPress={handleDownload} />
+            <Button title="Import" backgroundColor="#FF4500" color="white" onPress={onClose} style={styles.importButton} />
             </Animated.View>
-            <Button title="Cancel" backgroundColor="#d9d9d9" color="black" onPress={onClose} />
+            <Button title="Cancel" backgroundColor="#d9d9d9" color="black" onPress={onClose} style={styles.cancelButton} />
           </View>
         </View>
       </View>
@@ -135,7 +135,15 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
+    width: '80%',
+  },
+  importButton: {
+    width: '50%', // Largeur de 40% pour le bouton "Import"
+    marginVertical: 10,
+  },
+  cancelButton: {
+    width: '50%', // Largeur de 40% pour le bouton "Cancel"
+    marginVertical: 10,
   },
 });
 
