@@ -54,7 +54,6 @@ export const getDrawerScreens = (urls, titles, onMoveUp, onMoveDown, onEdit, onD
     }];
   }
 };
-
 // This function is used to manage the drawer
 export default function DrawerNavigator() {
   // We get the urls, titles, and functions to update the urls and titles from the context
@@ -101,7 +100,6 @@ export default function DrawerNavigator() {
       updateTitle(newTitles);
     }
   };
-  
   const handleMoveDown = (index) => {
     // If the index is less than the length of the screensOrder minus 1, we move the channel down
     if (index < screensOrder.length - 1) {
@@ -144,7 +142,6 @@ export default function DrawerNavigator() {
     updateTitle(currentEditIndex, newTitle);
     setEditModalVisible(false);
   };
-
   const handleDelete = (index) => {
     const newOrder = screensOrder.filter((_, i) => i !== index);
     setScreensOrder(newOrder);
