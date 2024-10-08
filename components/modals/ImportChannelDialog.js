@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, TextInput, StyleSheet, Alert, Animated } from 'react-native';
-import TitleModal from '../text/TitleModal';
-import Button from '../buttons/Button';
-import HTMLParser from 'react-native-html-parser';
+import { Modal, View, Text, TextInput, StyleSheet, Button } from 'react-native';
 
 const ImportChannelDialog = ({ visible, onClose }) => {
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
-  const shakeAnimation = new Animated.Value(0);
+  const [channels, setChannels] = useState([]);
 
   const validateUrl = (url) => {
     const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
@@ -35,13 +32,12 @@ const ImportChannelDialog = ({ visible, onClose }) => {
         })
         .then(data => {
           if (typeof data === 'string') {
-            // Traitez les données HTML ici
             console.log('HTML Response:', data);
-            const channels = parseHtml(data);
-            console.log('Parsed Channels:', channels);
-            // Vous pouvez utiliser un parseur HTML pour extraire les informations nécessaires
+            const extractedChannels = parseHtml(data);
+            console.log('Parsed Channels:', JSON.stringify(extractedChannels, null, 2));
+            setChannels(extractedChannels);
+            // console.log('Parsed Channels:', extractedChannels);
           } else {
-            // Traitez les données JSON ici
             console.log('JSON Response:', data);
           }
           onClose();
@@ -52,53 +48,41 @@ const ImportChannelDialog = ({ visible, onClose }) => {
         });
     } else {
       setError('URL invalide.');
-      Animated.sequence([
-        Animated.timing(shakeAnimation, { toValue: 10, duration: 100, useNativeDriver: true }),
-        Animated.timing(shakeAnimation, { toValue: -10, duration: 100, useNativeDriver: true }),
-        Animated.timing(shakeAnimation, { toValue: 10, duration: 100, useNativeDriver: true }),
-        Animated.timing(shakeAnimation, { toValue: 0, duration: 100, useNativeDriver: true }),
-      ]).start();
     }
   };
 
   const parseHtml = (html) => {
-    const channels = [];
-    const parser = new HTMLParser.DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const links = doc.getElementsByTagName('a');
-    for (let i = 0; i < links.length; i++) {
-      const link = links[i];
-      const title = link.getAttribute('titre');
-      const href = link.getAttribute('href');
-      if (title && href) {
-        channels.push({ title, href });
-      }
+    const regex = /<a[^>]+class="view"[^>]+href="([^"]+)"[^>]*>([^<]+)<\/a>/gi;
+    let match;
+    const links = [];
+
+    while ((match = regex.exec(html)) !== null) {
+      links.push({ href: match[1], title: match[2] });
     }
-    return channels;
+
+    return links;
   };
 
   return (
-    <Modal 
-      visible={visible} 
-      transparent={true} 
+    <Modal
       animationType="slide"
+      transparent={true}
+      visible={visible}
       onRequestClose={onClose}
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <TitleModal title="IMPORT CHANNELS" />
+          <Text style={styles.title}>Import Channel</Text>
           <TextInput
             style={styles.input}
-            placeholder="Paste URL or IP here"
+            placeholder="Enter URL"
             value={url}
             onChangeText={setUrl}
           />
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
           <View style={styles.buttonContainer}>
-            <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
-            <Button title="Import" backgroundColor="#FF4500" color="white" onPress={onClose} style={styles.importButton} />
-            </Animated.View>
-            <Button title="Cancel" backgroundColor="#d9d9d9" color="black" onPress={onClose} style={styles.cancelButton} />
+            <Button title="Import" onPress={handleDownload} />
+            <Button title="Cancel" onPress={onClose} />
           </View>
         </View>
       </View>
@@ -114,36 +98,34 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: 400,
-    padding: 20,
+    width: '80%',
     backgroundColor: '#f4f4f4',
+    padding: 20,
     borderRadius: 10,
     alignItems: 'center',
   },
-  input: {
-    width: '100%',
-    padding: 10,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 10,
   },
-  error: {
-    color: 'red',
-    marginBottom: 10,
+  input: {
+    width: '100%',
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 20,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '80%',
+    width: '100%',
   },
-  importButton: {
-    width: '50%', // Largeur de 40% pour le bouton "Import"
-    marginVertical: 10,
-  },
-  cancelButton: {
-    width: '50%', // Largeur de 40% pour le bouton "Cancel"
-    marginVertical: 10,
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
   },
 });
 

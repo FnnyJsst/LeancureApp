@@ -16,7 +16,7 @@ export default function PasswordModal({ visible, onClose }) {
           <TitleModal title="ENTER PASSWORD" />
             <View style={styles.inputContainer}>
               <ModalInput placeholder="Password" secureTextEntry={true} style={styles.input} />
-            <ModalInput placeholder="Password" secureTextEntry={true} style={styles.input} />
+              <ModalInput placeholder="Re-enter password" secureTextEntry={true} style={styles.input} />
             </View>
             <View style={styles.buttonContainer}>
               <Button title="Do not use password" backgroundColor="#d9d9d9" color="black" onPress={onClose} width="40%" style={styles.buttonPassword}/>
