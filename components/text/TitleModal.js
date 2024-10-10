@@ -10,7 +10,6 @@ export default function TitleModal({ title }) {
 
 const styles = StyleSheet.create({
   title: {
-    fontFamily: 'Montserrat',
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,

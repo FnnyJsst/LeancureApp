@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import DrawerNavigator from './components/drawers/DrawerNavigator';
+import { View, StyleSheet } from 'react-native';
+// import { NavigationContainer } from '@react-navigation/native';
+// import { createStackNavigator } from '@react-navigation/stack';
+// import { SafeAreaProvider } from 'react-native-safe-area-context';
+// import DrawerNavigator from './components/drawers/DrawerNavigator';
 import ScreenSaver from './screens/ScreenSaver';
-import { UrlProvider } from './context/UrlContext';
+// import { UrlProvider } from './context/UrlContext';
 import ParameterButton from './components/buttons/ParameterButton';
 import SettingsScreen from './screens/SettingsScreen';
-
-const Stack = createStackNavigator();
+import NoUrlScreen from './screens/NoUrlScreen';
+import ChannelsManagementScreen from './screens/ChannelsManagementScreen';
+// const Stack = createStackNavigator();
 
 export default function App() {
+  const [currentScreen, setCurrentScreen] = useState('NoUrlScreen');
   const [isLoading, setIsLoading] = useState(true);
+
+
+  const navigateToSettings = () => {
+    setCurrentScreen('SettingsScreen');
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -28,25 +35,17 @@ export default function App() {
   }
 
   return (
-    <UrlProvider>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen
-              name="Home"
-              component={DrawerNavigator}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="SettingsScreen"
-              component={SettingsScreen}
-              options={{ headerShown: false }}
-            />
-          </Stack.Navigator>
-          <ParameterButton />
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </UrlProvider>
+    // <NavigationContainer>
+    //   <Stack.Navigator initialRouteName="NoUrlScreen">
+    //     <Stack.Screen name="NoUrlScreen" component={NoUrlScreen} />
+    //     <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
+    //   </Stack.Navigator>
+    // </NavigationContainer>
+    <View style={{ flex: 1 }}>
+      {currentScreen === 'NoUrlScreen' && <NoUrlScreen onNavigate={navigateToSettings} />}
+      {currentScreen === 'SettingsScreen' && <SettingsScreen onNavigate={setCurrentScreen} />}
+      {currentScreen === 'ChannelsManagementScreen' && <ChannelsManagementScreen />}
+  </View>
   );
 }
 

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, Button } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+// import { useNavigation } from '@react-navigation/native';
 import ChannelsListScreen from '../../screens/ChannelsListScreen';
 
 const ImportChannelDialog = ({ visible, onClose }) => {
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
   const [channels, setChannels] = useState([]);
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
 
   const validateUrl = (url) => {
     const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
@@ -39,7 +39,7 @@ const ImportChannelDialog = ({ visible, onClose }) => {
             const extractedChannels = parseHtml(data);
             setChannels(extractedChannels);
             console.log('Parsed Channels:', extractedChannels);
-            navigation.navigate('ChannelsListScreen', { channels: extractedChannels });
+            // navigation.navigate('ChannelsListScreen', { channels: extractedChannels });
           } else {
             console.log('JSON Response:', data);
           }

@@ -17,6 +17,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#ff4500",
     fontWeight: "bold",
-    fontFamily: "Montserrat",
   },
 });

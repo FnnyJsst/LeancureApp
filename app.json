@@ -12,7 +12,11 @@
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
-      "permissions": ["INTERNET", "RECEIVE_BOOT_COMPLETED"]
+      "permissions": [
+        "INTERNET",
+        "RECEIVE_BOOT_COMPLETED"
+      ],
+      "package": "com.fnnyjsst.react_native"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -20,13 +24,10 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "plugins": [
-      [
-        "expo-font",
-        {
-          "Montserrat": ["/assets/fonts/Montserrat-Regular.ttf"]
-        }
-      ]
-    ]
+    "extra": {
+      "eas": {
+        "projectId": "c0d7c103-e3ab-4ee8-9a7a-97cc31870324"
+      }
+    }
   }
 }

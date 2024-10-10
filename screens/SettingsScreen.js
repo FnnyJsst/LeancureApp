@@ -10,30 +10,27 @@ import Feather from '@expo/vector-icons/Feather';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { useNavigation } from '@react-navigation/native';
+// import { useNavigation } from '@react-navigation/native';
 import TimerModal from '../components/modals/TimerModal';
-import ChannelsList from '../components/modals/ChannelsList';
-import { getDrawerScreens } from '../components/drawers/DrawerNavigator'; // Import the function to get drawer screens
-import { useUrls } from '../context/UrlContext';
+// import { getDrawerScreens } from '../components/drawers/DrawerNavigator'; // Import the function to get drawer screens
+// import { useUrls } from '../context/UrlContext';
 import PasswordModal from '../components/modals/PasswordModal';
 
-export default function SettingsScreen() {
+export default function SettingsScreen({ onNavigate }) {
 
-  const navigation = useNavigation();
-  const { urls, titles } = useUrls(); // Get URLs and titles from context
-  const screens = Array.isArray(urls) ? getDrawerScreens(urls, titles).map(screen => screen.name) : []; // Extract screen names
+  // const navigation = useNavigation();
+  // const { urls, titles } = useUrls(); // Get URLs and titles from context
+  // const screens = Array.isArray(urls) ? getDrawerScreens(urls, titles).map(screen => screen.name) : []; // Extract screen names
 
   const [isEnabled, setIsEnabled] = useState(false);
-  const [accessText, setAccessText] = useState('Read-only access');
+  // const [accessText, setAccessText] = useState('Read-only access');
   const [modalVisible, setModalVisible] = useState(false);
-  const [ChannelsListVisible, setChannelsListVisible] = useState(false);
   const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
 
 
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
-    setAccessText((previousState) => previousState === 'Read-only access' ? 'Write access' : 'Read-only access');
+    // setAccessText((previousState) => previousState === 'Read-only access' ? 'Write access' : 'Read-only access');
   };
 
   const handleQuitApp = () => {
@@ -48,8 +45,6 @@ export default function SettingsScreen() {
     setModalVisible(false);
   };
 
-  const openChannelsListModal = () => setChannelsListVisible(true); 
-  const closeCHannelsListModal = () => setChannelsListVisible(false); 
   const openPasswordModal = () => setPasswordModalVisible(true);
   const closePasswordModal = () => setPasswordModalVisible(false);
 
@@ -70,32 +65,26 @@ export default function SettingsScreen() {
           <TitleSettings title="CHANNELS MANAGEMENT" />
           <View style={styles.configContainer}>
             <SettingsButton
-              title="Channels configuration"
+              title="Channels Management"
               icon={<Octicons name="tools" size={24} color="black" />}
+              onPress={() => onNavigate('ChannelsManagementScreen')}
             />
             <Toggle 
               isEnabled={isEnabled}
               toggleSwitch={toggleSwitch}
             />
           </View>
-          <Text style={styles.text}>{accessText}</Text>
+          {/* <Text style={styles.text}>{accessText}</Text> */}
           <View style={styles.configContainer}>
-            <SettingsButton
-              title="Access to the list of channels from the main interface"
-              icon={<FontAwesome5 name="list-alt" size={24} color="black" />}
-            />
-            <Toggle />
           </View>
           <SettingsButton
             title="Auto-refresh"
             icon={<MaterialCommunityIcons name="reload" size={24} color="black" />}
-            onPress={openModal}
           />
           <Text style={styles.text}>Never</Text>
           <SettingsButton
             title="View channels list"
             icon={<Ionicons name="list" size={24}/>} 
-            onPress={openChannelsListModal}
           />
           <HorizontalLine />
           <TitleSettings title="SECURITY" />
@@ -121,7 +110,6 @@ const styles = StyleSheet.create({
     paddingTop: 30,
   },
   text: {
-    fontFamily: 'Montserrat-medium',
     paddingLeft: 45,
     marginLeft: 30,
     marginTop: 5,

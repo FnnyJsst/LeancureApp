@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, ActivityIndicator } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
-import { useFonts } from 'expo-font';
 import ChannelsImport from '../modals/ChannelsImport';
 import ImportChannelDialog from '../modals/ImportChannelDialog';
 import Header from '../Header'; 
@@ -10,13 +9,6 @@ import NewChannelsList from '../modals/NewChannelsList';
 export default function DrawerContent(props) {
   const [isImportModalVisible, setImportModalVisible] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
-
-
-  // Fonts
-  const [fontsLoaded, error] = useFonts({
-    'Montserrat': require('../../assets/fonts/Montserrat-Regular.ttf'),
-    'Montserrat-medium': require('../../assets/fonts/Montserrat-Medium.ttf'),
-  });
 
   // Functions to open and close both modal windows for importing and adding channels
   const openImportModal = () => {

@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   text: {
-    fontFamily: 'Montserrat-medium',
     fontWeight: 'normal', 
     fontSize: 18,
   },

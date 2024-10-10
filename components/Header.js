@@ -28,6 +28,7 @@ export default function Header({ title, onBackPress, onImportPress, onDialogPres
 const styles = StyleSheet.create({
   headerContainer: {
     height: 75,
+    top: 0,
     marginVertical: 25,
     marginHorizontal: 25,
     paddingHorizontal: 15,
@@ -43,7 +44,6 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 20,
     marginLeft: 15,
-    fontFamily: 'Montserrat',
     color: "#fff",
     fontWeight: 'bold',
     flex: 1,

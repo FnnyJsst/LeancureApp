@@ -1,17 +1,10 @@
 import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
 
-export default function ParameterButton() {
-  const navigation = useNavigation();
-
-  const handlePress = () => {
-    navigation.navigate('SettingsScreen');
-  };
-
+export default function ParameterButton({ onPress }) {
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={handlePress}>
+      <TouchableOpacity onPress={onPress}>
         <Ionicons name="settings-outline" size={30} style={styles.icon} />
       </TouchableOpacity>
     </View>
