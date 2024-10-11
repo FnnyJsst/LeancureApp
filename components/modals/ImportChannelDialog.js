@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, TextInput, StyleSheet, Button } from 'react-native';
-// import { useNavigation } from '@react-navigation/native';
-import ChannelsListScreen from '../../screens/ChannelsListScreen';
+import { Modal, View, Text, TextInput, StyleSheet } from 'react-native';
+import Button from '../buttons/Button';
+// import ChannelsListScreen from '../../screens/ChannelsListScreen';
+import TitleModal from '../text/TitleModal';
+import ModalInput from '../inputs/ModalInput';
 
-const ImportChannelDialog = ({ visible, onClose }) => {
+const ImportChannelDialog = ({ visible, onClose, onImport }) => {
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
   const [channels, setChannels] = useState([]);
-  // const navigation = useNavigation();
 
   const validateUrl = (url) => {
     const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
@@ -39,7 +40,7 @@ const ImportChannelDialog = ({ visible, onClose }) => {
             const extractedChannels = parseHtml(data);
             setChannels(extractedChannels);
             console.log('Parsed Channels:', extractedChannels);
-            // navigation.navigate('ChannelsListScreen', { channels: extractedChannels });
+            onImport(extractedChannels); 
           } else {
             console.log('JSON Response:', data);
           }
@@ -75,17 +76,33 @@ const ImportChannelDialog = ({ visible, onClose }) => {
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>Import Channel</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter URL"
-            value={url}
-            onChangeText={setUrl}
-          />
+          <TitleModal title="IMPORT CHANNELS" />
+          <View style={styles.inputContainer}>
+            <Text style={styles.text}>URL</Text>
+            <ModalInput
+              style={styles.input}
+              placeholder="Enter URL"
+              value={url}
+              onChangeText={setUrl}
+            />
+          </View>
+
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
           <View style={styles.buttonContainer}>
-            <Button title="Import" onPress={handleDownload} />
-            <Button title="Cancel" onPress={onClose} />
+            <Button 
+              title="Import" 
+              onPress={handleDownload} 
+              backgroundColor="#FF4500"
+              color="white"
+              width="35%"
+            />
+            <Button 
+              title="Cancel" 
+              onPress={onClose} 
+              backgroundColor="#d9d9d9"
+              color="black"
+              width="35%"
+            />
           </View>
         </View>
       </View>
@@ -101,9 +118,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '80%',
+    width: '40%',
+    height: 240,
     backgroundColor: '#f4f4f4',
-    padding: 20,
+    padding: 25,
+    paddingTop: 30,
     borderRadius: 10,
     alignItems: 'center',
   },
@@ -112,14 +131,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  input: {
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     width: '100%',
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 20,
+    marginTop: 15,
+  },
+  text: {
+    fontSize: 16,
+    marginBottom: 15,
   },
   buttonContainer: {
     flexDirection: 'row',

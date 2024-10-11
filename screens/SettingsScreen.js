@@ -3,7 +3,7 @@ import { ScrollView, View, Text, StyleSheet, BackHandler } from 'react-native';
 import Header from '../components/Header';
 import TitleSettings from '../components/text/TitleSettings';
 import SettingsButton from '../components/buttons/SettingsButton';
-import Toggle from '../components/Toggle';
+// import Toggle from '../components/Toggle';
 import HorizontalLine from '../components/HorizontalLine';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Feather from '@expo/vector-icons/Feather';
@@ -28,10 +28,10 @@ export default function SettingsScreen({ onNavigate }) {
   const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
 
 
-  const toggleSwitch = () => {
-    setIsEnabled((previousState) => !previousState);
-    // setAccessText((previousState) => previousState === 'Read-only access' ? 'Write access' : 'Read-only access');
-  };
+  // const toggleSwitch = () => {
+  //   setIsEnabled((previousState) => !previousState);
+  //   // setAccessText((previousState) => previousState === 'Read-only access' ? 'Write access' : 'Read-only access');
+  // };
 
   const handleQuitApp = () => {
     BackHandler.exitApp();
@@ -53,7 +53,7 @@ export default function SettingsScreen({ onNavigate }) {
       <View style={styles.container}>
         <Header 
           title="SETTINGS" 
-          onBackPress={() => navigation.navigate('Home')} />
+          onBackPress={() => onNavigate('NoUrlScreen')} />
         <View>
           <TitleSettings title="GENERAL" />
           <SettingsButton
@@ -69,10 +69,10 @@ export default function SettingsScreen({ onNavigate }) {
               icon={<Octicons name="tools" size={24} color="black" />}
               onPress={() => onNavigate('ChannelsManagementScreen')}
             />
-            <Toggle 
+            {/* <Toggle 
               isEnabled={isEnabled}
               toggleSwitch={toggleSwitch}
-            />
+            /> */}
           </View>
           {/* <Text style={styles.text}>{accessText}</Text> */}
           <View style={styles.configContainer}>

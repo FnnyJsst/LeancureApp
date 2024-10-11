@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import Header from '../components/Header';
 
-const ChannelsListScreen = ({ route, navigation }) => {
-  const { channels } = route.params;
+const ChannelsListScreen = ({ channels, onBack }) => {
   const [selectedChannels, setSelectedChannels] = useState([]);
 
   const toggleChannelSelection = (channel) => {
@@ -15,9 +15,17 @@ const ChannelsListScreen = ({ route, navigation }) => {
     });
   };
 
+  const handleImportChannels = () => {
+    console.log('Selected Channels:', selectedChannels); // Log pour vérifier les chaînes sélectionnées
+    onBack(selectedChannels);
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Select Channels</Text>
+      <Header 
+        title="IMPORT CHANNELS"
+        showIcons={false}
+      />
       <FlatList
         data={channels}
         keyExtractor={(item) => item.href}
@@ -26,16 +34,18 @@ const ChannelsListScreen = ({ route, navigation }) => {
             style={styles.channelContainer}
             onPress={() => toggleChannelSelection(item)}
           >
-            <Text style={styles.channelTitle}>{item.title}</Text>
             <Text style={styles.checkbox}>
               {selectedChannels.includes(item) ? '☑' : '☐'}
             </Text>
+            <Text style={styles.channelTitle}>{item.title}</Text>
           </TouchableOpacity>
         )}
       />
-      <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.closeButtonText}>Close</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.closeButton} onPress={handleImportChannels}>
+          <Text style={styles.closeButtonText}>IMPORT CHANNELS</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -46,27 +56,27 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
   channelContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+    marginTop: 10,
+    marginHorizontal: 30,
   },
   channelTitle: {
     fontSize: 18,
+    textAlign: 'left',
+    marginLeft: 10,
   },
   checkbox: {
     fontSize: 18,
   },
+  buttonContainer: {
+    alignItems: 'center',
+  },
   closeButton: {
-    marginTop: 20,
+    width: '15%',
     padding: 10,
     backgroundColor: '#FF4500',
     borderRadius: 5,
