@@ -5,7 +5,7 @@ export default function ParameterButton({ onPress }) {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={onPress}>
-        <Ionicons name="settings-outline" size={30} style={styles.icon} />
+        <Ionicons name="settings-outline" color="#ebebeb" size={30} style={styles.icon} />
       </TouchableOpacity>
     </View>
   );
@@ -16,11 +16,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 25,
     right: 25,
-    backgroundColor: '#23262f',
+    backgroundColor: 'transparent',
+    borderColor: '#ebebeb',
+    borderWidth: 2,
     borderRadius: 10,
   },
   icon: {
     padding: 8,
-    color: '#FF4500',
   },
 });

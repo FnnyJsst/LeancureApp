@@ -27,6 +27,14 @@ export default function App() {
     setCurrentScreen('ChannelsManagementScreen');
   };
 
+  const handleBackPress = () => {
+    if (currentScreen === 'ChannelsManagementScreen') {
+      setCurrentScreen('ChannelsListScreen');
+    } else if (currentScreen === 'ChannelsListScreen') {
+      setCurrentScreen('NoUrlScreen');
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -42,8 +50,8 @@ export default function App() {
     <View style={{ flex: 1 }}>
       {currentScreen === 'NoUrlScreen' && <NoUrlScreen onNavigate={navigateToSettings} />}
       {currentScreen === 'SettingsScreen' && <SettingsScreen onNavigate={setCurrentScreen} />}
-      {currentScreen === 'ChannelsManagementScreen' && <ChannelsManagementScreen onImport={navigateToChannelsList} selectedChannels={selectedChannels} />}
-      {currentScreen === 'ChannelsListScreen' && <ChannelsListScreen channels={channels} onBack={handleSelectChannels} />}
+      {currentScreen === 'ChannelsManagementScreen' && <ChannelsManagementScreen onImport={navigateToChannelsList} selectedChannels={selectedChannels} onBackPress={handleBackPress} />}
+      {currentScreen === 'ChannelsListScreen' && <ChannelsListScreen channels={channels} onBack={handleSelectChannels} onBackPress={handleBackPress} />}
     </View>
   );
 }

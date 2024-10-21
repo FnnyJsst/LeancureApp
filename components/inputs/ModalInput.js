@@ -13,7 +13,7 @@ export default function ModalInput({ value, onChangeText, placeholder }) {
 const styles = StyleSheet.create({
   input: {
     height: 40,
-    width: "85%",
+    width: "100%",
     borderRadius: 5,
     padding: 10,
     marginBottom: 20,

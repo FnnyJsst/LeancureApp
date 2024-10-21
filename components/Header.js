@@ -1,7 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons, Feather, Entypo } from '@expo/vector-icons';
 
-// Header is a component that displays the header of the drawer
 export default function Header({ title, onBackPress, onImportPress, onDialogPress, showIcons }) {
   return (
     <View style={styles.headerContainer}>
@@ -11,9 +10,6 @@ export default function Header({ title, onBackPress, onImportPress, onDialogPres
       <Text style={styles.headerText}>{title}</Text>
       {showIcons && (
         <>
-          {/* <TouchableOpacity onPress={onImportPress}>
-            <Feather name="download" size={20} style={styles.icon} />
-          </TouchableOpacity> */}
           <View style={styles.iconContainer}>
             <TouchableOpacity onPress={onDialogPress}>
               <Entypo name="add-to-list" size={20} style={styles.icon} />
@@ -35,7 +31,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#23262f',
-    borderRadius: 5,
+    borderRadius: 50,
   },
   leftArrowIcon: {
     marginLeft: 10,

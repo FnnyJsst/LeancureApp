@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import Header from '../components/Header';
 
-const ChannelsListScreen = ({ channels, onBack }) => {
+const ChannelsListScreen = ({ channels, onBack, onBackPress }) => {
   const [selectedChannels, setSelectedChannels] = useState([]);
 
   const toggleChannelSelection = (channel) => {
@@ -24,6 +24,7 @@ const ChannelsListScreen = ({ channels, onBack }) => {
     <View style={styles.container}>
       <Header 
         title="IMPORT CHANNELS"
+        onBackPress={onBackPress}
         showIcons={false}
       />
       <FlatList

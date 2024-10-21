@@ -19,9 +19,9 @@ export default function PasswordModal({ visible, onClose }) {
               <ModalInput placeholder="Re-enter password" secureTextEntry={true} style={styles.input} />
             </View>
             <View style={styles.buttonContainer}>
-              <Button title="Do not use password" backgroundColor="#d9d9d9" color="black" onPress={onClose} width="40%" style={styles.buttonPassword}/>
-              <Button title="Ok" backgroundColor="#FF4500" color="white"onPress={onClose} width="20%" style={styles.button}/>
-              <Button title="Close" backgroundColor="#d9d9d9" color="black" onPress={onClose} width="20%" style={styles.button}/>
+              {/* <Button title="Do not use password" backgroundColor="#d9d9d9" color="black" onPress={onClose} width="50%" style={styles.buttonPassword}/> */}
+              <Button title="Ok" backgroundColor="#FF4500" color="white"onPress={onClose} width="30%" style={styles.button}/>
+              <Button title="Close" backgroundColor="#d9d9d9" color="black" onPress={onClose} width="30%" style={styles.button}/>
           </View>
         </View>
       </View>
@@ -40,16 +40,21 @@ const styles = StyleSheet.create({
     width: 400,
     padding: 20,
     backgroundColor: '#f4f4f4',
-    borderRadius: 10,
+    borderRadius: 20,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
   },
   inputContainer: {
     flexDirection: 'column', 
     width: '100%', 
+    marginTop: 15,
   },
   input: {
     width: '100%',
-    marginLeft: 30,
   },
   text: {
     fontSize: 16,

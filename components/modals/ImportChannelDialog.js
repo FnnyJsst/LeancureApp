@@ -79,7 +79,7 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
           <TitleModal title="IMPORT CHANNELS" />
           <View style={styles.inputContainer}>
             <Text style={styles.text}>URL</Text>
-            <ModalInput
+            <TextInput
               style={styles.input}
               placeholder="Enter URL"
               value={url}
@@ -138,8 +138,18 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 15,
   },
+  input: {
+    height: 40,
+    marginRight: 10,
+    width: "85%",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 20,
+    backgroundColor: "white",
+  },
   text: {
-    fontSize: 16,
+    fontSize: 20,
+    fontWeight: 'bold',
     marginBottom: 15,
   },
   buttonContainer: {
