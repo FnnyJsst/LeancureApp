@@ -6,7 +6,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-export default function ChannelsManagementScreen({ onImport, selectedChannels, onBackPress }) {
+export default function ChannelsManagementScreen({ onImport, selectedChannels, onBackPress, onNavigateToWebView }) {
   const [isImportModalVisible, setImportModalVisible] = useState(false);
 
   const openImportModal = () => {
@@ -17,34 +17,38 @@ export default function ChannelsManagementScreen({ onImport, selectedChannels, o
     setImportModalVisible(false);
   };
 
-  console.log('Received selected channels:', selectedChannels); // Log pour vérifier les chaînes reçues
+  console.log('Received selected channels:', selectedChannels);
 
   return (
     <View style={styles.container}>
-      <Header 
-        title="CHANNELS MANAGEMENT" 
+      <Header
+        title="CHANNELS MANAGEMENT"
         onDialogPress={openImportModal}
-        onBackPress={onBackPress} // Ajoutez cette ligne
-        showIcons={true} 
+        onBackPress={onBackPress}
+        showIcons={true}
       />
-      <ImportChannelDialog 
-        visible={isImportModalVisible} 
-        onClose={closeImportModal} 
+      <ImportChannelDialog
+        visible={isImportModalVisible}
+        onClose={closeImportModal}
         onImport={onImport}
       />
       <View style={styles.channelsContainer}>
         {selectedChannels && selectedChannels.map((channel, index) => (
-          <View style={styles.channelContainer} key={channel.href}>
+          <TouchableOpacity
+            style={styles.channelContainer}
+            key={channel.href}
+            onPress={() => onNavigateToWebView(channel.href)} // Navigue vers la WebView
+          >
             <Text style={styles.text}>{channel.title}</Text>
             <View style={styles.arrowContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 // onPress={onMoveUp}
                 onPressIn={() => setUpColor('#ff4500')}
                 onPressOut={() => setUpColor('black')}
               >
                 <AntDesign name="up" size={30} style={styles.up} />
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 // onPress={onMoveDown}
                 onPressIn={() => setDownColor('#ff4500')}
                 onPressOut={() => setDownColor('black')}
@@ -53,14 +57,14 @@ export default function ChannelsManagementScreen({ onImport, selectedChannels, o
               </TouchableOpacity>
             </View>
             <View style={styles.iconsContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 // onPress={onEdit}
                 onPressIn={() => setPencilColor('#ff4500')}
                 onPressOut={() => setPencilColor('black')}
               >
-                <EvilIcons name="pencil" size={40} style={styles.pencil}/>
+                <EvilIcons name="pencil" size={40} style={styles.pencil} />
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 // onPress={onDelete}
                 onPressIn={() => setBinColor('#ff4500')}
                 onPressOut={() => setBinColor('black')}
@@ -68,7 +72,7 @@ export default function ChannelsManagementScreen({ onImport, selectedChannels, o
                 <Ionicons name="trash-outline" size={30} />
               </TouchableOpacity>
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
       </View>
     </View>
@@ -92,10 +96,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 10,
-    backgroundColor: '#d9d9d9',
+    backgroundColor: '#ebebeb',
     height: 60,
     width: '95%',
-    borderRadius: 5,
+    borderRadius: 20,
   },
   arrowContainer: {
     flexDirection: 'row',

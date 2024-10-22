@@ -5,12 +5,14 @@ import SettingsScreen from './screens/SettingsScreen';
 import NoUrlScreen from './screens/NoUrlScreen';
 import ChannelsManagementScreen from './screens/ChannelsManagementScreen';
 import ChannelsListScreen from './screens/ChannelsListScreen';
+import WebViewScreen from './screens/WebViewScreen';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('NoUrlScreen');
   const [isLoading, setIsLoading] = useState(true);
   const [channels, setChannels] = useState([]);
   const [selectedChannels, setSelectedChannels] = useState([]);
+  const [webViewUrl, setWebViewUrl] = useState('');
 
   const navigateToSettings = () => {
     setCurrentScreen('SettingsScreen');
@@ -22,9 +24,14 @@ export default function App() {
   };
 
   const handleSelectChannels = (selected) => {
-    console.log('Updating selected channels:', selected); // Log pour vérifier les chaînes sélectionnées
+    console.log('Updating selected channels:', selected); 
     setSelectedChannels(selected);
     setCurrentScreen('ChannelsManagementScreen');
+  };
+
+  const navigateToWebView = (url) => {
+    setWebViewUrl(url);
+    setCurrentScreen('WebViewScreen');
   };
 
   const handleBackPress = () => {
@@ -48,10 +55,24 @@ export default function App() {
 
   return (
     <View style={{ flex: 1 }}>
-      {currentScreen === 'NoUrlScreen' && <NoUrlScreen onNavigate={navigateToSettings} />}
-      {currentScreen === 'SettingsScreen' && <SettingsScreen onNavigate={setCurrentScreen} />}
-      {currentScreen === 'ChannelsManagementScreen' && <ChannelsManagementScreen onImport={navigateToChannelsList} selectedChannels={selectedChannels} onBackPress={handleBackPress} />}
-      {currentScreen === 'ChannelsListScreen' && <ChannelsListScreen channels={channels} onBack={handleSelectChannels} onBackPress={handleBackPress} />}
-    </View>
+    {currentScreen === 'NoUrlScreen' && <NoUrlScreen onNavigate={navigateToSettings} />}
+    {currentScreen === 'SettingsScreen' && <SettingsScreen onNavigate={setCurrentScreen} />}
+    {currentScreen === 'ChannelsManagementScreen' && (
+      <ChannelsManagementScreen
+        onImport={navigateToChannelsList}
+        selectedChannels={selectedChannels}
+        onBackPress={handleBackPress}
+        onNavigateToWebView={navigateToWebView} 
+      />
+    )}
+    {currentScreen === 'ChannelsListScreen' && (
+      <ChannelsListScreen
+        channels={channels}
+        onBack={handleSelectChannels}
+        onBackPress={handleBackPress}
+      />
+    )}
+    {currentScreen === 'WebViewScreen' && <WebViewScreen url={webViewUrl} />} 
+  </View>
   );
 }

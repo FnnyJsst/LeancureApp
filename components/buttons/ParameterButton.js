@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     bottom: 25,
-    right: 25,
+    left: 25,
     backgroundColor: 'transparent',
     borderColor: '#ebebeb',
     borderWidth: 2,

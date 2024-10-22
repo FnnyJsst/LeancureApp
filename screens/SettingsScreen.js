@@ -27,6 +27,7 @@ export default function SettingsScreen({ onNavigate }) {
     setModalVisible(false);
   };
 
+
   const openPasswordModal = () => setPasswordModalVisible(true);
   const closePasswordModal = () => setPasswordModalVisible(false);
 
@@ -59,11 +60,13 @@ export default function SettingsScreen({ onNavigate }) {
           <SettingsButton
             title="Auto-refresh"
             icon={<MaterialCommunityIcons name="reload" size={24} color="black" />}
+            onPress={openModal}
           />
           <Text style={styles.text}>Never</Text>
           <SettingsButton
             title="View channels list"
             icon={<Ionicons name="list" size={24}/>} 
+            onPress={() => onNavigate('ChannelsListScreen')}
           />
           </View>
           <TitleSettings title="SECURITY" />

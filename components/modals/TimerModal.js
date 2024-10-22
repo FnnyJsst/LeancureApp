@@ -30,7 +30,7 @@ const TimerModal = ({ visible, onClose }) => {
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <TitleModal title="AUTO-RELOAD VIEW" />
+            <TitleModal title="AUTO-RELOAD VIEW" style={styles.title} />
           {options.map((option) => (
             <TouchableOpacity
               key={option.value}
@@ -43,7 +43,9 @@ const TimerModal = ({ visible, onClose }) => {
               <Text style={styles.radioText}>{option.label}</Text>
             </TouchableOpacity>
           ))}
-          <Button title="Close" backgroundColor="#FF4500" color="white" onPress={onClose} />
+          <View style={styles.buttonContainer}>
+          <Button title="Close" backgroundColor="#FF4500" color="white" width="30%" onPress={onClose} />
+          </View>
         </View>
       </View>
     </Modal>
@@ -61,14 +63,18 @@ const styles = StyleSheet.create({
     width: "30%",
     padding: 20,
     backgroundColor: 'white',
-    borderRadius: 10,
-    alignItems: 'center',
+    borderRadius: 20,
     backgroundColor: '#f4f4f4',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
   },
   radioContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 10,
+    marginLeft: 20,
   },
   radioCircle: {
     height: 20,
@@ -77,7 +83,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000',
     alignItems: 'center',
-    justifyContent: 'center',
     marginRight: 10,
   },
   selectedRb: {
@@ -88,6 +93,12 @@ const styles = StyleSheet.create({
   },
   radioText: {
     fontSize: 16,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center", // Centre le bouton horizontalement
+    width: '100%', // Assure que le conteneur prend toute la largeur disponible
+    marginTop: 20, // Ajoute un espace au-dessus du bouton
   },
 });
 
