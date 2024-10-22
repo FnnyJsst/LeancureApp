@@ -11,7 +11,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import TimerModal from '../components/modals/TimerModal';
 import PasswordModal from '../components/modals/PasswordModal';
 
-export default function SettingsScreen({ onNavigate }) {
+export default function SettingsScreen({ onNavigate, selectedChannels }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
 
@@ -27,16 +27,23 @@ export default function SettingsScreen({ onNavigate }) {
     setModalVisible(false);
   };
 
-
   const openPasswordModal = () => setPasswordModalVisible(true);
   const closePasswordModal = () => setPasswordModalVisible(false);
+
+  const handleBackPress = () => {
+    if (selectedChannels && selectedChannels.length > 0) {
+      onNavigate('WebViewScreen');
+    } else {
+      onNavigate('NoUrlScreen');
+    }
+  };
 
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
         <Header 
           title="SETTINGS" 
-          onBackPress={() => onNavigate('NoUrlScreen')} 
+          onBackPress={handleBackPress} 
         />
         <View>
           <TitleSettings title="GENERAL" />

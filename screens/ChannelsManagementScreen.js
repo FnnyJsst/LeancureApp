@@ -6,8 +6,12 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-export default function ChannelsManagementScreen({ onImport, selectedChannels, onBackPress, onNavigateToWebView }) {
+export default function ChannelsManagementScreen({ onImport, selectedChannels, onBackPress, onNavigateToWebView, setSelectedChannels }) {
   const [isImportModalVisible, setImportModalVisible] = useState(false);
+  const [upColor, setUpColor] = useState('black');
+  const [downColor, setDownColor] = useState('black');
+  const [pencilColor, setPencilColor] = useState('black');
+  const [binColor, setBinColor] = useState('black');
 
   const openImportModal = () => {
     setImportModalVisible(true);
@@ -15,6 +19,11 @@ export default function ChannelsManagementScreen({ onImport, selectedChannels, o
 
   const closeImportModal = () => {
     setImportModalVisible(false);
+  };
+
+  const deleteChannel = (channelToDelete) => {
+    const updatedChannels = selectedChannels.filter(channel => channel.href !== channelToDelete.href);
+    setSelectedChannels(updatedChannels);
   };
 
   console.log('Received selected channels:', selectedChannels);
@@ -42,34 +51,31 @@ export default function ChannelsManagementScreen({ onImport, selectedChannels, o
             <Text style={styles.text}>{channel.title}</Text>
             <View style={styles.arrowContainer}>
               <TouchableOpacity
-                // onPress={onMoveUp}
                 onPressIn={() => setUpColor('#ff4500')}
                 onPressOut={() => setUpColor('black')}
               >
-                <AntDesign name="up" size={30} style={styles.up} />
+                <AntDesign name="up" size={30} style={[styles.up, { color: upColor }]} />
               </TouchableOpacity>
               <TouchableOpacity
-                // onPress={onMoveDown}
                 onPressIn={() => setDownColor('#ff4500')}
                 onPressOut={() => setDownColor('black')}
               >
-                <AntDesign name="down" size={30} />
+                <AntDesign name="down" size={30} style={{ color: downColor }} />
               </TouchableOpacity>
             </View>
             <View style={styles.iconsContainer}>
               <TouchableOpacity
-                // onPress={onEdit}
                 onPressIn={() => setPencilColor('#ff4500')}
                 onPressOut={() => setPencilColor('black')}
               >
-                <EvilIcons name="pencil" size={40} style={styles.pencil} />
+                <EvilIcons name="pencil" size={40} style={[styles.pencil, { color: pencilColor }]} />
               </TouchableOpacity>
               <TouchableOpacity
-                // onPress={onDelete}
+                onPress={() => deleteChannel(channel)}
                 onPressIn={() => setBinColor('#ff4500')}
                 onPressOut={() => setBinColor('black')}
               >
-                <Ionicons name="trash-outline" size={30} />
+                <Ionicons name="trash-outline" size={30} style={{ color: binColor }} />
               </TouchableOpacity>
             </View>
           </TouchableOpacity>

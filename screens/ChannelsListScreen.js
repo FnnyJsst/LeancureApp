@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import Header from '../components/Header';
+import Button from '../components/buttons/Button';
 
 const ChannelsListScreen = ({ channels, onBack, onBackPress }) => {
   const [selectedChannels, setSelectedChannels] = useState([]);
@@ -43,9 +44,7 @@ const ChannelsListScreen = ({ channels, onBack, onBackPress }) => {
         )}
       />
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.closeButton} onPress={handleImportChannels}>
-          <Text style={styles.closeButtonText}>IMPORT CHANNELS</Text>
-        </TouchableOpacity>
+        <Button title="IMPORT CHANNELS" backgroundColor="#FF4500" color="white" onPress={handleImportChannels} />
       </View>
     </View>
   );

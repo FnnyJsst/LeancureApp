@@ -1,20 +1,16 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
-import Header from '../components/Header'; // Assurez-vous que ce composant existe
+import ParameterButton from '../components/buttons/ParameterButton';
 
-export default function WebViewScreen({ url, onBackPress }) {
+export default function WebViewScreen({ url, onNavigate }) {
   return (
     <View style={styles.container}>
-      {/* <Header
-        title="Web View"
-        onBackPress={onBackPress} // Ajoutez une fonction de retour si nécessaire
-        showIcons={false}
-      /> */}
       <WebView
         source={{ uri: url }}
         style={styles.webview}
       />
+      <ParameterButton onPress={onNavigate} />
     </View>
   );
 }
