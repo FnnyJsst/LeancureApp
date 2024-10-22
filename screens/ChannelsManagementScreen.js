@@ -5,9 +5,12 @@ import ImportChannelDialog from '../components/modals/ImportChannelDialog';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import EditChannel from '../components/modals/EditChannel'; // Assurez-vous que le chemin est correct
 
 export default function ChannelsManagementScreen({ onImport, selectedChannels, onBackPress, onNavigateToWebView, setSelectedChannels }) {
   const [isImportModalVisible, setImportModalVisible] = useState(false);
+  const [isEditModalVisible, setEditModalVisible] = useState(false);
+  const [channelToEdit, setChannelToEdit] = useState(null);
   const [upColor, setUpColor] = useState('black');
   const [downColor, setDownColor] = useState('black');
   const [pencilColor, setPencilColor] = useState('black');
@@ -21,9 +24,39 @@ export default function ChannelsManagementScreen({ onImport, selectedChannels, o
     setImportModalVisible(false);
   };
 
+  const openEditModal = (channel) => {
+    setChannelToEdit(channel);
+    setEditModalVisible(true);
+  };
+
+  const closeEditModal = () => {
+    setEditModalVisible(false);
+    setChannelToEdit(null);
+  };
+
   const deleteChannel = (channelToDelete) => {
     const updatedChannels = selectedChannels.filter(channel => channel.href !== channelToDelete.href);
     setSelectedChannels(updatedChannels);
+  };
+
+  const moveChannelUp = (index) => {
+    if (index > 0) {
+      const updatedChannels = [...selectedChannels];
+      const temp = updatedChannels[index - 1];
+      updatedChannels[index - 1] = updatedChannels[index];
+      updatedChannels[index] = temp;
+      setSelectedChannels(updatedChannels);
+    }
+  };
+
+  const moveChannelDown = (index) => {
+    if (index < selectedChannels.length - 1) {
+      const updatedChannels = [...selectedChannels];
+      const temp = updatedChannels[index + 1];
+      updatedChannels[index + 1] = updatedChannels[index];
+      updatedChannels[index] = temp;
+      setSelectedChannels(updatedChannels);
+    }
   };
 
   console.log('Received selected channels:', selectedChannels);
@@ -41,6 +74,20 @@ export default function ChannelsManagementScreen({ onImport, selectedChannels, o
         onClose={closeImportModal}
         onImport={onImport}
       />
+      <EditChannel
+        visible={isEditModalVisible}
+        onClose={closeEditModal}
+        onSave={(url, title) => {
+          // Logique pour sauvegarder les modifications du canal
+          const updatedChannels = selectedChannels.map(channel =>
+            channel.href === channelToEdit.href ? { ...channel, href: url, title } : channel
+          );
+          setSelectedChannels(updatedChannels);
+          closeEditModal();
+        }}
+        initialUrl={channelToEdit ? channelToEdit.href : ''}
+        initialTitle={channelToEdit ? channelToEdit.title : ''}
+      />
       <View style={styles.channelsContainer}>
         {selectedChannels && selectedChannels.map((channel, index) => (
           <TouchableOpacity
@@ -51,12 +98,14 @@ export default function ChannelsManagementScreen({ onImport, selectedChannels, o
             <Text style={styles.text}>{channel.title}</Text>
             <View style={styles.arrowContainer}>
               <TouchableOpacity
+                onPress={() => moveChannelUp(index)}
                 onPressIn={() => setUpColor('#ff4500')}
                 onPressOut={() => setUpColor('black')}
               >
                 <AntDesign name="up" size={30} style={[styles.up, { color: upColor }]} />
               </TouchableOpacity>
               <TouchableOpacity
+                onPress={() => moveChannelDown(index)}
                 onPressIn={() => setDownColor('#ff4500')}
                 onPressOut={() => setDownColor('black')}
               >
@@ -65,6 +114,7 @@ export default function ChannelsManagementScreen({ onImport, selectedChannels, o
             </View>
             <View style={styles.iconsContainer}>
               <TouchableOpacity
+                onPress={() => openEditModal(channel)}
                 onPressIn={() => setPencilColor('#ff4500')}
                 onPressOut={() => setPencilColor('black')}
               >

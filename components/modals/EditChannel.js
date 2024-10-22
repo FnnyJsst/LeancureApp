@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { Modal, View, Text, StyleSheet } from 'react-native';
-import ModalInput from '../inputs/ModalInput';
+import { useState, useEffect } from 'react';
+import { Modal, View, Text, StyleSheet, TextInput } from 'react-native';
 import Button from '../buttons/Button';
 import TitleModal from '../text/TitleModal';
 
@@ -8,7 +7,14 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
   const [url, setUrl] = useState(initialUrl || '');
   const [title, setTitle] = useState(initialTitle || '');
 
-  // Function to handle the "Ok" button
+  // Met à jour les états lorsque les valeurs initiales changent
+  useEffect(() => {
+    if (visible) {
+      setUrl(initialUrl || '');
+      setTitle(initialTitle || '');
+    }
+  }, [initialUrl, initialTitle, visible]);
+
   const handleOk = () => {
     onSave(url, title);
     setUrl('');
@@ -28,15 +34,15 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
           <TitleModal title="EDIT A CHANNEL" />
           <View style={styles.inputContainer}>
             <Text style={styles.text}>Name</Text>
-            <ModalInput value={title} onChangeText={setTitle} />
+            <TextInput value={title} onChangeText={setTitle} style={styles.titleInput} />
           </View>
           <View style={styles.inputContainer}>
             <Text style={styles.text}>URL</Text>
-            <ModalInput value={url} onChangeText={setUrl} />
+            <TextInput value={url} onChangeText={setUrl} style={styles.urlInput} />
           </View>
           <View style={styles.buttonContainer}>
-            <Button title="Ok" backgroundColor="#FF4500" color="white" onPress={handleOk} />
-            <Button title="Cancel" backgroundColor="#d9d9d9" color="black" onPress={onClose} />
+            <Button title="Ok" backgroundColor="#FF4500" color="white" width="25%" onPress={handleOk} />
+            <Button title="Cancel" backgroundColor="#d9d9d9" color="black" width="25%" onPress={onClose} />
           </View>
         </View>
       </View>
@@ -52,7 +58,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    width: 400,
+    width: '50%',
     padding: 20,
     backgroundColor: '#f4f4f4',
     borderRadius: 10,
@@ -60,16 +66,36 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '80%',
+    marginTop: 15,
+  },
+  titleInput: {
+    height: 40,
+    width: "80%",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 20,
+    marginRight: 20,
+    backgroundColor: "white",
+  },
+  urlInput: {
+    height: 40,
+    width: "80%",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 20,
+    marginRight: 20,
+    backgroundColor: "white",
   },
   text: {
     fontSize: 16,
-    marginRight: 10,
-    marginTop: 8,
-    marginLeft: 0,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '80%',
+    marginTop: 20,
   },
 });
