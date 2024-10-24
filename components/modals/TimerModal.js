@@ -3,7 +3,7 @@ import { View, Text, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 import Button from '../buttons/Button';
 import TitleModal from '../text/TitleModal';
 
-const TimerModal = ({ visible, onClose }) => {
+const TimerModal = ({ visible, onClose, onSelectOption }) => {
   const [selectedOption, setSelectedOption] = useState(null);
 
   // Options for the timer modal
@@ -44,7 +44,8 @@ const TimerModal = ({ visible, onClose }) => {
             </TouchableOpacity>
           ))}
           <View style={styles.buttonContainer}>
-          <Button title="Close" backgroundColor="#FF4500" color="white" width="30%" onPress={onClose} />
+          <Button title="Set" backgroundColor="#FF4500" color="white" width="30%" onPress={() => onSelectOption(selectedOption)} />
+<Button title="Close" backgroundColor="#D9D9D9" color="black" width="30%" onPress={onClose} />
           </View>
         </View>
       </View>
@@ -96,9 +97,9 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "center", // Centre le bouton horizontalement
-    width: '100%', // Assure que le conteneur prend toute la largeur disponible
-    marginTop: 20, // Ajoute un espace au-dessus du bouton
+    justifyContent: "space-around", 
+    width: '100%', 
+    marginTop: 20, 
   },
 });
 

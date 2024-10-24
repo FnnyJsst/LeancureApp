@@ -11,7 +11,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import TimerModal from '../components/modals/TimerModal';
 import PasswordModal from '../components/modals/PasswordModal';
 
-export default function SettingsScreen({ onNavigate, selectedChannels }) {
+export default function SettingsScreen({ onNavigate, selectedChannels, setRefreshInterval, getIntervalInMilliseconds }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
 
@@ -88,7 +88,15 @@ export default function SettingsScreen({ onNavigate, selectedChannels }) {
           <TitleSettings title="INFORMATION" />
         </View>
       </View>
-      <TimerModal visible={modalVisible} onClose={closeModal} />
+      <TimerModal
+        visible={modalVisible}
+        onClose={closeModal}
+        onSelectOption={(option) => {
+          const interval = getIntervalInMilliseconds(option);
+          setRefreshInterval(interval);
+          closeModal();
+  }}
+/>
       <PasswordModal visible={isPasswordModalVisible} onClose={closePasswordModal} />
     </ScrollView>
   );

@@ -14,6 +14,7 @@ export default function App() {
   const [channels, setChannels] = useState([]);
   const [selectedChannels, setSelectedChannels] = useState([]);
   const [webViewUrl, setWebViewUrl] = useState('');
+  const [refreshInterval, setRefreshInterval] = useState(null);
 
   const saveSelectedChannels = async (channels) => {
     try {
@@ -36,6 +37,22 @@ export default function App() {
       }
     } catch (error) {
       console.error('Failed to load channels', error);
+    }
+  };
+
+  const getIntervalInMilliseconds = (value) => {
+    switch (value) {
+      case 'every minute': return 60000;
+      case 'every 2 minutes': return 120000;
+      case 'every 5 minutes': return 300000;
+      case 'every 15 minutes': return 900000;
+      case 'every 30 minutes': return 1800000;
+      case 'every hour': return 3600000;
+      case 'every 2 hours': return 7200000;
+      case 'every 3 hours': return 10800000;
+      case 'every 6 hours': return 21600000;
+      case 'every day': return 86400000;
+      default: return null;
     }
   };
 
@@ -79,6 +96,17 @@ export default function App() {
     loadSelectedChannels();
   }, []);
 
+  useEffect(() => {
+    if (refreshInterval) {
+      const interval = setInterval(() => {
+        console.log('Rafraîchissement des WebViews à', new Date().toLocaleTimeString());
+        // Logique pour rafraîchir les WebViews
+      }, refreshInterval);
+  
+      return () => clearInterval(interval);
+    }
+  }, [refreshInterval]);
+
   if (isLoading) {
     return <ScreenSaver />;
   }
@@ -86,12 +114,19 @@ export default function App() {
   return (
     <View style={{ flex: 1 }}>
       {currentScreen === 'NoUrlScreen' && <NoUrlScreen onNavigate={navigateToSettings} />}
-      {currentScreen === 'SettingsScreen' && <SettingsScreen onNavigate={setCurrentScreen} selectedChannels={selectedChannels} />}
+      {currentScreen === 'SettingsScreen' && (
+        <SettingsScreen
+          onNavigate={setCurrentScreen}
+          selectedChannels={selectedChannels}
+          setRefreshInterval={setRefreshInterval}
+          getIntervalInMilliseconds={getIntervalInMilliseconds}
+        />
+      )}
       {currentScreen === 'ChannelsManagementScreen' && (
         <ChannelsManagementScreen
           onImport={navigateToChannelsList}
           selectedChannels={selectedChannels}
-          setSelectedChannels={setSelectedChannels} // Passez setSelectedChannels ici
+          setSelectedChannels={setSelectedChannels}
           onBackPress={handleBackPress}
           onNavigateToWebView={navigateToWebView} 
         />
