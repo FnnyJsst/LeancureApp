@@ -1,32 +1,35 @@
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../assets/styles/constants';
+import { useDeviceType } from '../../hooks/useDeviceType';
 
 export default function Navbar({ currentSection, onSectionChange }) {
+  const { isSmartphone } = useDeviceType();
+
   return (
     <View style={styles.navbar}>
       <TouchableOpacity 
         style={[styles.navItem, currentSection === 'chat' && styles.active]}
         onPress={() => onSectionChange('chat')}
       >
-        <Ionicons name="chatbox-outline" size={24} color={currentSection === 'chat' ? COLORS.orange : COLORS.lightGray} />
-        <Text style={[styles.navText, currentSection === 'chat' ? {color: COLORS.orange} : {color: COLORS.lightGray}]}>Chat</Text>
+        <Ionicons name="chatbox-outline" size={isSmartphone ? 20 : 24} color={currentSection === 'chat' ? COLORS.orange : COLORS.lightGray} />
+        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, currentSection === 'chat' ? {color: COLORS.orange} : {color: COLORS.lightGray}]}>Chat</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={[styles.navItem, currentSection === 'settings' && styles.active]}
         onPress={() => onSectionChange('settings')}
       >
-        <Ionicons name="settings-outline" size={24} color={COLORS.lightGray} />
-        <Text style={styles.navText}>Settings</Text>
+        <Ionicons name="settings-outline" size={isSmartphone ? 20 : 24} color={COLORS.lightGray} />
+        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone]}>Settings</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={[styles.navItem, currentSection === 'account' && styles.active]}
         onPress={() => onSectionChange('account')}
       >
-        <Ionicons name="person-outline" size={24} color={COLORS.lightGray} />
-        <Text style={styles.navText}>Account</Text>
+        <Ionicons name="person-outline" size={isSmartphone ? 20 : 24} color={COLORS.lightGray} />
+        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone]}>Account</Text>
       </TouchableOpacity>
     </View>
   );
@@ -38,7 +41,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: COLORS.buttonGray,
-    paddingVertical: 10,
+    paddingVertical: 6,
     borderTopWidth: 1,
     borderTopColor: COLORS.gray,
   },
@@ -49,6 +52,10 @@ const styles = StyleSheet.create({
     color: COLORS.lightGray,
     marginTop: 5,
     fontSize: SIZES.fonts.small,
+  },
+  navTextSmartphone: {
+    fontSize: SIZES.fonts.xSmall,
+    marginTop: 3,
   },
   active: {
     color: COLORS.orange,
