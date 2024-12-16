@@ -1,16 +1,27 @@
 import { ScrollView,View, Text, StyleSheet } from 'react-native';
 import ButtonLarge from '../../components/buttons/ButtonLarge';
 import InputLogin from '../../components/InputLogin';
-import ChatScreen from '../messages/ChatScreen';
 import { COLORS, SIZES } from '../../assets/styles/constants';
+import { useDeviceType } from '../../hooks/useDeviceType';
 
 export default function Login({ setCurrentScreen }) {
 
+    const { isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
+
     return (
-        <View style={styles.pageContainer}>
-            <ScrollView style={styles.scrollView}>
-                <View style={styles.loginContainer}>
-                    <Text style={styles.title}>Connexion</Text>
+        <View style={[styles.pageContainer, 
+            isTablet && styles.pageContainerTablet,
+            isSmartphoneLandscape && styles.pageContainerSmartphoneLandscape]}>
+            <ScrollView>
+                <View style={[styles.loginContainer, 
+                    isTabletPortrait && styles.loginContainerTabletPortrait,
+                    isTabletLandscape && styles.loginContainerTabletLandscape,
+                    isSmartphone && styles.loginContainerSmartphone,
+                    isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape]}>
+                    <Text style={[styles.title, 
+                        isTabletPortrait && styles.titleTabletPortrait,
+                        isSmartphone && styles.titleSmartphone,
+                        isSmartphoneLandscape && styles.titleSmartphoneLandscape]}>Connexion</Text>
                     
                     <View style={styles.inputsContainer}>
                         <View style={styles.inputGroup}>
@@ -47,11 +58,19 @@ export default function Login({ setCurrentScreen }) {
                     </View>
 
                     <ButtonLarge title="Connexion" onPress={() => setCurrentScreen('Chat')} />
-                    <Text style={styles.passwordText}>Forgot your password?</Text>
+                    <Text style={[styles.passwordText, 
+                        isTabletPortrait && styles.passwordTextTabletPortrait,
+                        isSmartphone && styles.passwordTextSmartphone]}>Forgot your password?</Text>
                 </View>
                 <View style={styles.contactContainer}>
-                    <Text style={styles.noAccountText}>Don't have an account? </Text>
-                    <Text style={styles.contactText}>Contact us</Text>
+                    <Text style={[
+                        styles.noAccountText,
+                        isSmartphone && styles.textSmartphone
+                    ]}>Don't have an account? </Text>
+                    <Text style={[
+                        styles.contactText,
+                        isSmartphone && styles.textSmartphone
+                    ]}>Contact us</Text>
                 </View>
             </ScrollView>
         </View>
@@ -60,17 +79,40 @@ export default function Login({ setCurrentScreen }) {
 
 const styles = StyleSheet.create({
     pageContainer: {
-        // flex: 1,
-        padding: 20,
+        paddingHorizontal: 20,
+    },
+    pageContainerTablet : {
+        padding: 40,
+        paddingTop: 30,
+    },
+    pageContainerSmartphoneLandscape: {
+        padding: 40,
+        paddingHorizontal: 60,
     },
     loginContainer: {
-        // flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLORS.buttonGray,
         marginTop: 80,
         marginBottom: 50,
         paddingVertical: 20,
+    },
+    loginContainerTabletPortrait: {
+        height: 750,
+        marginTop: 100,
+    },
+    loginContainerTabletLandscape: {
+        height: 600,
+        marginHorizontal: 100,
+        marginTop: 10,
+        paddingVertical: 0,
+    },
+    loginContainerSmartphone: {
+        height: 550,
+        marginBottom: 20,
+    },
+    loginContainerSmartphoneLandscape: {
+        marginTop: 20,
     },
     inputsContainer: {
         width: '90%',
@@ -87,8 +129,17 @@ const styles = StyleSheet.create({
         fontSize: SIZES.fonts.xXLarge,
         fontWeight: SIZES.fontWeight.medium,
         color: "white",
-        marginTop: 50,
-        marginBottom: 50,
+        marginVertical: 40,
+    },
+    titleTabletPortrait: {
+        marginTop: 0,
+    },
+    titleSmartphone: {
+        fontSize: SIZES.fonts.xLarge,
+    },
+    titleSmartphoneLandscape: {
+        marginTop: 20,
+        marginBottom: 20,
     },
     inputTitle: {
         fontSize: SIZES.fonts.medium,
@@ -101,8 +152,15 @@ const styles = StyleSheet.create({
         fontSize: SIZES.fonts.medium,
         fontWeight: SIZES.fontWeight.regular,
         color: COLORS.orange,
-        marginTop: 15,
-        marginBottom: 30,
+        marginVertical: 20,
+    },
+    passwordTextTabletPortrait: {
+        marginTop: 30,
+        marginBottom: 20,
+    },
+    passwordTextSmartphone: {
+        fontSize: SIZES.fonts.small,
+        marginBottom: 20,
     },
     contactContainer: {
         flexDirection: 'row',
@@ -111,12 +169,15 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     noAccountText: {
-      color: COLORS.lightGray,
-      fontSize: SIZES.fonts.medium,
+        color: COLORS.lightGray,
+        fontSize: SIZES.fonts.medium,
     },
     contactText: {
         color: COLORS.orange,
         fontSize: SIZES.fonts.medium,
         textAlign: 'center',
-    }
+    },
+    textSmartphone: {
+        fontSize: SIZES.fonts.small,
+    },
 })
