@@ -5,6 +5,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 
 function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect }) {
+
   const [isGroupExpanded, setIsGroupExpanded] = useState(false);
 
   return (
@@ -47,42 +48,31 @@ function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect 
 }
 
 export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu }) {
-  const { dpWidth, isTablet } = useDeviceType();
-  const sidebarWidth = isTablet ? dpWidth * 0.4 : dpWidth * 2.3;
+
+  const { dpWidth, isTablet, isTabletPortrait, isSmartphone, isSmartphoneLandscape } = useDeviceType();
+
+  const sidebarWidth = isTabletPortrait ? dpWidth * 0.75 : (isTablet ? dpWidth * 0.4 : dpWidth * 2.3);
   const slideAnim = useRef(new Animated.Value(-sidebarWidth)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (isExpanded) {
-      Animated.parallel([
-        Animated.spring(slideAnim, {
-          toValue: 0,
-          useNativeDriver: true,
-          tension: 65,
-          friction: 11
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true
-        })
-      ]).start();
-    } else {
-      Animated.parallel([
-        Animated.spring(slideAnim, {
-          toValue: -sidebarWidth,
-          useNativeDriver: true,
-          tension: 65,
-          friction: 11
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true
-        })
-      ]).start();
-    }
-  }, [isExpanded]);
+    const toValue = isExpanded ? 0 : -sidebarWidth;
+    const opacityValue = isExpanded ? 1 : 0;
+
+    Animated.parallel([
+      Animated.spring(slideAnim, {
+        toValue,
+        useNativeDriver: true,
+        tension: 65,
+        friction: 11
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: opacityValue,
+        duration: 200,
+        useNativeDriver: true
+      })
+    ]).start();
+  }, [isExpanded, sidebarWidth]);
   return (
     <>
       <TouchableOpacity 
@@ -99,8 +89,11 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
       <Animated.View 
         style={[
           styles.sidebar, 
+          isSmartphone && styles.sidebarSmartphone,
+          isSmartphoneLandscape && styles.sidebarSmartphoneLandscape,
+          isTabletPortrait && styles.sidebarTabletPortrait,
+          
           { 
-            width: sidebarWidth,
             transform: [{ translateX: slideAnim }],
           }
         ]}
@@ -175,20 +168,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E1E1E',
     zIndex: 999,
     paddingTop: 80,
-    bottom: 72,
+    bottom: 65,
+    width: '25%',
     borderTopRightRadius: SIZES.borderRadius.small,
     borderBottomRightRadius: SIZES.borderRadius.small,
+  },
+  sidebarSmartphone: {
+    bottom: 56,
+    width: '75%',
+  },
+  sidebarSmartphoneLandscape: {
+    width: '50%',
+  },
+  sidebarTabletPortrait: {
+    width: '50%',
   },
   sidebarHeader: {
     alignItems: 'center',
   },
   inputContainer: {
     width: '85%',
-    backgroundColor: '#313135',
+    backgroundColor: COLORS.sidebarGray,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginVertical: 20,
+    marginBottom: 20,
     borderRadius: SIZES.borderRadius.small,
   },
   searchInput: {
@@ -205,7 +209,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   selectedGroup: {
-    backgroundColor: '#313135',
+    backgroundColor: COLORS.sidebarGray,
     borderRadius: SIZES.borderRadius.small,
     marginBottom: 10,
   },

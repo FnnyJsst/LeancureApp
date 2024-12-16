@@ -29,6 +29,7 @@ export const COLORS = {
   orange: '#FF6600',
   darkGray: '#1a1a1a',
   gray: '#646262',
+  sidebarGray: '#313135',
   lightGray: '#b2b2b2',
   buttonGray: '#27272a',
   headerGray: '#282828',
