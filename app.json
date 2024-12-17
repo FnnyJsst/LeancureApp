@@ -5,6 +5,14 @@
     "version": "1.0.0",
     "orientation": "default",
     "userInterfaceStyle": "light",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "L'application souhaite accéder à vos photos."
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": true
     },

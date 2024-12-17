@@ -13,6 +13,7 @@ import PasswordCheckModal from './components/modals/webviews/PasswordCheckModal'
 import AppMenu from './screens/AppMenu';
 import ChatScreen from './screens/messages/ChatScreen';
 import SettingsMessage from './screens/messages/SettingsMessage';
+import AccountScreen from './screens/messages/AccountScreen';
 
 export default function App() {
 
@@ -263,6 +264,10 @@ export default function App() {
     setCurrentScreen('Chat');
   };
 
+  const navigateToAccount = () => {
+    setCurrentScreen('AccountScreen');
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: '#1E1E1E' }}>
       {currentScreen === 'AppMenu' && (
@@ -296,6 +301,7 @@ export default function App() {
           isExpanded={isExpanded}
           setIsExpanded={setIsExpanded}
           setCurrentScreen={setCurrentScreen}
+          onNavigate={navigateToAccount}
         />
       )}
 
@@ -376,6 +382,12 @@ export default function App() {
           handlePasswordCheck(enteredPassword, callback);
         }}
       />
+
+      {currentScreen === 'AccountScreen' && (
+        <AccountScreen 
+          onBackPress={() => setCurrentScreen('Chat')}
+        />
+      )}
     </View>
   );
 }

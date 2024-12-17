@@ -20,16 +20,16 @@ export default function Navbar({ currentSection, onSectionChange }) {
         style={[styles.navItem, currentSection === 'settings' && styles.active]}
         onPress={() => onSectionChange('settings')}
       >
-        <Ionicons name="settings-outline" size={isSmartphone ? 20 : 24} color={COLORS.lightGray} />
-        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone]}>Settings</Text>
+        <Ionicons name="settings-outline" size={isSmartphone ? 20 : 24} color={currentSection === 'settings' ? COLORS.orange : COLORS.lightGray} />
+        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, currentSection === 'settings' ? {color: COLORS.orange} : {color: COLORS.lightGray}]}>Settings</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={[styles.navItem, currentSection === 'account' && styles.active]}
         onPress={() => onSectionChange('account')}
       >
-        <Ionicons name="person-outline" size={isSmartphone ? 20 : 24} color={COLORS.lightGray} />
-        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone]}>Account</Text>
+        <Ionicons name="person-outline" size={isSmartphone ? 20 : 24} color={currentSection === 'account' ? COLORS.orange : COLORS.lightGray} />
+        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, currentSection === 'account' ? {color: COLORS.orange} : {color: COLORS.lightGray}]}>Account</Text>
       </TouchableOpacity>
     </View>
   );

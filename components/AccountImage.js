@@ -3,47 +3,55 @@ import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { COLORS } from '../assets/styles/constants';
 import { useDeviceType } from '../hooks/useDeviceType';
 
-export default function AccountImage() {
-
+export default function AccountImage({ setCurrentScreen, width, height, customImage }) {
   const { isTablet, isSmartphone } = useDeviceType();
   const [isSelected, setIsSelected] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
 
+  // const imageSize = isTablet ? { width: 60, height: 60 } : { width, height };
 
+  const handlePress = () => {
+    setIsSelected(true);
+    if (setCurrentScreen) {
+      setCurrentScreen('AccountScreen');
+    }
+  };
 
   return (
     <View style={styles.container}>
       <TouchableOpacity 
         style={styles.imageContainer}
-        onPress={() => setIsSelected(true)}
+        onPress={handlePress}
       >
-        <Image source={require('../assets/images/accountimage.png')} 
-          style={[styles.image, 
-          isSmartphone && styles.imageSmartphone,
-          isSelected && styles.selected]} 
+        <Image 
+          source={customImage ? { uri: customImage } : require('../assets/images/accountimage.png')} 
+          style={[
+            styles.image,
+            { width: width, height: height },
+            isSelected && styles.selected
+          ]}
         />
         {isOnline && <View style={styles.onlineIndicator} />}
       </TouchableOpacity>
     </View>
   );
-} 
+}
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.darkGray,
-    height: 100,
-    padding: 10,
+    marginRight: 10,
+  },
+  imageContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   image: {
-    width: 50,
-    height: 50,
     borderRadius: 100,
     borderWidth: 2,
-    position: 'relative',
+    borderColor: COLORS.darkGray,
   },
-  imageSmartphone: {
-    width: 45,
-    height: 45,
+  selected: {
+    borderColor: COLORS.orange,
   },
   onlineIndicator: {
     position: 'absolute',
@@ -53,11 +61,7 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 100,
     backgroundColor: COLORS.green,
-    position: 'absolute',
     borderWidth: 2,
     borderColor: COLORS.darkGray,
-  },
-  selected: {
-    borderColor: COLORS.orange,
   },
 });

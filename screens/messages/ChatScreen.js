@@ -34,7 +34,7 @@ export default function ChatScreen({ isExpanded, setIsExpanded, setCurrentScreen
 
   return (
     <View style={styles.container}>
-      <ChatHeader />
+      <ChatHeader setCurrentScreen={setCurrentScreen}/>
       <Sidebar 
         onChannelSelect={handleChannelSelect}
         selectedGroup={selectedGroup}
