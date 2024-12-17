@@ -35,6 +35,7 @@ export const COLORS = {
   headerGray: '#282828',
   backgroundModal: 'rgba(0,0,0,0.8)',
   error: '#ff4444',
+  green: '#24c12f',
 };
 
 export const MODAL_STYLES = {

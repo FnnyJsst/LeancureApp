@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { COLORS, SIZES } from '../../assets/styles/constants';
+import ChatHeader from './ChatHeader';
 import Separator from '../Separator';
 
 export default function ChatWindow({ channel }) {
   return (
     <View style={styles.container}>
+      <ChatHeader />
       {channel && (
         <>
           <View style={styles.header}>
