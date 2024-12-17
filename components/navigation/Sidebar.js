@@ -5,7 +5,6 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 
 function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect }) {
-
   const [isGroupExpanded, setIsGroupExpanded] = useState(false);
 
   return (
@@ -48,7 +47,6 @@ function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect 
 }
 
 export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu }) {
-
   const { dpWidth, isTablet, isTabletPortrait, isSmartphone, isSmartphoneLandscape } = useDeviceType();
 
   const sidebarWidth = isTabletPortrait ? dpWidth * 0.75 : (isTablet ? dpWidth * 0.4 : dpWidth * 2.3);
@@ -73,31 +71,40 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
       })
     ]).start();
   }, [isExpanded, sidebarWidth]);
+
   return (
     <>
-      <TouchableOpacity 
-        style={[styles.menuButton, isSmartphone && {top: 90}]}
+      {/* <TouchableOpacity 
         onPress={toggleMenu}
+        style={styles.menuButton}
       >
         <Ionicons 
-          name={isExpanded ? "close" : "menu"} 
+          name="menu"
           size={30} 
           color={COLORS.lightGray} 
         />
-      </TouchableOpacity>
-
+      </TouchableOpacity> */}
       <Animated.View 
         style={[
           styles.sidebar, 
           isSmartphone && styles.sidebarSmartphone,
           isSmartphoneLandscape && styles.sidebarSmartphoneLandscape,
           isTabletPortrait && styles.sidebarTabletPortrait,
-          
           { 
             transform: [{ translateX: slideAnim }],
           }
         ]}
       >
+        <TouchableOpacity 
+          onPress={toggleMenu}
+          style={styles.closeButton}
+        >
+          <Ionicons 
+            name="close"
+            size={30} 
+            color={COLORS.lightGray} 
+          />
+        </TouchableOpacity>
         <View style={styles.sidebarHeader}>
           <View style={styles.inputContainer}>
             <TextInput 
@@ -148,10 +155,9 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
 
 const styles = StyleSheet.create({
   menuButton: {
-    position: 'absolute',
-    top: 100,
-    left: 20,
-    zIndex: 1000,
+    top: -25,
+    zIndex: 999,
+    padding: 10,
   },
   overlay: {
     position: 'absolute',
@@ -172,6 +178,13 @@ const styles = StyleSheet.create({
     width: '25%',
     borderTopRightRadius: SIZES.borderRadius.small,
     borderBottomRightRadius: SIZES.borderRadius.small,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 1000,
+    padding: 10,
   },
   sidebarSmartphone: {
     bottom: 56,

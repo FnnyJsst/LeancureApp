@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, View, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
-import InputModal from '../../InputModal';
+import InputModal from '../../inputs/InputModal';
 import TitleModal from '../../text/TitleModal';
 import CustomAlert from '../../CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType';

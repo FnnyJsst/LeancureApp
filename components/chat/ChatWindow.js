@@ -1,33 +1,43 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../../assets/styles/constants';
-import ChatHeader from './ChatHeader';
+import { Ionicons } from '@expo/vector-icons';
 import Separator from '../Separator';
+import InputChatWindow from '../inputs/InputChatWindow';
 
-export default function ChatWindow({ channel }) {
+export default function ChatWindow({ channel, toggleMenu, isExpanded }) {
   return (
     <View style={styles.container}>
-      <ChatHeader />
-      {channel && (
-        <>
-          <View style={styles.header}>
-            <View style={styles.channelNameContainer}>
-              <Separator width="110%" marginTop={0} marginBottom={0} /> 
-              <Text style={styles.channelName}>{channel}</Text>
-            </View>
+      <View style={styles.header}>
+        <TouchableOpacity 
+          onPress={toggleMenu}
+          style={styles.menuButton}
+        >
+          <Ionicons 
+            name="menu"
+            size={30} 
+            color={COLORS.lightGray} 
+          />
+        </TouchableOpacity>
+        {channel && (
+          <View style={styles.channelNameContainer}>
+            <Text style={styles.channelName}>{channel}</Text>
           </View>
-          <Separator width="100%" marginTop={0} marginBottom={0} />
-        </>
-      )}
+        )}
+      </View>
+      <Separator width="100%" marginTop={0} marginBottom={0} />
       <ScrollView style={styles.chatContainer}>
         {channel ? (
-          <Text style={styles.placeholder}>Messages will appear here</Text>
+          <>
+            <Text style={styles.placeholder}>Messages will appear here</Text>
+          </> 
         ) : (
           <View style={styles.noChannelContainer}>
             <Text style={styles.noChannelText}>Select a channel to start chatting</Text>
           </View>
         )}
       </ScrollView>
+      { channel && <InputChatWindow /> }
     </View>
   );
 }
@@ -36,23 +46,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.darkGray,
+    marginTop: -28,
   },
   header: {
-    padding: 20,
-    paddingTop: 60,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  menuButton: {
+    padding: 10,
   },
   channelNameContainer: {
-    gap: 15  ,
-    marginTop: 10,
+    marginLeft: 20,
   },
   channelName: {
     fontSize: SIZES.fonts.large,
     color: COLORS.lightGray,
-    marginLeft: 40, 
   },
   chatContainer: {
     flex: 1,
     padding: 20,
+    marginBottom: 10,
   },
   placeholder: {
     color: COLORS.gray,

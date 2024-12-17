@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, View, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
-import InputModal from '../../InputModal';
+import InputModal from '../../inputs/InputModal';
 import CustomAlert from '../../CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType'; 
 import { COLORS, MODAL_STYLES } from '../../../assets/styles/constants';
