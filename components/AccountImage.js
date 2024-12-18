@@ -3,7 +3,7 @@ import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { COLORS } from '../assets/styles/constants';
 import { useDeviceType } from '../hooks/useDeviceType';
 
-export default function AccountImage({ setCurrentScreen, width, height, customImage }) {
+export default function AccountImage({ setCurrentScreen, width, height, customImage, alwaysSelected }) {
   const { isTablet, isSmartphone } = useDeviceType();
   const [isSelected, setIsSelected] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
@@ -28,7 +28,7 @@ export default function AccountImage({ setCurrentScreen, width, height, customIm
           style={[
             styles.image,
             { width: width, height: height },
-            isSelected && styles.selected
+            (isSelected || alwaysSelected) && styles.selected
           ]}
         />
         {isOnline && <View style={styles.onlineIndicator} />}
@@ -42,12 +42,13 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   imageContainer: {
+    position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
   },
   image: {
     borderRadius: 100,
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: COLORS.darkGray,
   },
   selected: {

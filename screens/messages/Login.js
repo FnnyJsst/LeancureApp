@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
         paddingTop: 30,
     },
     pageContainerSmartphoneLandscape: {
-        padding: 40,
         paddingHorizontal: 60,
     },
     loginContainer: {

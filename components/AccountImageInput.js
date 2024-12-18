@@ -49,16 +49,17 @@ const styles = StyleSheet.create({
   },
   pickButton: {
     position: 'absolute',
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     borderRadius: 50,
     overflow: 'hidden',
-    right: 0,
-    bottom: 0,
+    left: 10,
+    bottom: 30,
   },
   pickButtonSmartphone: {
-    width: 30,
-    height: 30,
+    width: 40,
+    height: 40,
+    bottom: 10,
   },
   image: {
     width: '100%',
