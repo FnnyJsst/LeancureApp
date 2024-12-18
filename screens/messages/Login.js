@@ -3,6 +3,7 @@ import ButtonLarge from '../../components/buttons/ButtonLarge';
 import InputLogin from '../../components/InputLogin';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 import { useDeviceType } from '../../hooks/useDeviceType';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Login({ setCurrentScreen }) {
 
@@ -12,12 +13,14 @@ export default function Login({ setCurrentScreen }) {
         <View style={[styles.pageContainer, 
             isTablet && styles.pageContainerTablet,
             isSmartphoneLandscape && styles.pageContainerSmartphoneLandscape]}>
+           
             <ScrollView>
                 <View style={[styles.loginContainer, 
                     isTabletPortrait && styles.loginContainerTabletPortrait,
                     isTabletLandscape && styles.loginContainerTabletLandscape,
                     isSmartphone && styles.loginContainerSmartphone,
                     isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape]}>
+                    <Ionicons name="arrow-back-outline" style={styles.backButton} onPress={() => setCurrentScreen('AppMenu')} />
                     <Text style={[styles.title, 
                         isTabletPortrait && styles.titleTabletPortrait,
                         isSmartphone && styles.titleSmartphone,
@@ -87,6 +90,15 @@ const styles = StyleSheet.create({
     },
     pageContainerSmartphoneLandscape: {
         paddingHorizontal: 60,
+    },
+    backButton: {
+        color: COLORS.lightGray,
+        fontSize: SIZES.fonts.xLarge,
+
+        position: 'absolute',
+        top: 20,
+        left: 20,
+        fontSize: 30,
     },
     loginContainer: {
         justifyContent: 'center',

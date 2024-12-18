@@ -1,34 +1,28 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import Login from './messages/Login';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet } from 'react-native';
+import MenuButton from '../components/buttons/ButtonMenu';
 import { COLORS, SIZES } from '../assets/styles/constants';
+import { useDeviceType } from '../hooks/useDeviceType';
 
 export default function AppMenu({ onNavigate }) {
+
+  const { isLandscape } = useDeviceType();
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome</Text>
-      <TouchableOpacity 
-        style={styles.menuItem} 
-        onPress={() => onNavigate('Login')}
-      >
-        <View style={styles.iconContainer}>
-          <Ionicons name="mail-outline" style={styles.icon}/>
-          <Text style={styles.menuText}>Messages</Text>
-        </View>
-      </TouchableOpacity>
-      
-      
-        <TouchableOpacity 
-            style={styles.menuItem} 
-            onPress={() => onNavigate('WebViewsSection')}
-        >
-        <View style={styles.iconContainer}>
-          <Ionicons name="tv-outline" style={styles.icon}/>
-          <Text style={styles.menuText}>WebViews</Text>
-        </View>
-        
-      </TouchableOpacity>
+      <MenuButton 
+        icon="mail-outline" 
+        text="Messages" 
+        onPress={() => onNavigate('Login')} 
+        isLandscape={isLandscape}
+      />  
+      <MenuButton 
+        icon="tv-outline" 
+        text="WebViews" 
+        onPress={() => onNavigate('WebViewsSection')} 
+        isLandscape={isLandscape}
+      />
     </View>
   );
 }
@@ -46,26 +40,5 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.xXLarge,
     fontWeight: SIZES.fontWeight.medium,
     paddingVertical: 20, 
-  },
-  menuItem: {
-    backgroundColor: COLORS.buttonGray,
-    padding: 25,
-    borderRadius: SIZES.borderRadius.large,
-    width: '60%',
-    alignItems: 'center',
-  },
-  menuText: {
-    color: "white",
-    fontSize: SIZES.fonts.large,
-    fontWeight: SIZES.fontWeight.medium,
-  },
-  iconContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 25,
-  },
-  icon: {
-    color: COLORS.orange,
-    fontSize: SIZES.fonts.xLarge,
   },
 });

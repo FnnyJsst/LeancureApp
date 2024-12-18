@@ -25,16 +25,13 @@ export default function ChatScreen({ isExpanded, setIsExpanded, setCurrentScreen
   const handleSectionChange = (section) => {
     if (section === 'chat') {
       setCurrentSection('chat');
-      // setCurrentScreen('Chat');
     } else if (section === 'settings') {
       setCurrentSection('settings');
       setCurrentScreen('SettingsMessage');
     } else if (section === 'account') {
       setCurrentSection('account');
       setCurrentScreen('AccountScreen');
-    } else {
-      setCurrentSection(section);
-    }
+    } 
   };
 
 

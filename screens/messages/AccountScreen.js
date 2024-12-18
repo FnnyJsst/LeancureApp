@@ -15,12 +15,14 @@ export default function AccountScreen({ setCurrentScreen }) {
   const [profileImage, setProfileImage] = useState(null);
 
   const handleSectionChange = (section) => {
-    if (section === 'settings') {
-      setCurrentScreen('SettingsMessage');
-    } else if (section === 'chat') {
+    if (section === 'chat') {
       setCurrentScreen('Chat');
+    } else if (section === 'account') {
+      setCurrentScreen('AccountScreen');
+    } else if (section === 'settings') {
+      setCurrentScreen('SettingsMessage');
     }
-  }
+  };
 
   return (
     <View style={styles.container}>

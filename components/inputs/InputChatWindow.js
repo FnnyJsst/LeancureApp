@@ -4,7 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as DocumentPicker from 'expo-document-picker';
+
 export default function InputChatWindow() {
+  
   const { isSmartphone, isTablet } = useDeviceType();
 
   const [message, setMessage] = useState('');

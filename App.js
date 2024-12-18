@@ -17,6 +17,7 @@ import AccountScreen from './screens/messages/AccountScreen';
 
 export default function App() {
 
+  //States related to the webviews
   const [currentScreen, setCurrentScreen] = useState('NoUrlScreen');
   const [isLoading, setIsLoading] = useState(true);
   const [channels, setChannels] = useState([]);
@@ -29,8 +30,10 @@ export default function App() {
   const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
   const [passwordCheckModalVisible, setPasswordCheckModalVisible] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(false);
+  
+  //States related to the chat
   const [isExpanded, setIsExpanded] = useState(false);
-  const [currentSection, setCurrentSection] = useState('AppMenu');
+  
   const toggleReadOnly = (value) => {
     setIsReadOnly(value !== undefined ? value : !isReadOnly);
   };
@@ -287,31 +290,8 @@ export default function App() {
           }} 
         />
       )}
-  
-      {currentScreen === 'Login' && (
-        <Login 
-          onBackPress={() => setCurrentScreen('AppMenu')}
-          setCurrentScreen={setCurrentScreen}  
-        />
-      )}
 
-      {currentScreen === 'Chat' && (
-        <ChatScreen 
-          onBackPress={() => setCurrentScreen('AppMenu')}
-          isExpanded={isExpanded}
-          setIsExpanded={setIsExpanded}
-          setCurrentScreen={setCurrentScreen}
-          onNavigate={navigateToAccount}
-        />
-      )}
-
-      {currentScreen === 'SettingsMessage' && (
-        <SettingsMessage 
-          onBackPress={handleBackToChat}
-          setCurrentScreen={setCurrentScreen}
-        />
-      )}
-  
+      {/* Screen related to the webviews */}
       {currentScreen === 'NoUrlScreen' && 
       <NoUrlScreen 
         onNavigate={handleSettingsAccess}
@@ -384,13 +364,35 @@ export default function App() {
         }}
       />
 
+      {/* Screen related to the chat */}
+      {currentScreen === 'Login' && (
+        <Login 
+          onBackPress={() => setCurrentScreen('AppMenu')}
+          setCurrentScreen={setCurrentScreen}  
+        />
+      )}
       {currentScreen === 'AccountScreen' && (
         <AccountScreen 
           onBackPress={() => setCurrentScreen('Chat')}
           setCurrentScreen={setCurrentScreen}
         />
       )}
+            {currentScreen === 'Chat' && (
+        <ChatScreen 
+          onBackPress={() => setCurrentScreen('AppMenu')}
+          isExpanded={isExpanded}
+          setIsExpanded={setIsExpanded}
+          setCurrentScreen={setCurrentScreen}
+          onNavigate={navigateToAccount}
+        />
+      )}
 
+      {currentScreen === 'SettingsMessage' && (
+        <SettingsMessage 
+          onBackPress={handleBackToChat}
+          setCurrentScreen={setCurrentScreen}
+        />
+      )}
     </View>
   );
 }

@@ -59,3 +59,18 @@ export const MODAL_STYLES = {
     marginTop: 10,
   },
 };
+
+export const SCREENS = {
+  APP_MENU: 'AppMenu',
+  // Webviews screens
+  NO_URL: 'NoUrlScreen',
+  SETTINGS: 'SettingsScreen',
+  CHANNELS_MANAGEMENT: 'ChannelsManagementScreen',
+  CHANNELS_LIST: 'ChannelsListScreen',
+  WEBVIEW: 'WebViewScreen',
+  // Messages screens
+  LOGIN: 'Login',
+  CHAT: 'Chat',
+  SETTINGS_MESSAGE: 'SettingsMessage',
+  ACCOUNT: 'AccountScreen',
+};
