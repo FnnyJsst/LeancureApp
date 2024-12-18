@@ -3,7 +3,7 @@ import { COLORS, SIZES } from '../assets/styles/constants';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useDeviceType } from '../hooks/useDeviceType';
 
-export default function AccountCard() {
+export default function Card() {
   const { isSmartphone } = useDeviceType();
 
   return (

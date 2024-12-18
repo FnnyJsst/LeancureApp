@@ -4,15 +4,23 @@ import Navbar from '../../components/navigation/Navbar';
 import AccountImage from '../../components/AccountImage';
 import AccountImageInput from '../../components/AccountImageInput';
 import Button from '../../components/buttons/Button';
-import AccountCard from '../../components/AccountCard';
+import Card from '../../components/Card';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 
 
-export default function AccountScreen() {
+export default function AccountScreen({ setCurrentScreen }) {
   
   const { isTablet, isSmartphone } = useDeviceType();
   const [profileImage, setProfileImage] = useState(null);
+
+  const handleSectionChange = (section) => {
+    if (section === 'settings') {
+      setCurrentScreen('SettingsMessage');
+    } else if (section === 'chat') {
+      setCurrentScreen('Chat');
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -29,8 +37,8 @@ export default function AccountScreen() {
             <Text style={[styles.accountName, isSmartphone && styles.accountNameSmartphone]}>John Doe</Text>
             <Text style={[styles.accountJobTitle, isSmartphone && styles.accountJobTitleSmartphone]}>Technician</Text>
           </View>
-          <AccountCard />
-          <AccountCard />
+          <Card />
+          <Card />
           <View style={[styles.buttonContainer, isSmartphone && styles.buttonContainerSmartphone]}>
             <Button 
               title="Edit" 
@@ -44,7 +52,7 @@ export default function AccountScreen() {
       </ScrollView>
       <Navbar 
         currentSection='account' 
-        onSectionChange={() => {}}
+        onSectionChange={handleSectionChange}
       />
     </View>
   )

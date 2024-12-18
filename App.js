@@ -308,6 +308,7 @@ export default function App() {
       {currentScreen === 'SettingsMessage' && (
         <SettingsMessage 
           onBackPress={handleBackToChat}
+          setCurrentScreen={setCurrentScreen}
         />
       )}
   
@@ -386,8 +387,10 @@ export default function App() {
       {currentScreen === 'AccountScreen' && (
         <AccountScreen 
           onBackPress={() => setCurrentScreen('Chat')}
+          setCurrentScreen={setCurrentScreen}
         />
       )}
+
     </View>
   );
 }
