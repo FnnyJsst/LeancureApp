@@ -19,7 +19,8 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
       if (result.assets && result.assets.length > 0) {
         const file = result.assets[0];
         console.log('Fichier sélectionné:', file);
-        // TODO: Gérer l'envoi du fichier
+        // Upload file logic
+        
       }
     } catch (error) {
       console.error('Erreur lors de la sélection du document:', error);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +24,8 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
     }
   ]);
 
+  const ScrollViewRef = useRef();
+
   const sendMessage = (text) => {
     const newMessage = {
       id: messages.length + 1,
@@ -33,6 +35,12 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
       isOwnMessage: true
     };
     setMessages([...messages, newMessage]);
+
+    setTimeout(() => {
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollToEnd({ animated: true });
+      }
+    }, 100);
   };
 
   return (
@@ -48,7 +56,11 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
         )}
       </View>
       <Separator width="100%" marginTop={0} marginBottom={0} />
-      <ScrollView style={styles.chatContainer}>
+      <ScrollView 
+        ref={ScrollViewRef}
+        //When the content size changes, scroll to the bottom of the scrollview to read new messages
+        onContentSizeChange={() => ScrollViewRef.current.scrollToEnd({ animated: true })}
+        style={styles.chatContainer}>
         {channel ? (
           messages.map(message => (
             <ChatMessage 
