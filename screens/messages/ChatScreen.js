@@ -10,6 +10,7 @@ export default function ChatScreen({ isExpanded, setIsExpanded, setCurrentScreen
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [currentSection, setCurrentSection] = useState('chat');
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const toggleMenu = () => {
     setIsExpanded(!isExpanded);
@@ -50,11 +51,14 @@ export default function ChatScreen({ isExpanded, setIsExpanded, setCurrentScreen
           channel={selectedChannel}
           toggleMenu={toggleMenu}
           isExpanded={isExpanded}
+          onInputFocusChange={setIsInputFocused}
         />
-        <Navbar 
-          currentSection={currentSection}
-          onSectionChange={handleSectionChange}
-        />
+       {!isInputFocused && (
+         <Navbar 
+           currentSection={currentSection}
+           onSectionChange={handleSectionChange}
+         />
+       )}
       </View>
     </View>
   );

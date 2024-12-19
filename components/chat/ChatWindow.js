@@ -6,7 +6,7 @@ import Separator from '../Separator';
 import InputChatWindow from '../inputs/InputChatWindow';
 import ChatMessage from './ChatMessage';
 
-export default function ChatWindow({ channel, toggleMenu }) {
+export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) {
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -63,7 +63,10 @@ export default function ChatWindow({ channel, toggleMenu }) {
           </View>
         )}
       </ScrollView>
-      {channel && <InputChatWindow onSendMessage={sendMessage} />}
+      {channel && <InputChatWindow 
+       onSendMessage={sendMessage} 
+       onFocusChange={onInputFocusChange}
+     />}
     </View>
   );
 }

@@ -5,7 +5,7 @@ import { COLORS, SIZES } from '../../assets/styles/constants';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as DocumentPicker from 'expo-document-picker';
 
-export default function InputChatWindow({ onSendMessage }) {
+export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   const [message, setMessage] = useState('');
   const { isSmartphone } = useDeviceType();
 
@@ -24,6 +24,15 @@ export default function InputChatWindow({ onSendMessage }) {
     } catch (error) {
       console.error('Erreur lors de la sélection du document:', error);
     }
+  };
+
+  const handleFocus = () => {
+    // Inform parent that the input is focused
+    onFocusChange(true);
+  };
+   const handleBlur = () => {
+    // Inform parent that the input is not focused
+    onFocusChange(false);
   };
 
   const handleSend = () => {
@@ -50,6 +59,8 @@ export default function InputChatWindow({ onSendMessage }) {
         value={message}
         onChangeText={setMessage}
         multiline
+        onFocus={handleFocus}
+        onBlur={handleBlur}
       />
       <TouchableOpacity 
         style={[styles.sendButton, isSmartphone && styles.smartphoneSendButton]}
