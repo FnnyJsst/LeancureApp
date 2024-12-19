@@ -9,18 +9,34 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   const [message, setMessage] = useState('');
   const { isSmartphone } = useDeviceType();
 
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: '*/*',
-        multiple: true,
+        multiple: false,
       });
-
+  
       if (result.assets && result.assets.length > 0) {
         const file = result.assets[0];
-        console.log('Fichier sélectionné:', file);
-        // Upload file logic
+        const fileSize = formatFileSize(file.size);
         
+        // Créer un message de type fichier
+        const fileMessage = {
+          type: 'file',Name: file.name,
+          fileSize: fileSize,
+          fileType: file.mimeType,
+          uri: file.uri
+        };
+        
+        onSendMessage(fileMessage);
       }
     } catch (error) {
       console.error('Erreur lors de la sélection du document:', error);

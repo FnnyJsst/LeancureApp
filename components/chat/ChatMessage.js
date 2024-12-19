@@ -1,7 +1,24 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { COLORS, SIZES } from "../../assets/styles/constants";
+import { Ionicons } from '@expo/vector-icons';
 
 export default function ChatMessage({ message, isOwnMessage }) {
+
+  if (message.type === 'file') {
+    return (
+      <View style={[styles.messageContainer, isOwnMessage ? styles.ownMessage : styles.otherMessage]}>
+        <TouchableOpacity onPress={() => handleFileOpen(message.fileUrl)}>
+          <View style={styles.fileContent}>
+            <Ionicons name="document-outline" size={24} color={COLORS.lightGray} />
+            <Text style={styles.fileName}>{message.fileName}</Text>
+            <Text style={styles.fileSize}>{message.fileSize}</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+
   return (
     <View style={[
       styles.messageContainer,

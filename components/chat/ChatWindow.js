@@ -7,6 +7,15 @@ import InputChatWindow from '../inputs/InputChatWindow';
 import ChatMessage from './ChatMessage';
 
 export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) {
+
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const messageTypes = {
+    TEXT: 'text',
+    FILE: 'file'
+  }
+
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -23,17 +32,50 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
       isOwnMessage: true
     }
   ]);
+  
+  //Structure of a message with a file
+  const fileMessage = {
+    id: 1,
+    username: "Moi",
+    type: messageTypes.FILE,
+    fileName: "document.pdf",
+    fileUrl: "url_du_fichier",
+    fileSize: "1.2 MB",
+    fileType: "application/pdf",
+    timestamp: "10:30",
+    isOwnMessage: true
+  };
 
-  const ScrollViewRef = useRef();
+  const onChangeText = (text) => {
+    setMessage(text);
+    setIsInputFocused(text.length > 0);
+  };
 
-  const sendMessage = (text) => {
+  const groupMessagesByDate = (messages) => {
+    return messages.reduce((groups, message) => {
+      const date = new Date(message.timestamp).toLocaleDateString();
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(message);
+      return groups;
+    }, {});
+  };
+
+  const scrollViewRef = useRef();
+
+  const sendMessage = (messageData) => {
     const newMessage = {
       id: messages.length + 1,
       username: "Moi",
-      text: text,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isOwnMessage: true
+      isOwnMessage: true,
+      ...(typeof messageData === 'string' 
+        ? { type: 'text', text: messageData }
+        : { type: 'file', ...messageData }
+      )
     };
+    
     setMessages([...messages, newMessage]);
 
     setTimeout(() => {
@@ -57,9 +99,9 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
       </View>
       <Separator width="100%" marginTop={0} marginBottom={0} />
       <ScrollView 
-        ref={ScrollViewRef}
+        ref={scrollViewRef}
         //When the content size changes, scroll to the bottom of the scrollview to read new messages
-        onContentSizeChange={() => ScrollViewRef.current.scrollToEnd({ animated: true })}
+        onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
         style={styles.chatContainer}>
         {channel ? (
           messages.map(message => (
