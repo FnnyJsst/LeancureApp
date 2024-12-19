@@ -5,11 +5,24 @@ import { Ionicons } from '@expo/vector-icons';
 import Separator from '../Separator';
 import InputChatWindow from '../inputs/InputChatWindow';
 import ChatMessage from './ChatMessage';
+import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 
 export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) {
 
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [message, setMessage] = useState('');
+  const [isDocumentPreviewModalVisible, setIsDocumentPreviewModalVisible] = useState(false);
+  const [selectedFileUrl, setSelectedFileUrl] = useState(null);
+
+  const openDocumentPreviewModal = (fileUrl) => {
+    setIsDocumentPreviewModalVisible(true);
+    setSelectedFileUrl(fileUrl);
+  };
+
+  const closeDocumentPreviewModal = () => {
+    setIsDocumentPreviewModalVisible(false);
+    setSelectedFileUrl(null);
+  };
 
   const messageTypes = {
     TEXT: 'text',
@@ -109,6 +122,7 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
               key={message.id}
               message={message}
               isOwnMessage={message.isOwnMessage}
+              onFileClick={openDocumentPreviewModal}
             />
           ))
         ) : (
@@ -117,6 +131,11 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
           </View>
         )}
       </ScrollView>
+      <DocumentPreviewModal
+        visible={isDocumentPreviewModalVisible}
+        onClose={closeDocumentPreviewModal}
+        fileUrl={selectedFileUrl}
+      />
       {channel && <InputChatWindow 
        onSendMessage={sendMessage} 
        onFocusChange={onInputFocusChange}
