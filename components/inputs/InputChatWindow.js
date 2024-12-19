@@ -5,11 +5,9 @@ import { COLORS, SIZES } from '../../assets/styles/constants';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as DocumentPicker from 'expo-document-picker';
 
-export default function InputChatWindow() {
-  
-  const { isSmartphone, isTablet } = useDeviceType();
-
+export default function InputChatWindow({ onSendMessage }) {
   const [message, setMessage] = useState('');
+  const { isSmartphone } = useDeviceType();
 
   const pickDocument = async () => {
     try {
@@ -21,19 +19,22 @@ export default function InputChatWindow() {
       if (result.assets && result.assets.length > 0) {
         const file = result.assets[0];
         console.log('Fichier sélectionné:', file);
-        //UPLOAD FILE LOGIC : 
+        // TODO: Gérer l'envoi du fichier
       }
     } catch (error) {
-      console.error(error);
+      console.error('Erreur lors de la sélection du document:', error);
     }
-  }
+  };
+
+  const handleSend = () => {
+    if (message.trim()) {
+      onSendMessage(message);
+      setMessage('');
+    }
+  };
 
   return (
-    <View style={[
-      styles.container, 
-      isSmartphone && styles.smartphoneContainer, 
-      isTablet && styles.tabletContainer
-    ]}>
+    <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
       <TouchableOpacity onPress={pickDocument}>
         <Ionicons 
           name="attach-outline" 
@@ -50,7 +51,10 @@ export default function InputChatWindow() {
         onChangeText={setMessage}
         multiline
       />
-      <TouchableOpacity style={[styles.sendButton, isSmartphone && styles.smartphoneSendButton]}>
+      <TouchableOpacity 
+        style={[styles.sendButton, isSmartphone && styles.smartphoneSendButton]}
+        onPress={handleSend}
+      >
         <Ionicons name="send" size={isSmartphone ? 20 : 24} color={'white'} />
       </TouchableOpacity>
     </View>

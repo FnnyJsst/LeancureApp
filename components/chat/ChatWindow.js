@@ -1,23 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 import { Ionicons } from '@expo/vector-icons';
 import Separator from '../Separator';
 import InputChatWindow from '../inputs/InputChatWindow';
+import ChatMessage from './ChatMessage';
 
-export default function ChatWindow({ channel, toggleMenu, isExpanded }) {
+export default function ChatWindow({ channel, toggleMenu }) {
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      username: "John Doe",
+      text: "Bonjour, comment ça va ?",
+      timestamp: "10:30",
+      isOwnMessage: false
+    },
+    {
+      id: 2,
+      username: "Moi",
+      text: "Très bien, merci !",
+      timestamp: "10:31",
+      isOwnMessage: true
+    }
+  ]);
+
+  const sendMessage = (text) => {
+    const newMessage = {
+      id: messages.length + 1,
+      username: "Moi",
+      text: text,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isOwnMessage: true
+    };
+    setMessages([...messages, newMessage]);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={toggleMenu}
-          style={styles.menuButton}
-        >
-          <Ionicons 
-            name="menu"
-            size={30} 
-            color={COLORS.lightGray} 
-          />
+        <TouchableOpacity onPress={toggleMenu} style={styles.menuButton}>
+          <Ionicons name="menu" size={30} color={COLORS.lightGray} />
         </TouchableOpacity>
         {channel && (
           <View style={styles.channelNameContainer}>
@@ -28,16 +50,20 @@ export default function ChatWindow({ channel, toggleMenu, isExpanded }) {
       <Separator width="100%" marginTop={0} marginBottom={0} />
       <ScrollView style={styles.chatContainer}>
         {channel ? (
-          <>
-            <Text style={styles.placeholder}>Messages will appear here</Text>
-          </> 
+          messages.map(message => (
+            <ChatMessage 
+              key={message.id}
+              message={message}
+              isOwnMessage={message.isOwnMessage}
+            />
+          ))
         ) : (
           <View style={styles.noChannelContainer}>
             <Text style={styles.noChannelText}>Select a channel to start chatting</Text>
           </View>
         )}
       </ScrollView>
-      { channel && <InputChatWindow /> }
+      {channel && <InputChatWindow onSendMessage={sendMessage} />}
     </View>
   );
 }

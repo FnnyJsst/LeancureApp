@@ -93,12 +93,10 @@ const styles = StyleSheet.create({
     },
     backButton: {
         color: COLORS.lightGray,
-        fontSize: SIZES.fonts.xLarge,
-
+        fontSize: SIZES.fonts.xXLarge,
         position: 'absolute',
         top: 20,
         left: 20,
-        fontSize: 30,
     },
     loginContainer: {
         justifyContent: 'center',
