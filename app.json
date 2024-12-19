@@ -22,7 +22,8 @@
       },
       "permissions": [
         "INTERNET",
-        "RECEIVE_BOOT_COMPLETED"
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
       ],
       "package": "com.fnnyjsst.react_native"
     },

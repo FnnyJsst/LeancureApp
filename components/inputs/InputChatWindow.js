@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
 
 export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   const [message, setMessage] = useState('');
@@ -17,6 +18,25 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  // const pickDocument = async () => {
+  //   try {
+  //     const result = await DocumentPicker.getDocumentAsync({
+  //       type: '*/*',
+  //       multiple: false,
+  //     });
+  
+  //     if (result.assets && result.assets.length > 0) {
+  //       const file = result.assets[0];
+  //       const fileSize = formatFileSize(file.size);
+        
+  //       // Créer un message de type fichier
+  //       const fileMessage = {
+  //         type: 'file',Name: file.name,
+  //         fileSize: fileSize,
+  //         fileType: file.mimeType,
+  //         uri: file.uri
+  //       };
+
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -28,13 +48,20 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         const file = result.assets[0];
         const fileSize = formatFileSize(file.size);
         
-        // Créer un message de type fichier
+        // Convertir le fichier en base64
+        const base64 = await FileSystem.readAsStringAsync(file.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        
         const fileMessage = {
-          type: 'file',Name: file.name,
+          type: 'file',
+          fileName: file.name,
           fileSize: fileSize,
           fileType: file.mimeType,
-          uri: file.uri
+          uri: file.uri,
+          base64: base64
         };
+        
         
         onSendMessage(fileMessage);
       }

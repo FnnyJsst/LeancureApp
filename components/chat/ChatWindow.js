@@ -13,10 +13,18 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
   const [message, setMessage] = useState('');
   const [isDocumentPreviewModalVisible, setIsDocumentPreviewModalVisible] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState(null);
+  const [selectedFileName, setSelectedFileName] = useState(null);
+  const [selectedFileSize, setSelectedFileSize] = useState(null);
+  const [selectedFileType, setSelectedFileType] = useState(null);
+  const [selectedBase64, setSelectedBase64] = useState(null);
 
-  const openDocumentPreviewModal = (fileUrl) => {
+  const openDocumentPreviewModal = (message) => {
     setIsDocumentPreviewModalVisible(true);
-    setSelectedFileUrl(fileUrl);
+    setSelectedFileUrl(message.uri);
+    setSelectedFileName(message.fileName);
+    setSelectedFileSize(message.fileSize);
+    setSelectedFileType(message.fileType);
+    setSelectedBase64(message.base64);
   };
 
   const closeDocumentPreviewModal = () => {
@@ -135,6 +143,10 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
         visible={isDocumentPreviewModalVisible}
         onClose={closeDocumentPreviewModal}
         fileUrl={selectedFileUrl}
+        fileName={selectedFileName}
+        fileSize={selectedFileSize}
+        fileType={selectedFileType}
+        base64={selectedBase64}
       />
       {channel && <InputChatWindow 
        onSendMessage={sendMessage} 

@@ -7,7 +7,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
   if (message.type === 'file') {
     return (
       <View style={[styles.messageContainer, isOwnMessage ? styles.ownMessage : styles.otherMessage]}>
-        <TouchableOpacity onPress={() => onFileClick(message.uri)}>
+        <TouchableOpacity onPress={() => onFileClick(message)}>
           <View style={styles.fileContent}>
             <Ionicons name="document-outline" size={24} color={COLORS.lightGray} />
             <Text style={styles.fileName}>{message.fileName}</Text>
