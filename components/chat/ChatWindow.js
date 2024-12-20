@@ -6,8 +6,10 @@ import Separator from '../Separator';
 import InputChatWindow from '../inputs/InputChatWindow';
 import ChatMessage from './ChatMessage';
 import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
-
+import { useDeviceType } from '../../hooks/useDeviceType';
 export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) {
+
+  const { isTabletLandscape } = useDeviceType();
 
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [message, setMessage] = useState('');
@@ -123,7 +125,7 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
         ref={scrollViewRef}
         //When the content size changes, scroll to the bottom of the scrollview to read new messages
         onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
-        style={styles.chatContainer}>
+        style={[styles.chatContainer, isTabletLandscape && styles.chatContainerTabletLandscape]}>
         {channel ? (
           messages.map(message => (
             <ChatMessage 
@@ -181,6 +183,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     marginBottom: 10,
+  },
+  chatContainerTabletLandscape: {
+    padding: 20,
   },
   placeholder: {
     color: COLORS.gray,

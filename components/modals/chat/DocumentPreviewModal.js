@@ -11,7 +11,7 @@ import { useDeviceType } from "../../../hooks/useDeviceType";
 /** Component for previewing a document sent in a chat **/
 export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileName, fileSize, fileType, base64 }) {
 
-  const { isSmartphone, isTabletLandscape } = useDeviceType();
+  const { isSmartphone, isTabletLandscape, isSmartphonePortrait } = useDeviceType();
 
   // Définir handleDownload dans le composant principal
   const handleDownload = async () => {
@@ -187,7 +187,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
             </View>
           ) : (
             <>
-              <View style={styles.previewContainer}>
+              <View style={[styles.previewContainer, isSmartphonePortrait && styles.previewContainerSmartphonePortrait]}>
                 {renderPreview()}
               </View>
               <View style={[styles.buttonContainer, isTabletLandscape && styles.buttonContainerTabletLandscape]}>
@@ -268,6 +268,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginVertical: 10,
     marginHorizontal: 10,
+  },
+  previewContainerSmartphonePortrait: {
+    flex: 5.5,
   },
   preview: {
     flex: 1,

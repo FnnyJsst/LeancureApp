@@ -1,13 +1,43 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Platform, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 
+const FilePreview = ({ file, onRemove }) => {
+  return (
+    <View style={styles.previewContainer}>
+      <View style={styles.fileInfo}>
+        <Ionicons 
+          name="document-outline" 
+          size={24} 
+          color={COLORS.orange} 
+        />
+        <View style={styles.fileDetails}>
+          <Text style={styles.fileName} numberOfLines={1}>
+            {file.fileName}
+          </Text>
+          <Text style={styles.fileSize}>
+            {file.fileSize}
+          </Text>
+        </View>
+      </View>
+      <TouchableOpacity onPress={onRemove}>
+        <Ionicons 
+          name="close-circle" 
+          size={24} 
+          color={COLORS.gray} 
+        />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
 export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   const [message, setMessage] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
   const { isSmartphone } = useDeviceType();
 
   const formatFileSize = (bytes) => {
@@ -17,25 +47,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
-
-  // const pickDocument = async () => {
-  //   try {
-  //     const result = await DocumentPicker.getDocumentAsync({
-  //       type: '*/*',
-  //       multiple: false,
-  //     });
-  
-  //     if (result.assets && result.assets.length > 0) {
-  //       const file = result.assets[0];
-  //       const fileSize = formatFileSize(file.size);
-        
-  //       // Créer un message de type fichier
-  //       const fileMessage = {
-  //         type: 'file',Name: file.name,
-  //         fileSize: fileSize,
-  //         fileType: file.mimeType,
-  //         uri: file.uri
-  //       };
 
   const pickDocument = async () => {
     try {
@@ -48,22 +59,19 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         const file = result.assets[0];
         const fileSize = formatFileSize(file.size);
         
-        // Convertir le fichier en base64
+        // Au lieu d'envoyer directement, on stocke le fichier
         const base64 = await FileSystem.readAsStringAsync(file.uri, {
           encoding: FileSystem.EncodingType.Base64,
         });
         
-        const fileMessage = {
+        setSelectedFile({
           type: 'file',
           fileName: file.name,
           fileSize: fileSize,
           fileType: file.mimeType,
           uri: file.uri,
           base64: base64
-        };
-        
-        
-        onSendMessage(fileMessage);
+        });
       }
     } catch (error) {
       console.error('Erreur lors de la sélection du document:', error);
@@ -80,10 +88,17 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   };
 
   const handleSend = () => {
-    if (message.trim()) {
+    if (selectedFile) {
+      onSendMessage(selectedFile);
+      setSelectedFile(null);
+    } else if (message.trim()) {
       onSendMessage(message);
       setMessage('');
     }
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
   };
 
   return (
@@ -92,25 +107,42 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         <Ionicons 
           name="attach-outline" 
           size={isSmartphone ? 24 : 30} 
-          color={COLORS.lightGray} 
+          color={selectedFile ? COLORS.orange : COLORS.lightGray} 
           style={styles.attachIcon}
         />
       </TouchableOpacity>
-      <TextInput
-        style={[styles.input, isSmartphone && styles.smartphoneInput]}
-        placeholder="Type a message..."
-        placeholderTextColor={COLORS.gray}
-        value={message}
-        onChangeText={setMessage}
-        multiline
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-      />
+      
+      {selectedFile ? (
+        <FilePreview 
+          file={selectedFile} 
+          onRemove={handleRemoveFile}
+        />
+      ) : (
+        <TextInput
+          style={[styles.input, isSmartphone && styles.smartphoneInput]}
+          placeholder="Type a message..."
+          placeholderTextColor={COLORS.gray}
+          value={message}
+          onChangeText={setMessage}
+          multiline
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+      )}
+
       <TouchableOpacity 
-        style={[styles.sendButton, isSmartphone && styles.smartphoneSendButton]}
+        style={[
+          styles.sendButton, 
+          isSmartphone && styles.smartphoneSendButton,
+          (message.trim() || selectedFile) && styles.sendButtonActive
+        ]}
         onPress={handleSend}
       >
-        <Ionicons name="send" size={isSmartphone ? 20 : 24} color={'white'} />
+        <Ionicons 
+          name="send" 
+          size={isSmartphone ? 20 : 24} 
+          color={(message.trim() || selectedFile) ? 'white' : COLORS.gray} 
+        />
       </TouchableOpacity>
     </View>
   );
@@ -126,6 +158,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginBottom: 20,
     borderRadius: SIZES.borderRadius.small,
+  },
+  containerTabletLandscape: {
+    marginHorizontal: 20,
   },
   smartphoneContainer: {
     height: 50,
@@ -151,10 +186,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
-    backgroundColor: COLORS.orange,
+    backgroundColor: COLORS.gray,
     borderRadius: SIZES.borderRadius.small,
   },
   smartphoneSendButton: {
     padding: 5,
+  },
+  sendButtonActive: {
+    backgroundColor: COLORS.orange,
+  },
+  previewContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.sidebarGray,
+    borderRadius: SIZES.borderRadius.small,
+    padding: 8,
+    marginRight: 10,
+    justifyContent: 'space-between',
+  },
+  fileInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  fileDetails: {
+    marginLeft: 8,
+    flex: 1,
+  },
+  fileName: {
+    color: COLORS.lightGray,
+    fontSize: SIZES.fonts.small,
+    fontWeight: SIZES.fontWeight.medium,
+  },
+  fileSize: {
+    color: COLORS.gray,
+    fontSize: SIZES.fonts.xSmall,
   },
 });
