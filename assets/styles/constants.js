@@ -3,6 +3,7 @@
  **/
 export const SIZES = {
   fonts: {
+    xXSmall: 12,
     xSmall: 14,
     small: 15,
     medium: 18,

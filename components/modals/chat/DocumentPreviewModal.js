@@ -1,25 +1,26 @@
-import { Modal, View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, Platform } from "react-native";
+import { Modal, View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SIZES } from "../../../assets/styles/constants";
 import { WebView } from 'react-native-webview';
+import { COLORS, SIZES } from "../../../assets/styles/constants";
 import ButtonLarge from "../../buttons/ButtonLarge";
 import Separator from "../../Separator";
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import { useDeviceType } from "../../../hooks/useDeviceType";
 
 /** Component for previewing a document sent in a chat **/
 export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileName, fileSize, fileType, base64 }) {
 
+  const { isSmartphone } = useDeviceType();
+
   // Définir handleDownload dans le composant principal
   const handleDownload = async () => {
     try {
-      // Créer un fichier temporaire avec le contenu base64
       const fileUri = FileSystem.documentDirectory + fileName;
       await FileSystem.writeAsStringAsync(fileUri, base64, {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      // Partager le fichier
       await Sharing.shareAsync(fileUri, {
         mimeType: fileType,
         dialogTitle: 'Télécharger ' + fileName,
@@ -56,12 +57,9 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
     
     // If the file is a PDF, display it
     if (fileType?.includes('pdf')) {
-      // console.log('PDF URL:', fileUrl);
-      // console.log('Base64:', base64 ? base64.substring(0, 50) + '...' : 'No base64');
       return (
         <View style={styles.pdfContainer}>
           <WebView
-            // Display the PDF in the WebView
             source={{
               html: `
                 <!DOCTYPE html>
@@ -70,8 +68,28 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
                     <style>
-                      body { margin: 0; padding: 0; }
-                      #viewer { width: 100%; height: 100vh; }
+                      html, body {
+                        margin: 0;
+                        padding: 0;
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        background: white;
+                      }
+                      #viewer {
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                      }
+                      canvas {
+                        max-width: 100%;
+                        max-height: 100%;
+                        object-fit: contain;
+                      }
                     </style>
                   </head>
                   <body>
@@ -86,13 +104,26 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
                       pdfjsLib.getDocument({data: pdfBytes}).promise.then(function(pdf) {
                         pdf.getPage(1).then(function(page) {
                           const canvas = document.createElement('canvas');
-                          document.getElementById('viewer').appendChild(canvas);
-                          const viewport = page.getViewport({scale: 0.55});
-                          canvas.width = viewport.width;
-                          canvas.height = viewport.height;
+                          const container = document.getElementById('viewer');
+                          container.appendChild(canvas);
+                          
+                          // Calculer la bonne échelle en fonction de la taille du conteneur
+                          const containerWidth = container.clientWidth;
+                          const containerHeight = container.clientHeight;
+                          const viewport = page.getViewport({scale: ${isSmartphone ? 0.55 : 0.80}});
+                          
+                          // Ajuster l'échelle pour remplir le conteneur
+                          const scaleX = containerWidth / viewport.width;
+                          const scaleY = containerHeight / viewport.height;
+                          const scale = Math.min(scaleX, scaleY) * 0.95; // 0.95 pour avoir une petite marge
+                          
+                          const scaledViewport = page.getViewport({scale: scale});
+                          canvas.width = scaledViewport.width;
+                          canvas.height = scaledViewport.height;
+                          
                           page.render({
                             canvasContext: canvas.getContext('2d'),
-                            viewport: viewport
+                            viewport: scaledViewport
                           });
                         });
                       });
@@ -104,18 +135,12 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
             style={styles.preview}
             originWhitelist={['*']}
             javaScriptEnabled={true}
-            onError={(syntheticEvent) => {
-              const { nativeEvent } = syntheticEvent;
-              console.warn('WebView error:', nativeEvent);
-            }}
-            onLoadEnd={() => {
-              console.log('WebView loaded');
-            }}
           />
         </View>
       );
     }
 
+    // Default case: display file info
     return (
       <View style={styles.noPreviewContainer}>
         <Ionicons name="document-outline" size={48} color={COLORS.lightGray} />
@@ -128,8 +153,11 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
   };
 
   return (
-    <Modal visible={visible} onRequestClose={onClose} transparent>
-      <View style={styles.modalOverlay}>
+    <Modal 
+      visible={visible} 
+      onRequestClose={onClose} 
+      transparent>
+      <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <View style={styles.header}>
             <Text style={styles.title}>{fileName}</Text>
@@ -138,11 +166,18 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
             </TouchableOpacity>
           </View>
           <Text style={styles.fileSize}>{fileSize}</Text>
-          <Separator />
+          <View style={styles.separatorContainer}>
+            <Separator width="105.5%" />
+          </View>
           <View style={styles.previewContainer}>
             {renderPreview()}
           </View>
-          <ButtonLarge title="Download" onPress={handleDownload} />
+          <View style={styles.buttonContainer}>
+            <ButtonLarge 
+              title="Download" 
+              onPress={handleDownload} 
+            />
+          </View>
         </View>
       </View>
     </Modal>
@@ -150,11 +185,11 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
 }
 
 const styles = StyleSheet.create({
-  modalOverlay: {
+  modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: COLORS.backgroundModal,
   },
   modalContent: {
     width: '90%',
@@ -172,16 +207,27 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: SIZES.fonts.small,
   },
+  fileSize: {
+    color: COLORS.lightGray,
+    fontWeight: SIZES.fontWeight.light,
+    fontSize: SIZES.fonts.xXSmall,
+    marginTop: 5,
+  },
+  separatorContainer: {
+    marginVertical: 10,
+    width: '100%',
+  },
   previewContainer: {
     flex: 1,
     backgroundColor: 'white',
     borderRadius: SIZES.borderRadius.small,
     overflow: 'hidden',
     marginVertical: 10,
+    marginHorizontal: 10,
   },
   preview: {
     flex: 1,
-    backgroundColor: 'white',
+    // backgroundColor: 'white',
     width: '100%',
     height: '100%',
   },
@@ -194,19 +240,6 @@ const styles = StyleSheet.create({
     color: COLORS.lightGray,
     marginTop: 10,
   },
-  fileInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  fileSize: {
-    color: COLORS.lightGray,
-    fontWeight: SIZES.fontWeight.light,
-    fontSize: SIZES.fonts.xSmall,
-  },
-  fileType: {
-    color: COLORS.lightGray,
-  },
   pdfContainer: {
     flex: 1,
     width: '100%',
@@ -216,5 +249,10 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-  }
+  },
+  buttonContainer: {
+    width: '97.5%',
+    alignSelf: 'center',
+    marginTop: 10,
+  },
 });
