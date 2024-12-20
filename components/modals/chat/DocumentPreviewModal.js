@@ -1,13 +1,39 @@
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, Platform } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from "../../../assets/styles/constants";
-import * as FileSystem from 'expo-file-system';
 import { WebView } from 'react-native-webview';
+import ButtonLarge from "../../buttons/ButtonLarge";
+import Separator from "../../Separator";
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
+/** Component for previewing a document sent in a chat **/
 export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileName, fileSize, fileType, base64 }) {
-  const screenHeight = Dimensions.get('window').height;
 
+  // Définir handleDownload dans le composant principal
+  const handleDownload = async () => {
+    try {
+      // Créer un fichier temporaire avec le contenu base64
+      const fileUri = FileSystem.documentDirectory + fileName;
+      await FileSystem.writeAsStringAsync(fileUri, base64, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Partager le fichier
+      await Sharing.shareAsync(fileUri, {
+        mimeType: fileType,
+        dialogTitle: 'Télécharger ' + fileName,
+      });
+
+    } catch (error) {
+      console.error('Erreur lors du téléchargement:', error);
+      alert('Erreur lors du téléchargement du fichier');
+    }
+  };
+
+  // Render the preview of the document
   const renderPreview = () => {
+    // If the file URL is not available, display an error message
     if (!fileUrl) {
       return (
         <View style={styles.noPreviewContainer}>
@@ -17,6 +43,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
       );
     }
 
+    // If the file is an image, display it
     if (fileType?.includes('image')) {
       return (
         <Image 
@@ -27,13 +54,14 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
       );
     } 
     
+    // If the file is a PDF, display it
     if (fileType?.includes('pdf')) {
-      console.log('PDF URL:', fileUrl);
-      console.log('Base64:', base64 ? base64.substring(0, 50) + '...' : 'No base64');
-      
+      // console.log('PDF URL:', fileUrl);
+      // console.log('Base64:', base64 ? base64.substring(0, 50) + '...' : 'No base64');
       return (
         <View style={styles.pdfContainer}>
           <WebView
+            // Display the PDF in the WebView
             source={{
               html: `
                 <!DOCTYPE html>
@@ -59,7 +87,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
                         pdf.getPage(1).then(function(page) {
                           const canvas = document.createElement('canvas');
                           document.getElementById('viewer').appendChild(canvas);
-                          const viewport = page.getViewport({scale: 1.5});
+                          const viewport = page.getViewport({scale: 0.55});
                           canvas.width = viewport.width;
                           canvas.height = viewport.height;
                           page.render({
@@ -87,7 +115,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
         </View>
       );
     }
-    
+
     return (
       <View style={styles.noPreviewContainer}>
         <Ionicons name="document-outline" size={48} color={COLORS.lightGray} />
@@ -109,13 +137,12 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
               <Ionicons name="close" size={24} color={COLORS.lightGray} />
             </TouchableOpacity>
           </View>
+          <Text style={styles.fileSize}>{fileSize}</Text>
+          <Separator />
           <View style={styles.previewContainer}>
             {renderPreview()}
           </View>
-          <View style={styles.fileInfo}>
-            <Text style={styles.fileSize}>{fileSize}</Text>
-            <Text style={styles.fileType}>{fileType}</Text>
-          </View>
+          <ButtonLarge title="Download" onPress={handleDownload} />
         </View>
       </View>
     </Modal>
@@ -140,11 +167,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
   },
   title: {
     color: 'white',
-    fontSize: SIZES.fonts.large,
+    fontSize: SIZES.fonts.small,
   },
   previewContainer: {
     flex: 1,
@@ -175,6 +201,8 @@ const styles = StyleSheet.create({
   },
   fileSize: {
     color: COLORS.lightGray,
+    fontWeight: SIZES.fontWeight.light,
+    fontSize: SIZES.fonts.xSmall,
   },
   fileType: {
     color: COLORS.lightGray,
