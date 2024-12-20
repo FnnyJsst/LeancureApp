@@ -1,60 +1,154 @@
-import { useState } from 'react';
+// import { useState } from 'react';
+// import { ScrollView, View, Text, StyleSheet } from 'react-native';
+// import { Ionicons } from '@expo/vector-icons';
+// import axios from 'axios';
+// import ButtonLarge from '../../components/buttons/ButtonLarge';
+// import InputLogin from '../../components/InputLogin';
+// import { COLORS, SIZES } from '../../assets/styles/constants';
+// import { useDeviceType } from '../../hooks/useDeviceType';
+
+// export default function Login({ setCurrentScreen }) {
+//     const { isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
+    
+//     const [contractNumber, setContractNumber] = useState('');
+//     const [login, setLogin] = useState('');
+//     const [password, setPassword] = useState('');
+//     const [error, setError] = useState('');
+//     const [isLoading, setIsLoading] = useState(false);
+
+//     const handleLogin = async () => {
+//         if (!contractNumber || !login || !password) {
+//             setError('Veuillez remplir tous les champs');
+//             return;
+//         }
+
+//         setIsLoading(true);
+//         setError('');
+
+//         try {
+//             const response = await axios.post('http://fannyserver.rasp/ic.php', {
+//                 cmd: [{
+//                     accounts: {
+//                         loginmsg: {
+//                             get: {
+//                                 contractnumber: contractNumber,
+//                                 login: login,
+//                                 password: password
+//                             }
+//                         }
+//                     }
+//                 }]
+//             });
+
+//             if (response.data.status === 'ok') {
+//                 setCurrentScreen('Chat');
+//             } else {
+//                 setError('Incorrect credentials');
+//             }
+//         } catch (error) {
+//             console.error('Server connection error:', error);
+//             setError('Server connection error');
+//         } finally {
+//             setIsLoading(false);
+//         }
+//     };
+
+//     return (
+//         <View style={[
+//             styles.pageContainer,
+//             isTablet && styles.pageContainerTablet,
+//             isSmartphoneLandscape && styles.pageContainerSmartphoneLandscape
+//         ]}>
+//             <ScrollView>
+//                 <View style={[
+//                     styles.loginContainer,
+//                     isTabletPortrait && styles.loginContainerTabletPortrait,
+//                     isTabletLandscape && styles.loginContainerTabletLandscape,
+//                     isSmartphone && styles.loginContainerSmartphone,
+//                     isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape
+//                 ]}>
+//                     <Ionicons 
+//                         name="arrow-back-outline" 
+//                         style={styles.backButton} 
+//                         onPress={() => setCurrentScreen('AppMenu')} 
+//                     />
+                    
+//                     <Text style={[
+//                         styles.title,
+//                         isTabletPortrait && styles.titleTabletPortrait,
+//                         isSmartphone && styles.titleSmartphone,
+//                         isSmartphoneLandscape && styles.titleSmartphoneLandscape
+//                     ]}>
+//                         Connexion
+//                     </Text>
+
+//                     <View style={styles.inputsContainer}>
+//                         <View style={styles.inputGroup}>
+//                             <Text style={styles.inputTitle}>Contract number</Text>
+//                             <View style={styles.inputWrapper}>
+//                                 <InputLogin 
+//                                     placeholder="Enter your contract number"
+//                                     value={contractNumber}
+//                                     onChangeText={setContractNumber}
+//                                     iconName="building-o"
+//                                     iconLibrary="FontAwesome"
+//                                 />
+//                             </View>
+//                         </View>
+
+//                         <View style={styles.inputGroup}>
+//                             <Text style={styles.inputTitle}>Login</Text>
+//                             <View style={styles.inputWrapper}>
+//                                 <InputLogin 
+//                                     placeholder="Enter your login"
+//                                     value={login}
+//                                     onChangeText={setLogin}
+//                                     iconName="person-outline"
+//                                 />
+//                             </View>
+//                         </View>
+
+//                         <View style={styles.inputGroup}>
+//                             <Text style={styles.inputTitle}>Password</Text>
+//                             <View style={styles.inputWrapper}>
+//                                 <InputLogin 
+//                                     placeholder="Enter your password"
+//                                     value={password}
+//                                     onChangeText={setPassword}
+//                                     secureTextEntry
+//                                     iconName="lock-closed-outline"
+//                                 />
+//                             </View>
+//                         </View>
+
+//                         {error ? (
+//                             <Text style={styles.errorText}>{error}</Text>
+//                         ) : null}
+
+//                         <ButtonLarge 
+//                             title={isLoading ? "Connexion en cours..." : "Connexion"}
+//                             onPress={handleLogin}
+//                             disabled={isLoading}
+//                         />
+//                     </View>
+//                 </View>
+//             </ScrollView>
+//         </View>
+//     );
+// }
+
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
 import ButtonLarge from '../../components/buttons/ButtonLarge';
 import InputLogin from '../../components/InputLogin';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 import { useDeviceType } from '../../hooks/useDeviceType';
-
 export default function Login({ setCurrentScreen }) {
     const { isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
-    
-    const [contractNumber, setContractNumber] = useState('');
-    const [login, setLogin] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleLogin = async () => {
-        if (!contractNumber || !login || !password) {
-            setError('Veuillez remplir tous les champs');
-            return;
-        }
-
-        setIsLoading(true);
-        setError('');
-
-        try {
-            const response = await axios.post('http://fannyserver.rasp/ic.php', {
-                cmd: [{
-                    accounts: {
-                        loginmsg: {
-                            get: {
-                                contractnumber: contractNumber,
-                                login: login,
-                                password: password
-                            }
-                        }
-                    }
-                }]
-            });
-
-            console.log('Réponse API:', response.data);
-
-            if (response.data.status === 'ok') {
-                setCurrentScreen('Chat');
-            } else {
-                setError('Identifiants incorrects');
-            }
-        } catch (error) {
-            console.error('Erreur de connexion:', error);
-            setError('Erreur de connexion au serveur');
-        } finally {
-            setIsLoading(false);
-        }
+    // Version simplifiée pour le développement
+    const handleLogin = () => {
+        setCurrentScreen('Chat');
     };
-
     return (
         <View style={[
             styles.pageContainer,
@@ -70,7 +164,7 @@ export default function Login({ setCurrentScreen }) {
                     isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape
                 ]}>
                     <Ionicons 
-                        name="arrow-back-outline" 
+                        name="chevron-back-outline" 
                         style={styles.backButton} 
                         onPress={() => setCurrentScreen('AppMenu')} 
                     />
@@ -83,55 +177,43 @@ export default function Login({ setCurrentScreen }) {
                     ]}>
                         Connexion
                     </Text>
-
                     <View style={styles.inputsContainer}>
                         <View style={styles.inputGroup}>
-                            <Text style={styles.inputTitle}>Contract number</Text>
+                            <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>Contract number</Text>
                             <View style={styles.inputWrapper}>
                                 <InputLogin 
                                     placeholder="Enter your contract number"
-                                    value={contractNumber}
-                                    onChangeText={setContractNumber}
                                     iconName="building-o"
                                     iconLibrary="FontAwesome"
                                 />
                             </View>
                         </View>
-
                         <View style={styles.inputGroup}>
-                            <Text style={styles.inputTitle}>Login</Text>
+                            <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>Login</Text>
                             <View style={styles.inputWrapper}>
                                 <InputLogin 
                                     placeholder="Enter your login"
-                                    value={login}
-                                    onChangeText={setLogin}
                                     iconName="person-outline"
                                 />
                             </View>
                         </View>
-
                         <View style={styles.inputGroup}>
-                            <Text style={styles.inputTitle}>Password</Text>
+                            <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>Password</Text>
                             <View style={styles.inputWrapper}>
                                 <InputLogin 
                                     placeholder="Enter your password"
-                                    value={password}
-                                    onChangeText={setPassword}
                                     secureTextEntry
                                     iconName="lock-closed-outline"
                                 />
                             </View>
                         </View>
-
-                        {error ? (
-                            <Text style={styles.errorText}>{error}</Text>
-                        ) : null}
-
-                        <ButtonLarge 
-                            title={isLoading ? "Connexion en cours..." : "Connexion"}
-                            onPress={handleLogin}
-                            disabled={isLoading}
-                        />
+                        <View style={styles.buttonContainer}>
+                            <ButtonLarge 
+                                title="Connexion"
+                                onPress={handleLogin}
+                                width="94%"
+                            />
+                        </View>
                     </View>
                 </View>
             </ScrollView>
@@ -148,10 +230,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: '15%',
     },
     pageContainerSmartphoneLandscape: {
-        paddingHorizontal: '10%',
+        paddingHorizontal: '12%',
     },
     loginContainer: {
         flex: 1,
+        marginTop: 100,    
         backgroundColor: '#232424',
         margin: 20,
         padding: 20,
@@ -164,6 +247,7 @@ const styles = StyleSheet.create({
     loginContainerTabletLandscape: {
         margin: 40,
         padding: 30,
+        
     },
     loginContainerSmartphone: {
         margin: 10,
@@ -172,11 +256,12 @@ const styles = StyleSheet.create({
     loginContainerSmartphoneLandscape: {
         margin: 10,
         padding: 15,
+        marginTop: 10,
     },
     backButton: {
-        fontSize: 24,
+        fontSize: 26,
         color: COLORS.lightGray,
-        marginBottom: 20,
+        padding: 15,
     },
     title: {
         fontSize: SIZES.fonts.xLarge,
@@ -190,6 +275,7 @@ const styles = StyleSheet.create({
     titleSmartphone: {
         fontSize: SIZES.fonts.large,
         marginBottom: 20,
+        alignSelf: 'center',
     },
     titleSmartphoneLandscape: {
         fontSize: SIZES.fonts.large,
@@ -206,14 +292,24 @@ const styles = StyleSheet.create({
         color: COLORS.lightGray,
         fontSize: SIZES.fonts.medium,
         fontWeight: SIZES.fontWeight.medium,
+        marginLeft: 10,
+    },
+    inputTitleSmartphoneLandscape: {
+        marginLeft: 15,
     },
     inputWrapper: {
         width: '100%',
+        alignItems: 'center',
     },
     errorText: {
         color: 'red',
         fontSize: SIZES.fonts.small,
         textAlign: 'center',
         marginTop: 10,
+    },
+    buttonContainer: {
+        alignItems: 'center',
+        width: '100%',
+        marginBottom: 10,
     },
 });

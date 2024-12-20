@@ -149,8 +149,8 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
         base64={selectedBase64}
       />
       {channel && <InputChatWindow 
-       onSendMessage={sendMessage} 
-       onFocusChange={onInputFocusChange}
+        onSendMessage={sendMessage} 
+        onFocusChange={onInputFocusChange}
      />}
     </View>
   );
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   },
   chatContainer: {
     flex: 1,
-    padding: 20,
+    padding: 10,
     marginBottom: 10,
   },
   placeholder: {

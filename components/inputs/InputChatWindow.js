@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     backgroundColor: COLORS.sidebarGray,
-    marginHorizontal: 20,
+    marginHorizontal: 10,
     marginBottom: 20,
     borderRadius: SIZES.borderRadius.small,
   },
