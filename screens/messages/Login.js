@@ -1,192 +1,219 @@
-import { ScrollView,View, Text, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
 import ButtonLarge from '../../components/buttons/ButtonLarge';
 import InputLogin from '../../components/InputLogin';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { Ionicons } from '@expo/vector-icons';
 
 export default function Login({ setCurrentScreen }) {
-
     const { isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
+    
+    const [contractNumber, setContractNumber] = useState('');
+    const [login, setLogin] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleLogin = async () => {
+        if (!contractNumber || !login || !password) {
+            setError('Veuillez remplir tous les champs');
+            return;
+        }
+
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const response = await axios.post('http://fannyserver.rasp/ic.php', {
+                cmd: [{
+                    accounts: {
+                        loginmsg: {
+                            get: {
+                                contractnumber: contractNumber,
+                                login: login,
+                                password: password
+                            }
+                        }
+                    }
+                }]
+            });
+
+            console.log('Réponse API:', response.data);
+
+            if (response.data.status === 'ok') {
+                setCurrentScreen('Chat');
+            } else {
+                setError('Identifiants incorrects');
+            }
+        } catch (error) {
+            console.error('Erreur de connexion:', error);
+            setError('Erreur de connexion au serveur');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
-        <View style={[styles.pageContainer, 
+        <View style={[
+            styles.pageContainer,
             isTablet && styles.pageContainerTablet,
-            isSmartphoneLandscape && styles.pageContainerSmartphoneLandscape]}>
-           
+            isSmartphoneLandscape && styles.pageContainerSmartphoneLandscape
+        ]}>
             <ScrollView>
-                <View style={[styles.loginContainer, 
+                <View style={[
+                    styles.loginContainer,
                     isTabletPortrait && styles.loginContainerTabletPortrait,
                     isTabletLandscape && styles.loginContainerTabletLandscape,
                     isSmartphone && styles.loginContainerSmartphone,
-                    isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape]}>
-                    <Ionicons name="arrow-back-outline" style={styles.backButton} onPress={() => setCurrentScreen('AppMenu')} />
-                    <Text style={[styles.title, 
+                    isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape
+                ]}>
+                    <Ionicons 
+                        name="arrow-back-outline" 
+                        style={styles.backButton} 
+                        onPress={() => setCurrentScreen('AppMenu')} 
+                    />
+                    
+                    <Text style={[
+                        styles.title,
                         isTabletPortrait && styles.titleTabletPortrait,
                         isSmartphone && styles.titleSmartphone,
-                        isSmartphoneLandscape && styles.titleSmartphoneLandscape]}>Connexion</Text>
-                    
+                        isSmartphoneLandscape && styles.titleSmartphoneLandscape
+                    ]}>
+                        Connexion
+                    </Text>
+
                     <View style={styles.inputsContainer}>
                         <View style={styles.inputGroup}>
                             <Text style={styles.inputTitle}>Contract number</Text>
                             <View style={styles.inputWrapper}>
                                 <InputLogin 
                                     placeholder="Enter your contract number"
+                                    value={contractNumber}
+                                    onChangeText={setContractNumber}
                                     iconName="building-o"
                                     iconLibrary="FontAwesome"
                                 />
                             </View>
                         </View>
-                        
+
                         <View style={styles.inputGroup}>
-                            <Text style={styles.inputTitle}>Email</Text>
+                            <Text style={styles.inputTitle}>Login</Text>
                             <View style={styles.inputWrapper}>
                                 <InputLogin 
-                                    placeholder="Enter your email"
+                                    placeholder="Enter your login"
+                                    value={login}
+                                    onChangeText={setLogin}
                                     iconName="person-outline"
                                 />
                             </View>
                         </View>
-                        
+
                         <View style={styles.inputGroup}>
                             <Text style={styles.inputTitle}>Password</Text>
                             <View style={styles.inputWrapper}>
                                 <InputLogin 
                                     placeholder="Enter your password"
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry
                                     iconName="lock-closed-outline"
-                                    iconLibrary="Ionicons"
                                 />
                             </View>
                         </View>
-                    </View>
 
-                    <ButtonLarge title="Connexion" onPress={() => setCurrentScreen('Chat')} />
-                    <Text style={[styles.passwordText, 
-                        isTabletPortrait && styles.passwordTextTabletPortrait,
-                        isSmartphone && styles.passwordTextSmartphone]}>Forgot your password?</Text>
-                </View>
-                <View style={styles.contactContainer}>
-                    <Text style={[
-                        styles.noAccountText,
-                        isSmartphone && styles.textSmartphone
-                    ]}>Don't have an account? </Text>
-                    <Text style={[
-                        styles.contactText,
-                        isSmartphone && styles.textSmartphone
-                    ]}>Contact us</Text>
+                        {error ? (
+                            <Text style={styles.errorText}>{error}</Text>
+                        ) : null}
+
+                        <ButtonLarge 
+                            title={isLoading ? "Connexion en cours..." : "Connexion"}
+                            onPress={handleLogin}
+                            disabled={isLoading}
+                        />
+                    </View>
                 </View>
             </ScrollView>
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
     pageContainer: {
-        paddingHorizontal: 20,
+        flex: 1,
+        backgroundColor: COLORS.darkGray,
     },
-    pageContainerTablet : {
-        padding: 40,
-        paddingTop: 30,
+    pageContainerTablet: {
+        paddingHorizontal: '15%',
     },
     pageContainerSmartphoneLandscape: {
-        paddingHorizontal: 60,
-    },
-    backButton: {
-        color: COLORS.lightGray,
-        fontSize: SIZES.fonts.xXLarge,
-        position: 'absolute',
-        top: 20,
-        left: 20,
+        paddingHorizontal: '10%',
     },
     loginContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: COLORS.buttonGray,
-        marginTop: 80,
-        marginBottom: 50,
-        paddingVertical: 20,
+        flex: 1,
+        backgroundColor: '#232424',
+        margin: 20,
+        padding: 20,
+        borderRadius: SIZES.borderRadius.large,
     },
     loginContainerTabletPortrait: {
-        height: 750,
-        marginTop: 100,
+        margin: 40,
+        padding: 30,
     },
     loginContainerTabletLandscape: {
-        height: 600,
-        marginHorizontal: 100,
-        marginTop: 10,
-        paddingVertical: 0,
+        margin: 40,
+        padding: 30,
     },
     loginContainerSmartphone: {
-        height: 550,
-        marginBottom: 20,
+        margin: 10,
+        padding: 15,
     },
     loginContainerSmartphoneLandscape: {
-        marginTop: 20,
+        margin: 10,
+        padding: 15,
     },
-    inputsContainer: {
-        width: '90%',
+    backButton: {
+        fontSize: 24,
+        color: COLORS.lightGray,
         marginBottom: 20,
-        gap: 10,
-    },
-    inputGroup: {
-        width: '100%',
-    },
-    inputWrapper: {
-        alignItems: 'center',
     },
     title: {
-        fontSize: SIZES.fonts.xXLarge,
-        fontWeight: SIZES.fontWeight.medium,
-        color: "white",
-        marginVertical: 40,
+        fontSize: SIZES.fonts.xLarge,
+        fontWeight: SIZES.fontWeight.bold,
+        color: COLORS.lightGray,
+        marginBottom: 30,
     },
     titleTabletPortrait: {
-        marginTop: 0,
+        fontSize: SIZES.fonts.xxLarge,
     },
     titleSmartphone: {
-        fontSize: SIZES.fonts.xLarge,
+        fontSize: SIZES.fonts.large,
+        marginBottom: 20,
     },
     titleSmartphoneLandscape: {
-        marginTop: 20,
-        marginBottom: 20,
+        fontSize: SIZES.fonts.large,
+        marginBottom: 15,
+    },
+    inputsContainer: {
+        width: '100%',
+        gap: 20,
+    },
+    inputGroup: {
+        gap: 5,
     },
     inputTitle: {
-        fontSize: SIZES.fonts.medium,
         color: COLORS.lightGray,
-        marginBottom: 10,
-        alignSelf: 'flex-start', 
-        marginLeft: 20,
-    },
-    passwordText: {
         fontSize: SIZES.fonts.medium,
-        fontWeight: SIZES.fontWeight.regular,
-        color: COLORS.orange,
-        marginVertical: 20,
+        fontWeight: SIZES.fontWeight.medium,
     },
-    passwordTextTabletPortrait: {
-        marginTop: 30,
-        marginBottom: 20,
+    inputWrapper: {
+        width: '100%',
     },
-    passwordTextSmartphone: {
+    errorText: {
+        color: 'red',
         fontSize: SIZES.fonts.small,
-        marginBottom: 20,
-    },
-    contactContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 40,
-    },
-    noAccountText: {
-        color: COLORS.lightGray,
-        fontSize: SIZES.fonts.medium,
-    },
-    contactText: {
-        color: COLORS.orange,
-        fontSize: SIZES.fonts.medium,
         textAlign: 'center',
+        marginTop: 10,
     },
-    textSmartphone: {
-        fontSize: SIZES.fonts.small,
-    },
-})
+});

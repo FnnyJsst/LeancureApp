@@ -11,7 +11,7 @@ import { useDeviceType } from "../../../hooks/useDeviceType";
 /** Component for previewing a document sent in a chat **/
 export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileName, fileSize, fileType, base64 }) {
 
-  const { isSmartphone } = useDeviceType();
+  const { isSmartphone, isTabletLandscape } = useDeviceType();
 
   // Définir handleDownload dans le composant principal
   const handleDownload = async () => {
@@ -158,7 +158,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
       onRequestClose={onClose} 
       transparent>
       <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+        <View style={[styles.modalContent, {width: isTabletLandscape ? '60%' : '100%'}]}>
           <View style={styles.header}>
             <Text style={styles.title}>{fileName}</Text>
             <TouchableOpacity onPress={onClose}>
@@ -169,15 +169,36 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
           <View style={styles.separatorContainer}>
             <Separator width="105.5%" />
           </View>
-          <View style={styles.previewContainer}>
-            {renderPreview()}
-          </View>
-          <View style={styles.buttonContainer}>
-            <ButtonLarge 
-              title="Download" 
-              onPress={handleDownload} 
-            />
-          </View>
+
+          {isTabletLandscape ? (
+            <View style={styles.tabletLandscapeLayout}>
+              <View style={styles.tabletLandscapePreviewCard}>
+                <View style={styles.tabletLandscapePreviewContainer}>
+                  {renderPreview()}
+                </View>
+              </View>
+              <View style={styles.tabletLandscapeButtonWrapper}>
+                <ButtonLarge 
+                  title="Download" 
+                  onPress={handleDownload}
+                  width={200} 
+                />
+              </View>
+            </View>
+          ) : (
+            <>
+              <View style={styles.previewContainer}>
+                {renderPreview()}
+              </View>
+              <View style={[styles.buttonContainer, isTabletLandscape && styles.buttonContainerTabletLandscape]}>
+                <ButtonLarge 
+                  title="Download" 
+                  onPress={handleDownload} 
+                  style={{width: isTabletLandscape ? '100%' : '97.5%'}}
+                />
+              </View>
+            </>
+          )}
         </View>
       </View>
     </Modal>
@@ -217,6 +238,29 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: '100%',
   },
+  tabletLandscapeLayout: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+  },
+  tabletLandscapePreviewCard: {
+    flex: 0.7,
+    backgroundColor: "#2c2c2f",
+    borderRadius: SIZES.borderRadius.small,
+    padding: 20,
+  },
+  tabletLandscapePreviewContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+    borderRadius: SIZES.borderRadius.small,
+    overflow: 'hidden',
+  },
+  tabletLandscapeButtonWrapper: {
+    flex: 0.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   previewContainer: {
     flex: 1,
     backgroundColor: 'white',
@@ -227,7 +271,7 @@ const styles = StyleSheet.create({
   },
   preview: {
     flex: 1,
-    // backgroundColor: 'white',
+    backgroundColor: 'white',
     width: '100%',
     height: '100%',
   },
@@ -251,8 +295,13 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   buttonContainer: {
+    flex: 1,
     width: '97.5%',
     alignSelf: 'center',
     marginTop: 10,
+  },
+  buttonContainerTabletLandscape: {
+    flex: 1.3,
+    width: '100%',
   },
 });
