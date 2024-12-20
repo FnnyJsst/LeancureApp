@@ -141,7 +141,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         <Ionicons 
           name="send" 
           size={isSmartphone ? 20 : 24} 
-          color={(message.trim() || selectedFile) ? 'white' : COLORS.gray} 
+          color={'white'} 
         />
       </TouchableOpacity>
     </View>
