@@ -103,20 +103,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
             </View>
     
           </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={styles.button} 
-              onPress={() => onFileClick(message)}
-            >
-              <Text style={styles.buttonText}>Open</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.button} 
-              onPress={() => handleDownload(message)}
-            >
-              <Text style={styles.buttonText}>Download</Text>
-            </TouchableOpacity>
-          </View>
         </View>
           )}
 
@@ -141,20 +127,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                     Image • {message.fileSize}
                   </Text>
                 </View>
-              </View>
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity 
-                  style={styles.button} 
-                  onPress={() => onFileClick(message)}
-                >
-                  <Text style={styles.buttonText}>Open</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={styles.button} 
-                  onPress={() => handleDownload(message)}
-                >
-                  <Text style={styles.buttonText}>Download</Text>
-                </TouchableOpacity>
               </View>
             </View>
           )}
@@ -186,7 +158,11 @@ const styles = StyleSheet.create({
   },
   ownMessage: {
     alignSelf: 'flex-end',
+<<<<<<< HEAD
     backgroundColor: '#424247',
+=======
+    backgroundColor: 'rgba(255, 128, 82, 0.3)',
+>>>>>>> 4bc6c76 (style: improved style on login page)
   },
   otherMessage: {
     alignSelf: 'flex-start',
@@ -248,6 +224,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+<<<<<<< HEAD
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -265,6 +242,8 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.small,
     fontWeight: SIZES.fontWeight.medium,
   },
+=======
+>>>>>>> 4bc6c76 (style: improved style on login page)
   imagePreview: {
     width: '100%',
     height: 200,

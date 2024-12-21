@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.medium,
   },
   menuItemLandscape: {
-    width: '50%',
+    width: '40%',
   },
   iconContainer: {
     flexDirection: 'row',

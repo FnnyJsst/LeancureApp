@@ -1,14 +1,14 @@
 // import { useState } from 'react';
-// import { ScrollView, View, Text, StyleSheet } from 'react-native';
-// import { Ionicons } from '@expo/vector-icons';
+// import { ScrollView, View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 // import axios from 'axios';
 // import ButtonLarge from '../../components/buttons/ButtonLarge';
 // import InputLogin from '../../components/InputLogin';
+//import Separator from '../../components/Separator';
 // import { COLORS, SIZES } from '../../assets/styles/constants';
 // import { useDeviceType } from '../../hooks/useDeviceType';
 
 // export default function Login({ setCurrentScreen }) {
-//     const { isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
+//     const { isPortrait, isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
     
 //     const [contractNumber, setContractNumber] = useState('');
 //     const [login, setLogin] = useState('');
@@ -54,24 +54,26 @@
 //     };
 
 //     return (
-//         <View style={[
-//             styles.pageContainer,
-//             isTablet && styles.pageContainerTablet,
-//             isSmartphoneLandscape && styles.pageContainerSmartphoneLandscape
-//         ]}>
+//     <View style={[
+//         styles.pageContainer,
+//         isTablet && styles.pageContainerTablet,
+//         isSmartphoneLandscape && styles.pageContainerSmartphoneLandscape
+//     ]}>
+//         <View style={[styles.headerContainer, isSmartphoneLandscape && styles.headerContainerSmartphoneLandscape]}>
+//             <TouchableOpacity onPress={() => setCurrentScreen('AppMenu')}>
+//             <Image source={require('../../assets/images/logo.png')} style={[styles.logo, isSmartphone && styles.logoSmartphone]} />
+//             </TouchableOpacity>
+            
+//         </View>
+//         {isPortrait && (<Separator width={'100%'} />)}
 //             <ScrollView>
-//                 <View style={[
+//                  <View style={[
 //                     styles.loginContainer,
-//                     isTabletPortrait && styles.loginContainerTabletPortrait,
-//                     isTabletLandscape && styles.loginContainerTabletLandscape,
+//                     isTablet && styles.loginContainerTablet,
 //                     isSmartphone && styles.loginContainerSmartphone,
 //                     isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape
 //                 ]}>
-//                     <Ionicons 
-//                         name="arrow-back-outline" 
-//                         style={styles.backButton} 
-//                         onPress={() => setCurrentScreen('AppMenu')} 
-//                     />
+//          
                     
 //                     <Text style={[
 //                         styles.title,
@@ -97,7 +99,7 @@
 //                         </View>
 
 //                         <View style={styles.inputGroup}>
-//                             <Text style={styles.inputTitle}>Login</Text>
+//                          <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>Login</Text>
 //                             <View style={styles.inputWrapper}>
 //                                 <InputLogin 
 //                                     placeholder="Enter your login"
@@ -109,7 +111,7 @@
 //                         </View>
 
 //                         <View style={styles.inputGroup}>
-//                             <Text style={styles.inputTitle}>Password</Text>
+//                           <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>Password</Text>
 //                             <View style={styles.inputWrapper}>
 //                                 <InputLogin 
 //                                     placeholder="Enter your password"
@@ -137,14 +139,14 @@
 //     );
 // }
 
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ScrollView, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import ButtonLarge from '../../components/buttons/ButtonLarge';
 import InputLogin from '../../components/InputLogin';
+import Separator from '../../components/Separator';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 import { useDeviceType } from '../../hooks/useDeviceType';
 export default function Login({ setCurrentScreen }) {
-    const { isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
+    const { isPortrait, isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
     // Version simplifiée pour le développement
     const handleLogin = () => {
         setCurrentScreen('Chat');
@@ -155,20 +157,21 @@ export default function Login({ setCurrentScreen }) {
             isTablet && styles.pageContainerTablet,
             isSmartphoneLandscape && styles.pageContainerSmartphoneLandscape
         ]}>
+
             <ScrollView>
+            <View style={[styles.headerContainer, isSmartphoneLandscape && styles.headerContainerSmartphoneLandscape]}>
+                <TouchableOpacity onPress={() => setCurrentScreen('AppMenu')}>
+                <Image source={require('../../assets/images/logo.png')} style={[styles.logo, isSmartphone && styles.logoSmartphone]} />
+                </TouchableOpacity>
+                
+            </View>
+            {isPortrait && (<Separator width={'100%'} />)}
                 <View style={[
                     styles.loginContainer,
-                    isTabletPortrait && styles.loginContainerTabletPortrait,
-                    isTabletLandscape && styles.loginContainerTabletLandscape,
+                    isTablet && styles.loginContainerTablet,
                     isSmartphone && styles.loginContainerSmartphone,
                     isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape
                 ]}>
-                    <Ionicons 
-                        name="chevron-back-outline" 
-                        style={styles.backButton} 
-                        onPress={() => setCurrentScreen('AppMenu')} 
-                    />
-                    
                     <Text style={[
                         styles.title,
                         isTabletPortrait && styles.titleTabletPortrait,
@@ -232,6 +235,20 @@ const styles = StyleSheet.create({
     pageContainerSmartphoneLandscape: {
         paddingHorizontal: '12%',
     },
+    headerContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: 10,
+    },
+    headerContainerSmartphoneLandscape: {
+        paddingTop: 0,
+    },
+    logoSmartphone: {
+        width: 120,
+        height: 90,
+        objectFit: 'contain',
+        margin: -8,
+    },
     loginContainer: {
         flex: 1,
         marginTop: 100,    
@@ -240,28 +257,17 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: SIZES.borderRadius.large,
     },
-    loginContainerTabletPortrait: {
+    loginContainerTablet: {
         margin: 40,
         padding: 30,
-    },
-    loginContainerTabletLandscape: {
-        margin: 40,
-        padding: 30,
-        
     },
     loginContainerSmartphone: {
         margin: 10,
         padding: 15,
+        paddingVertical: 30,
     },
     loginContainerSmartphoneLandscape: {
-        margin: 10,
-        padding: 15,
         marginTop: 10,
-    },
-    backButton: {
-        fontSize: 26,
-        color: COLORS.lightGray,
-        padding: 15,
     },
     title: {
         fontSize: SIZES.fonts.xLarge,
@@ -278,7 +284,6 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
     },
     titleSmartphoneLandscape: {
-        fontSize: SIZES.fonts.large,
         marginBottom: 15,
     },
     inputsContainer: {

@@ -6,14 +6,14 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 
-const FilePreview = ({ file, onRemove }) => {
+const  FilePreview = ({ file, onRemove }) => {
   return (
     <View style={styles.previewContainer}>
       <View style={styles.fileInfo}>
         <Ionicons 
           name="document-outline" 
           size={24} 
-          color={COLORS.orange} 
+          color={COLORS.lightGray} 
         />
         <View style={styles.fileDetails}>
           <Text style={styles.fileName} numberOfLines={1}>
@@ -107,7 +107,11 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         <Ionicons 
           name="attach-outline" 
           size={isSmartphone ? 24 : 30} 
+<<<<<<< HEAD
           color={selectedFile ? COLORS.orange : COLORS.lightGray} 
+=======
+          color={COLORS.lightGray} 
+>>>>>>> 4bc6c76 (style: improved style on login page)
           style={styles.attachIcon}
         />
       </TouchableOpacity>
@@ -163,7 +167,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   smartphoneContainer: {
+<<<<<<< HEAD
     height: 50,
+=======
+    height: 60,
+>>>>>>> 4bc6c76 (style: improved style on login page)
   },
   tabletContainer: {
     height: 70,
