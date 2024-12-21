@@ -107,11 +107,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         <Ionicons 
           name="attach-outline" 
           size={isSmartphone ? 24 : 30} 
-<<<<<<< HEAD
-          color={selectedFile ? COLORS.orange : COLORS.lightGray} 
-=======
           color={COLORS.lightGray} 
->>>>>>> 4bc6c76 (style: improved style on login page)
           style={styles.attachIcon}
         />
       </TouchableOpacity>
@@ -167,11 +163,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   smartphoneContainer: {
-<<<<<<< HEAD
-    height: 50,
-=======
     height: 60,
->>>>>>> 4bc6c76 (style: improved style on login page)
   },
   tabletContainer: {
     height: 70,

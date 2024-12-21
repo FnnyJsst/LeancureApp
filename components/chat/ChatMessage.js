@@ -158,11 +158,7 @@ const styles = StyleSheet.create({
   },
   ownMessage: {
     alignSelf: 'flex-end',
-<<<<<<< HEAD
-    backgroundColor: '#424247',
-=======
     backgroundColor: 'rgba(255, 128, 82, 0.3)',
->>>>>>> 4bc6c76 (style: improved style on login page)
   },
   otherMessage: {
     alignSelf: 'flex-start',
@@ -224,26 +220,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-<<<<<<< HEAD
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 12,
-    marginTop: 8,
-  },
-  button: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 15,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: SIZES.fonts.small,
-    fontWeight: SIZES.fontWeight.medium,
-  },
-=======
->>>>>>> 4bc6c76 (style: improved style on login page)
   imagePreview: {
     width: '100%',
     height: 200,
