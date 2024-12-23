@@ -6,7 +6,7 @@ import ChatWindow from '../../components/chat/ChatWindow';
 import ChatHeader from '../../components/chat/ChatHeader';
 import { COLORS } from '../../assets/styles/constants';
 
-export default function ChatScreen({ isExpanded, setIsExpanded, setCurrentScreen }) {
+export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [currentSection, setCurrentSection] = useState('chat');
@@ -28,17 +28,17 @@ export default function ChatScreen({ isExpanded, setIsExpanded, setCurrentScreen
       setCurrentSection('chat');
     } else if (section === 'settings') {
       setCurrentSection('settings');
-      setCurrentScreen('SettingsMessage');
+      onNavigate('SETTINGS_MESSAGE');
     } else if (section === 'account') {
       setCurrentSection('account');
-      setCurrentScreen('AccountScreen');
+      onNavigate('ACCOUNT');
     } 
   };
 
 
   return (
     <View style={styles.container}>
-      <ChatHeader setCurrentScreen={setCurrentScreen}/>
+      <ChatHeader onNavigate={onNavigate} />
       <Sidebar 
         onChannelSelect={handleChannelSelect}
         selectedGroup={selectedGroup}
@@ -53,12 +53,12 @@ export default function ChatScreen({ isExpanded, setIsExpanded, setCurrentScreen
           isExpanded={isExpanded}
           onInputFocusChange={setIsInputFocused}
         />
-       {!isInputFocused && (
-         <Navbar 
-           currentSection={currentSection}
-           onSectionChange={handleSectionChange}
-         />
-       )}
+      {!isInputFocused && (
+        <Navbar 
+          currentSection={currentSection}
+          onSectionChange={handleSectionChange}
+        />
+      )}
       </View>
     </View>
   );

@@ -27,17 +27,27 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
 
   // Handle the submit button
   const handleSubmit = () => {
-    if (!password.trim()) {
-      showAlert('Error', 'Please enter your password');
+    if (!password) {
+      setAlertConfig({
+        title: 'Error',
+        message: 'Please enter a password',
+        type: 'error'
+      });
+      setAlertVisible(true);
       return;
     }
 
-    // Check if the password is correct
     onSubmit(password, (isValid) => {
-      if (!isValid) {
-        showAlert('Error', 'Incorrect password');
-      } else {
+      if (isValid) {
         setPassword('');
+        onClose();
+      } else {
+        setAlertConfig({
+          title: 'Error',
+          message: 'Invalid password',
+          type: 'error'
+        });
+        setAlertVisible(true);
       }
     });
   };

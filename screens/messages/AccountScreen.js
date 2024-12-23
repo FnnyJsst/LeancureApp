@@ -9,18 +9,18 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../assets/styles/constants';
 
 
-export default function AccountScreen({ setCurrentScreen }) {
+export default function AccountScreen({ onNavigate }) {
   
   const { isTablet, isSmartphone } = useDeviceType();
   const [profileImage, setProfileImage] = useState(null);
 
   const handleSectionChange = (section) => {
     if (section === 'chat') {
-      setCurrentScreen('Chat');
+      onNavigate('CHAT');
     } else if (section === 'account') {
-      setCurrentScreen('AccountScreen');
+      onNavigate('ACCOUNT');
     } else if (section === 'settings') {
-      setCurrentScreen('SettingsMessage');
+      onNavigate('SETTINGS_MESSAGE');
     }
   };
 

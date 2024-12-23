@@ -1,19 +1,22 @@
 import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import  Separator  from '../Separator';
+import Separator from '../Separator';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import AccountImage from '../AccountImage';
+import { SCREENS } from '../../constants/screens';
 
-export default function ChatHeader({ setCurrentScreen }) {
-
+export default function ChatHeader({ onNavigate }) {
   const { isTablet, isSmartphone } = useDeviceType();
+  
   return (
     <View>
       <View style={[styles.imagesContainer, isTablet ? styles.imagesContainerTablet : styles.imagesContainerSmartphone]}>
-        <Image 
-          source={require('../../assets/images/logo.png')} 
-          style={[styles.logo, isTablet ? styles.logoTablet : styles.logoSmartphone]} 
-        />
-        <AccountImage setCurrentScreen={setCurrentScreen} width={50} height={50} />
+        <TouchableOpacity onPress={() => onNavigate(SCREENS.APP_MENU)}>
+          <Image 
+            source={require('../../assets/images/logo.png')} 
+            style={[styles.logo, isTablet ? styles.logoTablet : styles.logoSmartphone]} 
+          />
+        </TouchableOpacity>
+        <AccountImage onNavigate={onNavigate} width={50} height={50} />
       </View>
       <Separator width="100%" marginTop={-30} marginBottom={0} />
     </View>

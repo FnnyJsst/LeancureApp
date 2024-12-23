@@ -16,13 +16,12 @@ import { SIZES, COLORS } from '../../assets/styles/constants';
  * Allows displaying, editing, deleting and reordering channels
  **/
 export default function ChannelsManagementScreen({ 
-  onImport, 
+  onNavigate,
   selectedChannels, 
-  onBackPress, 
-  onNavigateToWebView, 
   setSelectedChannels, 
   saveSelectedChannels,
-  isReadOnly 
+  isReadOnly,
+  onNavigateToWebView
 }) {
   const { isTablet, isSmartphone, isSmartphoneLandscape, isSmartphonePortrait } = useDeviceType();
 
@@ -120,12 +119,16 @@ export default function ChannelsManagementScreen({
     await saveSelectedChannels(updatedChannels);
   };
 
+  const handleBackPress = () => {
+    onNavigate('SETTINGS');
+  };
+
 return (
   <View style={styles.pageContainer}>
     <Header
       title="CHANNELS MANAGEMENT"
       onDialogPress={!isReadOnly ? openImportModal : null}
-      onBackPress={onBackPress}
+      onBackPress={handleBackPress}
       showIcons={!isReadOnly}
     />
     <ImportChannelDialog

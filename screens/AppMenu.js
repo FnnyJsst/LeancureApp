@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import MenuButton from '../components/buttons/ButtonMenu';
 import { COLORS, SIZES } from '../assets/styles/constants';
 import { useDeviceType } from '../hooks/useDeviceType';
+import { SCREENS } from '../constants/screens';
 
 export default function AppMenu({ onNavigate }) {
 
@@ -12,15 +13,15 @@ export default function AppMenu({ onNavigate }) {
     <View style={styles.container}>
       <Text style={styles.title}>Welcome</Text>
       <MenuButton 
-        icon="mail-outline" 
+        icon="mail-outline"   
         text="Messages" 
-        onPress={() => onNavigate('Login')} 
+        onPress={() => onNavigate(SCREENS.LOGIN)} 
         isLandscape={isLandscape}
       />  
       <MenuButton 
         icon="tv-outline" 
         text="WebViews" 
-        onPress={() => onNavigate('WebViewsSection')} 
+        onPress={() => onNavigate(SCREENS.WEBVIEW)} 
         isLandscape={isLandscape}
       />
     </View>

@@ -3,17 +3,28 @@ import ParameterButton from '../../components/buttons/ParameterButton';
 import { Ionicons } from '@expo/vector-icons';
 import { SIZES, COLORS } from '../../assets/styles/constants';
 import { useDeviceType } from '../../hooks/useDeviceType';
+import { SCREENS } from '../../constants/screens';
 
 /**
  * Screen displayed when no URL is entered 
  **/
-export default function NoUrlScreen({ onNavigate, setCurrentScreen }) {
+export default function NoUrlScreen({ onNavigate, isPasswordRequired, password, setPasswordCheckModalVisible }) {
+
   const { isTablet, isSmartphone } = useDeviceType();
+
+  const handleSettingsPress = () => {
+    if (isPasswordRequired && password) {
+      setPasswordCheckModalVisible(true);
+    } else {
+      onNavigate(SCREENS.SETTINGS);
+    }
+  };
+  
 
   return (
     <View style={styles.pageContainer}>
       <TouchableOpacity 
-        onPress={() => setCurrentScreen('AppMenu')} 
+        onPress={() => onNavigate(SCREENS.APP_MENU)} 
         style={styles.backButton}
       >
         <Ionicons 
@@ -28,7 +39,7 @@ export default function NoUrlScreen({ onNavigate, setCurrentScreen }) {
       </View>
 
       <View style={styles.buttonContainer}>
-        <ParameterButton onPress={onNavigate} />
+        <ParameterButton onPress={handleSettingsPress} />
       </View>
     </View>
   );

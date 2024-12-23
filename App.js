@@ -14,11 +14,12 @@ import AppMenu from './screens/AppMenu';
 import ChatScreen from './screens/messages/ChatScreen';
 import SettingsMessage from './screens/messages/SettingsMessage';
 import AccountScreen from './screens/messages/AccountScreen';
+import { SCREENS } from './constants/screens';
+import { useNavigation } from './hooks/useNavigation';
 
 export default function App() {
 
   //States related to the webviews
-  const [currentScreen, setCurrentScreen] = useState('NoUrlScreen');
   const [isLoading, setIsLoading] = useState(true);
   const [channels, setChannels] = useState([]);
   const [selectedChannels, setSelectedChannels] = useState([]);
@@ -30,6 +31,8 @@ export default function App() {
   const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
   const [passwordCheckModalVisible, setPasswordCheckModalVisible] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(false);
+  const [currentScreen, setCurrentScreen] = useState(SCREENS.APP_MENU);
+  const { navigate, goBack } = useNavigation(setCurrentScreen);
   
   //States related to the chat
   const [isExpanded, setIsExpanded] = useState(false);
@@ -56,7 +59,7 @@ export default function App() {
   
     setSelectedChannels(updatedChannels);
     saveSelectedChannels(updatedChannels);
-    setCurrentScreen('ChannelsManagementScreen');
+    navigate('CHANNELS_MANAGEMENT');
   };
 
   // Save changes made in the ChannelsManagementScreen in AsyncStorage
@@ -77,7 +80,7 @@ export default function App() {
         setSelectedChannels(parsedChannels);
         if (parsedChannels.length > 0) {
           setWebViewUrl(parsedChannels[0].href);
-          setCurrentScreen('WebViewScreen');
+          navigate('WEBVIEW');
         }
       }
     } catch (error) {
@@ -138,7 +141,7 @@ export default function App() {
     if (isPasswordRequired && password) {
       setPasswordCheckModalVisible(true);
     } else {
-      navigateToSettings();
+      navigate('SETTINGS');
     }
   };
 
@@ -185,8 +188,14 @@ export default function App() {
   };
   
   // Check if the password is correct
-  const handlePasswordCheck = (enteredPassword) => {
-    return password === enteredPassword;
+  const handlePasswordCheck = (enteredPassword, callback) => {
+    if (enteredPassword === password) {
+      callback(true);
+      setPasswordCheckModalVisible(false);
+      navigate('SETTINGS');
+    } else {
+      callback(false);
+    }
   };
 
   // Disable the password
@@ -205,38 +214,23 @@ export default function App() {
   const closePasswordModal = () => setPasswordModalVisible(false);
 
   /////FUNCTIONS RELATED TO NAVIGATION/////
-  // Navigate to the settings screen
-  const navigateToSettings = () => {
-    setCurrentScreen('SettingsScreen');
-  };
-
   // Navigate to the channels list screen
   const navigateToChannelsList = (channels) => {
     setChannels(channels);
-    setCurrentScreen('ChannelsListScreen');
+    navigate('CHANNELS_LIST');
   };
 
   // Navigate to the web view screen
   const navigateToWebView = (url) => {
     setWebViewUrl(url);
-    setCurrentScreen('WebViewScreen');
-  };
-
-  const handleBackPress = () => {
-    if (currentScreen === 'ChannelsManagementScreen') {
-      setCurrentScreen('SettingsScreen');
-    } else if (currentScreen === 'ChannelsListScreen') {
-      setCurrentScreen('NoUrlScreen');
-    } else if (['NoUrlScreen', 'WebViewScreen', 'Login'].includes(currentScreen)) {
-      setCurrentScreen('AppMenu');
-    }
+    navigate('WEBVIEW');
   };
 
   ///// USE EFFECTS/////
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-      setCurrentScreen('AppMenu');
+      navigate('APP_MENU');
     }, 3000);
     return () => clearTimeout(timer);
   }, []);
@@ -263,45 +257,34 @@ export default function App() {
     return <ScreenSaver />;
   }
 
-  const handleBackToChat = () => {
-    setCurrentScreen('Chat');
-  };
-
-  const navigateToAccount = () => {
-    setCurrentScreen('AccountScreen');
-  };
-
   return (
     <View style={{ flex: 1, backgroundColor: '#1E1E1E' }}>
-      {currentScreen === 'AppMenu' && (
-        <AppMenu 
-          onNavigate={(screen) => {
-            if (screen === 'WebViewsSection') {
-              // If URLs are already configured, go directly to WebViewScreen
-              if (selectedChannels && selectedChannels.length > 0) {
-                setCurrentScreen('WebViewScreen');
-              } else {
-                // Otherwise, go to NoUrlScreen
-                setCurrentScreen('NoUrlScreen');
-              }
-            } else if (screen === 'Login') {
-              setCurrentScreen('Login');
-            }
-          }} 
-        />
-      )}
+{currentScreen === SCREENS.APP_MENU && (
+  <AppMenu 
+    onNavigate={(screen) => {
+      if (screen === SCREENS.WEBVIEW) {
+        navigate(selectedChannels?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+      } else if (screen === SCREENS.SETTINGS) {
+        handleSettingsAccess();
+      } else {
+        navigate(screen);
+      }
+    }} 
+  />
+)}
 
       {/* Screen related to the webviews */}
-      {currentScreen === 'NoUrlScreen' && 
+      {currentScreen === SCREENS.NO_URL && 
       <NoUrlScreen 
-        onNavigate={handleSettingsAccess}
-        setCurrentScreen={setCurrentScreen}  
+        onNavigate={navigate}
+        isPasswordRequired={isPasswordRequired}
+        password={password}
+        setPasswordCheckModalVisible={setPasswordCheckModalVisible}
       />
     }
       
-      {currentScreen === 'SettingsScreen' && (
+      {currentScreen === SCREENS.SETTINGS && (
         <SettingsScreen
-          onNavigate={setCurrentScreen}
           selectedChannels={selectedChannels}
           setRefreshInterval={setRefreshInterval}
           getIntervalInMilliseconds={getIntervalInMilliseconds}
@@ -318,36 +301,37 @@ export default function App() {
           isPasswordModalVisible={isPasswordModalVisible}
           isReadOnly={isReadOnly}
           toggleReadOnly={toggleReadOnly}
+          onNavigate={navigate}
         />
       )}
   
-      {currentScreen === 'ChannelsManagementScreen' && (
+      {currentScreen === SCREENS.CHANNELS_MANAGEMENT && (
         <ChannelsManagementScreen
           onImport={navigateToChannelsList}
           selectedChannels={selectedChannels}
           setSelectedChannels={setSelectedChannels}
           saveSelectedChannels={saveSelectedChannels}
-          onBackPress={handleBackPress}
+          onNavigate={navigate}
           onNavigateToWebView={navigateToWebView}
           isReadOnly={isReadOnly}
         />
       )}
   
-      {currentScreen === 'ChannelsListScreen' && (
+      {currentScreen === SCREENS.CHANNELS_LIST && (
         <ChannelsListScreen
           channels={channels}
           selectedChannels={selectedChannels}
           onBack={handleSelectChannels}
-          onBackPress={handleBackPress}
+          onNavigate={navigate}
         />
       )}
   
-      {currentScreen === 'WebViewScreen' && 
+      {currentScreen === SCREENS.WEBVIEW && (
         <WebViewScreen 
           url={webViewUrl} 
-          onNavigate={handleSettingsAccess}
+          onNavigate={navigate}
         />
-      }
+      )}
       
       <PasswordModal
         visible={isPasswordModalVisible}
@@ -365,32 +349,26 @@ export default function App() {
       />
 
       {/* Screen related to the chat */}
-      {currentScreen === 'Login' && (
+      {currentScreen === SCREENS.LOGIN && (
         <Login 
-          onBackPress={() => setCurrentScreen('AppMenu')}
-          setCurrentScreen={setCurrentScreen}  
+          onNavigate={navigate}
         />
       )}
-      {currentScreen === 'AccountScreen' && (
+      {currentScreen === SCREENS.ACCOUNT && (
         <AccountScreen 
-          onBackPress={() => setCurrentScreen('Chat')}
-          setCurrentScreen={setCurrentScreen}
+          onNavigate={navigate}
         />
       )}
-            {currentScreen === 'Chat' && (
+      {currentScreen === SCREENS.CHAT && (
         <ChatScreen 
-          onBackPress={() => setCurrentScreen('AppMenu')}
+          onNavigate={navigate}
           isExpanded={isExpanded}
           setIsExpanded={setIsExpanded}
-          setCurrentScreen={setCurrentScreen}
-          onNavigate={navigateToAccount}
         />
       )}
-
-      {currentScreen === 'SettingsMessage' && (
+      {currentScreen === SCREENS.SETTINGS_MESSAGE && (
         <SettingsMessage 
-          onBackPress={handleBackToChat}
-          setCurrentScreen={setCurrentScreen}
+          onNavigate={navigate}
         />
       )}
     </View>

@@ -10,7 +10,7 @@ import ReadOnly from '../../components/modals/webviews/ReadOnly';
 import PasswordModal from '../../components/modals/webviews/PasswordModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../assets/styles/constants';
-
+import { SCREENS } from '../../constants/screens';
 /**
  * Settings Screen Component
  * Displays the settings page
@@ -50,9 +50,9 @@ export default function SettingsScreen({
   // Function to handle the arrow back button
   const handleBackPress = () => {
     if (selectedChannels && selectedChannels.length > 0) {
-      onNavigate('WebViewScreen');
+      onNavigate(SCREENS.WEBVIEW);
     } else {
-      onNavigate('NoUrlScreen');
+      onNavigate(SCREENS.NO_URL);
     }
   };
 
