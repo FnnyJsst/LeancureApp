@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Text } from 'react-native';
-import { COLORS, SIZES } from '../../constants/style';
+import { COLORS, SIZES } from '../../constants/style'; 
 import Card from '../../components/Card';
 import Navbar from '../../components/navigation/Navbar';
 
