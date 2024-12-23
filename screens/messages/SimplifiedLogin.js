@@ -13,12 +13,12 @@ export default function SimplifiedLogin({
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeText}>Welcome back</Text>
         </View>
-        <View style={styles.simplifiedLoginContainer}>
+        <View style={styles.loginContainer}>
           <View style={styles.connectedAccountContainer}>
               <Text style={styles.connectedAccountText}>Connected account</Text>
           </View>
           <View style={styles.accountContainer}>
-            <View style={styles.contractNumberContainer}>
+            <View style={styles.accountDetailsContainer}>
               <View style={styles.iconTextContainer}>
                 <MaterialCommunityIcons 
                     name="account-outline" 
@@ -29,14 +29,16 @@ export default function SimplifiedLogin({
                   Contract number 
                 </Text>
               </View>
-              <Text style={styles.contractNumberText}>{contractNumber}</Text>
+              <Text style={styles.contractNumber}>{contractNumber}</Text>
             </View>
           </View>
-          <ButtonLarge 
-              title="Switch account"
-              onPress={() => setIsSimplifiedLogin(false)}
-              backgroundColor={COLORS.orange}
-          />
+          <View style={styles.buttonContainer}>
+            <ButtonLarge 
+                title="Switch account"
+                onPress={() => setIsSimplifiedLogin(false)}
+                backgroundColor={COLORS.orange}
+            />
+          </View>
         </View>
       </View>
     );
@@ -47,14 +49,13 @@ export default function SimplifiedLogin({
       alignItems: 'center',
       marginVertical: 50,
   },
-  simplifiedLoginContainer: {
+  loginContainer: {
       gap: 20,
       backgroundColor: '#232424',
       alignItems: 'center',
       paddingVertical: 30,
       paddingHorizontal: 20,
       marginHorizontal: 20,
-
   },
   welcomeText: {
       color: "white",
@@ -78,18 +79,27 @@ export default function SimplifiedLogin({
       padding: 20,
       marginTop: 20,
   },
-  contractNumberContainer: {
+  accountDetailsContainer: {
       flexDirection: 'column',
       alignItems: 'flex-start',
-  
   },
   contractNumberText: {
-      color: COLORS.white,
+      color: COLORS.lightGray,
       fontSize: SIZES.fonts.medium,
+  },
+  contractNumber: {
+    color: 'white',
+    fontSize: SIZES.fonts.small,
+    fontWeight: SIZES.fontWeight.medium,
+    marginLeft: 35,
+    marginTop: 5,
   },
   iconTextContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
+  },
+  buttonContainer: {
+    width: '100%',
   },
 });
