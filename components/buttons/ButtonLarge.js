@@ -1,5 +1,5 @@
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { COLORS, SIZES } from '../../assets/styles/constants';
+import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
 export default function ButtonLarge({ title, onPress, width }) {

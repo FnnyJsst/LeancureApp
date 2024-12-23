@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { SIZES } from '../../assets/styles/constants';
+import { SIZES } from '../../constants/style';
 
 export default function Button({ title, backgroundColor, color, onPress, width, style }) {
   const { 

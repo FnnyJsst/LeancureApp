@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { SIZES, COLORS } from '../../assets/styles/constants';
+import { SIZES, COLORS } from '../../constants/style';
 
 export default function TitleModal({ title }) {
 

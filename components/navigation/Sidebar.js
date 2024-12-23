@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, TextInput, ScrollView, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { COLORS, SIZES } from '../../assets/styles/constants';
+import { COLORS, SIZES } from '../../constants/style';
 
 function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect }) {
   const [isGroupExpanded, setIsGroupExpanded] = useState(false);

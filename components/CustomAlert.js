@@ -3,7 +3,7 @@ import { Modal, View, Text, StyleSheet } from 'react-native';
 import Button from './buttons/Button';
 import TitleModal from './text/TitleModal';
 import { useDeviceType } from '../hooks/useDeviceType';
-import { SIZES,COLORS } from '../assets/styles/constants';
+import { SIZES,COLORS } from '../constants/style';
 
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error' }) {
   const { isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();

@@ -3,7 +3,7 @@ import { View, Modal, StyleSheet } from 'react-native';
 import TitleModal from '../../text/TitleModal';
 import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
-import { COLORS, MODAL_STYLES } from '../../../assets/styles/constants';
+import { COLORS, MODAL_STYLES } from '../../../constants/style';
 
 export default function DeleteChannel({ visible, onClose, handleDelete }) {
   const { isTablet, isPortrait, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType(); 

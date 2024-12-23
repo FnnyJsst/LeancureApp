@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
-import { COLORS, SIZES } from "../../assets/styles/constants";
+import { COLORS, SIZES } from "../../constants/style";
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
 import  Button  from '../buttons/Button'

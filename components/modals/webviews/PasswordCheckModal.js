@@ -5,7 +5,7 @@ import InputModal from '../../inputs/InputModal';
 import TitleModal from '../../text/TitleModal';
 import CustomAlert from '../../CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType';
-import { SIZES, COLORS, MODAL_STYLES } from '../../../assets/styles/constants';
+import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 
 export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType(); 

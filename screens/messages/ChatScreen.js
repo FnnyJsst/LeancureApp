@@ -4,7 +4,7 @@ import Navbar from '../../components/navigation/Navbar';
 import Sidebar from '../../components/navigation/Sidebar';
 import ChatWindow from '../../components/chat/ChatWindow';
 import ChatHeader from '../../components/chat/ChatHeader';
-import { COLORS } from '../../assets/styles/constants';
+import { COLORS } from '../../constants/style';
 
 export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
   const [selectedChannel, setSelectedChannel] = useState(null);

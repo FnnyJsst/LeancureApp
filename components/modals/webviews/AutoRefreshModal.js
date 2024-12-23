@@ -3,7 +3,7 @@ import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'rea
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
-import { SIZES, COLORS, MODAL_STYLES } from '../../../assets/styles/constants';
+import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 
 const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
   const { 

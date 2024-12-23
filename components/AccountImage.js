@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { COLORS } from '../assets/styles/constants';
+import { COLORS } from '../constants/style';
 import { useDeviceType } from '../hooks/useDeviceType';
 
 export default function AccountImage({ setCurrentScreen, width, height, customImage, alwaysSelected }) {

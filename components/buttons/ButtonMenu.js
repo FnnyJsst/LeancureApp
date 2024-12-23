@@ -1,6 +1,6 @@
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SIZES } from '../../assets/styles/constants';
+import { COLORS, SIZES } from '../../constants/style';
 
 export default MenuButton = ({ icon, text, onPress, isLandscape }) => (
   <TouchableOpacity 

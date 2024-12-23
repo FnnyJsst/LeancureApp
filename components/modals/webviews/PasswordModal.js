@@ -5,7 +5,7 @@ import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
 import CustomAlert from '../../CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType'; 
-import { COLORS, MODAL_STYLES } from '../../../assets/styles/constants';
+import { COLORS, MODAL_STYLES } from '../../../constants/style';
 
 export default function PasswordModal({ visible, onClose, onSubmitPassword, onDisablePassword }) {
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();

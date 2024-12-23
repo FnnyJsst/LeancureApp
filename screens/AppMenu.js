@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import MenuButton from '../components/buttons/ButtonMenu';
-import { COLORS, SIZES } from '../assets/styles/constants';
+import { COLORS, SIZES } from '../constants/style';
 import { useDeviceType } from '../hooks/useDeviceType';
 import { SCREENS } from '../constants/screens';
 

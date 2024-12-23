@@ -4,7 +4,7 @@ import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
-import { SIZES, COLORS, MODAL_STYLES } from '../../../assets/styles/constants';
+import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 
 const ImportChannelDialog = ({ visible, onClose, onImport }) => {
   // State management

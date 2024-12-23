@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, PixelRatio } from "react-native";
 import { useDeviceType } from "../../hooks/useDeviceType";
-import { SIZES, COLORS } from '../../assets/styles/constants'
+import { SIZES, COLORS } from '../../constants/style'
 export default function TitleSettings({ title }) {
 
   // Device type variables

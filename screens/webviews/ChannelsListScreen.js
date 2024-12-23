@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native
 import Header from '../../components/Header';
 import Button from '../../components/buttons/Button';
 import { useDeviceType } from '../../hooks/useDeviceType'; 
-import { SIZES, COLORS } from '../../assets/styles/constants';
+import { SIZES, COLORS } from '../../constants/style';
 
 /**
  * Channels List Screen Component

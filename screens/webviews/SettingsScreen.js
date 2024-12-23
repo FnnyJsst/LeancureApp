@@ -9,7 +9,7 @@ import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal'
 import ReadOnly from '../../components/modals/webviews/ReadOnly';
 import PasswordModal from '../../components/modals/webviews/PasswordModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { SIZES, COLORS } from '../../assets/styles/constants';
+import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 /**
  * Settings Screen Component

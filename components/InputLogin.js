@@ -1,5 +1,5 @@
 import { View, TextInput, StyleSheet } from 'react-native';
-import { COLORS, SIZES } from '../assets/styles/constants';
+import { COLORS, SIZES } from '../constants/style';
 import { Ionicons, FontAwesome, MaterialIcons, Feather } from '@expo/vector-icons';
 
 export default function InputLogin({ 

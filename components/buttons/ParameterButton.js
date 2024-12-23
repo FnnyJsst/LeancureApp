@@ -2,7 +2,7 @@ import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';  
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { COLORS } from '../../assets/styles/constants';
+import { COLORS } from '../../constants/style';
 
 export default function ParameterButton({ onPress }) {
   const { isSmartphone } = useDeviceType(); 

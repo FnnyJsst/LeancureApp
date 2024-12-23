@@ -6,7 +6,7 @@ import AccountImageInput from '../../components/AccountImageInput';
 import Button from '../../components/buttons/Button';
 import Card from '../../components/Card';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { COLORS, SIZES } from '../../assets/styles/constants';
+import { COLORS, SIZES } from '../../constants/style';
 
 
 export default function AccountScreen({ onNavigate }) {

@@ -1,14 +1,18 @@
+import { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import ButtonLarge from '../../components/buttons/ButtonLarge';
 import InputLogin from '../../components/InputLogin';
 import Separator from '../../components/Separator';
-import { COLORS, SIZES } from '../../assets/styles/constants';
+import CheckBox from '../../components/CheckBox';
+import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { useNavigation } from '../../hooks/useNavigation';
 import { SCREENS } from '../../constants/screens';
 
 export default function Login({ onNavigate }) {
+
     const { isPortrait, isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
+    const [isChecked, setIsChecked] = useState(false); 
+
     const handleLogin = () => {
         onNavigate(SCREENS.CHAT);
       };
@@ -71,6 +75,13 @@ export default function Login({ onNavigate }) {
                                 />
                             </View>
                         </View>
+                        <View style={styles.checkboxContainer}>
+                            <CheckBox 
+                                checked={isChecked}
+                                onPress={() => setIsChecked(!isChecked)}
+                                label="Stay connected"
+                            />
+                        </View>
                         <View style={styles.buttonContainer}>
                             <ButtonLarge 
                                 title="Connexion"
@@ -123,6 +134,7 @@ const styles = StyleSheet.create({
         padding: 30,
     },
     loginContainerSmartphone: {
+        marginTop: 75,
         margin: 10,
         padding: 15,
         paddingVertical: 30,
@@ -141,7 +153,7 @@ const styles = StyleSheet.create({
     },
     titleSmartphone: {
         fontSize: SIZES.fonts.large,
-        marginBottom: 20,
+        marginBottom: 35,
         alignSelf: 'center',
     },
     titleSmartphoneLandscape: {
@@ -157,7 +169,7 @@ const styles = StyleSheet.create({
     inputTitle: {
         color: COLORS.lightGray,
         fontSize: SIZES.fonts.medium,
-        fontWeight: SIZES.fontWeight.medium,
+        fontWeight: SIZES.fontWeight.regular,
         marginLeft: 10,
     },
     inputTitleSmartphoneLandscape: {
@@ -172,6 +184,9 @@ const styles = StyleSheet.create({
         fontSize: SIZES.fonts.small,
         textAlign: 'center',
         marginTop: 10,
+    },
+    checkboxContainer: {
+        marginLeft: 15,
     },
     buttonContainer: {
         alignItems: 'center',

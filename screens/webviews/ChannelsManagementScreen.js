@@ -9,7 +9,7 @@ import EvilIcons from '@expo/vector-icons/EvilIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { SIZES, COLORS } from '../../assets/styles/constants';
+import { SIZES, COLORS } from '../../constants/style';
 
 /**
  * Channel Management Screen Component

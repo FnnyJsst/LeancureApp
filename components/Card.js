@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SIZES } from '../assets/styles/constants';
+import { COLORS, SIZES } from '../constants/style';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useDeviceType } from '../hooks/useDeviceType';
 

@@ -1,7 +1,7 @@
 import { View, TextInput, StyleSheet } from "react-native";
 import { useState } from "react";
 import { useDeviceType } from '../../hooks/useDeviceType'; 
-import { SIZES,COLORS } from '../../assets/styles/constants';
+import { SIZES,COLORS } from '../../constants/style';
 
 export default function InputModal({
   placeholder, 

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Modal, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
-import { SIZES, COLORS } from '../../../assets/styles/constants';
+import { SIZES, COLORS } from '../../../constants/style';
 
 export default function ReadOnly({ visible, onClose, onToggleReadOnly }) {
   const { 

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { COLORS, SIZES } from '../../assets/styles/constants';
+import { COLORS, SIZES } from '../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import Separator from '../Separator';
 import InputChatWindow from '../inputs/InputChatWindow';

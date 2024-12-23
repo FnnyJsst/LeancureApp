@@ -1,6 +1,6 @@
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SIZES } from '../../assets/styles/constants';
+import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
 export default function Navbar({ currentSection, onSectionChange }) {

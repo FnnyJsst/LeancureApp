@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons, Entypo } from '@expo/vector-icons';
 import { useDeviceType } from '../hooks/useDeviceType';
-import { SIZES, COLORS } from '../assets/styles/constants';
+import { SIZES, COLORS } from '../constants/style';
 
 export default function Header({ title, onBackPress, onDialogPress, showIcons }) {
   const { isTablet, isSmartphonePortrait, isSmartphone } = useDeviceType();

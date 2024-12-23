@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Image, StyleSheet, StatusBar } from 'react-native';
-import { COLORS } from '../assets/styles/constants';
+import { COLORS } from '../constants/style';
 
 /**
  * Screen displayed when the app is launched

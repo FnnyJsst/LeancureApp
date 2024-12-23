@@ -1,7 +1,7 @@
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
-import { COLORS, SIZES } from "../../../assets/styles/constants";
+import { COLORS, SIZES } from "../../../constants/style";
 import ButtonLarge from "../../buttons/ButtonLarge";
 import Separator from "../../Separator";
 import * as FileSystem from 'expo-file-system';
