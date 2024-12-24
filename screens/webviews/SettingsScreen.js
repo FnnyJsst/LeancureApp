@@ -66,15 +66,18 @@ export default function SettingsScreen({
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={true}
       >
+        <Header 
+          title="SETTINGS" 
+          onBackPress={handleBackPress} 
+        />
         <View style={styles.settingsContentContainer}>
-          <Header 
-            title="SETTINGS" 
-            onBackPress={handleBackPress} 
-          />
+
           <TitleSettings title="GENERAL" />
           <View style={[
+            styles.configContainer,
             styles.configContainerTablet,
-            isSmartphone && styles.configContainerSmartphone
+            isSmartphone && styles.configContainerSmartphone,
+            isLandscape && styles.configContainerLandscape
           ]}>
             <SettingsButton
               title="Quit app"
@@ -85,8 +88,10 @@ export default function SettingsScreen({
           
           <TitleSettings title="CHANNELS MANAGEMENT" />
           <View style={[
+            styles.configContainer,
             styles.configContainerTablet,
-            isSmartphone && styles.configContainerSmartphone
+            isSmartphone && styles.configContainerSmartphone,
+            isLandscape && styles.configContainerLandscape
           ]}>
             <SettingsButton
               title="Channels Management"
@@ -96,8 +101,10 @@ export default function SettingsScreen({
           </View>
 
           <View style={[
+            styles.configContainer,
             styles.configContainerTablet,
-            isSmartphone && styles.configContainerSmartphone
+            isSmartphone && styles.configContainerSmartphone,
+            isLandscape && styles.configContainerLandscape
           ]}>
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
@@ -116,8 +123,10 @@ export default function SettingsScreen({
             </View>
           </View>
           <View style={[
+            styles.configContainer,
             styles.configContainerTablet,
-            isSmartphone && styles.configContainerSmartphone
+            isSmartphone && styles.configContainerSmartphone,
+            isLandscape && styles.configContainerLandscape
           ]}>
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
@@ -141,9 +150,10 @@ export default function SettingsScreen({
             </View>
           </View>
           <TitleSettings title="SECURITY" />
-          <View style={[
+          <View style={[styles.configContainer,
             isTablet && styles.configContainerTablet,
-            isSmartphone && styles.configContainerSmartphone
+            isSmartphone && styles.configContainerSmartphone,
+            isLandscape && styles.configContainerLandscape
           ]}>
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
@@ -204,13 +214,13 @@ const styles = StyleSheet.create({
   //MAIN CONTAINER
   pageContainer: {
     flex: 1,
-    paddingHorizontal: 10,
+    // paddingHorizontal: 10,
   },
   pageContainerSmartphonePortrait: {
     paddingHorizontal: 4,
   },
   pageContainerLandscape: {
-    paddingHorizontal: 25,
+    // paddingHorizontal: 25,
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -221,12 +231,21 @@ const styles = StyleSheet.create({
   },
 
   // CONFIG CONTAINER
+  configContainer: {
+    backgroundColor: "#232424",
+    borderRadius: 10,
+    padding: 12,
+    marginHorizontal: 15,
+  },
   configContainerTablet: {
     minHeight: 58,
   },
   configContainerSmartphone: {
     minHeight: 45,
     marginVertical: 5,
+  },
+  configContainerLandscape: {
+    marginHorizontal: 30,
   },
 
   // ROW CONTAINER
@@ -251,7 +270,7 @@ const styles = StyleSheet.create({
 
   // TOGGLE BUTTON
   baseToggle: {
-    backgroundColor: COLORS.buttonGray,
+    backgroundColor: COLORS.sidebarGray,
     borderRadius: 6,
     padding: 8,
     minWidth: 50,
@@ -266,7 +285,7 @@ const styles = StyleSheet.create({
   },
   versionTextSmartphone: {
     fontSize: SIZES.fonts.xSmall,
-    marginLeft: 20,
+    marginLeft: 30,
   },
   versionTextSmartphoneLandscape: {
     marginBottom: 40,
@@ -274,7 +293,7 @@ const styles = StyleSheet.create({
 
   // SEPARATOR
   separatorContainer: {
-    marginTop: 8,
+    marginTop: 20,
     width: '105%',
     alignSelf: 'center',
   },

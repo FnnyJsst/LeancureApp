@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Separator from './Separator';
 import { Ionicons, Entypo } from '@expo/vector-icons';
 import { useDeviceType } from '../hooks/useDeviceType';
 import { SIZES, COLORS } from '../constants/style';
@@ -7,37 +8,39 @@ export default function Header({ title, onBackPress, onDialogPress, showIcons })
   const { isTablet, isSmartphonePortrait, isSmartphone } = useDeviceType();
 
   return (
-    <View style={[
-      styles.headerContainer, 
-      isSmartphone && styles.headerContainerSmartphone
-    ]}>
-      <TouchableOpacity onPress={onBackPress} style={styles.iconBack}>
-        <Ionicons 
-          name="arrow-back" 
-          size={isTablet ? 30 : 20} 
-          style={styles.leftArrowIcon} 
-        />
-      </TouchableOpacity>
-      <Text style={[
-        styles.headerText, 
-        isSmartphone && styles.headerTextSmartphone,
+    <View>
+      <View style={[
+        styles.headerContainer, 
       ]}>
-        {title}
-      </Text>
-      {showIcons && (
-        <View style={[
-          styles.iconContainer,
-          isSmartphonePortrait && styles.iconContainerSmartphonePortrait
+        <TouchableOpacity onPress={onBackPress} style={styles.iconBack}>
+          <Ionicons 
+            name="arrow-back" 
+            size={isTablet ? 30 : 20} 
+            style={styles.leftArrowIcon} 
+          />
+        </TouchableOpacity>
+        <Text style={[
+          styles.headerText, 
+          isSmartphone && styles.headerTextSmartphone,
         ]}>
-          <TouchableOpacity onPress={onDialogPress}>
-            <Entypo 
-              name="add-to-list" 
-              size={isTablet ? 30 : 20} 
-              style={styles.icon} 
-            />
-          </TouchableOpacity>
-        </View>
-      )}
+          {title}
+        </Text>
+        {showIcons && (
+          <View style={[
+            styles.iconContainer,
+            isSmartphonePortrait && styles.iconContainerSmartphonePortrait
+          ]}>
+            <TouchableOpacity onPress={onDialogPress}>
+              <Entypo 
+                name="add-to-list" 
+                size={isTablet ? 30 : 20} 
+                style={styles.icon} 
+              />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+      <Separator width='100%' />
     </View>
   );
 }
@@ -50,11 +53,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.headerGray,
-    borderRadius: SIZES.borderRadius.large,
-  },
-  headerContainerSmartphone: {
-    height: 50,
   },
 
   //Text styles
@@ -62,7 +60,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.xLarge,
     marginLeft: 15,
     color: COLORS.lightGray,
-    flex: 1.5,
   },
   headerTextSmartphone: {
     fontSize: SIZES.fonts.large,

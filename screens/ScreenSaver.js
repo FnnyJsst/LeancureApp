@@ -27,8 +27,8 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   splashImage: {
-    width: '75%',
-    height: '37.5%',
+    width: '50%',
+    height: '25%',
     resizeMode: 'contain',
   },
 });
