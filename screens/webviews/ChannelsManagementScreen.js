@@ -10,6 +10,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
+import { SCREENS } from '../../constants/screens';
 
 /**
  * Channel Management Screen Component
@@ -21,7 +22,8 @@ export default function ChannelsManagementScreen({
   setSelectedChannels, 
   saveSelectedChannels,
   isReadOnly,
-  onNavigateToWebView
+  onNavigateToWebView,
+  onImport
 }) {
   const { isTablet, isSmartphone, isSmartphoneLandscape, isSmartphonePortrait } = useDeviceType();
 
@@ -128,7 +130,7 @@ return (
     <Header
       title="CHANNELS MANAGEMENT"
       onDialogPress={!isReadOnly ? openImportModal : null}
-      onBackPress={handleBackPress}
+      onBackPress={() => onNavigate(SCREENS.SETTINGS)}
       showIcons={!isReadOnly}
     />
     <ImportChannelDialog
@@ -266,7 +268,7 @@ return (
 
 const styles = StyleSheet.create({
   pageContainer: {
-    paddingTop: '3%',
+    // paddingTop: '3%',
     paddingHorizontal: '3%',
   },
   channelsContainer: {

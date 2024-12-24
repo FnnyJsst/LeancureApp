@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginHorizontal: '2%',
     width: '100%',
-    color: COLORS.lightGray,
+    color: 'white',
   },
   titleSmartphone: {
     fontSize: SIZES.fonts.medium,

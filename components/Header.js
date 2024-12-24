@@ -40,7 +40,7 @@ export default function Header({ title, onBackPress, onDialogPress, showIcons })
           </View>
         )}
       </View>
-      <Separator width='100%' />
+      <Separator width='150%' />
     </View>
   );
 }
@@ -49,16 +49,15 @@ const styles = StyleSheet.create({
   //Container styles
   headerContainer: {
     width: '100%',
-    height: 70,
-    paddingHorizontal: 20,
+    height: 60,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
 
   //Text styles
   headerText: {
     fontSize: SIZES.fonts.xLarge,
-    marginLeft: 15,
     color: COLORS.lightGray,
   },
   headerTextSmartphone: {
@@ -71,7 +70,7 @@ const styles = StyleSheet.create({
     color: COLORS.lightGray,
   },
   iconBack: {
-    width: 70,
+    // width: 40,
   },
   iconContainer: {
     flexDirection: 'row',

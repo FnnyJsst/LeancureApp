@@ -37,6 +37,7 @@ export const COLORS = {
   backgroundModal: 'rgba(0,0,0,0.8)',
   error: '#ff4444',
   green: '#24c12f',
+  black: '#1e1e1e',
 };
 
 export const MODAL_STYLES = {
@@ -50,8 +51,8 @@ export const MODAL_STYLES = {
   content: {
     width: '40%',
     padding: 20,
-    backgroundColor: COLORS.darkGray,
-    borderRadius: SIZES.borderRadius.xLarge,
+    backgroundColor: COLORS.buttonGray,
+    borderRadius: SIZES.borderRadius.large,
   },
   buttonContainer: {
     flexDirection: "row",

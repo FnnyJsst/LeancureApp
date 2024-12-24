@@ -47,10 +47,8 @@ const styles = StyleSheet.create({
     width: "90%",
     borderRadius: SIZES.borderRadius.small,
     padding: 10,
-    backgroundColor: COLORS.buttonGray,
-    borderWidth: 0.5,
-    borderColor: COLORS.gray,
-    color: COLORS.gray,
+    backgroundColor: COLORS.black,
+    color: COLORS.lightGray,
   },
   inputFocused: {
     borderColor: COLORS.orange,

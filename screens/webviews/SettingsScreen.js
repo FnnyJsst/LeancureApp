@@ -96,7 +96,7 @@ export default function SettingsScreen({
             <SettingsButton
               title="Channels Management"
               icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.lightGray} />}
-              onPress={() => onNavigate('ChannelsManagementScreen')}
+              onPress={() => onNavigate(SCREENS.CHANNELS_MANAGEMENT)}
             />
           </View>
 

@@ -215,9 +215,8 @@ export default function App() {
 
   /////FUNCTIONS RELATED TO NAVIGATION/////
   // Navigate to the channels list screen
-  const navigateToChannelsList = (channels) => {
-    setChannels(channels);
-    navigate('CHANNELS_LIST');
+  const navigateToChannelsList = () => {
+    navigate(SCREENS.CHANNELS_LIST);
   };
 
   // Navigate to the web view screen
@@ -251,6 +250,10 @@ export default function App() {
       return () => clearInterval(interval);
     }
   }, [refreshInterval]);
+
+  const handleImportChannels = (selectedChannels) => {
+    handleSelectChannels(selectedChannels);
+  };
 
   // If the app is loading, show the loading screen
   if (isLoading) {
@@ -319,10 +322,9 @@ export default function App() {
   
       {currentScreen === SCREENS.CHANNELS_LIST && (
         <ChannelsListScreen
-          channels={channels}
-          selectedChannels={selectedChannels}
-          onBack={handleSelectChannels}
           onNavigate={navigate}
+          onImport={handleImportChannels}
+          availableChannels={channels}
         />
       )}
   

@@ -9,37 +9,42 @@ import { SIZES, COLORS } from '../../constants/style';
  * Channels List Screen Component
  * Displays the list of available channels to import
  **/
-const ChannelsListScreen = ({ channels, selectedChannels, onBack, onBackPress }) => {
+export default function ChannelsListScreen({ onNavigate, onImport, availableChannels }) {
   const [localSelectedChannels, setLocalSelectedChannels] = useState([]);
-  const [availableChannels, setAvailableChannels] = useState([]);
-
-  //Device type variables
   const { isTablet, isPortrait, isSmartphone, isSmartphonePortrait } = useDeviceType(); 
 
-  // Effect to filter the available channels
+  const channels = availableChannels || [];
+
+  // Modifier l'effet pour éviter l'erreur de filtrage
   useEffect(() => {
-    const filteredChannels = channels.filter(newChannel => 
-      !selectedChannels?.some(existingChannel => 
-        existingChannel.href === newChannel.href
-      )
-    );
-    setAvailableChannels(filteredChannels);
-  }, [channels, selectedChannels]);
+    if (channels && channels.length > 0) {
+      const filteredChannels = channels.filter(newChannel => 
+        !localSelectedChannels?.some(existingChannel => 
+          existingChannel.href === newChannel.href
+        )
+      );
+      setLocalSelectedChannels(filteredChannels);
+    }
+  }, [channels]);
 
   // Function to toggle the channel selection
   const toggleChannelSelection = (channel) => {
-    setLocalSelectedChannels(prevSelected => {
-      if (prevSelected.some(c => c.href === channel.href)) {
-        return prevSelected.filter(c => c.href !== channel.href);
+    setLocalSelectedChannels(prevChannels => {
+      const isSelected = prevChannels.some(c => c.href === channel.href);
+      if (isSelected) {
+        return prevChannels.filter(c => c.href !== channel.href);
       } else {
-        return [...prevSelected, channel];
+        return [...prevChannels, channel];
       }
     });
   };
 
-  // Function to handle the import of channels
+  // Ajout de la fonction handleImportChannels
   const handleImportChannels = () => {
-    onBack(localSelectedChannels);
+    if (localSelectedChannels.length > 0) {
+      onImport(localSelectedChannels);
+      onNavigate('CHANNELS_MANAGEMENT');
+    }
   };
 
   return (
@@ -49,7 +54,7 @@ const ChannelsListScreen = ({ channels, selectedChannels, onBack, onBackPress })
     ]}>
       <Header 
         title="IMPORT CHANNELS"
-        onBackPress={onBackPress}
+        onBackPress={() => onNavigate('CHANNELS_MANAGEMENT')}
         showIcons={false}
       />
       <FlatList
@@ -84,7 +89,7 @@ const ChannelsListScreen = ({ channels, selectedChannels, onBack, onBackPress })
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   pageContainer: {
@@ -130,5 +135,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   }
 });
-
-export default ChannelsListScreen;

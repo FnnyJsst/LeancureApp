@@ -101,7 +101,7 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
             <View style={MODAL_STYLES.buttonContainer}>
               <Button
                 title="Do not use"
-                backgroundColor={COLORS.buttonGray}
+                backgroundColor={COLORS.sidebarGray}
                 color="white"
                 onPress={() => { 
                   onDisablePassword(); 
@@ -118,7 +118,7 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
               />
               <Button
                 title="Close"
-                backgroundColor={COLORS.buttonGray}
+                backgroundColor={COLORS.sidebarGray}
                 color="white"
                 onPress={handleClose}
                 width="18%"
