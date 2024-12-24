@@ -9,27 +9,31 @@ export default function Header({ title, onBackPress, onDialogPress, showIcons })
 
   return (
     <View>
-      <View style={[
-        styles.headerContainer, 
-      ]}>
-        <TouchableOpacity onPress={onBackPress} style={styles.iconBack}>
-          <Ionicons 
-            name="arrow-back" 
-            size={isTablet ? 30 : 20} 
-            style={styles.leftArrowIcon} 
-          />
-        </TouchableOpacity>
-        <Text style={[
-          styles.headerText, 
-          isSmartphone && styles.headerTextSmartphone,
-        ]}>
-          {title}
-        </Text>
-        {showIcons && (
-          <View style={[
-            styles.iconContainer,
-            isSmartphonePortrait && styles.iconContainerSmartphonePortrait
+      <View style={styles.headerContainer}>
+        {/* Left section - Back button */}
+        <View style={styles.section}>
+          <TouchableOpacity onPress={onBackPress}>
+            <Ionicons 
+              name="arrow-back" 
+              size={isTablet ? 30 : 20} 
+              style={styles.leftArrowIcon} 
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Middle section - Title */}
+        <View style={styles.titleSection}>
+          <Text style={[
+            styles.headerText, 
+            isSmartphone && styles.headerTextSmartphone,
           ]}>
+            {title}
+          </Text>
+        </View>
+
+        {/* Right section - Add button or empty space */}
+        <View style={styles.section}>
+          {showIcons ? (
             <TouchableOpacity onPress={onDialogPress}>
               <Entypo 
                 name="add-to-list" 
@@ -37,8 +41,8 @@ export default function Header({ title, onBackPress, onDialogPress, showIcons })
                 style={styles.icon} 
               />
             </TouchableOpacity>
-          </View>
-        )}
+          ) : null}
+        </View>
       </View>
       <Separator width='150%' />
     </View>
@@ -46,16 +50,22 @@ export default function Header({ title, onBackPress, onDialogPress, showIcons })
 }
 
 const styles = StyleSheet.create({
-  //Container styles
   headerContainer: {
     width: '100%',
     height: 60,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
-
-  //Text styles
+  section: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  titleSection: {
+    flex: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerText: {
     fontSize: SIZES.fonts.xLarge,
     color: COLORS.lightGray,
@@ -63,24 +73,10 @@ const styles = StyleSheet.create({
   headerTextSmartphone: {
     fontSize: SIZES.fonts.large,
   },
-
-  //Icon styles
   leftArrowIcon: {
-    marginLeft: 10,
     color: COLORS.lightGray,
   },
-  iconBack: {
-    // width: 40,
-  },
-  iconContainer: {
-    flexDirection: 'row',
-    marginRight: 25,
-  },
-  iconContainerSmartphonePortrait: {
-    marginRight: 10,
-  },
   icon: {
-    fontWeight: SIZES.fontWeight.bold,
     color: COLORS.lightGray,
   },
 });

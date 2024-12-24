@@ -36,11 +36,11 @@ const styles = StyleSheet.create({
   //Text styles
   text: {
     fontSize: SIZES.fonts.xLarge,
-    color: COLORS.orange,
+    color: "white",
     fontWeight: SIZES.fontWeight.medium,
   },
   textSmartphone: {
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.large,
     marginLeft: 20,
   }
 });

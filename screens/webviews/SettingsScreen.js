@@ -59,20 +59,19 @@ export default function SettingsScreen({
   return (
     <View style={[
       styles.pageContainer,
-      isSmartphonePortrait && styles.pageContainerSmartphonePortrait,
-      isLandscape && styles.pageContainerLandscape
+      isSmartphonePortrait && styles.pageContainerSmartphonePortrait
     ]}>
       <ScrollView 
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={true}
       >
         <Header 
-          title="SETTINGS" 
+          title="Settings" 
           onBackPress={handleBackPress} 
         />
         <View style={styles.settingsContentContainer}>
 
-          <TitleSettings title="GENERAL" />
+          <TitleSettings title="General" />
           <View style={[
             styles.configContainer,
             styles.configContainerTablet,
@@ -81,12 +80,12 @@ export default function SettingsScreen({
           ]}>
             <SettingsButton
               title="Quit app"
-              icon={<Ionicons name="exit-outline" size={isSmartphone ? 22 : 28} color={COLORS.lightGray} />}
+              icon={<Ionicons name="exit-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
               onPress={handleQuitApp}
             />
           </View>
           
-          <TitleSettings title="CHANNELS MANAGEMENT" />
+          <TitleSettings title="Channels management" />
           <View style={[
             styles.configContainer,
             styles.configContainerTablet,
@@ -95,7 +94,7 @@ export default function SettingsScreen({
           ]}>
             <SettingsButton
               title="Channels Management"
-              icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.lightGray} />}
+              icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
               onPress={() => onNavigate(SCREENS.CHANNELS_MANAGEMENT)}
             />
           </View>
@@ -110,7 +109,7 @@ export default function SettingsScreen({
               <View style={styles.leftContent}>
                 <SettingsButton
                   title="Auto-refresh"
-                  icon={<Ionicons name="reload-outline" size={isSmartphone ? 22 : 28} color={COLORS.lightGray} />}
+                  icon={<Ionicons name="reload-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openModal}
                 />
               </View>
@@ -132,7 +131,7 @@ export default function SettingsScreen({
               <View style={styles.leftContent}>
                 <SettingsButton
                   title="Read-only access"
-                  icon={<Ionicons name="eye-outline" size={isSmartphone ? 22 : 28} color={COLORS.lightGray} />}
+                  icon={<Ionicons name="eye-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openReadOnlyModal}
                 />
               </View>
@@ -149,7 +148,7 @@ export default function SettingsScreen({
               </TouchableOpacity>
             </View>
           </View>
-          <TitleSettings title="SECURITY" />
+          <TitleSettings title="Security" />
           <View style={[styles.configContainer,
             isTablet && styles.configContainerTablet,
             isSmartphone && styles.configContainerSmartphone,
@@ -159,7 +158,7 @@ export default function SettingsScreen({
               <View style={styles.leftContent}>
                 <SettingsButton
                   title="Password"
-                  icon={<Ionicons name="lock-closed-outline" size={isSmartphone ? 22 : 28} color={COLORS.lightGray} />}
+                  icon={<Ionicons name="lock-closed-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openPasswordModal}
                 />
               </View>
@@ -178,7 +177,7 @@ export default function SettingsScreen({
             <Separator width={isSmartphone ? "95%" : "91%"} />
           </View>
           
-          <TitleSettings title="INFORMATION" />
+          <TitleSettings title="Information" />
           <Text style={[
             styles.text,
             isTablet ? styles.versionTextTablet : styles.versionTextSmartphone,
@@ -219,9 +218,6 @@ const styles = StyleSheet.create({
   pageContainerSmartphonePortrait: {
     paddingHorizontal: 4,
   },
-  pageContainerLandscape: {
-    // paddingHorizontal: 25,
-  },
   scrollViewContent: {
     flexGrow: 1,
   },
@@ -242,10 +238,11 @@ const styles = StyleSheet.create({
   },
   configContainerSmartphone: {
     minHeight: 45,
-    marginVertical: 5,
+    marginVertical: 10,
   },
   configContainerLandscape: {
     marginHorizontal: 30,
+    marginVertical: 5,
   },
 
   // ROW CONTAINER

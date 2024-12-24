@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: SIZES.fonts.large,
     color: COLORS.lightGray,
-    fontWeight: SIZES.fontWeight.medium,
+    fontWeight: SIZES.fontWeight.regular,
   },
 
   // Smartphone styles

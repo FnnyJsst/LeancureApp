@@ -128,7 +128,7 @@ export default function ChannelsManagementScreen({
 return (
   <View style={styles.pageContainer}>
     <Header
-      title="CHANNELS MANAGEMENT"
+      title="Channels management"
       onDialogPress={!isReadOnly ? openImportModal : null}
       onBackPress={() => onNavigate(SCREENS.SETTINGS)}
       showIcons={!isReadOnly}
