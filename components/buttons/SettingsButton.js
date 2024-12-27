@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   text: {
-    fontSize: SIZES.fonts.large,
+    fontSize: SIZES.fonts.subtitleTablet,
     color: COLORS.lightGray,
     fontWeight: SIZES.fontWeight.regular,
   },
@@ -58,6 +58,6 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   textSmartphone: {
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
 });

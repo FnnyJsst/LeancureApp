@@ -67,11 +67,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerText: {
-    fontSize: SIZES.fonts.xLarge,
+    fontSize: SIZES.fonts.subtitleTablet,
     color: COLORS.lightGray,
   },
   headerTextSmartphone: {
-    fontSize: SIZES.fonts.large,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   leftArrowIcon: {
     color: COLORS.lightGray,

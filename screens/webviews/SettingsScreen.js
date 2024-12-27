@@ -258,11 +258,11 @@ const styles = StyleSheet.create({
   // TEXT
   text: {
     color: COLORS.gray,
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.regular,
   },
   textSmartphone: {
-    fontSize: SIZES.fonts.small, 
+    fontSize: SIZES.fonts.textSmartphone, 
   },
 
   // TOGGLE BUTTON
@@ -276,12 +276,12 @@ const styles = StyleSheet.create({
 
   // VERSION TEXT
   versionTextTablet: {
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.textTablet,
     marginLeft: 50,
     fontWeight: SIZES.fontWeight.light,
   },
   versionTextSmartphone: {
-    fontSize: SIZES.fonts.xSmall,
+    fontSize: SIZES.fonts.textSmartphone,
     marginLeft: 30,
   },
   versionTextSmartphoneLandscape: {

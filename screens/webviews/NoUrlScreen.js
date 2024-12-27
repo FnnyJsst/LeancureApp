@@ -35,7 +35,10 @@ export default function NoUrlScreen({ onNavigate, isPasswordRequired, password, 
       </TouchableOpacity>
 
       <View style={styles.textContainer}>
-        <Text style={styles.text}>Please enter settings to add an URL</Text>
+        <Text style={[
+          styles.text,
+          isSmartphone && styles.textSmartphone
+        ]}>Please enter settings to add an URL</Text>
       </View>
 
       <View style={styles.buttonContainer}>
@@ -65,9 +68,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   text: {
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.subtitleTablet,
     color: COLORS.lightGray,
     textAlign: 'center',
+  },
+  textSmartphone: {
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   buttonContainer: {
     position: 'absolute',

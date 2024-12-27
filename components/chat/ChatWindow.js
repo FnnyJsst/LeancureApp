@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   channelName: {
-    fontSize: SIZES.fonts.large,
+    fontSize: SIZES.fonts.subtitleSmartphone,
     color: COLORS.lightGray,
   },
   chatContainer: {
@@ -200,6 +200,6 @@ const styles = StyleSheet.create({
   },
   noChannelText: {
     color: COLORS.gray,
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
 });

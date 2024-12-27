@@ -87,19 +87,19 @@ const styles = StyleSheet.create({
   },
   accountName: {
     color: 'white',
-    fontSize: SIZES.fonts.large,
+    fontSize: SIZES.fonts.titleTablet,
     fontWeight: SIZES.fontWeight.bold,
   },
   accountNameSmartphone: {
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.titleSmartphone,
   },
   accountJobTitle: {
     color: COLORS.orange,
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.subtitleTablet,
     fontWeight: SIZES.fontWeight.medium,
   },
   accountJobTitleSmartphone: {
-    fontSize: SIZES.fonts.xSmall,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   buttonContainer: {
     flexDirection: 'row',

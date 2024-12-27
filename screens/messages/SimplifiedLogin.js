@@ -60,7 +60,7 @@ export default function SimplifiedLogin({
   welcomeText: {
       color: "white",
       fontWeight: SIZES.fontWeight.regular,
-      fontSize: SIZES.fonts.xLarge,
+      fontSize: SIZES.fonts.titleSmartphone,
   },
   connectedAccountContainer: {
       alignItems: 'flex-start',
@@ -69,7 +69,7 @@ export default function SimplifiedLogin({
   },
   connectedAccountText: {
       color: 'white',
-      fontSize: SIZES.fonts.medium,
+      fontSize: SIZES.fonts.subtitleSmartphone,
       fontWeight: SIZES.fontWeight.regular,
   },
   accountContainer: {
@@ -85,11 +85,11 @@ export default function SimplifiedLogin({
   },
   contractNumberText: {
       color: COLORS.lightGray,
-      fontSize: SIZES.fonts.medium,
+      fontSize: SIZES.fonts.textSmartphone,
   },
   contractNumber: {
     color: 'white',
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.medium,
     marginLeft: 35,
     marginTop: 5,

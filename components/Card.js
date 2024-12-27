@@ -42,9 +42,12 @@ const styles = StyleSheet.create({
   },
   textContentDescription: {
     color: 'white',
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.textTablet,
   },
   textContentTitleSmartphone: {
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.subtitleSmartphone,
+  },
+  textContentDescriptionSmartphone: {
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
 });

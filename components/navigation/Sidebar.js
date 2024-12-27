@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: COLORS.lightGray,
     padding: 8,
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.light,
   },
   groupsList: {
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   groupName: {
     color: COLORS.lightGray,
     marginLeft: 10,
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   channelItem: {
     padding: 12,
@@ -242,6 +242,6 @@ const styles = StyleSheet.create({
   },
   channelName: {
     color: COLORS.lightGray,
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.textSmartphone,
   },
 });

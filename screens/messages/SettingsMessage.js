@@ -3,16 +3,19 @@ import { View, StyleSheet, ScrollView, Text } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style'; 
 import Card from '../../components/Card';
 import Navbar from '../../components/navigation/Navbar';
+import { useDeviceType } from '../../hooks/useDeviceType';
 
-export default function SettingsMessage({ setCurrentScreen }) {
+export default function SettingsMessage({ onNavigate }) {
+
+  const { isSmartphone } = useDeviceType();
 
   const handleSectionChange = (section) => {
     if (section === 'chat') {
-      setCurrentScreen('Chat');
+      onNavigate('CHAT');
     } else if (section === 'account') {
-      setCurrentScreen('AccountScreen');
+      onNavigate('ACCOUNT');
     } else if (section === 'settings') {
-      setCurrentScreen('SettingsMessage');
+      onNavigate('SETTINGS_MESSAGE');
     }
   };
 
@@ -21,7 +24,10 @@ export default function SettingsMessage({ setCurrentScreen }) {
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <View style={styles.content}>
-            <Text style={styles.title}>Settings</Text>
+            <Text style={[
+              styles.title,
+              isSmartphone && styles.titleSmartphone
+            ]}>Settings</Text>
             <Card />
             <Card />
           </View>
@@ -52,8 +58,11 @@ const styles = StyleSheet.create({
   },
   title: {
     color: 'white',
-    fontSize: SIZES.fonts.large,
+    fontSize: SIZES.fonts.titleTablet,
     fontWeight: 'bold',
     marginBottom: 20,
+  },
+  titleSmartphone: {
+    fontSize: SIZES.fonts.titleSmartphone,
   }
 });

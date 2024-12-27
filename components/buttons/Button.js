@@ -55,12 +55,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   buttonText: {
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.subtitleTablet,
     textAlign: 'center',
     fontWeight: SIZES.fontWeight.semiBold, 
   },
   buttonTextSmartphone: {
-    fontSize: SIZES.fonts.xSmall,
+    fontSize: SIZES.fonts.subtitleSmartphone,
     fontWeight: SIZES.fontWeight.medium,
   },
 });

@@ -51,10 +51,10 @@ const styles = StyleSheet.create({
   navText: {
     color: COLORS.lightGray,
     marginTop: 5,
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.textTablet,
   },
   navTextSmartphone: {
-    fontSize: SIZES.fonts.xSmall,
+    fontSize: SIZES.fonts.textSmartphone,
     marginTop: 3,
   },
   active: {

@@ -87,14 +87,14 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
                 backgroundColor={COLORS.buttonGray}
                 color="white"
                 onPress={handleClose}
-                width="18%"
+                width="20%"
               />
               <Button
                 title="Ok"
                 backgroundColor={COLORS.orange}
                 color="white"
                 onPress={handleSubmit}
-                width="18%"
+                width="20%"
               />
             </View>
           </View>

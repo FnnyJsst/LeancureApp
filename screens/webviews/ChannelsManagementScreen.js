@@ -329,10 +329,10 @@ const styles = StyleSheet.create({
   },
   text: {
     color: COLORS.lightGray,
-    fontSize: SIZES.fonts.large,
+    fontSize: SIZES.fonts.subtitleTablet,
   },
   textSmartphone: {
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   textSelected: {
     color: COLORS.orange,

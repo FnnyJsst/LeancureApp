@@ -215,7 +215,8 @@ export default function App() {
 
   /////FUNCTIONS RELATED TO NAVIGATION/////
   // Navigate to the channels list screen
-  const navigateToChannelsList = () => {
+  const navigateToChannelsList = (extractedChannels) => {
+    setChannels(extractedChannels);
     navigate(SCREENS.CHANNELS_LIST);
   };
 
@@ -252,7 +253,10 @@ export default function App() {
   }, [refreshInterval]);
 
   const handleImportChannels = (selectedChannels) => {
-    handleSelectChannels(selectedChannels);
+    console.log('Channels to import:', selectedChannels); // Debug
+    if (selectedChannels && selectedChannels.length > 0) {
+      handleSelectChannels(selectedChannels);
+    }
   };
 
   // If the app is loading, show the loading screen
@@ -322,9 +326,10 @@ export default function App() {
   
       {currentScreen === SCREENS.CHANNELS_LIST && (
         <ChannelsListScreen
-          onNavigate={navigate}
-          onImport={handleImportChannels}
-          availableChannels={channels}
+          channels={channels}
+          selectedChannels={selectedChannels}
+          onBack={handleImportChannels}
+          onBackPress={() => navigate(SCREENS.CHANNELS_MANAGEMENT)}
         />
       )}
   
@@ -369,7 +374,7 @@ export default function App() {
         />
       )}
       {currentScreen === SCREENS.SETTINGS_MESSAGE && (
-        <SettingsMessage 
+        <SettingsMessage
           onNavigate={navigate}
         />
       )}

@@ -211,6 +211,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.backgroundModal,
+    padding: 10,
   },
   modalContent: {
     width: '90%',
@@ -226,12 +227,12 @@ const styles = StyleSheet.create({
   },
   title: {
     color: 'white',
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   fileSize: {
     color: COLORS.lightGray,
     fontWeight: SIZES.fontWeight.light,
-    fontSize: SIZES.fonts.xXSmall,
+    fontSize: SIZES.fonts.textSmartphone,
     marginTop: 5,
   },
   separatorContainer: {

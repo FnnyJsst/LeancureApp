@@ -42,7 +42,7 @@ export default function InputLogin({
                 onChangeText={onChangeText} 
                 secureTextEntry={secureTextEntry} 
                 placeholderTextColor={COLORS.gray}
-                fontSize={SIZES.fonts.medium} 
+                fontSize={SIZES.fonts.textSmartphone} 
             />
         </View>
     )

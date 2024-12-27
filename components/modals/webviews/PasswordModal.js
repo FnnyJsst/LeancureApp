@@ -107,21 +107,21 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
                   onDisablePassword(); 
                   handleClose(); 
                 }}
-                width="26%"
+                width="28%"
               />
               <Button
                 title="Ok"
                 backgroundColor={COLORS.orange}
                 color="white"
                 onPress={handleOkPress}
-                width="18%"
+                width="20%"
               />
               <Button
                 title="Close"
                 backgroundColor={COLORS.sidebarGray}
                 color="white"
                 onPress={handleClose}
-                width="18%"
+                width="20%"
               />
             </View>
           </View>

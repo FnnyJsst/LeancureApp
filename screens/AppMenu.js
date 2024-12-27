@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "white",
-    fontSize: SIZES.fonts.xXLarge,
+    fontSize: SIZES.fonts.titleTablet,
     fontWeight: SIZES.fontWeight.medium,
     paddingVertical: 20, 
   },

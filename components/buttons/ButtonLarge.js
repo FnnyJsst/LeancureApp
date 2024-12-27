@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: 'white',
-        fontSize: SIZES.fonts.medium,
+        fontSize: SIZES.fonts.subtitleSmartphone,
         fontWeight: SIZES.fontWeight.bold,
     }
 });

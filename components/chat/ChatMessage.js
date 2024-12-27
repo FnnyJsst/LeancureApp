@@ -2,7 +2,6 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { COLORS, SIZES } from "../../constants/style";
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
-import  Button  from '../buttons/Button'
 import { useDeviceType } from '../../hooks/useDeviceType';
 
 export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
@@ -166,16 +165,16 @@ const styles = StyleSheet.create({
   },
   username: {
     color: COLORS.lightGray,
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.textSmartphone,
     marginBottom: 2,
   },
   messageText: {
     color: 'white',
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   timestamp: {
     color: COLORS.lightGray,
-    fontSize: SIZES.fonts.xSmall,
+    fontSize: SIZES.fonts.textSmartphone,
     alignSelf: 'flex-end',
     marginTop: 2,
   },
@@ -196,7 +195,7 @@ const styles = StyleSheet.create({
   },
   fileName: {
     color: 'white',
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.medium,
   },
   ownFileName: {
@@ -204,7 +203,7 @@ const styles = StyleSheet.create({
   },
   fileSize: {
     color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: SIZES.fonts.xXSmall,
+    fontSize: SIZES.fonts.errorText,
   },
   ownFileSize: {
     color: 'rgba(255, 255, 255, 0.7)',

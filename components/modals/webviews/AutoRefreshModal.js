@@ -82,13 +82,13 @@ const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
               title="Close" 
               backgroundColor={COLORS.buttonGray}
               color="white" 
-              width="18%"
+              width="20%"
               onPress={onClose} />
             <Button 
               title="Set" 
               backgroundColor={COLORS.orange}
               color="white" 
-              width="18%"
+              width="20%"
               onPress={() => {
                 console.log('Option à envoyer:', selectedOption);
                 onSelectOption(selectedOption);
@@ -177,11 +177,11 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   radioText: {
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.textTablet,
     color: COLORS.lightGray,
   },
   radioTextSmartphone: {
-    fontSize: SIZES.fonts.xSmall,
+    fontSize: SIZES.fonts.textSmartphone,
   },
 });
 

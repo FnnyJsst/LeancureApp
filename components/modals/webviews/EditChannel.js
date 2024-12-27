@@ -135,12 +135,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   text: {
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.subtitleTablet,
     marginBottom: 20,
     color: COLORS.gray,
   },
   textSmartphone: {
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.subtitleSmartphone,
     marginBottom: 10,
   },
 });

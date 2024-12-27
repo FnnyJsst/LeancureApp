@@ -52,14 +52,14 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly }) {
               title="Yes" 
               backgroundColor={COLORS.buttonGray}
               color="white" 
-              width="18%"
+              width="20%"
               onPress={handleYes} 
             />
             <Button 
               title="No" 
               backgroundColor={COLORS.orange}
               color="white" 
-              width="18%"
+              width="20%"
               onPress={handleNo} 
             />
           </View>
@@ -99,14 +99,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   titleText: {
-    fontSize: SIZES.fonts.large,
+    fontSize: SIZES.fonts.subtitleTablet,
     fontWeight: SIZES.fontWeight.bold,
     marginHorizontal: '2%',
     width: '100%',
     color: COLORS.lightGray,
   },
   titleTextSmartphone: {
-    fontSize: 16,
+    fontSize: SIZES.fonts.subtitleSmartphone,
     marginBottom: 5,
   },
 

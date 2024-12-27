@@ -152,14 +152,14 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
               onPress={handleClose}
               backgroundColor={COLORS.sidebarGray}
               color="white"
-              width="18%"
+              width="20%"
             />
             <Button 
               title="Import" 
               onPress={handleDownload}
               backgroundColor={COLORS.orange}
               color="white"
-              width="18%"
+              width="20%"
             />
           </View>
         </View>
@@ -167,6 +167,7 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
     </Modal>
   );
 };
+
 
 const styles = StyleSheet.create({
   //Content styles
@@ -188,10 +189,10 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: COLORS.error,
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.errorText,
   },
   errorTextSmartphone: {
-    fontSize: SIZES.fonts.xSmall,
+    fontSize: SIZES.fonts.errorText,
   },
 });
 

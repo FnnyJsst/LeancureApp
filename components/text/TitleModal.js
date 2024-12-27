@@ -21,7 +21,7 @@ export default function TitleModal({ title }) {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: SIZES.fonts.large,
+    fontSize: SIZES.fonts.subtitleTablet,
     fontWeight: SIZES.fontWeight.bold,
     marginBottom: 20,
     marginHorizontal: '2%',
@@ -29,6 +29,6 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   titleSmartphone: {
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
 });

@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
   },
   menuText: {
     color: "white",
-    fontSize: SIZES.fonts.large,
+    fontSize: SIZES.fonts.subtitleSmartphone,
     fontWeight: SIZES.fontWeight.medium,
   },
   menuItemLandscape: {
@@ -37,6 +37,6 @@ const styles = StyleSheet.create({
   },
   icon: {
     color: COLORS.orange,
-    fontSize: SIZES.fonts.xLarge,
+    fontSize: SIZES.fonts.titleSmartphone,
   },
 });

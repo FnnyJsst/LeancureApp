@@ -3,13 +3,14 @@
  **/
 export const SIZES = {
   fonts: {
-    xXSmall: 12,
-    xSmall: 14,
-    small: 15,
-    medium: 18,
-    large: 20,
-    xLarge: 22,
-    xXLarge: 28,
+    errorText: 12,
+    textSmartphone: 14,
+    textTablet: 16,
+    subtitleSmartphone: 18,
+    subtitleTablet: 20,
+    titleSmartphone: 24,
+    titleTablet: 28,
+    // xXLarge: 28,
   },
   fontWeight: {
     light: '300',

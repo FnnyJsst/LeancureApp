@@ -175,11 +175,11 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: COLORS.lightGray,
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.subtitleTablet,
     marginRight: 10,
   },
   smartphoneInput: {
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   sendButton: {
     flexDirection: 'row',

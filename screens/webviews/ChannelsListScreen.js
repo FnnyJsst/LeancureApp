@@ -3,58 +3,43 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native
 import Header from '../../components/Header';
 import Button from '../../components/buttons/Button';
 import { useDeviceType } from '../../hooks/useDeviceType'; 
-import { SIZES, COLORS } from '../../constants/style';
+import { COLORS, SIZES } from '../../constants/style';
 
-/**
- * Channels List Screen Component
- * Displays the list of available channels to import
- **/
-export default function ChannelsListScreen({ onNavigate, onImport, availableChannels }) {
+export default function ChannelsListScreen({ channels, selectedChannels, onBack, onBackPress }) {
   const [localSelectedChannels, setLocalSelectedChannels] = useState([]);
-  const { isTablet, isPortrait, isSmartphone, isSmartphonePortrait } = useDeviceType(); 
+  const [availableChannels, setAvailableChannels] = useState([]);
+  const { isTablet, isPortrait, isSmartphone, isSmartphonePortrait } = useDeviceType();
 
-  const channels = availableChannels || [];
-
-  // Modifier l'effet pour éviter l'erreur de filtrage
   useEffect(() => {
-    if (channels && channels.length > 0) {
-      const filteredChannels = channels.filter(newChannel => 
-        !localSelectedChannels?.some(existingChannel => 
-          existingChannel.href === newChannel.href
-        )
-      );
-      setLocalSelectedChannels(filteredChannels);
-    }
-  }, [channels]);
+    const filteredChannels = channels.filter(newChannel => 
+      !selectedChannels?.some(existingChannel => 
+        existingChannel.href === newChannel.href
+      )
+    );
+    setAvailableChannels(filteredChannels);
+  }, [channels, selectedChannels]);
 
-  // Function to toggle the channel selection
   const toggleChannelSelection = (channel) => {
-    setLocalSelectedChannels(prevChannels => {
-      const isSelected = prevChannels.some(c => c.href === channel.href);
-      if (isSelected) {
-        return prevChannels.filter(c => c.href !== channel.href);
+    setLocalSelectedChannels(prevSelected => {
+      if (prevSelected.some(c => c.href === channel.href)) {
+        return prevSelected.filter(c => c.href !== channel.href);
       } else {
-        return [...prevChannels, channel];
+        return [...prevSelected, channel];
       }
     });
   };
 
-  // Ajout de la fonction handleImportChannels
   const handleImportChannels = () => {
     if (localSelectedChannels.length > 0) {
-      onImport(localSelectedChannels);
-      onNavigate('CHANNELS_MANAGEMENT');
+      onBack(localSelectedChannels);
     }
   };
 
   return (
-    <View style={[
-      styles.pageContainer,
-      isSmartphone && styles.containerSmartphone,
-    ]}>
+    <View style={[styles.pageContainer, isSmartphone && styles.containerSmartphone]}>
       <Header 
         title="IMPORT CHANNELS"
-        onBackPress={() => onNavigate('CHANNELS_MANAGEMENT')}
+        onBackPress={onBackPress}
         showIcons={false}
       />
       <FlatList
@@ -74,7 +59,9 @@ export default function ChannelsListScreen({ onNavigate, onImport, availableChan
             ]}>
               {localSelectedChannels.some(c => c.href === item.href) ? '☑' : '☐'}
             </Text>
-            <Text style={[styles.channelTitle, isSmartphone && styles.channelTitleSmartphone]}>{item.title}</Text>
+            <Text style={[styles.channelTitle, isSmartphone && styles.channelTitleSmartphone]}>
+              {item.title}
+            </Text>
           </TouchableOpacity>
         )}
       />
