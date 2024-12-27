@@ -202,7 +202,7 @@ return (
                   size={isTablet ? 30 : 23} 
                   style={[
                     { marginRight: isSmartphonePortrait ? 0 : 15 }, 
-                    { color: selectedUpIndex === index ? COLORS.orange : COLORS.lightGray }
+                    { color: selectedUpIndex === index ? COLORS.orange : "white" }
                   ]} 
                 />
               </TouchableOpacity>
@@ -218,7 +218,7 @@ return (
                   style={[
                     { marginLeft: isSmartphonePortrait ? 0 : 15 },
                     { marginRight: isSmartphonePortrait ? 0 : 15 },
-                    { color: selectedDownIndex === index ? COLORS.orange : COLORS.lightGray }
+                    { color: selectedDownIndex === index ? COLORS.orange : "white" }
                   ]} 
                 />
               </TouchableOpacity>
@@ -239,7 +239,7 @@ return (
                     size={isTablet ? 40 : 29} 
                     style={[
                       { marginRight: isSmartphonePortrait ? 0 : 15 }, 
-                      { color: isTablet && selectedPencilIndex === index ? COLORS.orange : COLORS.lightGray }
+                      { color: isTablet && selectedPencilIndex === index ? COLORS.orange : "white" }
                     ]} 
                   />
                 </TouchableOpacity>
@@ -252,7 +252,7 @@ return (
                   <Ionicons 
                     name="trash-outline" 
                     size={isTablet ? 30 : 23} 
-                    style={{ color: selectedBinIndex === index ? COLORS.orange : COLORS.lightGray }} 
+                    style={{ color: selectedBinIndex === index ? COLORS.orange : "white" }} 
                   />
                 </TouchableOpacity>
                 </View>
@@ -268,7 +268,6 @@ return (
 
 const styles = StyleSheet.create({
   pageContainer: {
-    // paddingTop: '3%',
     paddingHorizontal: '3%',
   },
   channelsContainer: {
@@ -280,7 +279,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginVertical: 15,
-    backgroundColor: COLORS.darkGray,
+    backgroundColor: "#232424",
     height: 75,
     width: '95%',
     borderRadius: 12,
@@ -328,11 +327,11 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   text: {
-    color: COLORS.lightGray,
-    fontSize: SIZES.fonts.subtitleTablet,
+    color: "white",
+    fontSize: SIZES.fonts.textTablet,
   },
   textSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: SIZES.fonts.textSmartphone,
   },
   textSelected: {
     color: COLORS.orange,

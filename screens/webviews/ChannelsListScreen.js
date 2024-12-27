@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import Header from '../../components/Header';
-import Button from '../../components/buttons/Button';
 import { useDeviceType } from '../../hooks/useDeviceType'; 
 import { COLORS, SIZES } from '../../constants/style';
+import ButtonLarge from '../../components/buttons/ButtonLarge';
 
 export default function ChannelsListScreen({ channels, selectedChannels, onBack, onBackPress }) {
   const [localSelectedChannels, setLocalSelectedChannels] = useState([]);
@@ -55,6 +55,7 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
           >
             <Text style={[
               styles.checkbox,
+              isSmartphone && styles.checkboxSmartphone,
               localSelectedChannels.some(c => c.href === item.href) && styles.checkboxSelected
             ]}>
               {localSelectedChannels.some(c => c.href === item.href) ? '☑' : '☐'}
@@ -66,12 +67,11 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
         )}
       />
       <View style={styles.buttonContainer}>
-        <Button 
-          title="Import channels" 
-          backgroundColor={COLORS.orange} 
-          color="white" 
-          width={isTablet ? (isPortrait ? "20%" : "13%") : (isPortrait ? "35%" : "18%")}
-          onPress={handleImportChannels} 
+        <ButtonLarge
+          title="Import channels"
+          backgroundColor={COLORS.orange}
+          color="white"
+          onPress={handleImportChannels}
         />
       </View>
     </View>
@@ -90,10 +90,8 @@ const styles = StyleSheet.create({
   },
   channelContainer: {
     flexDirection: 'row',
-    paddingVertical: 10,
     marginTop: 15,
     marginHorizontal: 30,
-    backgroundColor: COLORS.darkGray,
     borderRadius: 10,
     padding: 10,
   },
@@ -102,17 +100,20 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   channelTitle: {
-    fontSize: SIZES.fonts.large,
+    fontSize: SIZES.fonts.subtitleTablet,
     textAlign: 'left',
     marginLeft: 10,
-    color: COLORS.gray,
+    color: "white",
   },
   channelTitleSmartphone: {
-    fontSize: SIZES.fonts.medium,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   checkbox: {
-    fontSize: SIZES.fonts.large,
-    color: COLORS.gray,
+    fontSize: SIZES.fonts.subtitleTablet,
+    color: "white",
+  },
+  checkboxSmartphone: {
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   checkboxSelected: {
     color: COLORS.orange,
