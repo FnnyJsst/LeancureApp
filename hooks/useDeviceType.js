@@ -6,7 +6,7 @@ export const useDeviceType = () => {
   const dpWidth = width / pixelDensity;
   
   // Base device types
-  const isTablet = dpWidth >= 500;
+  const isTablet = dpWidth >= 400;
   const isSmartphone = !isTablet;
   const isPortrait = height > width;
   const isLandscape = width > height;

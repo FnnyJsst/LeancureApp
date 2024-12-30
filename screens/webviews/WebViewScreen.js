@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
-
+import { SCREENS, SETTINGS } from '../../constants/screens';
 /**
  * WebView Screen Component
  * Displays a web page
@@ -14,7 +14,7 @@ const WebViewScreen = ({ url, onNavigate }) => {
         source={{ uri: url }}
         style={styles.webview}
       />
-      <ParameterButton onPress={onNavigate} />
+      <ParameterButton onPress={() => onNavigate(SCREENS.SETTINGS)} />
     </View>
   );
 };

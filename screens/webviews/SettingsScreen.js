@@ -56,6 +56,10 @@ export default function SettingsScreen({
     }
   };
 
+  const accessMessages = () => {
+    onNavigate(SCREENS.CHAT);
+  };
+
   return (
     <View style={[
       styles.pageContainer,
@@ -172,11 +176,22 @@ export default function SettingsScreen({
               </View>
             </View>
           </View>
-              
+          <TitleSettings title="Messages" />
+          <View style={[
+            styles.configContainer,
+            styles.configContainerTablet,
+            isSmartphone && styles.configContainerSmartphone,
+            isLandscape && styles.configContainerLandscape
+          ]}>
+            <SettingsButton
+              title="Access messages"
+              icon={<Ionicons name="mail-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
+              onPress={accessMessages}
+            />
+          </View>
           <View style={styles.separatorContainer}>
             <Separator width={isSmartphone ? "95%" : "91%"} />
           </View>
-          
           <TitleSettings title="Information" />
           <Text style={[
             styles.text,
@@ -235,6 +250,7 @@ const styles = StyleSheet.create({
   },
   configContainerTablet: {
     minHeight: 58,
+    marginVertical: 10,
   },
   configContainerSmartphone: {
     minHeight: 45,

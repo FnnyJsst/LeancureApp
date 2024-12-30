@@ -7,11 +7,14 @@ import { SCREENS } from '../constants/screens';
 
 export default function AppMenu({ onNavigate }) {
 
-  const { isLandscape } = useDeviceType();
+  const { isLandscape, isSmartphone, isTablet } = useDeviceType();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome</Text>
+      <Text style={[
+        styles.title,
+        isSmartphone && styles.titleSmartphone
+      ]}>Welcome</Text>
       <MenuButton 
         icon="mail-outline"   
         text="Messages" 
@@ -39,7 +42,9 @@ const styles = StyleSheet.create({
   title: {
     color: "white",
     fontSize: SIZES.fonts.titleTablet,
-    fontWeight: SIZES.fontWeight.medium,
-    paddingVertical: 20, 
+    paddingVertical: 20,
+  },
+  titleSmartphone: {
+    fontSize: SIZES.fonts.titleSmartphone,
   },
 });

@@ -110,7 +110,6 @@ export default function Login({ onNavigate }) {
 
     return (
     <View style={[styles.pageContainer, isTablet && styles.pageContainerTablet]}>
-        {/* Header commun */}
         <View style={[styles.headerContainer, isSmartphoneLandscape && styles.headerContainerSmartphoneLandscape]}>
             <TouchableOpacity onPress={() => onNavigate(SCREENS.APP_MENU)}>
                 <Image 
@@ -119,7 +118,7 @@ export default function Login({ onNavigate }) {
                 />
             </TouchableOpacity>
         </View>
-        {isPortrait && (<Separator width={'100%'} />)}
+        {isPortrait && (<Separator width={'150%'} />)}
 
         <ScrollView>
             {isSimplifiedLogin ? (
@@ -133,7 +132,8 @@ export default function Login({ onNavigate }) {
                     styles.loginContainer,
                     isTablet && styles.loginContainerTablet,
                     isSmartphone && styles.loginContainerSmartphone,
-                    isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape
+                    isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape,
+                    isTabletPortrait && styles.loginContainerTabletPortrait
                 ]}>
                     <Text style={[
                         styles.title,
@@ -172,7 +172,10 @@ export default function Login({ onNavigate }) {
                         </View>
 
                         <View style={styles.inputGroup}>
-                            <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>
+                            <Text style={[
+                                styles.inputTitle, 
+                                isSmartphone && styles.inputTitleSmartphone,
+                                isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>
                                 Password
                             </Text>
                             <View style={styles.inputWrapper}>
@@ -198,11 +201,14 @@ export default function Login({ onNavigate }) {
                             />
                         </View>
 
+                        <View style={styles.buttonContainer}>
                         <ButtonLarge 
                             title={isLoading ? "Connexion en cours..." : "Connexion"}
                             onPress={handleLogin}
                             disabled={isLoading}
+                            width="100%"
                         />
+                        </View>
                     </View>
                 </View>
             )}
@@ -251,7 +257,10 @@ const styles = StyleSheet.create({
     },
     loginContainerTablet: {
         margin: 40,
-        padding: 30,
+        padding: 40,
+    },
+    loginContainerTabletPortrait: {
+        marginTop: 150,
     },
     loginContainerSmartphone: {
         marginTop: 75,
@@ -267,6 +276,8 @@ const styles = StyleSheet.create({
         fontWeight: SIZES.fontWeight.bold,
         color: COLORS.lightGray,
         marginBottom: 30,
+        marginLeft: 15,
+
     },
     titleSmartphone: {
         fontSize: SIZES.fonts.titleSmartphone,
@@ -285,9 +296,12 @@ const styles = StyleSheet.create({
     },
     inputTitle: {
         color: COLORS.lightGray,
-        fontSize: SIZES.fonts.subtitleSmartphone,
+        fontSize: SIZES.fonts.subtitleTablet,
         fontWeight: SIZES.fontWeight.regular,
         marginLeft: 10,
+    },
+    inputTitleSmartphone: {
+        fontSize: SIZES.fonts.subtitleSmartphone,
     },
     inputTitleSmartphoneLandscape: {
         marginLeft: 15,
@@ -306,8 +320,8 @@ const styles = StyleSheet.create({
         marginLeft: 15,
     },
     buttonContainer: {
-        alignItems: 'center',
-        width: '100%',
+        alignSelf: 'center',
+        width: '95%',
         marginBottom: 10,
     },
 });

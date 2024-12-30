@@ -5,6 +5,9 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
 
 function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect }) {
+
+  const { isSmartphone } = useDeviceType();
+
   const [isGroupExpanded, setIsGroupExpanded] = useState(false);
 
   return (
@@ -26,6 +29,7 @@ function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect 
         />
         <Text style={[
           styles.groupName,
+          isSmartphone && styles.groupNameSmartphone
         ]}>{name}</Text>
       </TouchableOpacity>
       
@@ -37,7 +41,10 @@ function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect 
               style={styles.channelItem}
               onPress={() => onChannelSelect(channel)}
             >
-              <Text style={styles.channelName}>{channel}</Text>
+              <Text style={[
+                styles.channelName,
+                isSmartphone && styles.channelNameSmartphone
+              ]}>{channel}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -49,7 +56,7 @@ function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect 
 export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu }) {
   const { dpWidth, isTablet, isTabletPortrait, isSmartphone, isSmartphoneLandscape } = useDeviceType();
 
-  const sidebarWidth = isTabletPortrait ? dpWidth * 0.75 : (isTablet ? dpWidth * 0.4 : dpWidth * 2.3);
+  const sidebarWidth = isTabletPortrait ? dpWidth * 1 : (isTablet ? dpWidth * 0.4 : dpWidth * 2.3);
   const slideAnim = useRef(new Animated.Value(-sidebarWidth)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -74,16 +81,6 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
 
   return (
     <>
-      {/* <TouchableOpacity 
-        onPress={toggleMenu}
-        style={styles.menuButton}
-      >
-        <Ionicons 
-          name="menu"
-          size={30} 
-          color={COLORS.lightGray} 
-        />
-      </TouchableOpacity> */}
       <Animated.View 
         style={[
           styles.sidebar, 
@@ -101,18 +98,24 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         >
           <Ionicons 
             name="close"
-            size={30} 
+            size={isSmartphone ? 30 : 40} 
             color={COLORS.lightGray} 
           />
         </TouchableOpacity>
         <View style={styles.sidebarHeader}>
-          <View style={styles.inputContainer}>
+          <View style={[
+            styles.inputContainer,
+            isTablet && styles.inputContainerTablet
+          ]}>
             <TextInput 
-              style={styles.searchInput}
+              style={[
+                styles.searchInput,
+                isSmartphone && styles.searchInputSmartphone
+              ]}
               placeholder="Search"
               placeholderTextColor={COLORS.lightGray}
             />
-            <Ionicons name="search" size={20} color={COLORS.lightGray} />
+            <Ionicons name="search" size={isSmartphone ? 20 : 25} color={COLORS.lightGray} />
           </View>
         </View>
         
@@ -208,12 +211,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: SIZES.borderRadius.small,
   },
+  inputContainerTablet: {
+    marginTop: 20,
+  },
   searchInput: {
     flex: 1,
     color: COLORS.lightGray,
     padding: 8,
-    fontSize: SIZES.fonts.textSmartphone,
+    fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.light,
+  },
+  searchInputSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
   },
   groupsList: {
     paddingHorizontal: 25,
@@ -234,6 +243,9 @@ const styles = StyleSheet.create({
   groupName: {
     color: COLORS.lightGray,
     marginLeft: 10,
+    fontSize: SIZES.fonts.subtitleTablet,
+  },
+  groupNameSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
   },
   channelItem: {
@@ -242,6 +254,9 @@ const styles = StyleSheet.create({
   },
   channelName: {
     color: COLORS.lightGray,
+    fontSize: SIZES.fonts.textTablet,
+  },
+  channelNameSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
   },
 });

@@ -14,8 +14,8 @@ export default function Header({ title, onBackPress, onDialogPress, showIcons })
         <View style={styles.section}>
           <TouchableOpacity onPress={onBackPress}>
             <Ionicons 
-              name="arrow-back" 
-              size={isTablet ? 30 : 20} 
+              name="chevron-back-outline" 
+              size={isTablet ? 30 : 24} 
               style={styles.leftArrowIcon} 
             />
           </TouchableOpacity>

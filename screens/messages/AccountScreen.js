@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     gap: 30,
   },
   accountInfos: {
-    marginTop: 10,
+    marginTop: 0,
     alignItems: 'center',
     gap: 2,
   },

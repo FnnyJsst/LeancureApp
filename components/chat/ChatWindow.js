@@ -9,7 +9,7 @@ import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) {
 
-  const { isTabletLandscape } = useDeviceType();
+  const { isSmartphone, isTablet } = useDeviceType();
 
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [message, setMessage] = useState('');
@@ -112,11 +112,11 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={toggleMenu} style={styles.menuButton}>
-          <Ionicons name="menu" size={30} color={COLORS.lightGray} />
+          <Ionicons name="menu" size={isSmartphone ? 30 : 40} color={COLORS.lightGray} />
         </TouchableOpacity>
         {channel && (
           <View style={styles.channelNameContainer}>
-            <Text style={styles.channelName}>{channel}</Text>
+            <Text style={[styles.channelName, isSmartphone && styles.channelNameSmartphone]}>{channel}</Text>
           </View>
         )}
       </View>
@@ -125,7 +125,7 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
         ref={scrollViewRef}
         //When the content size changes, scroll to the bottom of the scrollview to read new messages
         onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
-        style={[styles.chatContainer, isTabletLandscape && styles.chatContainerTabletLandscape]}>
+        style={[styles.chatContainer, isTablet && styles.chatContainerTablet]}>
         {channel ? (
           messages.map(message => (
             <ChatMessage 
@@ -137,7 +137,10 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
           ))
         ) : (
           <View style={styles.noChannelContainer}>
-            <Text style={styles.noChannelText}>Select a channel to start chatting</Text>
+            <Text style={[
+              styles.noChannelText,
+              isSmartphone && styles.noChannelTextSmartphone
+            ]}>Select a channel to start chatting</Text>
           </View>
         )}
       </ScrollView>
@@ -179,12 +182,15 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.subtitleSmartphone,
     color: COLORS.lightGray,
   },
+  channelNameSmartphone: {
+    fontSize: SIZES.fonts.subtitleSmartphone,
+  },
   chatContainer: {
     flex: 1,
     padding: 10,
     marginBottom: 10,
   },
-  chatContainerTabletLandscape: {
+  chatContainerTablet: {
     padding: 20,
   },
   placeholder: {
@@ -200,6 +206,9 @@ const styles = StyleSheet.create({
   },
   noChannelText: {
     color: COLORS.gray,
+    fontSize: SIZES.fonts.subtitleTablet,
+  },
+  noChannelTextSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
   },
 });

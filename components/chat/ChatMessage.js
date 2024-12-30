@@ -140,9 +140,15 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
       isOwnMessage ? styles.ownMessage : styles.otherMessage
     ]}>
       {!isOwnMessage && (
-        <Text style={styles.username}>{message.username}</Text>
+        <Text style={[
+          styles.username,
+          isSmartphone && styles.usernameSmartphone
+        ]}>{message.username}</Text>
       )}
-      <Text style={styles.messageText}>{message.text}</Text>
+      <Text style={[
+        styles.messageText,
+        isSmartphone && styles.messageTextSmartphone
+      ]}>{message.text}</Text>
       <Text style={styles.timestamp}>{message.timestamp}</Text>
     </View>
   );
@@ -165,12 +171,18 @@ const styles = StyleSheet.create({
   },
   username: {
     color: COLORS.lightGray,
-    fontSize: SIZES.fonts.textSmartphone,
+    fontSize: SIZES.fonts.textTablet,
     marginBottom: 2,
+  },
+  usernameSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
   },
   messageText: {
     color: 'white',
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: SIZES.fonts.subtitleTablet,
+  },
+  messageTextSmartphone: {
+    fontSize: SIZES.fonts.subtitleTablet,
   },
   timestamp: {
     color: COLORS.lightGray,

@@ -35,7 +35,7 @@ export default function SimplifiedLogin({
           <View style={styles.buttonContainer}>
             <ButtonLarge 
                 title="Switch account"
-                onPress={() => setIsSimplifiedLogin(false)}
+                onPress={onSwitchAccount}
                 backgroundColor={COLORS.orange}
             />
           </View>

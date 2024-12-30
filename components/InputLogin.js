@@ -1,6 +1,7 @@
 import { View, TextInput, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../constants/style';
 import { Ionicons, FontAwesome, MaterialIcons, Feather } from '@expo/vector-icons';
+import { useDeviceType } from '../hooks/useDeviceType';
 
 export default function InputLogin({ 
     placeholder, 
@@ -10,6 +11,8 @@ export default function InputLogin({
     iconName,
     iconLibrary = 'Ionicons' 
 }) {
+    const { isSmartphone } = useDeviceType();
+
     const renderIcon = () => {
         const iconProps = {
             name: iconName,
@@ -36,13 +39,15 @@ export default function InputLogin({
         <View style={styles.inputContainer}>
             {renderIcon()}
             <TextInput 
-                style={styles.input} 
+                style={[
+                    styles.input,
+                    isSmartphone ? styles.inputSmartphone : styles.inputTablet
+                ]} 
                 placeholder={placeholder} 
                 value={value} 
                 onChangeText={onChangeText} 
                 secureTextEntry={secureTextEntry} 
                 placeholderTextColor={COLORS.gray}
-                fontSize={SIZES.fonts.textSmartphone} 
             />
         </View>
     )
@@ -67,4 +72,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 10,
     },
-})
+    inputSmartphone: {
+        fontSize: SIZES.fonts.textSmartphone,
+    },
+    inputTablet: {
+        fontSize: SIZES.fonts.textTablet,
+    }
+});
