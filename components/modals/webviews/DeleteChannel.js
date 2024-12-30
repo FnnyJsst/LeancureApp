@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Modal, StyleSheet } from 'react-native';
+import { View, Modal, Text,StyleSheet } from 'react-native';
 import TitleModal from '../../text/TitleModal';
 import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
-import { COLORS, MODAL_STYLES } from '../../../constants/style';
+import { COLORS, MODAL_STYLES, SIZES } from '../../../constants/style';
 
 export default function DeleteChannel({ visible, onClose, handleDelete }) {
-  const { isTablet, isPortrait, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType(); 
+  const { isTablet, isPortrait, isSmartphonePortrait, isSmartphoneLandscape, isSmartphone } = useDeviceType(); 
 
   return (
     <Modal
@@ -28,21 +28,24 @@ export default function DeleteChannel({ visible, onClose, handleDelete }) {
             !isTablet && styles.titleContainerSmartphone,
             isTablet && isPortrait && styles.titleContainerTabletPortrait
           ]}>
-            <TitleModal title="Are you sure you want to delete this channel?" />
+            <Text style={[
+              styles.title,
+              isSmartphone && styles.titleSmartphone
+            ]}>Are you sure you want to delete this channel?</Text>
           </View>
           <View style={MODAL_STYLES.buttonContainer}>
             <Button 
               title="Cancel" 
-              backgroundColor={COLORS.buttonGray}
+              backgroundColor={COLORS.sidebarGray}
               color="white" 
-              width="18%" 
+              width="20%" 
               onPress={onClose} 
             />
             <Button 
               title="Delete" 
               backgroundColor={COLORS.orange}
               color="white" 
-              width="18%" 
+              width="20%" 
               onPress={() => handleDelete()} 
             />
           </View>
@@ -69,5 +72,13 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  title: {
+    fontSize: SIZES.fonts.subtitleTablet,
+    fontWeight: SIZES.fontWeight.bold,
+    color: "white",
+  },
+  titleSmartphone: {
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
 });
