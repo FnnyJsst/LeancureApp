@@ -35,12 +35,12 @@ const styles = StyleSheet.create({
 
   //Text styles
   text: {
-    fontSize: SIZES.fonts.titleTablet,
+    fontSize: SIZES.fonts.subtitleTablet,
     color: "white",
     fontWeight: SIZES.fontWeight.medium,
   },
   textSmartphone: {
-    fontSize: SIZES.fonts.titleSmartphone,
+    fontSize: SIZES.fonts.subtitleSmartphone,
     marginLeft: 20,
   }
 });

@@ -10,6 +10,7 @@ import SimplifiedLogin from './SimplifiedLogin';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SCREENS } from '../../constants/screens';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Login({ onNavigate }) {
     const { isPortrait, isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape } = useDeviceType();
@@ -28,7 +29,7 @@ export default function Login({ onNavigate }) {
 
     const handleLogin = async () => {
         if (!contractNumber || !login || !password) {
-            setError('Veuillez remplir tous les champs');
+            setError('Please fill in all fields');
             return;
         }
     
@@ -112,14 +113,9 @@ export default function Login({ onNavigate }) {
     <View style={[styles.pageContainer, isTablet && styles.pageContainerTablet]}>
         <View style={[styles.headerContainer, isSmartphoneLandscape && styles.headerContainerSmartphoneLandscape]}>
             <TouchableOpacity onPress={() => onNavigate(SCREENS.APP_MENU)}>
-                <Image 
-                    source={require('../../assets/images/logo.png')} 
-                    style={[styles.logo, isSmartphone && styles.logoSmartphone]} 
-                />
+                <Ionicons name="chevron-back-outline" size={24} color={COLORS.lightGray} />
             </TouchableOpacity>
         </View>
-        {isPortrait && (<Separator width={'150%'} />)}
-
         <ScrollView>
             {isSimplifiedLogin ? (
                 <SimplifiedLogin 
@@ -128,89 +124,98 @@ export default function Login({ onNavigate }) {
                     onSwitchAccount={() => setIsSimplifiedLogin(false)}
                 />
             ) : (
-                <View style={[
-                    styles.loginContainer,
-                    isTablet && styles.loginContainerTablet,
-                    isSmartphone && styles.loginContainerSmartphone,
-                    isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape,
-                    isTabletPortrait && styles.loginContainerTabletPortrait
-                ]}>
+                <>
                     <Text style={[
                         styles.title,
                         isSmartphone && styles.titleSmartphone,
                         isSmartphoneLandscape && styles.titleSmartphoneLandscape
                     ]}>
-                        Connexion
+                        Welcome
                     </Text>
+                    <View style={[
+                        styles.loginContainer,
+                        isTablet && styles.loginContainerTablet,
+                        isSmartphone && styles.loginContainerSmartphone,
+                        isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape,
+                        isTabletPortrait && styles.loginContainerTabletPortrait
+                    ]}>
+                        <View style={styles.inputsContainer}>
+                            <View style={styles.inputGroup}>
+                                <Text style={[
+                                    styles.inputTitle,
+                                    isSmartphone && styles.inputTitleSmartphone,
+                                    isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape
+                                ]}>Contract number</Text>
+                                <View style={styles.inputWrapper}>
+                                    <InputLogin 
+                                        placeholder="Enter your contract number"
+                                        value={contractNumber}
+                                        onChangeText={setContractNumber}
+                                        iconName="document-text-outline"
+                                        iconLibrary="Ionicons"
+                                    />
+                                </View>
+                            </View>
 
-                    <View style={styles.inputsContainer}>
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.inputTitle}>Contract number</Text>
-                            <View style={styles.inputWrapper}>
-                                <InputLogin 
-                                    placeholder="Enter your contract number"
-                                    value={contractNumber}
-                                    onChangeText={setContractNumber}
-                                    iconName="building-o"
-                                    iconLibrary="FontAwesome"
+                            <View style={styles.inputGroup}>
+                                <Text style={[
+                                    styles.inputTitle,
+                                    isSmartphone && styles.inputTitleSmartphone,
+                                    isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape
+                                ]}>
+                                    Login
+                                </Text>
+                                <View style={styles.inputWrapper}>
+                                    <InputLogin 
+                                        placeholder="Enter your login"
+                                        value={login}
+                                        onChangeText={setLogin}
+                                        iconName="person-outline"
+                                    />
+                                </View>
+                            </View>
+
+                            <View style={styles.inputGroup}>
+                                <Text style={[
+                                    styles.inputTitle, 
+                                    isSmartphone && styles.inputTitleSmartphone,
+                                    isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>
+                                    Password
+                                </Text>
+                                <View style={styles.inputWrapper}>
+                                    <InputLogin 
+                                        placeholder="Enter your password"
+                                        value={password}
+                                        onChangeText={setPassword}
+                                        secureTextEntry
+                                        iconName="lock-closed-outline"
+                                    />
+                                </View>
+                            </View>
+
+                            {error ? (
+                                <Text style={styles.errorText}>{error}</Text>
+                            ) : null}
+
+                            <View style={styles.checkboxContainer}>
+                                <CheckBox 
+                                    checked={isChecked}
+                                    onPress={() => setIsChecked(!isChecked)}
+                                    label="Stay connected"
                                 />
                             </View>
-                        </View>
 
-                        <View style={styles.inputGroup}>
-                            <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>
-                                Login
-                            </Text>
-                            <View style={styles.inputWrapper}>
-                                <InputLogin 
-                                    placeholder="Enter your login"
-                                    value={login}
-                                    onChangeText={setLogin}
-                                    iconName="person-outline"
-                                />
-                            </View>
-                        </View>
-
-                        <View style={styles.inputGroup}>
-                            <Text style={[
-                                styles.inputTitle, 
-                                isSmartphone && styles.inputTitleSmartphone,
-                                isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>
-                                Password
-                            </Text>
-                            <View style={styles.inputWrapper}>
-                                <InputLogin 
-                                    placeholder="Enter your password"
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    secureTextEntry
-                                    iconName="lock-closed-outline"
-                                />
-                            </View>
-                        </View>
-
-                        {error ? (
-                            <Text style={styles.errorText}>{error}</Text>
-                        ) : null}
-
-                        <View style={styles.checkboxContainer}>
-                            <CheckBox 
-                                checked={isChecked}
-                                onPress={() => setIsChecked(!isChecked)}
-                                label="Stay connected"
+                            <View style={styles.buttonContainer}>
+                            <ButtonLarge 
+                                title={isLoading ? "Connexion en cours..." : "Connexion"}
+                                onPress={handleLogin}
+                                disabled={isLoading}
+                                width="100%"
                             />
-                        </View>
-
-                        <View style={styles.buttonContainer}>
-                        <ButtonLarge 
-                            title={isLoading ? "Connexion en cours..." : "Connexion"}
-                            onPress={handleLogin}
-                            disabled={isLoading}
-                            width="100%"
-                        />
+                            </View>
                         </View>
                     </View>
-                </View>
+                </>
             )}
         </ScrollView>
     </View>
@@ -229,9 +234,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: '12%',
     },
     headerContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingTop: 10,
+        justifyContent: 'flex-start',
+        paddingTop: 15,
+        marginLeft: 20,
     },
     headerContainerSmartphoneLandscape: {
         paddingTop: 0,
@@ -242,17 +247,16 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     logoSmartphone: {
-        width: 120,
-        height: 90,
+        width: 90,
+        height: 60,
         objectFit: 'contain',
         margin: -8,
     },
     loginContainer: {
         flex: 1,
-        marginTop: 100,    
         backgroundColor: '#232424',
         margin: 20,
-        padding: 20,
+        padding: 25,
         borderRadius: SIZES.borderRadius.large,
     },
     loginContainerTablet: {
@@ -263,29 +267,27 @@ const styles = StyleSheet.create({
         marginTop: 150,
     },
     loginContainerSmartphone: {
-        marginTop: 75,
+        marginTop: 50,
         margin: 10,
         padding: 15,
-        paddingVertical: 30,
+        paddingVertical: 35,
     },
     loginContainerSmartphoneLandscape: {
         marginTop: 10,
     },
     title: {
-        fontSize: SIZES.fonts.titleTablet,
+        fontSize: SIZES.fonts.headerTablet,
         fontWeight: SIZES.fontWeight.bold,
-        color: COLORS.lightGray,
-        marginBottom: 30,
-        marginLeft: 15,
-
+        color: "white",
+        marginLeft: 20,
+        marginTop: 50
     },
     titleSmartphone: {
-        fontSize: SIZES.fonts.titleSmartphone,
-        marginBottom: 35,
-        alignSelf: 'center',
+        fontSize: SIZES.fonts.headerSmartphone,
     },
     titleSmartphoneLandscape: {
-        marginBottom: 15,
+        marginBottom: 10,
+        marginTop: 15
     },
     inputsContainer: {
         width: '100%',
@@ -301,7 +303,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     inputTitleSmartphone: {
-        fontSize: SIZES.fonts.subtitleSmartphone,
+        fontSize: SIZES.fonts.inputTitleSmartphone,
     },
     inputTitleSmartphoneLandscape: {
         marginLeft: 15,
@@ -325,202 +327,3 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
 });
-
-// import { useState } from 'react';
-// import { ScrollView, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-// import ButtonLarge from '../../components/buttons/ButtonLarge';
-// import InputLogin from '../../components/InputLogin';
-// import Separator from '../../components/Separator';
-// import CheckBox from '../../components/CheckBox';
-// import { COLORS, SIZES } from '../../constants/style';
-// import { useDeviceType } from '../../hooks/useDeviceType';
-// import { SCREENS } from '../../constants/screens';
-
-// export default function Login({ onNavigate }) {
-
-//     const { isPortrait, isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
-//     const [isChecked, setIsChecked] = useState(false); 
-
-//     const handleLogin = () => {
-//         onNavigate(SCREENS.CHAT);
-//       };
-//     return (
-//         <View style={[
-//             styles.pageContainer,
-//             isTablet && styles.pageContainerTablet,
-//             isSmartphoneLandscape && styles.pageContainerSmartphoneLandscape
-//         ]}>
-
-//             <ScrollView>
-//             <View style={[styles.headerContainer, isSmartphoneLandscape && styles.headerContainerSmartphoneLandscape]}>
-//                 <TouchableOpacity onPress={() => onNavigate(SCREENS.APP_MENU)}>
-//                     <Image source={require('../../assets/images/logo.png')} style={[styles.logo, isSmartphone && styles.logoSmartphone]} />
-//                 </TouchableOpacity>
-                
-//             </View>
-//             {isPortrait && (<Separator width={'100%'} />)}
-//                 <View style={[
-//                     styles.loginContainer,
-//                     isTablet && styles.loginContainerTablet,
-//                     isSmartphone && styles.loginContainerSmartphone,
-//                     isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape
-//                 ]}>
-//                     <Text style={[
-//                         styles.title,
-//                         isTabletPortrait && styles.titleTabletPortrait,
-//                         isSmartphone && styles.titleSmartphone,
-//                         isSmartphoneLandscape && styles.titleSmartphoneLandscape
-//                     ]}>
-//                         Connexion
-//                     </Text>
-//                     <View style={styles.inputsContainer}>
-//                         <View style={styles.inputGroup}>
-//                             <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>Contract number</Text>
-//                             <View style={styles.inputWrapper}>
-//                                 <InputLogin 
-//                                     placeholder="Enter your contract number"
-//                                     iconName="building-o"
-//                                     iconLibrary="FontAwesome"
-//                                 />
-//                             </View>
-//                         </View>
-//                         <View style={styles.inputGroup}>
-//                             <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>Login</Text>
-//                             <View style={styles.inputWrapper}>
-//                                 <InputLogin 
-//                                     placeholder="Enter your login"
-//                                     iconName="person-outline"
-//                                 />
-//                             </View>
-//                         </View>
-//                         <View style={styles.inputGroup}>
-//                             <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>Password</Text>
-//                             <View style={styles.inputWrapper}>
-//                                 <InputLogin 
-//                                     placeholder="Enter your password"
-//                                     secureTextEntry
-//                                     iconName="lock-closed-outline"
-//                                 />
-//                             </View>
-//                         </View>
-//                         <View style={styles.checkboxContainer}>
-//                             <CheckBox 
-//                                 checked={isChecked}
-//                                 onPress={() => setIsChecked(!isChecked)}
-//                                 label="Stay connected"
-//                             />
-//                         </View>
-//                         <View style={styles.buttonContainer}>
-//                             <ButtonLarge 
-//                                 title="Connexion"
-//                                 onPress={handleLogin}
-//                                 width="94%"
-//                             />
-//                         </View>
-//                     </View>
-//                 </View>
-//             </ScrollView>
-//         </View>
-//     );
-// }
-
-// const styles = StyleSheet.create({
-//     pageContainer: {
-//         flex: 1,
-//         backgroundColor: COLORS.darkGray,
-//     },
-//     pageContainerTablet: {
-//         paddingHorizontal: '15%',
-//     },
-//     pageContainerSmartphoneLandscape: {
-//         paddingHorizontal: '12%',
-//     },
-//     headerContainer: {
-//         alignItems: 'center',
-//         justifyContent: 'center',
-//         paddingTop: 10,
-//     },
-//     headerContainerSmartphoneLandscape: {
-//         paddingTop: 0,
-//     },
-//     logo: {
-//         width: 150,
-//         height: 50,
-//         resizeMode: 'contain',
-//     },
-//     logoSmartphone: {
-//         width: 120,
-//         height: 90,
-//         objectFit: 'contain',
-//         margin: -8,
-//     },
-//     loginContainer: {
-//         flex: 1,
-//         marginTop: 100,    
-//         backgroundColor: '#232424',
-//         margin: 20,
-//         padding: 20,
-//         borderRadius: SIZES.borderRadius.large,
-//     },
-//     loginContainerTablet: {
-//         margin: 40,
-//         padding: 30,
-//     },
-//     loginContainerSmartphone: {
-//         marginTop: 75,
-//         margin: 10,
-//         padding: 15,
-//         paddingVertical: 30,
-//     },
-//     loginContainerSmartphoneLandscape: {
-//         marginTop: 10,
-//     },
-//     title: {
-//         fontSize: SIZES.fonts.titleTablet,
-//         fontWeight: SIZES.fontWeight.bold,
-//         color: COLORS.lightGray,
-//         marginBottom: 30,
-//     },
-//     titleSmartphone: {
-//         fontSize: SIZES.fonts.titleSmartphone,
-//         marginBottom: 35,
-//         alignSelf: 'center',
-//     },
-//     titleSmartphoneLandscape: {
-//         marginBottom: 15,
-//     },
-//     inputsContainer: {
-//         width: '100%',
-//         gap: 20,
-//     },
-//     inputGroup: {
-//         gap: 5,
-//     },
-//     inputTitle: {
-//         color: COLORS.lightGray,
-//         fontSize: SIZES.fonts.subtitleSmartphone,
-//         fontWeight: SIZES.fontWeight.regular,
-//         marginLeft: 10,
-//     },
-//     inputTitleSmartphoneLandscape: {
-//         marginLeft: 15,
-//     },
-//     inputWrapper: {
-//         width: '100%',
-//         alignItems: 'center',
-//     },
-//     errorText: {
-//         color: 'red',
-//         fontSize: SIZES.fonts.errorText,
-//         textAlign: 'center',
-//         marginTop: 10,
-//     },
-//     checkboxContainer: {
-//         marginLeft: 15,
-//     },
-//     buttonContainer: {
-//         alignItems: 'center',
-//         width: '100%',
-//         marginBottom: 10,
-//     },
-// });

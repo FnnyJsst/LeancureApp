@@ -41,10 +41,10 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "white",
-    fontSize: SIZES.fonts.titleTablet,
+    fontSize: SIZES.fonts.headerTablet,
     paddingVertical: 20,
   },
   titleSmartphone: {
-    fontSize: SIZES.fonts.titleSmartphone,
+    fontSize: SIZES.fonts.headerSmartphone,
   },
 });

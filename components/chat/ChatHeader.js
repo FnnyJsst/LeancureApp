@@ -18,7 +18,7 @@ export default function ChatHeader({ onNavigate }) {
         </TouchableOpacity>
         <AccountImage onNavigate={onNavigate} width={50} height={50} />
       </View>
-      <Separator width="100%" marginTop={-30} marginBottom={0} />
+      <Separator width="100%" marginTop={-35} marginBottom={0} />
     </View>
   );
 }

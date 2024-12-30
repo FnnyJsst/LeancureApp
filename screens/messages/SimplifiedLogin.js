@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import ButtonLarge from '../../components/buttons/ButtonLarge';
 import { COLORS, SIZES } from '../../constants/style';
 
@@ -14,9 +14,6 @@ export default function SimplifiedLogin({
           <Text style={styles.welcomeText}>Welcome back</Text>
         </View>
         <View style={styles.loginContainer}>
-          <View style={styles.connectedAccountContainer}>
-              <Text style={styles.connectedAccountText}>Connected account</Text>
-          </View>
           <View style={styles.accountContainer}>
             <View style={styles.accountDetailsContainer}>
               <View style={styles.iconTextContainer}>
@@ -28,6 +25,9 @@ export default function SimplifiedLogin({
                 <Text style={styles.contractNumberText}>
                   Contract number 
                 </Text>
+                {/* <View style={styles.loginIcon}>
+                  <Ionicons name="log-in-outline" size={20} color={COLORS.lightGray} />
+                </View> */}
               </View>
               <Text style={styles.contractNumber}>{contractNumber}</Text>
             </View>
@@ -53,24 +53,19 @@ export default function SimplifiedLogin({
       gap: 20,
       backgroundColor: '#232424',
       alignItems: 'center',
-      paddingVertical: 30,
-      paddingHorizontal: 20,
+      padding: 20,
       marginHorizontal: 20,
+      borderRadius: SIZES.borderRadius.small
   },
   welcomeText: {
       color: "white",
       fontWeight: SIZES.fontWeight.regular,
-      fontSize: SIZES.fonts.titleSmartphone,
+      fontSize: SIZES.fonts.headerSmartphone,
   },
   connectedAccountContainer: {
       alignItems: 'flex-start',
       width: '100%',
       marginLeft: 10,
-  },
-  connectedAccountText: {
-      color: 'white',
-      fontSize: SIZES.fonts.subtitleSmartphone,
-      fontWeight: SIZES.fontWeight.regular,
   },
   accountContainer: {
       width: '100%',
@@ -102,4 +97,5 @@ export default function SimplifiedLogin({
   buttonContainer: {
     width: '100%',
   },
+
 });
