@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   //Container styles
   titleContainer: {
     paddingLeft: 25,
-    marginTop: 25,
+    marginTop: 18,
     marginBottom: 10,
   },
   titleContainerSmartphone: {

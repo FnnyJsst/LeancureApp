@@ -1,4 +1,5 @@
-import { View, TextInput, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../constants/style';
 import { Ionicons, FontAwesome, MaterialIcons, Feather } from '@expo/vector-icons';
 import { useDeviceType } from '../hooks/useDeviceType';
@@ -12,6 +13,7 @@ export default function InputLogin({
     iconLibrary = 'Ionicons' 
 }) {
     const { isSmartphone } = useDeviceType();
+    const [showPassword, setShowPassword] = useState(false);
 
     const renderIcon = () => {
         const iconProps = {
@@ -46,9 +48,21 @@ export default function InputLogin({
                 placeholder={placeholder} 
                 value={value} 
                 onChangeText={onChangeText} 
-                secureTextEntry={secureTextEntry} 
+                secureTextEntry={secureTextEntry && !showPassword} 
                 placeholderTextColor={COLORS.gray}
             />
+            {secureTextEntry && (
+                <TouchableOpacity 
+                    onPress={() => setShowPassword(!showPassword)}
+                    style={styles.eyeIcon}
+                >
+                <Ionicons 
+                    name={showPassword ? "eye-outline" : "eye-off-outline"} 
+                    size={20} 
+                    color={COLORS.gray} 
+                />
+            </TouchableOpacity>
+            )}
         </View>
     )
 }
@@ -65,6 +79,9 @@ const styles = StyleSheet.create({
     icon: {
         marginLeft: 10,
         marginRight: 5,
+    },
+    eyeIcon: {
+        marginRight: 10,
     },
     input: {
         flex: 1,
