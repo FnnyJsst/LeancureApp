@@ -37,7 +37,7 @@ export default function Header({ title, onBackPress, onDialogPress, showIcons })
             <TouchableOpacity onPress={onDialogPress}>
               <Entypo 
                 name="add-to-list" 
-                size={isTablet ? 30 : 20} 
+                size={isTablet ? 30 : 24} 
                 style={styles.icon} 
               />
             </TouchableOpacity>

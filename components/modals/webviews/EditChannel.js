@@ -82,16 +82,16 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
           <View style={MODAL_STYLES.buttonContainer}>
             <Button 
               title="Cancel" 
-              backgroundColor={COLORS.buttonGray} 
+              backgroundColor={COLORS.sidebarGray} 
               color="white" 
-              width="18%"
+              width="20%"
               onPress={onClose} 
             />
             <Button 
               title="Ok" 
               backgroundColor={COLORS.orange} 
               color="white" 
-              width="18%"
+              width="20%"
               onPress={handleOk} 
             />
           </View>
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '60%',
     padding: 20,
-    backgroundColor: COLORS.darkGray,
+    backgroundColor: COLORS.buttonGray,
     borderRadius: SIZES.borderRadius.large,
   },
   modalContentTabletLandscape: {
