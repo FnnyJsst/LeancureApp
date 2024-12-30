@@ -1,101 +1,104 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import ButtonLarge from '../../components/buttons/ButtonLarge';
 import { COLORS, SIZES } from '../../constants/style';
+import { useDeviceType } from '../../hooks/useDeviceType';
 
-export default function SimplifiedLogin({ 
-    contractNumber, 
-    login, 
-    onSwitchAccount 
-}) {
-    return (
-      <View>
-        <View style={styles.welcomeContainer}>
-          <Text style={styles.welcomeText}>Welcome back</Text>
+export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handleLogin }) {
+  const { isSmartphone, isLandscape } = useDeviceType();
+  
+  return (
+    <View>
+      <View style={[styles.welcomeContainer, isLandscape && styles.welcomeContainerLandscape]}>
+        <Text style={[
+          styles.welcomeText,
+          isSmartphone && styles.welcomeTextSmartphone
+        ]}>Welcome back</Text>
+      </View>
+      <View style={[styles.loginContainer, isLandscape && styles.loginContainerLandscape]}>
+        <View style={styles.accountContainer}>
+          <View style={styles.accountDetailsContainer}>
+            <Text style={styles.contractNumberText}>
+              Contract number
+            </Text>
+            <Text style={styles.contractNumber}>{contractNumber}</Text>
+          </View>
+          <TouchableOpacity 
+            style={styles.loginIcon}
+            onPress={() => handleLogin()}
+          >
+            <Ionicons name="log-in-outline" size={isSmartphone ? 24 : 30} color={"white"} />
+          </TouchableOpacity>
         </View>
-        <View style={styles.loginContainer}>
-          <View style={styles.accountContainer}>
-            <View style={styles.accountDetailsContainer}>
-              <View style={styles.iconTextContainer}>
-                <MaterialCommunityIcons 
-                    name="account-outline" 
-                    size={24} 
-                    color={COLORS.lightGray} 
-                />
-                <Text style={styles.contractNumberText}>
-                  Contract number 
-                </Text>
-                {/* <View style={styles.loginIcon}>
-                  <Ionicons name="log-in-outline" size={20} color={COLORS.lightGray} />
-                </View> */}
-              </View>
-              <Text style={styles.contractNumber}>{contractNumber}</Text>
-            </View>
-          </View>
-          <View style={styles.buttonContainer}>
-            <ButtonLarge 
-                title="Switch account"
-                onPress={onSwitchAccount}
-                backgroundColor={COLORS.orange}
-            />
-          </View>
+        <View style={styles.buttonContainer}>
+          <ButtonLarge 
+            title="Switch account"
+            onPress={onSwitchAccount}
+            backgroundColor={COLORS.orange}
+          />
         </View>
       </View>
-    );
-  }
+    </View>
+  );
+}
 
-  const styles = StyleSheet.create({
-    welcomeContainer: {
-      alignItems: 'center',
-      marginVertical: 50,
+const styles = StyleSheet.create({
+  welcomeContainer: {
+    marginLeft: 30,
+    marginTop: 50,
+    marginBottom: 30,
+  },
+  welcomeContainerLandscape: {
+    alignSelf: 'center',
   },
   loginContainer: {
-      gap: 20,
-      backgroundColor: '#232424',
-      alignItems: 'center',
-      padding: 20,
-      marginHorizontal: 20,
-      borderRadius: SIZES.borderRadius.small
+    gap: 20,
+    backgroundColor: '#232424',
+    alignItems: 'center',
+    padding: 20,
+    marginHorizontal: 20,
+    borderRadius: SIZES.borderRadius.small, 
   },
-  welcomeText: {
-      color: "white",
-      fontWeight: SIZES.fontWeight.regular,
-      fontSize: SIZES.fonts.headerSmartphone,
-  },
-  connectedAccountContainer: {
-      alignItems: 'flex-start',
-      width: '100%',
-      marginLeft: 10,
+  loginContainerLandscape: {
+    width: '40%',
+    alignSelf: 'center',
   },
   accountContainer: {
-      width: '100%',
-      backgroundColor: COLORS.sidebarGray,
-      borderRadius: 10,
-      padding: 20,
-      marginTop: 20,
+    width: '100%',
+    backgroundColor: COLORS.sidebarGray,
+    borderRadius: 10,
+    padding: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   accountDetailsContainer: {
-      flexDirection: 'column',
-      alignItems: 'flex-start',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    flex: 1,
   },
   contractNumberText: {
-      color: COLORS.lightGray,
-      fontSize: SIZES.fonts.textSmartphone,
+    color: COLORS.lightGray,
+    fontSize: SIZES.fonts.textSmartphone,
   },
   contractNumber: {
     color: 'white',
     fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.medium,
-    marginLeft: 35,
     marginTop: 5,
   },
-  iconTextContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 10,
+  loginIcon: {
+    padding: 10,
+  },
+  welcomeText: {
+    color: "white",
+    fontWeight: SIZES.fontWeight.bold,
+    fontSize: SIZES.fonts.headerTablet,
+  },
+  welcomeTextSmartphone: {
+    fontSize: SIZES.fonts.headerSmartphone,
   },
   buttonContainer: {
     width: '100%',
   },
-
 });

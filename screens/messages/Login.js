@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import ButtonLarge from '../../components/buttons/ButtonLarge';
 import InputLogin from '../../components/InputLogin';
-import Separator from '../../components/Separator';
 import CheckBox from '../../components/CheckBox';
 import SimplifiedLogin from './SimplifiedLogin';
 import { COLORS, SIZES } from '../../constants/style';
@@ -13,7 +12,7 @@ import { SCREENS } from '../../constants/screens';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Login({ onNavigate }) {
-    const { isPortrait, isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape } = useDeviceType();
+    const { isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape } = useDeviceType();
     
     const [contractNumber, setContractNumber] = useState('');
     const [login, setLogin] = useState('');
@@ -28,6 +27,40 @@ export default function Login({ onNavigate }) {
     }, []);
 
     const handleLogin = async () => {
+        // If the user has checked the "Stay connected" checkbox, use the saved password
+        if (isSimplifiedLogin) {
+            setIsLoading(true);
+            setError('');
+        
+            try {
+                const response = await axios.post('http://fannyserver.rasp/ic.php', {
+                    cmd: [{
+                        accounts: {
+                            loginmsg: {
+                                get: {
+                                    contractnumber: contractNumber,
+                                    login: login,
+                                    password: password
+                                }
+                            }
+                        }
+                    }]
+                });
+        
+                if (response.data.status === 'ok') {
+                    onNavigate(SCREENS.CHAT);
+                } else {
+                    setError('Incorrect credentials');
+                }
+            } catch (error) {
+                console.error('Server connection error:', error);
+                setError('Server connection error');
+            } finally {
+                setIsLoading(false);
+            }
+            return;
+        }
+
         if (!contractNumber || !login || !password) {
             setError('Please fill in all fields');
             return;
@@ -81,6 +114,7 @@ export default function Login({ onNavigate }) {
                 await AsyncStorage.setItem('savedLoginInfo', JSON.stringify({
                     contractNumber,
                     login,
+                    password,
                     isSimplifiedLogin: true
                 }));
             //If there is an error, set an error message
@@ -97,10 +131,16 @@ export default function Login({ onNavigate }) {
             const savedInfo = await AsyncStorage.getItem('savedLoginInfo');
             if (savedInfo) {
                 //Parse the login info from AsyncStorage to an object 
-                const { contractNumber: savedContract, login: savedLogin, isSimplifiedLogin } = JSON.parse(savedInfo);
+                const { 
+                    contractNumber: savedContract, 
+                    login: savedLogin, 
+                    password: savedPassword,
+                    isSimplifiedLogin 
+                } = JSON.parse(savedInfo);
                 //Set the login info in the state
                 setContractNumber(savedContract);
                 setLogin(savedLogin);
+                setPassword(savedPassword);
                 setIsSimplifiedLogin(isSimplifiedLogin);
             }
         //If there is an error, set an error message
@@ -111,7 +151,7 @@ export default function Login({ onNavigate }) {
 
     return (
     <View style={[styles.pageContainer, isTablet && styles.pageContainerTablet]}>
-        <View style={[styles.headerContainer, isSmartphoneLandscape && styles.headerContainerSmartphoneLandscape]}>
+        <View style={styles.headerContainer}>
             <TouchableOpacity onPress={() => onNavigate(SCREENS.APP_MENU)}>
                 <Ionicons name="chevron-back-outline" size={24} color={COLORS.lightGray} />
             </TouchableOpacity>
@@ -122,6 +162,7 @@ export default function Login({ onNavigate }) {
                     contractNumber={contractNumber}
                     login={login}
                     onSwitchAccount={() => setIsSimplifiedLogin(false)}
+                    handleLogin={handleLogin}
                 />
             ) : (
                 <>
@@ -230,27 +271,10 @@ const styles = StyleSheet.create({
     pageContainerTablet: {
         paddingHorizontal: '15%',
     },
-    pageContainerSmartphoneLandscape: {
-        paddingHorizontal: '12%',
-    },
     headerContainer: {
         justifyContent: 'flex-start',
         paddingTop: 15,
         marginLeft: 20,
-    },
-    headerContainerSmartphoneLandscape: {
-        paddingTop: 0,
-    },
-    logo: {
-        width: 150,
-        height: 50,
-        resizeMode: 'contain',
-    },
-    logoSmartphone: {
-        width: 90,
-        height: 60,
-        objectFit: 'contain',
-        margin: -8,
     },
     loginContainer: {
         flex: 1,
@@ -267,7 +291,7 @@ const styles = StyleSheet.create({
         marginTop: 150,
     },
     loginContainerSmartphone: {
-        marginTop: 50,
+        marginTop: 30,
         margin: 10,
         padding: 15,
         paddingVertical: 35,
@@ -279,7 +303,7 @@ const styles = StyleSheet.create({
         fontSize: SIZES.fonts.headerTablet,
         fontWeight: SIZES.fontWeight.bold,
         color: "white",
-        marginLeft: 20,
+        marginLeft: 30,
         marginTop: 50
     },
     titleSmartphone: {
