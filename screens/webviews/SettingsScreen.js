@@ -3,7 +3,7 @@ import { ScrollView, View, Text, StyleSheet, BackHandler, TouchableOpacity } fro
 import Header from '../../components/Header';
 import TitleSettings from '../../components/text/TitleSettings';
 import SettingsButton from '../../components/buttons/SettingsButton';
-import Separator from '../../components/Separator';
+// import Separator from '../../components/Separator';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnly from '../../components/modals/webviews/ReadOnly';
@@ -60,6 +60,30 @@ export default function SettingsScreen({
     onNavigate(SCREENS.CHAT);
   };
 
+  const formatRefreshOption = (option) => {
+    if (!option || option === 'never') return 'never';
+    
+    // Extraire le nombre et l'unité
+    const match = option.match(/every (\d+) (\w+)/i);
+    if (!match) {
+      if (option === 'every hour') return '1h';
+      if (option === 'every day') return '24h';
+      if (option === 'every minute') return '1min';
+      return option;
+    }
+
+    const [_, number, unit] = match;
+    
+    // Formater selon l'unité
+    if (unit.includes('hour')) {
+      return `${number}h`;
+    } else if (unit.includes('minute')) {
+      return `${number}min`;
+    }
+    
+    return option;
+  };
+
   return (
     <View style={[
       styles.pageContainer,
@@ -85,6 +109,7 @@ export default function SettingsScreen({
             <SettingsButton
               title="Quit app"
               icon={<Ionicons name="exit-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
+              description="Quit the app and go back to the home screen"
               onPress={handleQuitApp}
             />
           </View>
@@ -98,6 +123,7 @@ export default function SettingsScreen({
           ]}>
             <SettingsButton
               title="Channels Management"
+              description="Access to imported webviews"
               icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
               onPress={() => onNavigate(SCREENS.CHANNELS_MANAGEMENT)}
             />
@@ -113,16 +139,22 @@ export default function SettingsScreen({
               <View style={styles.leftContent}>
                 <SettingsButton
                   title="Auto-refresh"
+                  description="Define the auto-refresh interval for the webviews"
                   icon={<Ionicons name="reload-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openModal}
                 />
               </View>
-              <Text style={[
-                styles.text,
-                isSmartphone && styles.textSmartphone,
-              ]}>
-                {refreshOption || 'never'}
-              </Text>
+              <TouchableOpacity 
+                style={styles.baseToggle} 
+                onPress={openModal}
+              >
+                <Text style={[
+                  styles.text,
+                  isSmartphone && styles.textSmartphone 
+                ]}>
+                  {formatRefreshOption(refreshOption)}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
           <View style={[
@@ -135,6 +167,7 @@ export default function SettingsScreen({
               <View style={styles.leftContent}>
                 <SettingsButton
                   title="Read-only access"
+                  description="Access to webviews without the ability to modify them"
                   icon={<Ionicons name="eye-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openReadOnlyModal}
                 />
@@ -152,7 +185,10 @@ export default function SettingsScreen({
               </TouchableOpacity>
             </View>
           </View>
-          <TitleSettings title="Security" />
+          <TitleSettings 
+            title="Security" 
+            
+          />
           <View style={[styles.configContainer,
             isTablet && styles.configContainerTablet,
             isSmartphone && styles.configContainerSmartphone,
@@ -162,18 +198,22 @@ export default function SettingsScreen({
               <View style={styles.leftContent}>
                 <SettingsButton
                   title="Password"
+                  description="Define a password to access the settings"
                   icon={<Ionicons name="lock-closed-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openPasswordModal}
                 />
               </View>
-              <View>
+              <TouchableOpacity 
+                style={styles.baseToggle} 
+                onPress={openPasswordModal}
+              >
                 <Text style={[
                   styles.text,
-                  isSmartphone && styles.textSmartphone,
+                  isSmartphone && styles.textSmartphone 
                 ]}>
-                  {isPasswordRequired ? "A password has been defined" : "No password has been defined"}
+                  {isPasswordRequired ? 'Yes' : 'No'}
                 </Text>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
           <TitleSettings title="Messages" />
@@ -186,11 +226,12 @@ export default function SettingsScreen({
             <SettingsButton
               title="Access messages"
               icon={<Ionicons name="mail-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
+              description="Access to the messages section"
               onPress={accessMessages}
             />
           </View>
           <View style={styles.separatorContainer}>
-            <Separator width={isSmartphone ? "95%" : "91%"} />
+            {/* <Separator width={isSmartphone ? "95%" : "91%"} /> */}
           </View>
           <TitleSettings title="Information" />
           <Text style={[
@@ -244,9 +285,11 @@ const styles = StyleSheet.create({
   // CONFIG CONTAINER
   configContainer: {
     backgroundColor: "#232424",
-    borderRadius: 10,
-    padding: 12,
+    borderRadius: SIZES.borderRadius.small,
+    paddingVertical: 25,
+    paddingHorizontal: 15,
     marginHorizontal: 15,
+    alignSelf: 'center',
   },
   configContainerTablet: {
     minHeight: 58,
@@ -254,7 +297,7 @@ const styles = StyleSheet.create({
   },
   configContainerSmartphone: {
     minHeight: 45,
-    marginVertical: 10,
+    width: '95%',
   },
   configContainerLandscape: {
     marginHorizontal: 30,
@@ -265,7 +308,7 @@ const styles = StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingRight: '3%',
+    // paddingRight: '3%',
   },
   leftContent: {
     flex: 1,
@@ -284,9 +327,9 @@ const styles = StyleSheet.create({
   // TOGGLE BUTTON
   baseToggle: {
     backgroundColor: COLORS.sidebarGray,
-    borderRadius: 6,
+    borderRadius: SIZES.borderRadius.small,
     padding: 8,
-    minWidth: 50,
+    minWidth: 40,
     alignItems: 'center',
   },
 
@@ -305,9 +348,9 @@ const styles = StyleSheet.create({
   },
 
   // SEPARATOR
-  separatorContainer: {
-    marginTop: 20,
-    width: '105%',
-    alignSelf: 'center',
-  },
+  // separatorContainer: {
+  //   marginTop: 20,
+  //   width: '105%',
+  //   alignSelf: 'center',
+  // },
 });
