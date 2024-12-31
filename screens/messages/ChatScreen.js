@@ -38,7 +38,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
 
   return (
     <View style={styles.container}>
-      <ChatHeader onNavigate={onNavigate} />
+      <ChatHeader onNavigate={onNavigate} toggleMenu={toggleMenu} />
       <Sidebar 
         onChannelSelect={handleChannelSelect}
         selectedGroup={selectedGroup}
@@ -49,7 +49,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
       <View style={styles.mainContent}>
         <ChatWindow 
           channel={selectedChannel}
-          toggleMenu={toggleMenu}
           isExpanded={isExpanded}
           onInputFocusChange={setIsInputFocused}
         />

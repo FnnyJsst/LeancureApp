@@ -3,7 +3,6 @@ import { ScrollView, View, Text, StyleSheet, BackHandler, TouchableOpacity } fro
 import Header from '../../components/Header';
 import TitleSettings from '../../components/text/TitleSettings';
 import SettingsButton from '../../components/buttons/SettingsButton';
-// import Separator from '../../components/Separator';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnly from '../../components/modals/webviews/ReadOnly';
@@ -290,6 +289,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginHorizontal: 15,
     alignSelf: 'center',
+    
   },
   configContainerTablet: {
     minHeight: 58,
@@ -308,7 +308,6 @@ const styles = StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    // paddingRight: '3%',
   },
   leftContent: {
     flex: 1,
@@ -346,11 +345,4 @@ const styles = StyleSheet.create({
   versionTextSmartphoneLandscape: {
     marginBottom: 40,
   },
-
-  // SEPARATOR
-  // separatorContainer: {
-  //   marginTop: 20,
-  //   width: '105%',
-  //   alignSelf: 'center',
-  // },
 });

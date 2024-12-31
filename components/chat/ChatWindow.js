@@ -111,16 +111,13 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={toggleMenu} style={styles.menuButton}>
-          <Ionicons name="menu" size={isSmartphone ? 30 : 40} color={COLORS.lightGray} />
-        </TouchableOpacity>
         {channel && (
           <View style={styles.channelNameContainer}>
             <Text style={[styles.channelName, isSmartphone && styles.channelNameSmartphone]}>{channel}</Text>
           </View>
         )}
       </View>
-      <Separator width="100%" marginTop={0} marginBottom={0} />
+      <Separator width="100%" marginTop={10} marginBottom={0} />
       <ScrollView 
         ref={scrollViewRef}
         //When the content size changes, scroll to the bottom of the scrollview to read new messages
@@ -171,9 +168,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-  },
-  menuButton: {
-    padding: 10,
   },
   channelNameContainer: {
     marginLeft: 20,

@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
     width: '100%',
+    
     alignItems: 'center',
   },
   iconContainer: {
