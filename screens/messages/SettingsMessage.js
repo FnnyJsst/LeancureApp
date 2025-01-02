@@ -49,10 +49,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.gray900,
   },
-  scrollViewContent: {
-    flexGrow: 1,
-    minHeight: '100%',
-  },
   content: {
     flex: 1,
     alignItems: 'center',
@@ -66,7 +62,7 @@ const styles = StyleSheet.create({
   header: {
     color: COLORS.white,
     fontSize: SIZES.fonts.headerTablet,
-    fontWeight: 'bold',
+    fontWeight: SIZES.fontWeight.bold,
     marginBottom: 20,
     alignSelf: 'flex-start',
   },

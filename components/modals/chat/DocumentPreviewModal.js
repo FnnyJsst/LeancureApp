@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   },
   tabletLandscapePreviewCard: {
     flex: 0.7,
-    backgroundColor: "#2c2c2f",
+    backgroundColor: COLORS.gray650,
     borderRadius: SIZES.borderRadius.small,
     padding: 20,
   },

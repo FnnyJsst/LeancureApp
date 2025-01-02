@@ -49,7 +49,7 @@ export const COLORS = {
   gray300: '#b2b2b2',      // ancien gray300 - texte secondaire
   
   // Base colors
-  white: '#ffffff',        // texte principal
+  white: '#ffffff',       
   overlay: 'rgba(0,0,0,0.8)',
   
   // Status colors
@@ -57,8 +57,7 @@ export const COLORS = {
   error: '#ff4444',
   
   // Message colors
-  messageOut: 'rgba(255, 128, 82, 0.3)',  // messages envoyés
-  messageIn: '#27272a',                   // messages reçus
+  messageOut: 'rgba(255, 128, 82, 0.3)',                 
 };
 
 export const MODAL_STYLES = {

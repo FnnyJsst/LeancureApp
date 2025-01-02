@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 15,
     marginHorizontal: 30,
-    borderRadius: 10,
+    borderRadius: SIZES.borderRadius.large,
     padding: 10,
   },
   channelContainerSmartphonePortrait: {

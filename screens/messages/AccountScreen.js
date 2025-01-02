@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   accountName: {
-    color: 'white',
+    color: COLORS.white,
     fontSize: SIZES.fonts.titleTablet,
     fontWeight: SIZES.fontWeight.bold,
   },

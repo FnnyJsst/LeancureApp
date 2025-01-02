@@ -186,11 +186,6 @@ const styles = StyleSheet.create({
   chatContainerTablet: {
     padding: 20,
   },
-  placeholder: {
-    color: COLORS.gray600,
-    fontSize: SIZES.fonts.medium,
-    textAlign: 'center',
-  },
   noChannelContainer: {
     flex: 1,
     justifyContent: 'center',

@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   },
   ownMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: 'rgba(255, 128, 82, 0.3)',
+    backgroundColor: COLORS.messageOut,
   },
   otherMessage: {
     alignSelf: 'flex-start',

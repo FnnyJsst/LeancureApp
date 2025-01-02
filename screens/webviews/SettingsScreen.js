@@ -90,7 +90,6 @@ export default function SettingsScreen({
       isSmartphonePortrait && styles.pageContainerSmartphonePortrait
     ]}>
       <ScrollView 
-        contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={true}
       >
         <Header 
@@ -266,9 +265,6 @@ const styles = StyleSheet.create({
   },
   pageContainerSmartphonePortrait: {
     paddingHorizontal: 4,
-  },
-  scrollViewContent: {
-    flexGrow: 1,
   },
   settingsContentContainer: {
     flex: 1,

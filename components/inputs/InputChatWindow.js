@@ -174,7 +174,6 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: COLORS.gray300,
     fontSize: SIZES.fonts.subtitleTablet,
     marginRight: 10,
   },
@@ -200,8 +199,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.gray650,
-    borderRadius: SIZES.borderRadius.small,
     padding: 8,
     marginRight: 10,
     justifyContent: 'space-between',
@@ -209,11 +206,9 @@ const styles = StyleSheet.create({
   fileInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
   },
   fileDetails: {
     marginLeft: 8,
-    flex: 1,
   },
   fileName: {
     color: COLORS.gray300,

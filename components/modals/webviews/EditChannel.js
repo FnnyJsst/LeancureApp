@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '60%',
     padding: 20,
-    backgroundColor: COLORS.buttonGray,
+    backgroundColor: COLORS.gray750,
     borderRadius: SIZES.borderRadius.large,
   },
   modalContentTabletLandscape: {
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: SIZES.fonts.subtitleTablet,
     marginBottom: 20,
-    color: COLORS.gray,
+    color: COLORS.gray600,
   },
   textSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,

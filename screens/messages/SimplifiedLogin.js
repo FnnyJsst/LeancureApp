@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     gap: 20,
-    backgroundColor: '#232424',
+    backgroundColor: COLORS.gray800,
     alignItems: 'center',
     padding: 20,
     marginHorizontal: 20,
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   accountContainer: {
     width: '100%',
     backgroundColor: COLORS.gray650,
-    borderRadius: 10,
+    borderRadius: SIZES.borderRadius.large,
     padding: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.textSmartphone,
   },
   contractNumber: {
-    color: 'white',
+    color: COLORS.white,
     fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.medium,
     marginTop: 5,
