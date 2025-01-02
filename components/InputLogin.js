@@ -19,7 +19,7 @@ export default function InputLogin({
         const iconProps = {
             name: iconName,
             size: 20,
-            color: COLORS.gray,
+            color: COLORS.gray600,
             style: styles.icon
         };
 
@@ -49,7 +49,7 @@ export default function InputLogin({
                 value={value} 
                 onChangeText={onChangeText} 
                 secureTextEntry={secureTextEntry && !showPassword} 
-                placeholderTextColor={COLORS.gray}
+                placeholderTextColor={COLORS.gray600}
             />
             {secureTextEntry && (
                 <TouchableOpacity 
@@ -59,7 +59,7 @@ export default function InputLogin({
                 <Ionicons 
                     name={showPassword ? "eye-outline" : "eye-off-outline"} 
                     size={20} 
-                    color={COLORS.gray} 
+                    color={COLORS.gray600} 
                 />
             </TouchableOpacity>
             )}
@@ -70,7 +70,7 @@ export default function InputLogin({
 const styles = StyleSheet.create({
     inputContainer: {
         width: '95%',
-        backgroundColor: COLORS.darkGray,
+        backgroundColor: COLORS.gray900,
         borderRadius: SIZES.borderRadius.small,
         flexDirection: 'row',
         alignItems: 'center',
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        color: 'white',
+        color: COLORS.white,
         paddingHorizontal: 10,
         paddingVertical: 10,
     },

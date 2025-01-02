@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Text } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style'; 
 import Card from '../../components/Card';
 import Navbar from '../../components/navigation/Navbar';
 import { useDeviceType } from '../../hooks/useDeviceType';
+import ChatHeader from '../../components/chat/ChatHeader';
 
 export default function SettingsMessage({ onNavigate }) {
 
@@ -22,16 +23,18 @@ export default function SettingsMessage({ onNavigate }) {
   return (
     <>
       <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <View style={styles.content}>
-            <Text style={[
-              styles.title,
-              isSmartphone && styles.titleSmartphone
-            ]}>Settings</Text>
-            <Card />
-            <Card />
+        <ChatHeader onNavigate={onNavigate} showMenuIcon={false} />
+          
+            <View style={styles.headerContainer}>
+              <Text style={[
+                styles.header,
+                isSmartphone && styles.headerSmartphone
+              ]}>Settings</Text>
+            </View>
+            <View style={styles.content}>
+            <Card backgroundColor={COLORS.gray800} />
+            <Card backgroundColor={COLORS.gray800} />
           </View>
-        </ScrollView>
       </View>
       <Navbar 
         currentSection="settings" 
@@ -44,7 +47,7 @@ export default function SettingsMessage({ onNavigate }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.darkGray,
+    backgroundColor: COLORS.gray900,
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -53,16 +56,21 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 30,
   },
-  title: {
-    color: 'white',
-    fontSize: SIZES.fonts.titleTablet,
+  headerContainer: {
+    marginBottom: 20,
+    marginTop: 20,
+    marginLeft: 30,
+    justifyContent: 'flex-start',
+  }, 
+  header: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.headerTablet,
     fontWeight: 'bold',
     marginBottom: 20,
+    alignSelf: 'flex-start',
   },
-  titleSmartphone: {
-    fontSize: SIZES.fonts.titleSmartphone,
+  headerSmartphone: {
+    fontSize: SIZES.fonts.headerSmartphone,
   }
 });

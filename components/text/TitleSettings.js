@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   //Text styles
   text: {
     fontSize: SIZES.fonts.titleTablet,
-    color: "white",
+    color: COLORS.white,
     fontWeight: SIZES.fontWeight.medium,
   },
   textSmartphone: {

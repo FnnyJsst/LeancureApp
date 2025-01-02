@@ -35,7 +35,7 @@ export default function AccountImageInput({ onImageSelected }) {
     <View style={styles.container}>
       <TouchableOpacity onPress={pickImage} style={[styles.pickButton, isSmartphone ? styles.pickButtonSmartphone : styles.pickButtonTablet]}>
         <View style={styles.placeholder}>
-          <Ionicons name="camera-outline" size={isSmartphone ? 18 : 22} color={COLORS.lightGray} />
+          <Ionicons name="camera-outline" size={isSmartphone ? 18 : 22} color={COLORS.gray300} />
         </View>
       </TouchableOpacity>
     </View>

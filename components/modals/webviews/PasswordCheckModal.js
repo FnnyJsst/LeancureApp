@@ -5,7 +5,7 @@ import InputModal from '../../inputs/InputModal';
 import TitleModal from '../../text/TitleModal';
 import CustomAlert from '../../CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType';
-import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
+import { COLORS, MODAL_STYLES } from '../../../constants/style';
 
 export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType(); 
@@ -85,14 +85,14 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
               <Button
                 title="Cancel"
                 backgroundColor={COLORS.buttonGray}
-                color="white"
+                color={COLORS.white}
                 onPress={handleClose}
                 width="20%"
               />
               <Button
                 title="Ok"
                 backgroundColor={COLORS.orange}
-                color="white"
+                color={COLORS.white}
                 onPress={handleSubmit}
                 width="20%"
               />

@@ -25,14 +25,14 @@ export default function MenuButton({ icon, text, onPress, isLandscape }) {
 
 const styles = StyleSheet.create({
   menuItem: {
-    backgroundColor: COLORS.buttonGray,
+    backgroundColor: COLORS.gray750,
     padding: 25,
     borderRadius: SIZES.borderRadius.large,
     width: '60%',
     alignItems: 'center',
   },
   menuText: {
-    color: "white",
+    color: COLORS.white,
     fontSize: SIZES.fonts.subtitleTablet,
     fontWeight: SIZES.fontWeight.medium,
   },

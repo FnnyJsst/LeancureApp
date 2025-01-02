@@ -13,7 +13,7 @@ const  FilePreview = ({ file, onRemove }) => {
         <Ionicons 
           name="document-outline" 
           size={24} 
-          color={COLORS.lightGray} 
+          color={COLORS.gray300} 
         />
         <View style={styles.fileDetails}>
           <Text style={styles.fileName} numberOfLines={1}>
@@ -28,7 +28,7 @@ const  FilePreview = ({ file, onRemove }) => {
         <Ionicons 
           name="close-circle" 
           size={24} 
-          color={COLORS.gray} 
+          color={COLORS.gray600} 
         />
       </TouchableOpacity>
     </View>
@@ -107,7 +107,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         <Ionicons 
           name="attach-outline" 
           size={isSmartphone ? 24 : 30} 
-          color={COLORS.lightGray} 
+          color={COLORS.gray300} 
           style={styles.attachIcon}
         />
       </TouchableOpacity>
@@ -121,7 +121,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         <TextInput
           style={[styles.input, isSmartphone && styles.smartphoneInput]}
           placeholder="Type a message..."
-          placeholderTextColor={COLORS.gray}
+          placeholderTextColor={COLORS.white}
           value={message}
           onChangeText={setMessage}
           multiline
@@ -141,7 +141,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         <Ionicons 
           name="send" 
           size={isSmartphone ? 20 : 24} 
-          color={'white'} 
+          color={COLORS.white} 
         />
       </TouchableOpacity>
     </View>
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 15,
     paddingVertical: 10,
-    backgroundColor: COLORS.sidebarGray,
+    backgroundColor: COLORS.gray650,
     marginHorizontal: 10,
     marginBottom: 20,
     borderRadius: SIZES.borderRadius.small,
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.subtitleTablet,
     marginRight: 10,
   },
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 40,
     height: 40,
-    backgroundColor: COLORS.gray,
+    backgroundColor: COLORS.gray600,
     borderRadius: SIZES.borderRadius.small,
   },
   smartphoneSendButton: {
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.sidebarGray,
+    backgroundColor: COLORS.gray650,
     borderRadius: SIZES.borderRadius.small,
     padding: 8,
     marginRight: 10,
@@ -216,12 +216,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   fileName: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.small,
     fontWeight: SIZES.fontWeight.medium,
   },
   fileSize: {
-    color: COLORS.gray,
+    color: COLORS.gray600,
     fontSize: SIZES.fonts.xSmall,
   },
 });

@@ -29,7 +29,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
               <Button
                 title="OK"
                 backgroundColor={COLORS.orange}
-                color="white"
+                color={COLORS.white}
                 width="20%"
                 onPress={onConfirm}
               />
@@ -37,7 +37,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
               <Button
                 title="Close"
                 backgroundColor={COLORS.buttonGray}
-                color="white"
+                color={COLORS.white}
                 width="20%"
                 onPress={onClose}
               />
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '30%',
     padding: 20,
-    backgroundColor: COLORS.darkGray,
+    backgroundColor: COLORS.gray900,
     borderRadius: SIZES.borderRadius.xLarge,
   },
   modalContentSmartphoneLandscape: {
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     width: '50%',
   },
   message: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.small,
     textAlign: 'center',
   },

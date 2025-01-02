@@ -12,24 +12,24 @@ export default function Navbar({ currentSection, onSectionChange }) {
         style={[styles.navItem, currentSection === 'chat' && styles.active]}
         onPress={() => onSectionChange('chat')}
       >
-        <Ionicons name="chatbox-outline" size={isSmartphone ? 20 : 24} color={currentSection === 'chat' ? COLORS.orange : COLORS.lightGray} />
-        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, currentSection === 'chat' ? {color: COLORS.orange} : {color: COLORS.lightGray}]}>Chat</Text>
+        <Ionicons name="chatbox-outline" size={isSmartphone ? 20 : 24} color={currentSection === 'chat' ? COLORS.orange : COLORS.gray300} />
+        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, currentSection === 'chat' ? {color: COLORS.orange} : {color: COLORS.gray300}]}>Chat</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={[styles.navItem, currentSection === 'settings' && styles.active]}
         onPress={() => onSectionChange('settings')}
       >
-        <Ionicons name="settings-outline" size={isSmartphone ? 20 : 24} color={currentSection === 'settings' ? COLORS.orange : COLORS.lightGray} />
-        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, currentSection === 'settings' ? {color: COLORS.orange} : {color: COLORS.lightGray}]}>Settings</Text>
+        <Ionicons name="settings-outline" size={isSmartphone ? 20 : 24} color={currentSection === 'settings' ? COLORS.orange : COLORS.gray300} />
+        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, currentSection === 'settings' ? {color: COLORS.orange} : {color: COLORS.gray300}]}>Settings</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={[styles.navItem, currentSection === 'account' && styles.active]}
         onPress={() => onSectionChange('account')}
       >
-        <Ionicons name="person-outline" size={isSmartphone ? 20 : 24} color={currentSection === 'account' ? COLORS.orange : COLORS.lightGray} />
-        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, currentSection === 'account' ? {color: COLORS.orange} : {color: COLORS.lightGray}]}>Account</Text>
+        <Ionicons name="person-outline" size={isSmartphone ? 20 : 24} color={currentSection === 'account' ? COLORS.orange : COLORS.gray300} />
+        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, currentSection === 'account' ? {color: COLORS.orange} : {color: COLORS.gray300}]}>Account</Text>
       </TouchableOpacity>
     </View>
   );
@@ -40,16 +40,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: COLORS.buttonGray,
+    backgroundColor: COLORS.gray750,
     paddingVertical: 6,
     borderTopWidth: 1,
-    borderTopColor: COLORS.gray,
+    borderTopColor: COLORS.gray600,
   },
   navItem: {
     alignItems: 'center',
   },
   navText: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     marginTop: 5,
     fontSize: SIZES.fonts.textTablet,
   },

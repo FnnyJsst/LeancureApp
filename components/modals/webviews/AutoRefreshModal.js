@@ -81,13 +81,13 @@ const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
             <Button 
               title="Close" 
               backgroundColor={COLORS.buttonGray}
-              color="white" 
+              color={COLORS.white} 
               width="20%"
               onPress={onClose} />
             <Button 
               title="Set" 
               backgroundColor={COLORS.orange}
-              color="white" 
+              color={COLORS.white} 
               width="20%"
               onPress={() => {
                 console.log('Option à envoyer:', selectedOption);
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: "55%",
     padding: 20,
-    backgroundColor: COLORS.darkGray,
+    backgroundColor: COLORS.gray900,
     borderRadius: SIZES.borderRadius.xLarge,
   },
   modalContentSmartphone: {
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     width: 20,
     borderRadius: 10,
     borderWidth: 1.58,
-    borderColor: COLORS.gray,
+    borderColor: COLORS.gray600,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   },
   radioText: {
     fontSize: SIZES.fonts.textTablet,
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
   },
   radioTextSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,

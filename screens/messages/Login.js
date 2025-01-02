@@ -255,7 +255,7 @@ export default function Login({ onNavigate }) {
 //     <View style={[styles.pageContainer, isTablet && styles.pageContainerTablet]}>
 //         <View style={styles.headerContainer}>
 //             <TouchableOpacity onPress={() => onNavigate(SCREENS.APP_MENU)}>
-//                 <Ionicons name="chevron-back-outline" size={24} color={COLORS.lightGray} />
+//                 <Ionicons name="chevron-back-outline" size={24} color={COLORS.gray300} />
 //             </TouchableOpacity>
 //         </View>
 //         <ScrollView>
@@ -368,7 +368,7 @@ export default function Login({ onNavigate }) {
 const styles = StyleSheet.create({
     pageContainer: {
         flex: 1,
-        backgroundColor: COLORS.darkGray,
+        backgroundColor: COLORS.gray900,
     },
     pageContainerTablet: {
         paddingHorizontal: '15%',
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
     },
     loginContainer: {
         flex: 1,
-        backgroundColor: '#232424',
+        backgroundColor: COLORS.gray800,
         margin: 20,
         padding: 25,
         borderRadius: SIZES.borderRadius.large,
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: SIZES.fonts.headerTablet,
         fontWeight: SIZES.fontWeight.bold,
-        color: "white",
+        color: COLORS.white,
         marginLeft: 30,
         marginTop: 50
     },
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
         gap: 5,
     },
     inputTitle: {
-        color: COLORS.lightGray,
+        color: COLORS.gray300,
         fontSize: SIZES.fonts.subtitleTablet,
         fontWeight: SIZES.fontWeight.regular,
         marginLeft: 10,

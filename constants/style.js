@@ -14,7 +14,6 @@ export const SIZES = {
     titleTablet: 24,
     headerSmartphone: 24,
     headerTablet: 28,
-    // xXLarge: 28,
   },
   fontWeight: {
     light: '300',
@@ -32,17 +31,34 @@ export const SIZES = {
 };
 
 export const COLORS = {
-  orange: '#FF6600',
-  darkGray: '#1a1a1a',
-  gray: '#646262',
-  sidebarGray: '#313135',
-  lightGray: '#b2b2b2',
-  buttonGray: '#27272a',
-  headerGray: '#282828',
-  backgroundModal: 'rgba(0,0,0,0.8)',
+  // Brand color
+  orange: '#FF6600',        // Orange - couleur principale de la marque
+  
+  // Dark grays (du plus foncé au plus clair)
+  gray900: '#1a1a1a',      // ancien darkGray - fond principal
+  gray850: '#1e1e1e',      // ancien black
+  gray800: '#232424',      // fond des cards/containers
+  gray750: '#27272a',      // ancien buttonGray
+  gray700: '#282828',      // ancien gray700
+  gray650: '#313135',      // ancien gray650
+  
+  // Medium grays
+  gray600: '#646262',      // ancien gray - texte peu contrasté
+  
+  // Light grays
+  gray300: '#b2b2b2',      // ancien gray300 - texte secondaire
+  
+  // Base colors
+  white: '#ffffff',        // texte principal
+  overlay: 'rgba(0,0,0,0.8)',
+  
+  // Status colors
+  success: '#24c12f',
   error: '#ff4444',
-  green: '#24c12f',
-  black: '#1e1e1e',
+  
+  // Message colors
+  messageOut: 'rgba(255, 128, 82, 0.3)',  // messages envoyés
+  messageIn: '#27272a',                   // messages reçus
 };
 
 export const MODAL_STYLES = {

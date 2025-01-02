@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Modal, Text,StyleSheet } from 'react-native';
-import TitleModal from '../../text/TitleModal';
 import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES, SIZES } from '../../../constants/style';
@@ -36,15 +35,15 @@ export default function DeleteChannel({ visible, onClose, handleDelete }) {
           <View style={MODAL_STYLES.buttonContainer}>
             <Button 
               title="Cancel" 
-              backgroundColor={COLORS.sidebarGray}
-              color="white" 
+              backgroundColor={COLORS.gray650}
+              color={COLORS.white}
               width="20%" 
               onPress={onClose} 
             />
             <Button 
               title="Delete" 
               backgroundColor={COLORS.orange}
-              color="white" 
+              color={COLORS.white} 
               width="20%" 
               onPress={() => handleDelete()} 
             />
@@ -76,7 +75,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: SIZES.fonts.subtitleTablet,
     fontWeight: SIZES.fontWeight.bold,
-    color: "white",
+    color: COLORS.white,
   },
   titleSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,

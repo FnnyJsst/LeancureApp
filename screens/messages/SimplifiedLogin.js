@@ -27,7 +27,7 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
             style={styles.loginIcon}
             onPress={() => handleLogin()}
           >
-            <Ionicons name="log-in-outline" size={isSmartphone ? 24 : 30} color={"white"} />
+            <Ionicons name="log-in-outline" size={isSmartphone ? 24 : 30} color={COLORS.white} />
           </TouchableOpacity>
         </View>
         <View style={styles.buttonContainer}>
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   },
   accountContainer: {
     width: '100%',
-    backgroundColor: COLORS.sidebarGray,
+    backgroundColor: COLORS.gray650,
     borderRadius: 10,
     padding: 20,
     flexDirection: 'row',
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contractNumberText: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.textSmartphone,
   },
   contractNumber: {
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   welcomeText: {
-    color: "white",
+    color: COLORS.white,
     fontWeight: SIZES.fontWeight.bold,
     fontSize: SIZES.fonts.headerTablet,
   },

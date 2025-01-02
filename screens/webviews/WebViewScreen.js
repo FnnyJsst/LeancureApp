@@ -22,7 +22,7 @@ const WebViewScreen = ({ url, onNavigate }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    //Delete the top horizontal black bar on Android
+    //Delete the top horizontal gray850 bar on Android
     marginTop: Platform.OS === 'ios' ? 0 : -10,
   },
   webview: {

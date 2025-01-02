@@ -68,15 +68,15 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: SIZES.fonts.subtitleTablet,
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
   },
   headerTextSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
   },
   leftArrowIcon: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
   },
   icon: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
   },
 });

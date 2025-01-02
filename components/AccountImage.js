@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   image: {
     borderRadius: 100,
     borderWidth: 3,
-    borderColor: COLORS.darkGray,
+    borderColor: COLORS.gray900,
   },
   selected: {
     borderColor: COLORS.orange,
@@ -63,6 +63,6 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: COLORS.green,
     borderWidth: 2,
-    borderColor: COLORS.darkGray,
+    borderColor: COLORS.gray900,
   },
 });

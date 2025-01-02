@@ -202,7 +202,7 @@ return (
                   size={isTablet ? 30 : 23} 
                   style={[
                     { marginRight: isSmartphonePortrait ? 0 : 15 }, 
-                    { color: selectedUpIndex === index ? COLORS.orange : "white" }
+                    { color: selectedUpIndex === index ? COLORS.orange : COLORS.white }
                   ]} 
                 />
               </TouchableOpacity>
@@ -218,7 +218,7 @@ return (
                   style={[
                     { marginLeft: isSmartphonePortrait ? 0 : 15 },
                     { marginRight: isSmartphonePortrait ? 0 : 15 },
-                    { color: selectedDownIndex === index ? COLORS.orange : "white" }
+                    { color: selectedDownIndex === index ? COLORS.orange : COLORS.white }
                   ]} 
                 />
               </TouchableOpacity>
@@ -239,7 +239,7 @@ return (
                     size={isTablet ? 40 : 29} 
                     style={[
                       { marginRight: isSmartphonePortrait ? 0 : 15 }, 
-                      { color: isTablet && selectedPencilIndex === index ? COLORS.orange : "white" }
+                      { color: isTablet && selectedPencilIndex === index ? COLORS.orange : COLORS.white }
                     ]} 
                   />
                 </TouchableOpacity>
@@ -252,7 +252,7 @@ return (
                   <Ionicons 
                     name="trash-outline" 
                     size={isTablet ? 30 : 23} 
-                    style={{ color: selectedBinIndex === index ? COLORS.orange : "white" }} 
+                    style={{ color: selectedBinIndex === index ? COLORS.orange : COLORS.white }} 
                   />
                 </TouchableOpacity>
                 </View>
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginVertical: 15,
-    backgroundColor: "#232424",
+    backgroundColor: COLORS.gray800,
     height: 75,
     width: '95%',
     borderRadius: 12,
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   text: {
-    color: "white",
+    color: COLORS.white,
     fontSize: SIZES.fonts.textTablet,
   },
   textSmartphone: {

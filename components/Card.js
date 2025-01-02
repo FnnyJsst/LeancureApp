@@ -3,11 +3,11 @@ import { COLORS, SIZES } from '../constants/style';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useDeviceType } from '../hooks/useDeviceType';
 
-export default function Card() {
+export default function Card({ backgroundColor }) {
   const { isSmartphone, isTablet } = useDeviceType();
 
   return (
-    <View style={[styles.container, isSmartphone && styles.containerSmartphone]}>
+    <View style={[styles.container, isSmartphone && styles.containerSmartphone, {backgroundColor: backgroundColor}]}>
       <View style={styles.iconTextContainer}>
         <Ionicons name="person-outline" size={isTablet ? 30 : 24} color={COLORS.orange} />
         <View style={styles.textContent}>
@@ -21,7 +21,7 @@ export default function Card() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.sidebarGray,
+    // backgroundColor: COLORS.gray650,
     padding: 25,
     marginTop: 20,
     width: '95%',
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   textContentTitle: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.subtitleTablet,
     marginLeft: 10,
   },

@@ -15,6 +15,7 @@ import ChatScreen from './screens/messages/ChatScreen';
 import SettingsMessage from './screens/messages/SettingsMessage';
 import AccountScreen from './screens/messages/AccountScreen';
 import { SCREENS } from './constants/screens';
+import { COLORS } from './constants/style';
 import { useNavigation } from './hooks/useNavigation';
 
 export default function App() {
@@ -265,7 +266,7 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#1E1E1E' }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.gray900 }}>
 {currentScreen === SCREENS.APP_MENU && (
   <AppMenu 
     onNavigate={(screen) => {

@@ -117,7 +117,7 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
           </View>
         )}
       </View>
-      <Separator width="100%" marginTop={10} marginBottom={0} />
+      {/* <Separator width="100%" marginTop={10} marginBottom={0} /> */}
       <ScrollView 
         ref={scrollViewRef}
         //When the content size changes, scroll to the bottom of the scrollview to read new messages
@@ -161,8 +161,7 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.darkGray,
-    marginTop: -34,
+    backgroundColor: COLORS.gray900,
   },
   header: {
     flexDirection: 'row',
@@ -174,7 +173,7 @@ const styles = StyleSheet.create({
   },
   channelName: {
     fontSize: SIZES.fonts.subtitleSmartphone,
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
   },
   channelNameSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
@@ -188,7 +187,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   placeholder: {
-    color: COLORS.gray,
+    color: COLORS.gray600,
     fontSize: SIZES.fonts.medium,
     textAlign: 'center',
   },
@@ -199,7 +198,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   noChannelText: {
-    color: COLORS.gray,
+    color: COLORS.gray600,
     fontSize: SIZES.fonts.subtitleTablet,
   },
   noChannelTextSmartphone: {

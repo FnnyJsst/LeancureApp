@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.darkGray,
+    backgroundColor: COLORS.gray900,
     position: 'absolute',
     top: 0,
     left: 0,

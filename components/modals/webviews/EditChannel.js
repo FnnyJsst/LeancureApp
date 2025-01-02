@@ -82,15 +82,15 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
           <View style={MODAL_STYLES.buttonContainer}>
             <Button 
               title="Cancel" 
-              backgroundColor={COLORS.sidebarGray} 
-              color="white" 
+              backgroundColor={COLORS.gray650} 
+              color={COLORS.white} 
               width="20%"
               onPress={onClose} 
             />
             <Button 
               title="Ok" 
               backgroundColor={COLORS.orange} 
-              color="white" 
+              color={COLORS.white} 
               width="20%"
               onPress={handleOk} 
             />

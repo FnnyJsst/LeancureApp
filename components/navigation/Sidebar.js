@@ -25,7 +25,7 @@ function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect 
         <Ionicons 
           name={isGroupExpanded ? 'chevron-down' : 'chevron-forward'} 
           size={20} 
-          color={COLORS.lightGray} 
+          color={COLORS.gray300} 
         />
         <Text style={[
           styles.groupName,
@@ -99,7 +99,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           <Ionicons 
             name="close"
             size={isSmartphone ? 30 : 40} 
-            color={COLORS.lightGray} 
+            color={COLORS.gray300} 
           />
         </TouchableOpacity>
         <View style={styles.sidebarHeader}>
@@ -113,9 +113,9 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                 isSmartphone && styles.searchInputSmartphone
               ]}
               placeholder="Search"
-              placeholderTextColor={COLORS.lightGray}
+              placeholderTextColor={COLORS.gray300}
             />
-            <Ionicons name="search" size={isSmartphone ? 20 : 25} color={COLORS.lightGray} />
+            <Ionicons name="search" size={isSmartphone ? 20 : 25} color={COLORS.gray300} />
           </View>
         </View>
         
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: '85%',
-    backgroundColor: COLORS.sidebarGray,
+    backgroundColor: COLORS.gray650,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     padding: 8,
     fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.light,
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   selectedGroup: {
-    backgroundColor: COLORS.sidebarGray,
+    backgroundColor: COLORS.gray650,
     borderRadius: SIZES.borderRadius.small,
     marginBottom: 10,
   },
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   groupName: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     marginLeft: 10,
     fontSize: SIZES.fonts.subtitleTablet,
   },
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   channelName: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.textTablet,
   },
   channelNameSmartphone: {

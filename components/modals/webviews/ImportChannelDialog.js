@@ -150,15 +150,15 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
             <Button 
               title="Cancel" 
               onPress={handleClose}
-              backgroundColor={COLORS.sidebarGray}
-              color="white"
+              backgroundColor={COLORS.gray650}
+              color={COLORS.white}
               width="20%"
             />
             <Button 
               title="Import" 
               onPress={handleDownload}
               backgroundColor={COLORS.orange}
-              color="white"
+              color={COLORS.white}
               width="20%"
             />
           </View>

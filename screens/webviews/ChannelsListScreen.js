@@ -8,7 +8,7 @@ import ButtonLarge from '../../components/buttons/ButtonLarge';
 export default function ChannelsListScreen({ channels, selectedChannels, onBack, onBackPress }) {
   const [localSelectedChannels, setLocalSelectedChannels] = useState([]);
   const [availableChannels, setAvailableChannels] = useState([]);
-  const { isTablet, isPortrait, isSmartphone, isSmartphonePortrait } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait } = useDeviceType();
 
   useEffect(() => {
     const filteredChannels = channels.filter(newChannel => 
@@ -70,7 +70,7 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
         <ButtonLarge
           title="Import channels"
           backgroundColor={COLORS.orange}
-          color="white"
+          color={COLORS.white}
           onPress={handleImportChannels}
         />
       </View>
@@ -103,14 +103,14 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.subtitleTablet,
     textAlign: 'left',
     marginLeft: 10,
-    color: "white",
+    color: COLORS.white,
   },
   channelTitleSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
   },
   checkbox: {
     fontSize: SIZES.fonts.subtitleTablet,
-    color: "white",
+    color: COLORS.white,
   },
   checkboxSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,

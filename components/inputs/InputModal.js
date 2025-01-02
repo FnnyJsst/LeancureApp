@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
     width: "90%",
     borderRadius: SIZES.borderRadius.small,
     padding: 10,
-    backgroundColor: COLORS.black,
-    color: COLORS.lightGray,
+    backgroundColor: COLORS.gray850,
+    color: COLORS.gray300,
   },
   inputFocused: {
     borderColor: COLORS.orange,

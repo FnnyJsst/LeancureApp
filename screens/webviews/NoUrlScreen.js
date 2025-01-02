@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: SIZES.fonts.subtitleTablet,
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     textAlign: 'center',
   },
   textSmartphone: {

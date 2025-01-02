@@ -7,7 +7,7 @@ import { SCREENS } from '../constants/screens';
 
 export default function AppMenu({ onNavigate }) {
 
-  const { isLandscape, isSmartphone, isTablet } = useDeviceType();
+  const { isLandscape, isSmartphone } = useDeviceType();
 
   return (
     <View style={styles.container}>
@@ -36,11 +36,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.darkGray,
+    backgroundColor: COLORS.gray900,
     gap: 20,
   },
   title: {
-    color: "white",
+    color: COLORS.white,
     fontSize: SIZES.fonts.headerTablet,
     paddingVertical: 20,
   },

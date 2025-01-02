@@ -1,11 +1,12 @@
-import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import AccountImage from '../AccountImage';
 import { SCREENS } from '../../constants/screens';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLORS } from '../../constants/style';
+import Separator from '../Separator';
 
-export default function ChatHeader({ onNavigate, toggleMenu }) {
+export default function ChatHeader({ onNavigate, toggleMenu, showMenuIcon = true }) {
   const { isTablet, isSmartphone } = useDeviceType();
   
   return (
@@ -19,22 +20,25 @@ export default function ChatHeader({ onNavigate, toggleMenu }) {
             <Ionicons 
               name="chevron-back-outline" 
               size={isSmartphone ? 25 : 30} 
-              color={COLORS.lightGray} 
+              color={COLORS.gray300} 
             />
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.iconButton} 
-            onPress={toggleMenu}
-          >
-            <Ionicons 
-              name="menu-outline" 
-              size={isSmartphone ? 25 : 30} 
-              color={COLORS.lightGray} 
-            />
-          </TouchableOpacity>
+          {showMenuIcon && (
+            <TouchableOpacity 
+              style={styles.iconButton} 
+              onPress={toggleMenu}
+            >
+              <Ionicons 
+                name="menu-outline" 
+                size={isSmartphone ? 25 : 30} 
+                color={COLORS.gray300} 
+              />
+            </TouchableOpacity>
+          )}
         </View>
         <AccountImage onNavigate={onNavigate} width={55} height={55} />
       </View>
+      <Separator width="100%" marginTop={-28} marginBottom={-100} />
     </View>
   );
 }
@@ -60,17 +64,5 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     padding: 5,
-    
-  },
-  logo: {
-    objectFit: 'contain',
-  },
-  logoTablet: {
-    width: 120,
-    height: 50,
-  },
-  logoSmartphone: {
-    width: 90,
-    height: 60,
-  },
+  }
 });

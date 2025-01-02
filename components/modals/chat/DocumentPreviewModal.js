@@ -38,7 +38,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
     if (!fileUrl) {
       return (
         <View style={styles.noPreviewContainer}>
-          <Ionicons name="alert-circle-outline" size={48} color={COLORS.lightGray} />
+          <Ionicons name="alert-circle-outline" size={48} color={COLORS.gray300} />
           <Text style={styles.noPreviewText}>URL du fichier non disponible</Text>
         </View>
       );
@@ -143,7 +143,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
     // Default case: display file info
     return (
       <View style={styles.noPreviewContainer}>
-        <Ionicons name="document-outline" size={48} color={COLORS.lightGray} />
+        <Ionicons name="document-outline" size={48} color={COLORS.gray300} />
         <Text style={styles.noPreviewText}>
           Type de fichier : {fileType || 'Inconnu'}
         </Text>
@@ -162,7 +162,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
           <View style={styles.header}>
             <Text style={styles.title}>{fileName}</Text>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={24} color={COLORS.lightGray} />
+              <Ionicons name="close" size={24} color={COLORS.gray300} />
             </TouchableOpacity>
           </View>
           <Text style={styles.fileSize}>{fileSize}</Text>
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '90%',
     height: '80%',
-    backgroundColor: COLORS.darkGray,
+    backgroundColor: COLORS.gray900,
     borderRadius: SIZES.borderRadius.medium,
     padding: 20,
   },
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.subtitleSmartphone,
   },
   fileSize: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     fontWeight: SIZES.fontWeight.light,
     fontSize: SIZES.fonts.textSmartphone,
     marginTop: 5,
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   },
   tabletLandscapePreviewContainer: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: COLORS.white,
     borderRadius: SIZES.borderRadius.small,
     overflow: 'hidden',
   },
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
   },
   previewContainer: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: COLORS.white,
     borderRadius: SIZES.borderRadius.small,
     overflow: 'hidden',
     marginVertical: 10,
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   },
   preview: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: COLORS.white,
     width: '100%',
     height: '100%',
   },
@@ -285,13 +285,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   noPreviewText: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     marginTop: 10,
   },
   pdfContainer: {
     flex: 1,
     width: '100%',
-    backgroundColor: 'white',
+    backgroundColor: COLORS.white,
   },
   pdf: {
     flex: 1,

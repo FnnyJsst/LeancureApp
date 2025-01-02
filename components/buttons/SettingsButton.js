@@ -6,10 +6,7 @@ export default function SettingsButton({ icon, title, description, onPress }) {
   const { isSmartphone } = useDeviceType();
 
   return (
-    <View style={[
-      styles.container,
-      isSmartphone && styles.containerSmartphone
-    ]}>
+    <View style={styles.container}>
       <TouchableOpacity 
         style={[
           styles.button,
@@ -41,11 +38,6 @@ export default function SettingsButton({ icon, title, description, onPress }) {
 
 const styles = StyleSheet.create({
   // Tablet styles
-  // container: {
-    // flexDirection: 'row',
-    // alignItems: 'center',
-    // marginLeft: 30,
-  // },
   button: {
     flexDirection: 'row',
     width: '100%',
@@ -60,24 +52,22 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: SIZES.fonts.subtitleTablet,
-    color: "white",
+    color: COLORS.white,
     fontWeight: SIZES.fontWeight.regular,
   },
   description: {
     fontSize: SIZES.fonts.textTablet,
-    color: COLORS.gray,
+    color: COLORS.gray600,
     marginTop: 2,
   },
 
   // Smartphone styles
-  containerSmartphone: {
-    // marginLeft: 15,
-  },
   buttonSmartphone: {
     paddingVertical: 2,
   },
   textSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
+    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontWeight: SIZES.fontWeight.medium,
   },
   descriptionSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,

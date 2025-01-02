@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet} from 'react-native';
+import { View, Text, StyleSheet} from 'react-native';
 import Navbar from '../../components/navigation/Navbar';
 import AccountImage from '../../components/AccountImage';
 import AccountImageInput from '../../components/AccountImageInput';
 import Button from '../../components/buttons/Button';
 import Card from '../../components/Card';
+import ChatHeader from '../../components/chat/ChatHeader';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
 
@@ -26,7 +27,7 @@ export default function AccountScreen({ onNavigate }) {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <ChatHeader onNavigate={onNavigate} showMenuIcon={false} />
         <View style={[styles.content, isSmartphone && styles.contentSmartphone, isTablet && styles.contentTablet]}>
           <AccountImage 
             customImage={profileImage} 
@@ -39,19 +40,18 @@ export default function AccountScreen({ onNavigate }) {
             <Text style={[styles.accountName, isSmartphone && styles.accountNameSmartphone]}>John Doe</Text>
             <Text style={[styles.accountJobTitle, isSmartphone && styles.accountJobTitleSmartphone]}>Technician</Text>
           </View>
-          <Card />
-          <Card />
+          <Card backgroundColor={COLORS.gray650} />
+          <Card backgroundColor={COLORS.gray650} />
           <View style={[styles.buttonContainer, isSmartphone && styles.buttonContainerSmartphone]}>
             <Button 
               title="Edit" 
               onPress={() => {}} 
               backgroundColor={COLORS.orange}
-              color="white"
+              color={COLORS.white}
               width={isTablet ? 100 : 80}
             />
           </View>
         </View>
-      </ScrollView>
       <Navbar 
         currentSection='account' 
         onSectionChange={handleSectionChange}
@@ -63,7 +63,7 @@ export default function AccountScreen({ onNavigate }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.darkGray,
+    backgroundColor: COLORS.gray900,
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -71,11 +71,13 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: '#232424',
+    backgroundColor: COLORS.gray800,
+    borderRadius: SIZES.borderRadius.small,
     margin: 20,
     justifyContent: 'flex-start',
     alignItems: 'center',
     paddingVertical: 30,
+    marginTop: 0,
   },
   contentTablet: {
     gap: 30,

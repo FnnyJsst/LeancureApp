@@ -167,10 +167,10 @@ const styles = StyleSheet.create({
   },
   otherMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.buttonGray,
+    backgroundColor: COLORS.gray750,
   },
   username: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.textTablet,
     marginBottom: 2,
   },
@@ -178,14 +178,14 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.textSmartphone,
   },
   messageText: {
-    color: 'white',
+    color: COLORS.white,
     fontSize: SIZES.fonts.subtitleTablet,
   },
   messageTextSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
   },
   timestamp: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.textSmartphone,
     alignSelf: 'flex-end',
     marginTop: 2,
@@ -206,12 +206,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   fileName: {
-    color: 'white',
+    color: COLORS.white,
     fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.medium,
   },
   ownFileName: {
-    color: 'white',
+    color: COLORS.white,
   },
   fileSize: {
     color: 'rgba(255, 255, 255, 0.7)',

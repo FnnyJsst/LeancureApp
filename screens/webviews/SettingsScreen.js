@@ -3,6 +3,7 @@ import { ScrollView, View, Text, StyleSheet, BackHandler, TouchableOpacity } fro
 import Header from '../../components/Header';
 import TitleSettings from '../../components/text/TitleSettings';
 import SettingsButton from '../../components/buttons/SettingsButton';
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnly from '../../components/modals/webviews/ReadOnly';
@@ -93,12 +94,15 @@ export default function SettingsScreen({
         showsVerticalScrollIndicator={true}
       >
         <Header 
-          title="Settings" 
           onBackPress={handleBackPress} 
         />
         <View style={styles.settingsContentContainer}>
-
-          <TitleSettings title="General" />
+          <View style={styles.headerContainer}>
+            <Text style={[
+              styles.header,
+              isSmartphone && styles.headerSmartphone
+            ]}>Settings</Text>
+          </View>
           <View style={[
             styles.configContainer,
             styles.configContainerTablet,
@@ -112,8 +116,6 @@ export default function SettingsScreen({
               onPress={handleQuitApp}
             />
           </View>
-          
-          <TitleSettings title="Channels management" />
           <View style={[
             styles.configContainer,
             styles.configContainerTablet,
@@ -127,7 +129,6 @@ export default function SettingsScreen({
               onPress={() => onNavigate(SCREENS.CHANNELS_MANAGEMENT)}
             />
           </View>
-
           <View style={[
             styles.configContainer,
             styles.configContainerTablet,
@@ -184,10 +185,6 @@ export default function SettingsScreen({
               </TouchableOpacity>
             </View>
           </View>
-          <TitleSettings 
-            title="Security" 
-            
-          />
           <View style={[styles.configContainer,
             isTablet && styles.configContainerTablet,
             isSmartphone && styles.configContainerSmartphone,
@@ -215,7 +212,6 @@ export default function SettingsScreen({
               </TouchableOpacity>
             </View>
           </View>
-          <TitleSettings title="Messages" />
           <View style={[
             styles.configContainer,
             styles.configContainerTablet,
@@ -230,7 +226,6 @@ export default function SettingsScreen({
             />
           </View>
           <View style={styles.separatorContainer}>
-            {/* <Separator width={isSmartphone ? "95%" : "91%"} /> */}
           </View>
           <TitleSettings title="Information" />
           <Text style={[
@@ -268,7 +263,6 @@ const styles = StyleSheet.create({
   //MAIN CONTAINER
   pageContainer: {
     flex: 1,
-    // paddingHorizontal: 10,
   },
   pageContainerSmartphonePortrait: {
     paddingHorizontal: 4,
@@ -281,19 +275,34 @@ const styles = StyleSheet.create({
     paddingTop: '3%',
   },
 
+  // HEADER CONTAINER
+  headerContainer: {
+    marginBottom: 20,
+    marginTop: 20,
+    marginLeft: 30,
+    alignItems: 'flex-start',
+  },
+  header: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.headerTablet,
+    fontWeight: SIZES.fontWeight.bold,
+  },
+  headerSmartphone: {
+    fontSize: SIZES.fonts.headerSmartphone,
+  },
+
   // CONFIG CONTAINER
   configContainer: {
-    backgroundColor: "#232424",
+    backgroundColor: COLORS.gray800,
     borderRadius: SIZES.borderRadius.small,
-    paddingVertical: 25,
+    paddingVertical: 20,
     paddingHorizontal: 15,
     marginHorizontal: 15,
     alignSelf: 'center',
-    
+    marginVertical: 8,
   },
   configContainerTablet: {
     minHeight: 58,
-    marginVertical: 10,
   },
   configContainerSmartphone: {
     minHeight: 45,
@@ -301,7 +310,6 @@ const styles = StyleSheet.create({
   },
   configContainerLandscape: {
     marginHorizontal: 30,
-    marginVertical: 5,
   },
 
   // ROW CONTAINER
@@ -315,7 +323,7 @@ const styles = StyleSheet.create({
 
   // TEXT
   text: {
-    color: COLORS.gray,
+    color: COLORS.gray600,
     fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.regular,
   },
@@ -325,7 +333,7 @@ const styles = StyleSheet.create({
 
   // TOGGLE BUTTON
   baseToggle: {
-    backgroundColor: COLORS.sidebarGray,
+    backgroundColor: COLORS.gray650,
     borderRadius: SIZES.borderRadius.small,
     padding: 8,
     minWidth: 40,

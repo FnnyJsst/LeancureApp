@@ -25,7 +25,7 @@ export default function CheckBox({
           <Ionicons 
             name="checkmark" 
             size={16} 
-            color={disabled ? COLORS.lightGray : COLORS.orange} 
+            color={disabled ? COLORS.gray300 : COLORS.orange} 
           />
         )}
       </View>
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: COLORS.lightGray,
+    borderColor: COLORS.gray300,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -60,14 +60,14 @@ const styles = StyleSheet.create({
     color: COLORS.orange,
   },
   disabled: {
-    borderColor: COLORS.lightGray,
+    borderColor: COLORS.gray300,
     backgroundColor: 'transparent',
   },
   label: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.small,
   },
   labelDisabled: {
-    color: COLORS.lightGray,
+    color: COLORS.gray300,
   }
 });
