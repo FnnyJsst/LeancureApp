@@ -72,7 +72,7 @@ export const MODAL_STYLES = {
   content: {
     width: '40%',
     padding: 20,
-    backgroundColor: COLORS.buttonGray,
+    backgroundColor: COLORS.gray750,
     borderRadius: SIZES.borderRadius.large,
   },
   buttonContainer: {

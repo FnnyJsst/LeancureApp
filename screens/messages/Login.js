@@ -258,7 +258,7 @@ export default function Login({ onNavigate }) {
                 <Ionicons name="chevron-back-outline" size={isSmartphone ? 25 : 40} color={COLORS.gray300} />
             </TouchableOpacity>
         </View>
-        <View style={styles.formContainer}>
+        <View style={[styles.formContainerPortrait, isSmartphone && styles.formContainerSmartphonePortrait]}>
             <ScrollView>
                 {isSimplifiedLogin ? (
                     <SimplifiedLogin 
@@ -379,6 +379,9 @@ const styles = StyleSheet.create({
     formContainer: {
         flex: 1,
         paddingHorizontal: '15%',
+    },
+    formContainerSmartphonePortrait: {
+        paddingHorizontal: '5%',
     },
     headerContainer: {
         justifyContent: 'flex-start',

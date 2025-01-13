@@ -19,7 +19,7 @@ export default function InputModal({
       <TextInput 
         placeholder={placeholder}
         secureTextEntry={secureTextEntry}
-        placeholderTextColor={COLORS.gray}
+        placeholderTextColor={COLORS.gray600}
         value={value}
         onChangeText={onChangeText}
         style={[
@@ -48,7 +48,8 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.small,
     padding: 10,
     backgroundColor: COLORS.gray850,
-    color: COLORS.gray300,
+    color: COLORS.white,
+    fontSize: SIZES.fonts.textTablet,
   },
   inputFocused: {
     borderColor: COLORS.orange,

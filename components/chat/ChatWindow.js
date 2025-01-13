@@ -1,13 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import InputChatWindow from '../inputs/InputChatWindow';
 import ChatMessage from './ChatMessage';
 import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
-export default function ChatWindow({ channel, onInputFocusChange }) {
 
+export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange }) {
   const { isSmartphone, isTablet } = useDeviceType();
+  const scrollViewRef = useRef();
 
   const [isDocumentPreviewModalVisible, setIsDocumentPreviewModalVisible] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState(null);
@@ -15,6 +16,31 @@ export default function ChatWindow({ channel, onInputFocusChange }) {
   const [selectedFileSize, setSelectedFileSize] = useState(null);
   const [selectedFileType, setSelectedFileType] = useState(null);
   const [selectedBase64, setSelectedBase64] = useState(null);
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    if (channelMessages && channelMessages.length > 0) {
+      const formattedMessages = channelMessages.map(msg => ({
+        id: msg.id,
+        username: "User",
+        text: msg.content || msg.message,
+        title: msg.title,
+        timestamp: new Date(parseInt(msg.savedTimestamp)).toLocaleTimeString([], { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        }),
+        isOwnMessage: false,
+        fileType: msg.fileType,
+        fileName: msg.fileName,
+        fileSize: msg.fileSize,
+        uri: msg.uri,
+        base64: msg.base64
+      }));
+      setMessages(formattedMessages);
+    } else {
+      setMessages([]);
+    }
+  }, [channelMessages]);
 
   const openDocumentPreviewModal = (message) => {
     setIsDocumentPreviewModalVisible(true);
@@ -29,25 +55,6 @@ export default function ChatWindow({ channel, onInputFocusChange }) {
     setIsDocumentPreviewModalVisible(false);
     setSelectedFileUrl(null);
   };
-
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      username: "John Doe",
-      text: "Bonjour, comment ça va ?",
-      timestamp: "10:30",
-      isOwnMessage: false
-    },
-    {
-      id: 2,
-      username: "Moi",
-      text: "Très bien, merci !",
-      timestamp: "10:31",
-      isOwnMessage: true
-    }
-  ]);
-
-  const scrollViewRef = useRef();
 
   const sendMessage = (messageData) => {
     const newMessage = {
@@ -75,15 +82,17 @@ export default function ChatWindow({ channel, onInputFocusChange }) {
       <View style={styles.header}>
         {channel && (
           <View style={styles.channelNameContainer}>
-            <Text style={[styles.channelName, isSmartphone && styles.channelNameSmartphone]}>{channel}</Text>
+            <Text style={[styles.channelName, isSmartphone && styles.channelNameSmartphone]}>
+              {channel}
+            </Text>
           </View>
         )}
       </View>
       <ScrollView 
         ref={scrollViewRef}
-        //When the content size changes, scroll to the bottom of the scrollview to read new messages
         onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
-        style={[styles.chatContainer, isTablet && styles.chatContainerTablet]}>
+        style={[styles.chatContainer, isTablet && styles.chatContainerTablet]}
+      >
         {channel ? (
           messages.map(message => (
             <ChatMessage 
@@ -98,7 +107,9 @@ export default function ChatWindow({ channel, onInputFocusChange }) {
             <Text style={[
               styles.noChannelText,
               isSmartphone && styles.noChannelTextSmartphone
-            ]}>Select a channel to start chatting</Text>
+            ]}>
+              Sélectionnez un canal pour commencer à discuter
+            </Text>
           </View>
         )}
       </ScrollView>
@@ -111,10 +122,12 @@ export default function ChatWindow({ channel, onInputFocusChange }) {
         fileType={selectedFileType}
         base64={selectedBase64}
       />
-      {channel && <InputChatWindow 
-        onSendMessage={sendMessage} 
-        onFocusChange={onInputFocusChange}
-     />}
+      {channel && (
+        <InputChatWindow 
+          onSendMessage={sendMessage} 
+          onFocusChange={onInputFocusChange}
+        />
+      )}
     </View>
   );
 }

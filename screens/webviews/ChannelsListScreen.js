@@ -8,7 +8,7 @@ import ButtonLarge from '../../components/buttons/ButtonLarge';
 export default function ChannelsListScreen({ channels, selectedChannels, onBack, onBackPress }) {
   const [localSelectedChannels, setLocalSelectedChannels] = useState([]);
   const [availableChannels, setAvailableChannels] = useState([]);
-  const { isSmartphone, isSmartphonePortrait } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
 
   useEffect(() => {
     const filteredChannels = channels.filter(newChannel => 
@@ -36,36 +36,38 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
   };
 
   return (
-    <View style={[styles.pageContainer, isSmartphone && styles.containerSmartphone]}>
+    <View style={styles.pageContainer}>
       <Header 
-        title="IMPORT CHANNELS"
+        // title="IMPORT CHANNELS"
         onBackPress={onBackPress}
         showIcons={false}
       />
-      <FlatList
-        data={availableChannels}
-        keyExtractor={(item) => item.href}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              styles.channelContainer,
-              isSmartphonePortrait && styles.channelContainerSmartphonePortrait,
-            ]}
-            onPress={() => toggleChannelSelection(item)}
-          >
-            <Text style={[
-              styles.checkbox,
-              isSmartphone && styles.checkboxSmartphone,
-              localSelectedChannels.some(c => c.href === item.href) && styles.checkboxSelected
-            ]}>
-              {localSelectedChannels.some(c => c.href === item.href) ? '☑' : '☐'}
-            </Text>
-            <Text style={[styles.channelTitle, isSmartphone && styles.channelTitleSmartphone]}>
-              {item.title}
-            </Text>
-          </TouchableOpacity>
-        )}
-      />
+      <View style={[styles.listContainer, isLandscape && styles.listContainerLandscape]}>
+        <FlatList
+          data={availableChannels}
+          keyExtractor={(item) => item.href}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[
+                styles.channelContainer,
+                isSmartphonePortrait && styles.channelContainerSmartphonePortrait,
+              ]}
+              onPress={() => toggleChannelSelection(item)}
+            >
+              <Text style={[
+                styles.checkbox,
+                isSmartphone && styles.checkboxSmartphone,
+                localSelectedChannels.some(c => c.href === item.href) && styles.checkboxSelected
+              ]}>
+                {localSelectedChannels.some(c => c.href === item.href) ? '☑' : '☐'}
+              </Text>
+              <Text style={[styles.channelTitle, isSmartphone && styles.channelTitleSmartphone]}>
+                {item.title}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
       <View style={styles.buttonContainer}>
         <ButtonLarge
           title="Import channels"
@@ -81,12 +83,6 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
 const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
-    paddingTop: 30,
-    paddingHorizontal: 30,
-  },
-  containerSmartphone: {
-    paddingHorizontal: 5,
-    paddingTop: 15,
   },
   channelContainer: {
     flexDirection: 'row',
@@ -117,6 +113,13 @@ const styles = StyleSheet.create({
   },
   checkboxSelected: {
     color: COLORS.orange,
+  },
+  listContainer: {
+    flex: 1,
+    padding: 30,
+  },
+  listContainerLandscape: {
+    paddingHorizontal: 50,
   },
   buttonContainer: {
     bottom: 30,

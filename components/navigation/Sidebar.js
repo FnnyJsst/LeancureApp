@@ -3,20 +3,21 @@ import { View, TextInput, ScrollView, Text, TouchableOpacity, StyleSheet, Animat
 import { Ionicons } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
+import { fetchUserChannels } from '../../services/messageApi';
 
 function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect }) {
-
   const { isSmartphone } = useDeviceType();
-
   const [isGroupExpanded, setIsGroupExpanded] = useState(false);
+
+  const handleChannelSelect = (channel) => {
+    console.log('Canal sélectionné:', channel);
+    onChannelSelect(channel.name, channel.messages || []);
+  };
 
   return (
     <View style={styles.groupItem}>
       <TouchableOpacity 
-        style={[
-          styles.groupHeader,
-          isSelected && styles.selectedGroup
-        ]}
+        style={[styles.groupHeader, isSelected && styles.selectedGroup]}
         onPress={() => {
           setIsGroupExpanded(!isGroupExpanded);
           onGroupSelect(name);
@@ -27,24 +28,22 @@ function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect 
           size={20} 
           color={COLORS.gray300} 
         />
-        <Text style={[
-          styles.groupName,
-          isSmartphone && styles.groupNameSmartphone
-        ]}>{name}</Text>
+        <Text style={[styles.groupName, isSmartphone && styles.groupNameSmartphone]}>
+          {name}
+        </Text>
       </TouchableOpacity>
       
-      {isGroupExpanded && (
+      {isGroupExpanded && channels && channels.length > 0 && (
         <View>
-          {channels.map((channel, index) => (
+          {channels.map((channel) => (
             <TouchableOpacity 
-              key={index}
+              key={channel.id}
               style={styles.channelItem}
-              onPress={() => onChannelSelect(channel)}
+              onPress={() => handleChannelSelect(channel)}
             >
-              <Text style={[
-                styles.channelName,
-                isSmartphone && styles.channelNameSmartphone
-              ]}>{channel}</Text>
+              <Text style={[styles.channelName, isSmartphone && styles.channelNameSmartphone]}>
+                {channel.name}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -54,105 +53,79 @@ function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect 
 }
 
 export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu }) {
-  const { dpWidth, isTablet, isTabletPortrait, isSmartphone, isSmartphoneLandscape } = useDeviceType();
-
-  const sidebarWidth = isTabletPortrait ? dpWidth * 1 : (isTablet ? dpWidth * 0.4 : dpWidth * 2.3);
-  const slideAnim = useRef(new Animated.Value(-sidebarWidth)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [channels, setChannels] = useState({ publicChannels: [], privateGroups: [] });
+  const { isSmartphone, isTablet } = useDeviceType();
+  
+  const sidebarWidth = isSmartphone ? '75%' : '25%';
+  const slideAnim = useRef(new Animated.Value(-300)).current;
 
   useEffect(() => {
-    const toValue = isExpanded ? 0 : -sidebarWidth;
-    const opacityValue = isExpanded ? 1 : 0;
+    Animated.timing(slideAnim, {
+      toValue: isExpanded ? 0 : -300,
+      duration: 300,
+      useNativeDriver: true
+    }).start();
+  }, [isExpanded]);
 
-    Animated.parallel([
-      Animated.spring(slideAnim, {
-        toValue,
-        useNativeDriver: true,
-        tension: 65,
-        friction: 11
-      }),
-      Animated.timing(fadeAnim, {
-        toValue: opacityValue,
-        duration: 200,
-        useNativeDriver: true
-      })
-    ]).start();
-  }, [isExpanded, sidebarWidth]);
+  useEffect(() => {
+    const loadChannels = async () => {
+      try {
+        const data = await fetchUserChannels();
+        setChannels(data);
+      } catch (error) {
+        console.error("Erreur lors du chargement des canaux:", error);
+      }
+    };
+    
+    loadChannels();
+  }, []);
 
   return (
-    <>
-      <Animated.View 
-        style={[
-          styles.sidebar, 
-          isSmartphone && styles.sidebarSmartphone,
-          isSmartphoneLandscape && styles.sidebarSmartphoneLandscape,
-          isTabletPortrait && styles.sidebarTabletPortrait,
-          { 
-            transform: [{ translateX: slideAnim }],
-          }
-        ]}
+    <Animated.View style={[
+      styles.sidebar,
+      isSmartphone && styles.sidebarSmartphone,
+      {
+        transform: [{
+          translateX: slideAnim
+        }]
+      }
+    ]}>
+      <TouchableOpacity 
+        onPress={toggleMenu}
+        style={styles.closeButton}
       >
-        <TouchableOpacity 
-          onPress={toggleMenu}
-          style={styles.closeButton}
-        >
-          <Ionicons 
-            name="close"
-            size={isSmartphone ? 30 : 40} 
-            color={COLORS.gray300} 
-          />
-        </TouchableOpacity>
-        <View style={styles.sidebarHeader}>
-          <View style={[
-            styles.inputContainer,
-            isTablet && styles.inputContainerTablet
-          ]}>
-            <TextInput 
-              style={[
-                styles.searchInput,
-                isSmartphone && styles.searchInputSmartphone
-              ]}
-              placeholder="Search"
-              placeholderTextColor={COLORS.gray300}
-            />
-            <Ionicons name="search" size={isSmartphone ? 20 : 25} color={COLORS.gray300} />
-          </View>
-        </View>
-        
-        <ScrollView style={styles.groupsList}>
-          <GroupItem 
-            name="Management" 
-            channels={['# general', '# random', '# dev']}
-            onChannelSelect={onChannelSelect}
-            isSelected={selectedGroup === "Group 1"}
-            onGroupSelect={onGroupSelect} 
-          />
-          <GroupItem 
-            name="Maintenance" 
-            channels={['# marketing', '# sales']}
-            onChannelSelect={onChannelSelect}
-            isSelected={selectedGroup === "Group 2"}
-            onGroupSelect={onGroupSelect} 
-          />
-        </ScrollView>
-      </Animated.View>
+        <Ionicons 
+          name="close"
+          size={isSmartphone ? 30 : 40} 
+          color={COLORS.gray300} 
+        />
+      </TouchableOpacity>
 
-      {isExpanded && (
-        <Animated.View 
-          style={[
-            styles.overlay,
-            {
-              opacity: fadeAnim
-            }
-          ]}
-        >
-          <TouchableOpacity 
-            activeOpacity={1}
-            onPress={toggleMenu}
+      <ScrollView style={styles.groupsList}>
+        {/* Canaux publics */}
+        {channels.publicChannels.length > 0 && (
+          <GroupItem 
+            name="Public"
+            channels={channels.publicChannels}
+            onChannelSelect={onChannelSelect}
+            isSelected={selectedGroup === "Public"}
+            onGroupSelect={onGroupSelect}
           />
-        </Animated.View>
-      )}
-    </>
+        )}
+
+        {/* Groupes privés */}
+        {channels.privateGroups.map(group => (
+          <GroupItem 
+            key={group.id}
+            name={group.name}
+            channels={group.channels}
+            onChannelSelect={onChannelSelect}
+            isSelected={selectedGroup === group.name}
+            onGroupSelect={onGroupSelect}
+          />
+        ))}
+      </ScrollView>
+    </Animated.View>
   );
 }
 
@@ -258,5 +231,11 @@ const styles = StyleSheet.create({
   },
   channelNameSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
+  },
+  errorText: {
+    color: COLORS.red,
+    fontSize: SIZES.fonts.textSmartphone,
+    textAlign: 'center',
+    marginTop: 10,
   },
 });

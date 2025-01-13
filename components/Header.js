@@ -52,9 +52,8 @@ export default function Header({ title, onBackPress, onDialogPress, showIcons })
 const styles = StyleSheet.create({
   headerContainer: {
     width: '100%',
-    // height: 60,
-    paddingVertical: 18,
-    paddingHorizontal: 0,
+    height: 60,
+    // paddingVertical: 18,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -64,7 +63,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   titleSection: {
-    flex: 3,
+    flex: 4,
     alignItems: 'center',
     justifyContent: 'center',
   },
