@@ -1,18 +1,14 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
-import { Ionicons } from '@expo/vector-icons';
-import Separator from '../Separator';
 import InputChatWindow from '../inputs/InputChatWindow';
 import ChatMessage from './ChatMessage';
 import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
-export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) {
+export default function ChatWindow({ channel, onInputFocusChange }) {
 
   const { isSmartphone, isTablet } = useDeviceType();
 
-  const [isInputFocused, setIsInputFocused] = useState(false);
-  const [message, setMessage] = useState('');
   const [isDocumentPreviewModalVisible, setIsDocumentPreviewModalVisible] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState(null);
   const [selectedFileName, setSelectedFileName] = useState(null);
@@ -34,11 +30,6 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
     setSelectedFileUrl(null);
   };
 
-  const messageTypes = {
-    TEXT: 'text',
-    FILE: 'file'
-  }
-
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -55,35 +46,6 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
       isOwnMessage: true
     }
   ]);
-  
-  //Structure of a message with a file
-  const fileMessage = {
-    id: 1,
-    username: "Moi",
-    type: messageTypes.FILE,
-    fileName: "document.pdf",
-    fileUrl: "url_du_fichier",
-    fileSize: "1.2 MB",
-    fileType: "application/pdf",
-    timestamp: "10:30",
-    isOwnMessage: true
-  };
-
-  const onChangeText = (text) => {
-    setMessage(text);
-    setIsInputFocused(text.length > 0);
-  };
-
-  const groupMessagesByDate = (messages) => {
-    return messages.reduce((groups, message) => {
-      const date = new Date(message.timestamp).toLocaleDateString();
-      if (!groups[date]) {
-        groups[date] = [];
-      }
-      groups[date].push(message);
-      return groups;
-    }, {});
-  };
 
   const scrollViewRef = useRef();
 
@@ -117,7 +79,6 @@ export default function ChatWindow({ channel, toggleMenu, onInputFocusChange }) 
           </View>
         )}
       </View>
-      {/* <Separator width="100%" marginTop={10} marginBottom={0} /> */}
       <ScrollView 
         ref={scrollViewRef}
         //When the content size changes, scroll to the bottom of the scrollview to read new messages
@@ -172,7 +133,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   channelName: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: SIZES.fonts.subtitleTablet,
     color: COLORS.gray300,
   },
   channelNameSmartphone: {
@@ -187,8 +148,6 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   noChannelContainer: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 50,
   },

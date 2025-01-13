@@ -47,7 +47,6 @@ export default function AccountScreen({ onNavigate }) {
               title="Edit" 
               onPress={() => {}} 
               backgroundColor={COLORS.orange}
-              color={COLORS.white}
               width={isTablet ? 100 : 80}
             />
           </View>

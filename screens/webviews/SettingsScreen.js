@@ -85,17 +85,17 @@ export default function SettingsScreen({
   };
 
   return (
-    <View style={[
-      styles.pageContainer,
-      isSmartphonePortrait && styles.pageContainerSmartphonePortrait
-    ]}>
+    <View>
       <ScrollView 
         showsVerticalScrollIndicator={true}
       >
         <Header 
           onBackPress={handleBackPress} 
         />
-        <View style={styles.settingsContentContainer}>
+        <View style={[
+          styles.pageContainer,
+          isSmartphonePortrait && styles.pageContainerSmartphonePortrait
+        ]}>
           <View style={styles.headerContainer}>
             <Text style={[
               styles.header,
@@ -262,6 +262,7 @@ const styles = StyleSheet.create({
   //MAIN CONTAINER
   pageContainer: {
     flex: 1,
+    paddingHorizontal: 15,
   },
   pageContainerSmartphonePortrait: {
     paddingHorizontal: 4,
@@ -298,14 +299,15 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   configContainerTablet: {
-    minHeight: 58,
+    // minHeight: 58,
+    width: '95%',
   },
   configContainerSmartphone: {
-    minHeight: 45,
+    // minHeight: 45,
     width: '95%',
   },
   configContainerLandscape: {
-    marginHorizontal: 30,
+    marginHorizontal: 50,
   },
 
   // ROW CONTAINER

@@ -7,8 +7,8 @@ import { COLORS } from '../../constants/style';
 export default function ParameterButton({ onPress }) {
   const { isSmartphone } = useDeviceType(); 
 
-  const [iconColor, setIconColor] = useState(COLORS.gray);  
-  const [borderColor, setBorderColor] = useState(COLORS.gray);
+  const [iconColor, setIconColor] = useState(COLORS.gray300);  
+  const [borderColor, setBorderColor] = useState(COLORS.gray300);
 
   const handlePressIn = () => {
     setIconColor(COLORS.orange);
@@ -16,8 +16,8 @@ export default function ParameterButton({ onPress }) {
   };
 
   const handlePressOut = () => {
-    setIconColor(COLORS.gray);
-    setBorderColor(COLORS.gray);
+    setIconColor(COLORS.gray300);
+    setBorderColor(COLORS.gray300);
   };
 
   return (

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../constants/style';
 import { useDeviceType } from '../hooks/useDeviceType';
@@ -8,13 +8,13 @@ import { useDeviceType } from '../hooks/useDeviceType';
 export default function AccountImageInput({ onImageSelected }) {
   const [image, setImage] = useState(null);
 
-  const { isSmartphone, isTablet } = useDeviceType();
+  const { isSmartphone } = useDeviceType();
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     
     if (status !== 'granted') {
-      alert('Désolé, nous avons besoin des permissions pour accéder à vos photos!');
+      alert('Sorry, we need permission to access your photos!');
       return;
     }
 
@@ -70,6 +70,6 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.buttonGray,
+    backgroundColor: COLORS.gray750,
   },
 });

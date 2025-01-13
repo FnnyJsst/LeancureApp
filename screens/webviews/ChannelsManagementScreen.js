@@ -128,7 +128,6 @@ export default function ChannelsManagementScreen({
 return (
   <View style={styles.pageContainer}>
     <Header
-      title="Channels management"
       onDialogPress={!isReadOnly ? openImportModal : null}
       onBackPress={() => onNavigate(SCREENS.SETTINGS)}
       showIcons={!isReadOnly}
@@ -152,6 +151,9 @@ return (
     />
     <ScrollView>
       <View style={styles.channelsContainer}>
+        <View style={[styles.headerContainer, isSmartphone && styles.headerContainerSmartphone]}>
+          <Text style={[styles.header, isSmartphone && styles.headerSmartphone]}>Channels management</Text>
+        </View>
         {selectedChannels && selectedChannels.map((channel, index) => (
           <View 
             style={[
@@ -269,6 +271,20 @@ return (
 const styles = StyleSheet.create({
   pageContainer: {
     paddingHorizontal: '3%',
+  },
+  headerContainer: {
+    alignSelf: 'flex-start',
+    marginBottom: 20,
+    marginTop: 20,
+    marginLeft: 30,
+  },
+  header: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.headerTablet,
+    fontWeight: SIZES.fontWeight.bold,
+  },
+  headerSmartphone: {
+    fontSize: SIZES.fonts.headerSmartphone,
   },
   channelsContainer: {
     marginTop: 10,

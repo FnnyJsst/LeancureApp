@@ -5,11 +5,11 @@ export const SIZES = {
   fonts: {
     errorText: 12,
     textSmartphone: 14,
-    textTablet: 16,
+    textTablet: 20,
     inputTitleSmartphone: 16,
     inputTitleTablet: 20,
     subtitleSmartphone: 18,
-    subtitleTablet: 20,
+    subtitleTablet: 22,
     titleSmartphone: 20,
     titleTablet: 24,
     headerSmartphone: 24,
@@ -32,9 +32,9 @@ export const SIZES = {
 
 export const COLORS = {
   // Brand color
-  orange: '#FF6600',        // Orange - couleur principale de la marque
+  orange: '#FF6600',
   
-  // Dark grays (du plus foncé au plus clair)
+  // Dark grays (from darkest to lightest)
   gray900: '#1a1a1a',      // ancien darkGray - fond principal
   gray850: '#1e1e1e',      // ancien black
   gray800: '#232424',      // fond des cards/containers
@@ -51,6 +51,7 @@ export const COLORS = {
   // Base colors
   white: '#ffffff',       
   overlay: 'rgba(0,0,0,0.8)',
+    overlayLight: 'rgba(0, 0, 0, 0.1)',
   
   // Status colors
   success: '#24c12f',

@@ -167,7 +167,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
           </View>
           <Text style={styles.fileSize}>{fileSize}</Text>
           <View style={styles.separatorContainer}>
-            <Separator width="105.5%" />
+            <Separator width="110%" />
           </View>
 
           {isTabletLandscape ? (
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '90%',
     height: '80%',
-    backgroundColor: COLORS.gray900,
+    backgroundColor: COLORS.gray800,
     borderRadius: SIZES.borderRadius.medium,
     padding: 20,
   },
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    color: 'white',
+    color: COLORS.white,
     fontSize: SIZES.fonts.subtitleSmartphone,
   },
   fileSize: {
@@ -275,7 +275,6 @@ const styles = StyleSheet.create({
   },
   preview: {
     flex: 1,
-    backgroundColor: COLORS.white,
     width: '100%',
     height: '100%',
   },
@@ -292,11 +291,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     backgroundColor: COLORS.white,
-  },
-  pdf: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
   },
   buttonContainer: {
     flex: 1,

@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { SIZES } from '../../constants/style'; 
+import { COLORS, SIZES } from '../../constants/style'; 
 
 export default function Button({ title, backgroundColor, color, onPress, width, style }) {
   const { 
@@ -22,7 +22,6 @@ export default function Button({ title, backgroundColor, color, onPress, width, 
     >
       <Text style={[
         styles.buttonText, 
-        { color },
         isSmartphone && styles.buttonTextSmartphone,
       ]}>
         {title}
@@ -58,9 +57,9 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.subtitleTablet,
     textAlign: 'center',
     fontWeight: SIZES.fontWeight.semiBold, 
+    color: COLORS.white,
   },
   buttonTextSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
-    fontWeight: SIZES.fontWeight.medium,
   },
 });

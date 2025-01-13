@@ -1,14 +1,11 @@
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
-import { useDeviceType } from '../../hooks/useDeviceType';
 
 export default function ButtonLarge({ title, onPress, width }) {
 
-    const { isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType();
-
     return (
         <TouchableOpacity 
-            style={[styles.button, isSmartphonePortrait && styles.buttonSmartphonePortrait, isSmartphoneLandscape && styles.buttonSmartphoneLandscape, { width: width }]}
+            style={[styles.button, { width: width }]}
             onPress={onPress}
         >
             <Text style={styles.buttonText}>{title}</Text>

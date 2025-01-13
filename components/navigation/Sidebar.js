@@ -218,11 +218,11 @@ const styles = StyleSheet.create({
     flex: 1,
     color: COLORS.gray300,
     padding: 8,
-    fontSize: SIZES.fonts.textTablet,
+    fontSize: SIZES.fonts.subtitleTablet,
     fontWeight: SIZES.fontWeight.light,
   },
   searchInputSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   groupsList: {
     paddingHorizontal: 25,

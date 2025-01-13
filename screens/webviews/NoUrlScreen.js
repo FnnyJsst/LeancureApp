@@ -28,8 +28,8 @@ export default function NoUrlScreen({ onNavigate, isPasswordRequired, password, 
         style={styles.backButton}
       >
         <Ionicons 
-          name="arrow-back" 
-          size={isTablet ? 35 : 35} 
+          name="chevron-back-outline" 
+          size={isTablet ? 40 : 25} 
           style={styles.leftArrowIcon} 
         />
       </TouchableOpacity>
@@ -54,12 +54,13 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 30,
-    left: 30,
+    top: 20,
+    left: 55,
     zIndex: 1,
+
   },
   leftArrowIcon: {
-    color: COLORS.gray,
+    color: COLORS.gray300,
   },
   textContainer: {
     flex: 1,

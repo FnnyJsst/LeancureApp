@@ -90,13 +90,13 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
             <Ionicons 
               name="document-outline" 
               size={25} 
-              color={'white'} 
+              color={COLORS.white} 
             />
             <View style={styles.fileInfo}>
-              <Text style={[styles.fileName, isOwnMessage && styles.ownFileName]} numberOfLines={1}>
+              <Text style={styles.fileName} numberOfLines={1}>
                 {message.fileName}
               </Text>
-              <Text style={[styles.fileSize, isOwnMessage && styles.ownFileSize]}>
+              <Text style={styles.fileSize}>
                 PDF • {message.fileSize}
               </Text>
             </View>
@@ -119,10 +119,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                   color={'white'} 
                 />
                 <View style={styles.fileInfo}>
-                  <Text style={[styles.fileName, isOwnMessage && styles.ownFileName]} numberOfLines={1}>
+                  <Text style={styles.fileName} numberOfLines={1}>
                     {message.fileName}
                   </Text>
-                  <Text style={[styles.fileSize, isOwnMessage && styles.ownFileSize]}>
+                  <Text style={styles.fileSize}>
                     Image • {message.fileSize}
                   </Text>
                 </View>
@@ -210,22 +210,16 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.medium,
   },
-  ownFileName: {
-    color: COLORS.white,
-  },
   fileSize: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.errorText,
-  },
-  ownFileSize: {
-    color: 'rgba(255, 255, 255, 0.7)',
   },
   previewContainer: {
     width: '100%',
     height: 200,
     borderRadius: SIZES.borderRadius.small,
     overflow: 'hidden',
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: COLORS.overlayLight,
   },
   preview: {
     width: '100%',

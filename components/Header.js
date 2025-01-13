@@ -15,7 +15,7 @@ export default function Header({ title, onBackPress, onDialogPress, showIcons })
           <TouchableOpacity onPress={onBackPress}>
             <Ionicons 
               name="chevron-back-outline" 
-              size={isTablet ? 30 : 24} 
+              size={isTablet ? 40 : 24} 
               style={styles.leftArrowIcon} 
             />
           </TouchableOpacity>
@@ -37,7 +37,7 @@ export default function Header({ title, onBackPress, onDialogPress, showIcons })
             <TouchableOpacity onPress={onDialogPress}>
               <Entypo 
                 name="add-to-list" 
-                size={isTablet ? 30 : 24} 
+                size={isTablet ? 40 : 24} 
                 style={styles.icon} 
               />
             </TouchableOpacity>
@@ -52,7 +52,9 @@ export default function Header({ title, onBackPress, onDialogPress, showIcons })
 const styles = StyleSheet.create({
   headerContainer: {
     width: '100%',
-    height: 60,
+    // height: 60,
+    paddingVertical: 18,
+    paddingHorizontal: 0,
     flexDirection: 'row',
     alignItems: 'center',
   },

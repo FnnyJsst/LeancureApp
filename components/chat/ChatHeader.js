@@ -7,11 +7,11 @@ import { COLORS } from '../../constants/style';
 import Separator from '../Separator';
 
 export default function ChatHeader({ onNavigate, toggleMenu, showMenuIcon = true }) {
-  const { isTablet, isSmartphone } = useDeviceType();
+  const { isSmartphone } = useDeviceType();
   
   return (
     <View>
-      <View style={[styles.container, isTablet ? styles.containerTablet : styles.containerSmartphone]}>
+      <View style={styles.container}>
         <View style={styles.leftSection}>
           <TouchableOpacity 
             style={styles.iconButton} 
@@ -19,7 +19,7 @@ export default function ChatHeader({ onNavigate, toggleMenu, showMenuIcon = true
           >
             <Ionicons 
               name="chevron-back-outline" 
-              size={isSmartphone ? 25 : 30} 
+              size={isSmartphone ? 25 : 40} 
               color={COLORS.gray300} 
             />
           </TouchableOpacity>
@@ -30,7 +30,7 @@ export default function ChatHeader({ onNavigate, toggleMenu, showMenuIcon = true
             >
               <Ionicons 
                 name="menu-outline" 
-                size={isSmartphone ? 25 : 30} 
+                size={isSmartphone ? 25 : 40} 
                 color={COLORS.gray300} 
               />
             </TouchableOpacity>
@@ -52,10 +52,6 @@ const styles = StyleSheet.create({
     top: 0,
     paddingTop: 6,
     paddingBottom: 34,
-  },
-  containerSmartphone: {
-    paddingTop: 0,
-    paddingBottom: 35,
   },
   leftSection: {
     flexDirection: 'row',
