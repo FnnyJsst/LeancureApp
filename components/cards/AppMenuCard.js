@@ -11,30 +11,32 @@ const AppMenuCard = ({ title, icon, onPress, unreadCount }) => {
       style={[styles.card, isSmartphone && styles.cardSmartphone]} 
       onPress={onPress}
     >
+      {unreadCount > 0 && (
+        <View style={styles.badge}>
+          <Text style={[styles.badgeText, isSmartphone && styles.badgeTextSmartphone]}>{unreadCount}</Text>
+        </View>
+      )}
       <View style={styles.iconContainer}>
         {icon}
-        {unreadCount > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{unreadCount}</Text>
-          </View>
-        )}
+        <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
+          {title}
+        </Text>
       </View>
-      <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
-        {title}
-      </Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.gray800,
+    backgroundColor: COLORS.gray750,
     borderRadius: SIZES.borderRadius.medium,
     padding: 20,
     alignItems: 'center',
     margin: 10,
-    width: 200,
-    height: 200,
+    width: 400,
+    height: 150,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   cardSmartphone: {
     width: 150,
@@ -42,33 +44,37 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   iconContainer: {
-    position: 'relative',
-    marginBottom: 15,
+    flexDirection: 'row',
+    gap: 30,
+
   },
   title: {
     color: COLORS.white,
-    fontSize: SIZES.fonts.subtitleTablet,
+    fontSize: SIZES.fonts.titleTablet,
     textAlign: 'center',
   },
   titleSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: SIZES.fonts.titleSmartphone,
   },
   badge: {
     position: 'absolute',
     top: -8,
     right: -8,
     backgroundColor: COLORS.orange,
-    borderRadius: 12,
-    minWidth: 24,
-    height: 24,
+    borderRadius: 30,
+    width: 50,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 4,
   },
   badgeText: {
     color: COLORS.white,
-    fontSize: 12,
+    fontSize: SIZES.fonts.subtitleTablet,
     fontWeight: 'bold',
+  }, 
+  badgeTextSmartphone: {
+    fontSize: SIZES.fonts.subtitleSmartphone,
   }
 });
 
