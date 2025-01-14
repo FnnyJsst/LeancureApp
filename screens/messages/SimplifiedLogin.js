@@ -18,16 +18,16 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
       <View style={[styles.loginContainer, isLandscape && styles.loginContainerLandscape]}>
         <View style={styles.accountContainer}>
           <View style={styles.accountDetailsContainer}>
-            <Text style={styles.contractNumberText}>
+            <Text style={[styles.contractNumberText, isSmartphone && styles.contractNumberTextSmartphone]}>
               Contract number
             </Text>
-            <Text style={styles.contractNumber}>{contractNumber}</Text>
+            <Text style={[styles.contractNumber, isSmartphone && styles.contractNumberSmartphone]}>{contractNumber}</Text>
           </View>
           <TouchableOpacity 
             style={styles.loginIcon}
             onPress={() => handleLogin()}
           >
-            <Ionicons name="log-in-outline" size={isSmartphone ? 24 : 30} color={COLORS.white} />
+            <Ionicons name="log-in-outline" size={isSmartphone ? 28 : 40} color={COLORS.white} />
           </TouchableOpacity>
         </View>
         <View style={styles.buttonContainer}>
@@ -44,20 +44,22 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
 
 const styles = StyleSheet.create({
   welcomeContainer: {
-    marginLeft: 30,
     marginTop: 50,
     marginBottom: 30,
+    width: '70%',
+    alignSelf: 'center',
   },
   welcomeContainerLandscape: {
-    alignSelf: 'center',
+    width: '40%',
   },
   loginContainer: {
     gap: 20,
     backgroundColor: COLORS.gray800,
-    alignItems: 'center',
+    alignSelf: 'center',
     padding: 20,
     marginHorizontal: 20,
     borderRadius: SIZES.borderRadius.small, 
+    width: '70%',
   },
   loginContainerLandscape: {
     width: '40%',
@@ -79,13 +81,19 @@ const styles = StyleSheet.create({
   },
   contractNumberText: {
     color: COLORS.gray300,
+    fontSize: SIZES.fonts.textTablet,
+  },
+  contractNumberTextSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
   },
   contractNumber: {
     color: COLORS.white,
-    fontSize: SIZES.fonts.textSmartphone,
+    fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.medium,
     marginTop: 5,
+  },
+  contractNumberSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
   },
   loginIcon: {
     padding: 10,
