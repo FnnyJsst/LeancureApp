@@ -1,11 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import MenuButton from '../components/buttons/ButtonMenu';
 import { COLORS, SIZES } from '../constants/style';
 import { useDeviceType } from '../hooks/useDeviceType';
 import { SCREENS } from '../constants/screens';
+import AppMenuCard from '../components/cards/AppMenuCard';
+import MessageIcon from '../components/icons/MessageIcon';
+import { fetchUserChannels } from '../services/messageApi';
 
 export default function AppMenu({ onNavigate }) {
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      try {
+        const data = await fetchUserChannels();
+        setUnreadMessages(data.unreadCount);
+      } catch (error) {
+        console.error("Erreur lors du chargement des messages non lus:", error);
+      }
+    };
+    
+    loadUnreadCount();
+  }, []);
 
   const { isLandscape, isSmartphone } = useDeviceType();
 
@@ -15,12 +32,12 @@ export default function AppMenu({ onNavigate }) {
         styles.title,
         isSmartphone && styles.titleSmartphone
       ]}>Welcome</Text>
-      <MenuButton 
-        icon="mail-outline"   
-        text="Messages" 
-        onPress={() => onNavigate(SCREENS.LOGIN)} 
-        isLandscape={isLandscape}
-      />  
+      <AppMenuCard
+        title="Messages"
+        icon={<MessageIcon />}
+        onPress={() => onNavigate(SCREENS.LOGIN)}
+        unreadCount={unreadMessages}
+      />
       <MenuButton 
         icon="tv-outline" 
         text="WebViews" 

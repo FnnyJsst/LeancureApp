@@ -56,15 +56,22 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
   const [channels, setChannels] = useState({ publicChannels: [], privateGroups: [] });
   const { isSmartphone, isTablet } = useDeviceType();
   
-  const sidebarWidth = isSmartphone ? '75%' : '25%';
   const slideAnim = useRef(new Animated.Value(-300)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.timing(slideAnim, {
-      toValue: isExpanded ? 0 : -300,
-      duration: 300,
-      useNativeDriver: true
-    }).start();
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: isExpanded ? 0 : -300,
+        duration: 300,
+        useNativeDriver: true
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: isExpanded ? 0.6 : 0,
+        duration: 300,
+        useNativeDriver: true
+      })
+    ]).start();
   }, [isExpanded]);
 
   useEffect(() => {
@@ -81,15 +88,28 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
   }, []);
 
   return (
-    <Animated.View style={[
-      styles.sidebar,
-      isSmartphone && styles.sidebarSmartphone,
-      {
-        transform: [{
-          translateX: slideAnim
-        }]
-      }
-    ]}>
+    <>
+      {isExpanded && (
+        <Animated.View 
+          style={[
+            styles.overlay,
+            {
+              opacity: fadeAnim,
+            }
+          ]}
+          pointerEvents="auto"
+          onTouchStart={toggleMenu}
+        />
+      )}
+      <Animated.View style={[
+        styles.sidebar,
+        isSmartphone && styles.sidebarSmartphone,
+        {
+          transform: [{
+            translateX: slideAnim
+          }]
+        }
+      ]}>
       <TouchableOpacity 
         onPress={toggleMenu}
         style={styles.closeButton}
@@ -126,6 +146,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         ))}
       </ScrollView>
     </Animated.View>
+    </>
   );
 }
 
@@ -150,10 +171,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E1E1E',
     zIndex: 999,
     paddingTop: 80,
-    bottom: 65,
-    width: '25%',
+    bottom: 76,
+    width: '35%',
     borderTopRightRadius: SIZES.borderRadius.small,
     borderBottomRightRadius: SIZES.borderRadius.small,
+  },
+  sidebarSmartphone: {
+    width: '75%',
+    bottom: 65,
   },
   closeButton: {
     position: 'absolute',

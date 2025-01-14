@@ -46,22 +46,29 @@ export const fetchUserChannels = async () => {
 const formatChannelsData = (data) => {
   const formattedData = {
     publicChannels: [],
-    privateGroups: []
+    privateGroups: [],
+    unreadCount: 0
   };
 
   // Format the public channels
   if (data.public) {
     Object.entries(data.public).forEach(([channelId, channelData]) => {
+      const unreadMessages = channelData.messages ? 
+        Object.values(channelData.messages).filter(msg => !msg.read).length : 0;
+      
+      formattedData.unreadCount += unreadMessages;
+      
       formattedData.publicChannels.push({
         id: channelId,
         name: channelData.identifier,
         description: channelData.description,
-        messages: formatMessages(channelData.messages)
+        messages: formatMessages(channelData.messages),
+        unreadCount: unreadMessages
       });
     });
   }
 
-  // Format the private groups and their channels
+  // Format the private groups
   if (data.private?.groups) {
     Object.entries(data.private.groups).forEach(([groupId, groupData]) => {
       const group = {
@@ -74,11 +81,17 @@ const formatChannelsData = (data) => {
 
       if (groupData.channels && groupData.channels !== "No channel") {
         Object.entries(groupData.channels).forEach(([channelId, channelData]) => {
+          const unreadMessages = channelData.messages ? 
+            Object.values(channelData.messages).filter(msg => !msg.read).length : 0;
+          
+          formattedData.unreadCount += unreadMessages;
+          
           group.channels.push({
             id: channelId,
             name: channelData.identifier,
             description: channelData.description,
-            messages: formatMessages(channelData.messages)
+            messages: formatMessages(channelData.messages),
+            unreadCount: unreadMessages
           });
         });
       }
