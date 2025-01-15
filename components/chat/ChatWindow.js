@@ -58,7 +58,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   const sendMessage = (messageData) => {
     const newMessage = {
-      id: messages.length + 1,
+      id: Date.now(),
       username: "Moi",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       isOwnMessage: true,
