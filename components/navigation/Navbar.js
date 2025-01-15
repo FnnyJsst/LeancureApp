@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderTopWidth: 1,
     borderTopColor: COLORS.gray600,
+    zIndex: 1,
   },
   navItem: {
     alignItems: 'center',

@@ -41,7 +41,6 @@ export default function AccountScreen({ onNavigate }) {
             <Text style={[styles.accountJobTitle, isSmartphone && styles.accountJobTitleSmartphone]}>Technician</Text>
           </View>
           <Card backgroundColor={COLORS.gray650} />
-          <Card backgroundColor={COLORS.gray650} />
           <View style={[styles.buttonContainer, isSmartphone && styles.buttonContainerSmartphone]}>
             <Button 
               title="Edit" 

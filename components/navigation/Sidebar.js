@@ -56,13 +56,13 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
   const [channels, setChannels] = useState({ publicChannels: [], privateGroups: [] });
   const { isSmartphone, isTablet } = useDeviceType();
   
-  const slideAnim = useRef(new Animated.Value(-300)).current;
+  const slideAnim = useRef(new Animated.Value(isSmartphone ? -500 : -300)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
       Animated.timing(slideAnim, {
-        toValue: isExpanded ? 0 : -300,
+        toValue: isExpanded ? 0 : (isSmartphone ? -500 : -300),
         duration: 300,
         useNativeDriver: true
       }),
@@ -168,17 +168,18 @@ const styles = StyleSheet.create({
   sidebar: {
     position: 'absolute',
     top: 0,
+    bottom: 0,
     backgroundColor: '#1E1E1E',
     zIndex: 999,
     paddingTop: 80,
-    bottom: 76,
     width: '35%',
+    height: '100%',
     borderTopRightRadius: SIZES.borderRadius.small,
     borderBottomRightRadius: SIZES.borderRadius.small,
   },
   sidebarSmartphone: {
     width: '75%',
-    bottom: 65,
+    height: '100%',
   },
   closeButton: {
     position: 'absolute',
@@ -186,10 +187,6 @@ const styles = StyleSheet.create({
     right: 20,
     zIndex: 1000,
     padding: 10,
-  },
-  sidebarSmartphone: {
-    bottom: 56,
-    width: '75%',
   },
   sidebarSmartphoneLandscape: {
     width: '50%',

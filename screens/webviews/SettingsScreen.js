@@ -57,7 +57,7 @@ export default function SettingsScreen({
   };
 
   const accessMessages = () => {
-    onNavigate(SCREENS.CHAT);
+    onNavigate(SCREENS.LOGIN);
   };
 
   const formatRefreshOption = (option) => {

@@ -209,19 +209,25 @@ export default function Login({ onNavigate }) {
     
     // Save login info in AsyncStorage to keep the user logged in when the app is closed
     const saveLoginInfo = async () => {
-        //If the user has checked the "Stay connected" checkbox, save the login info in AsyncStorage
         if (isChecked) {
             try {
-                //Save the login info in AsyncStorage as a JSON object
                 await AsyncStorage.setItem('savedLoginInfo', JSON.stringify({
                     contractNumber,
                     login,
                     password,
-                    isSimplifiedLogin: true
+                    isSimplifiedLogin: true,
+                    wasChecked: isChecked
                 }));
-            //If there is an error, set an error message
             } catch (error) {
                 console.error('Error saving login info:', error);
+            }
+        } else {
+            // Si la case n'est pas cochée, on supprime les infos
+            try {
+                await AsyncStorage.removeItem('savedLoginInfo');
+                setIsSimplifiedLogin(false);
+            } catch (error) {
+                console.error('Error removing login info:', error);
             }
         }
     };
@@ -237,15 +243,23 @@ export default function Login({ onNavigate }) {
                     contractNumber: savedContract, 
                     login: savedLogin, 
                     password: savedPassword,
-                    isSimplifiedLogin 
+                    isSimplifiedLogin,
+                    wasChecked
                 } = JSON.parse(savedInfo);
-                //Set the login info in the state
-                setContractNumber(savedContract);
-                setLogin(savedLogin);
-                setPassword(savedPassword);
-                setIsSimplifiedLogin(isSimplifiedLogin);
+                
+                // If the case was checked, load the login info
+                if (wasChecked) {
+                    setContractNumber(savedContract);
+                    setLogin(savedLogin);
+                    setPassword(savedPassword);
+                    setIsSimplifiedLogin(isSimplifiedLogin);
+                    setIsChecked(true);  
+                } else {
+                    // If the case was not checked, reset everything
+                    await AsyncStorage.removeItem('savedLoginInfo');
+                    setIsSimplifiedLogin(false);
+                }
             }
-        //If there is an error, set an error message
         } catch (error) {
             console.error('Error loading login info:', error);
         }

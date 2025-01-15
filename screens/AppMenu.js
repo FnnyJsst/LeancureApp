@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function AppMenu({ onNavigate }) {
   const [unreadMessages, setUnreadMessages] = useState(0);
-  const { isLandscape, isSmartphone } = useDeviceType();
+  const { isLandscape, isSmartphone, isSmartphoneLandscape } = useDeviceType();
 
   useEffect(() => {
     const loadUnreadCount = async () => {
@@ -30,7 +30,7 @@ export default function AppMenu({ onNavigate }) {
         styles.title,
         isSmartphone && styles.titleSmartphone
       ]}>Welcome</Text>
-      <View style={styles.cardsContainer}>
+      <View style={[styles.cardsContainer, isSmartphoneLandscape && styles.cardsContainerSmartphoneLandscape]}>
         <AppMenuCard
           title="Messages"
           icon={<Ionicons name="mail-outline" size={isSmartphone ? 24 : 30} color={COLORS.white} />}
@@ -67,5 +67,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: 15,
+  },
+  cardsContainerSmartphoneLandscape: {
+    flexDirection: 'row',
   }
 });

@@ -5,18 +5,19 @@ import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
 export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handleLogin }) {
-  const { isSmartphone, isLandscape } = useDeviceType();
+  const { isSmartphone, isLandscape, isSmartphoneLandscape } = useDeviceType();
   
   return (
     <View>
-      <View style={[styles.welcomeContainer, isLandscape && styles.welcomeContainerLandscape]}>
+      <View style={[styles.welcomeContainer, isLandscape && styles.welcomeContainerLandscape, isSmartphoneLandscape && styles.welcomeContainerSmartphoneLandscape]}>
         <Text style={[
           styles.welcomeText,
-          isSmartphone && styles.welcomeTextSmartphone
+          isSmartphone && styles.welcomeTextSmartphone,
+          isSmartphoneLandscape && styles.welcomeContainerSmartphoneLandscape
         ]}>Welcome back</Text>
       </View>
-      <View style={[styles.loginContainer, isLandscape && styles.loginContainerLandscape]}>
-        <View style={styles.accountContainer}>
+      <View style={[styles.loginContainer, isSmartphone && styles.loginContainerSmartphone, isLandscape && styles.loginContainerLandscape]}>
+        <View style={[styles.accountContainer, isSmartphone && styles.accountContainerSmartphone]}>
           <View style={styles.accountDetailsContainer}>
             <Text style={[styles.contractNumberText, isSmartphone && styles.contractNumberTextSmartphone]}>
               Contract number
@@ -51,6 +52,11 @@ const styles = StyleSheet.create({
   },
   welcomeContainerLandscape: {
     width: '40%',
+    marginTop: 4,
+  },
+  welcomeContainerSmartphoneLandscape: {
+    marginTop: 0,
+    marginBottom: 10,
   },
   loginContainer: {
     gap: 20,
@@ -61,9 +67,11 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.small, 
     width: '70%',
   },
+  loginContainerSmartphone: {
+    width: '90%',
+  },
   loginContainerLandscape: {
     width: '40%',
-    alignSelf: 'center',
   },
   accountContainer: {
     width: '100%',
@@ -73,6 +81,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
+  },
+  accountContainerSmartphone: {
+    paddingVertical: 10,
   },
   accountDetailsContainer: {
     flexDirection: 'column',

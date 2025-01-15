@@ -10,7 +10,7 @@ export default function InputModal({
   style, 
   secureTextEntry = true
 }) {
-  const { isTablet, isSmartphonePortrait } = useDeviceType(); 
+  const { isSmartphone, isSmartphonePortrait } = useDeviceType(); 
 
   const [isFocused, setIsFocused] = useState(false); 
 
@@ -26,7 +26,7 @@ export default function InputModal({
           styles.input,
           isFocused && styles.inputFocused,
           style,
-          isTablet && styles.inputTablet, 
+          isSmartphone && styles.inputSmartphone, 
           isSmartphonePortrait && styles.inputSmartphonePortrait
         ]}
         //Focus and blur events
@@ -50,6 +50,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray850,
     color: COLORS.white,
     fontSize: SIZES.fonts.textTablet,
+  },
+  inputSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
   },
   inputFocused: {
     borderColor: COLORS.orange,

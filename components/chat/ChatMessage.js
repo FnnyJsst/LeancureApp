@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.subtitleTablet,
   },
   messageTextSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: SIZES.fonts.messageTextSmartphone,
   },
   timestamp: {
     color: COLORS.gray300,

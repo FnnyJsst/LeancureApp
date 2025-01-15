@@ -108,7 +108,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
               styles.noChannelText,
               isSmartphone && styles.noChannelTextSmartphone
             ]}>
-              Sélectionnez un canal pour commencer à discuter
+              Select a channel to start chatting
             </Text>
           </View>
         )}
