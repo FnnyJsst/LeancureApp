@@ -4,9 +4,11 @@ import { COLORS, SIZES } from '../../constants/style';
 import Card from '../../components/Card';
 import Navbar from '../../components/navigation/Navbar';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import ChatHeader from '../../components/chat/ChatHeader';
+import Header from '../../components/Header';
 import SettingsButton from '../../components/buttons/SettingsButton';
 import { Ionicons } from '@expo/vector-icons';
+import { SCREENS } from '../../constants/screens';
+
 export default function SettingsMessage({ onNavigate }) {
 
   const { isSmartphone, isLandscape } = useDeviceType();
@@ -23,7 +25,7 @@ export default function SettingsMessage({ onNavigate }) {
 
   return (
     <>
-      <ChatHeader onNavigate={onNavigate} showMenuIcon={false} />
+      <Header showMenuIcon={false} showAccountImage={true} onNavigate={onNavigate} onBackPress={() => onNavigate(SCREENS.CHAT)} />
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={[

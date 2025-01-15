@@ -1,50 +1,97 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Separator from './Separator';
 import { Ionicons, Entypo } from '@expo/vector-icons';
 import { useDeviceType } from '../hooks/useDeviceType';
-import { SIZES, COLORS } from '../constants/style';
+import { COLORS, SIZES } from '../constants/style';
+import AccountImage from './AccountImage';
+import Separator from './Separator';
 
-export default function Header({ title, onBackPress, onDialogPress, showIcons }) {
-  const { isTablet, isSmartphonePortrait, isSmartphone } = useDeviceType();
+export default function Header({ 
+  title, 
+  onBackPress, 
+  rightIcon,
+  onRightIconPress,
+  showAccountImage,
+  onNavigate,
+  showIcons = true,
+  showMenuIcon,
+  toggleMenu
+}) {
+  const { isSmartphone } = useDeviceType();
+  const iconSize = isSmartphone ? 25 : 40;
+
+  const renderLeftSection = () => (
+    <View style={styles.leftSection}>
+      <TouchableOpacity 
+        style={styles.iconButton} 
+        onPress={onBackPress}
+      >
+        <Ionicons 
+          name="chevron-back-outline" 
+          size={iconSize}
+          color={COLORS.gray300} 
+        />
+      </TouchableOpacity>
+      {showMenuIcon && (
+        <TouchableOpacity 
+          style={styles.iconButton} 
+          onPress={toggleMenu}
+        >
+          <Ionicons 
+            name="menu-outline" 
+            size={iconSize}
+            color={COLORS.gray300} 
+          />
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+
+  const renderRightSection = () => {
+    if (!showIcons) return null;
+    
+    if (showAccountImage) {
+      return <AccountImage onNavigate={onNavigate} width={55} height={55} />;
+    }
+    
+    if (rightIcon) {
+      return (
+        <TouchableOpacity 
+          style={styles.iconButton} 
+          onPress={onRightIconPress}
+        >
+          <Entypo 
+            name={rightIcon}
+            size={iconSize}
+            color={COLORS.gray300}
+          />
+        </TouchableOpacity>
+      );
+    }
+    
+    return null;
+  };
 
   return (
     <View>
       <View style={styles.headerContainer}>
-        {/* Left section - Back button */}
-        <View style={styles.section}>
-          <TouchableOpacity onPress={onBackPress}>
-            <Ionicons 
-              name="chevron-back-outline" 
-              size={isTablet ? 40 : 24} 
-              style={styles.leftArrowIcon} 
-            />
-          </TouchableOpacity>
-        </View>
+        {renderLeftSection()}
 
-        {/* Middle section - Title */}
-        <View style={styles.titleSection}>
-          <Text style={[
-            styles.headerText, 
-            isSmartphone && styles.headerTextSmartphone,
-          ]}>
-            {title}
-          </Text>
-        </View>
+        {title && (
+          <View style={styles.titleSection}>
+            <Text style={[
+              styles.headerText, 
+              isSmartphone && styles.headerTextSmartphone
+            ]}>
+              {title}
+            </Text>
+          </View>
+        )}
 
-        {/* Right section - Add button or empty space */}
-        <View style={styles.section}>
-          {showIcons ? (
-            <TouchableOpacity onPress={onDialogPress}>
-              <Entypo 
-                name="add-to-list" 
-                size={isTablet ? 40 : 24} 
-                style={styles.icon} 
-              />
-            </TouchableOpacity>
-          ) : null}
+        <View style={styles.rightSection}>
+          {renderRightSection()}
         </View>
       </View>
-      <Separator width='150%' />
+      <Separator width="150%" />
     </View>
   );
 }
@@ -53,19 +100,19 @@ const styles = StyleSheet.create({
   headerContainer: {
     width: '100%',
     height: 60,
-    // paddingVertical: 18,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  section: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
   },
   titleSection: {
-    flex: 4,
+    flex: 1,
     alignItems: 'center',
+  },
+  rightSection: {
+    alignItems: 'flex-end',
     justifyContent: 'center',
+    minWidth: 55,
   },
   headerText: {
     fontSize: SIZES.fonts.subtitleTablet,
@@ -74,10 +121,11 @@ const styles = StyleSheet.create({
   headerTextSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
   },
-  leftArrowIcon: {
-    color: COLORS.gray300,
+  iconButton: {
+    padding: 5,
   },
-  icon: {
-    color: COLORS.gray300,
-  },
+  leftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  }
 });

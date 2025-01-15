@@ -5,10 +5,10 @@ import AccountImage from '../../components/AccountImage';
 import AccountImageInput from '../../components/AccountImageInput';
 import Button from '../../components/buttons/Button';
 import Card from '../../components/Card';
-import ChatHeader from '../../components/chat/ChatHeader';
+import Header from '../../components/Header';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
-
+import { SCREENS } from '../../constants/screens';
 
 export default function AccountScreen({ onNavigate }) {
   
@@ -27,7 +27,7 @@ export default function AccountScreen({ onNavigate }) {
 
   return (
     <View style={styles.container}>
-      <ChatHeader onNavigate={onNavigate} showMenuIcon={false} />
+      <Header showMenuIcon={false} showAccountImage={true} onNavigate={onNavigate} onBackPress={() => onNavigate(SCREENS.CHAT)} />
         <View style={[styles.content, isSmartphone && styles.contentSmartphone, isTablet && styles.contentTablet]}>
           <AccountImage 
             customImage={profileImage} 

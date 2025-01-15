@@ -128,9 +128,11 @@ export default function ChannelsManagementScreen({
 return (
   <View style={styles.pageContainer}>
     <Header
-      onDialogPress={!isReadOnly ? openImportModal : null}
+      onRightIconPress={!isReadOnly ? openImportModal : null}
+      rightIcon="add-to-list"
       onBackPress={() => onNavigate(SCREENS.SETTINGS)}
       showIcons={!isReadOnly}
+      
     />
     <ImportChannelDialog
       visible={isImportModalVisible}

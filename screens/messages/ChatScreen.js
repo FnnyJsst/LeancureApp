@@ -3,8 +3,9 @@ import { View, StyleSheet } from 'react-native';
 import Navbar from '../../components/navigation/Navbar';
 import Sidebar from '../../components/navigation/Sidebar';
 import ChatWindow from '../../components/chat/ChatWindow';
-import ChatHeader from '../../components/chat/ChatHeader';
+import Header from '../../components/Header';
 import { COLORS } from '../../constants/style';
+import { SCREENS } from '../../constants/screens';
 
 export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -40,7 +41,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
 
   return (
     <View style={styles.container}>
-      <ChatHeader onNavigate={onNavigate} toggleMenu={toggleMenu} />
+      <Header showMenuIcon={true} showAccountImage={true} onNavigate={onNavigate} toggleMenu={toggleMenu} onBackPress={() => onNavigate(SCREENS.CHAT)} />
       <Sidebar 
         onChannelSelect={handleChannelSelect}
         selectedGroup={selectedGroup}
