@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native
 import Header from '../../components/Header';
 import { useDeviceType } from '../../hooks/useDeviceType'; 
 import { COLORS, SIZES } from '../../constants/style';
-import ButtonLarge from '../../components/buttons/ButtonLarge';
+import Button from '../../components/buttons/Button';
 
 export default function ChannelsListScreen({ channels, selectedChannels, onBack, onBackPress }) {
   const [localSelectedChannels, setLocalSelectedChannels] = useState([]);
@@ -69,11 +69,12 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
         />
       </View>
       <View style={styles.buttonContainer}>
-        <ButtonLarge
+        <Button 
           title="Import channels"
           backgroundColor={COLORS.orange}
           color={COLORS.white}
           onPress={handleImportChannels}
+          width="90%"
         />
       </View>
     </View>

@@ -6,7 +6,7 @@ import { COLORS, SIZES } from '../../constants/style';
 import { fetchUserChannels } from '../../services/messageApi';
 
 function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect }) {
-  const { isSmartphone } = useDeviceType();
+  const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
   const [isGroupExpanded, setIsGroupExpanded] = useState(false);
 
   const handleChannelSelect = (channel) => {
@@ -54,9 +54,11 @@ function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect 
 
 export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu }) {
   const [channels, setChannels] = useState({ publicChannels: [], privateGroups: [] });
-  const { isSmartphone, isTablet } = useDeviceType();
+  const { isSmartphone, isTablet, isSmartphoneLandscape } = useDeviceType();
   
-  const slideAnim = useRef(new Animated.Value(isSmartphone ? -500 : -300)).current;
+  const slideAnim = useRef(new Animated.Value(
+    isSmartphone ? (isSmartphoneLandscape ? -300 : -500) : -300
+  )).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -104,6 +106,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
       <Animated.View style={[
         styles.sidebar,
         isSmartphone && styles.sidebarSmartphone,
+        isSmartphoneLandscape && styles.sidebarSmartphoneLandscape,
         {
           transform: [{
             translateX: slideAnim
@@ -181,15 +184,15 @@ const styles = StyleSheet.create({
     width: '75%',
     height: '100%',
   },
+  sidebarSmartphoneLandscape: {
+    width: '45% ',
+  },
   closeButton: {
     position: 'absolute',
     top: 20,
     right: 20,
     zIndex: 1000,
     padding: 10,
-  },
-  sidebarSmartphoneLandscape: {
-    width: '50%',
   },
   sidebarTabletPortrait: {
     width: '50%',

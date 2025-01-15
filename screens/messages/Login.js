@@ -1,110 +1,8 @@
-// import { useState } from 'react';
-// import { ScrollView, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-// import ButtonLarge from '../../components/buttons/ButtonLarge';
-// import InputLogin from '../../components/InputLogin';
-// import Separator from '../../components/Separator';
-// import CheckBox from '../../components/CheckBox';
-// import { COLORS, SIZES } from '../../constants/style';
-// import { useDeviceType } from '../../hooks/useDeviceType';
-// import { SCREENS } from '../../constants/screens';
-
-// export default function Login({ onNavigate }) {
-
-//     const { isPortrait, isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
-//     const [isChecked, setIsChecked] = useState(false); 
-
-//     const handleLogin = () => {
-//         onNavigate(SCREENS.CHAT);
-//       };
-//     return (
-//         <View style={[
-//             styles.pageContainer,
-//             isTablet && styles.pageContainerTablet,
-//             isSmartphoneLandscape && styles.pageContainerSmartphoneLandscape
-//         ]}>
-
-//             <ScrollView>
-//             <View style={[styles.headerContainer, isSmartphoneLandscape && styles.headerContainerSmartphoneLandscape]}>
-//                 <TouchableOpacity onPress={() => onNavigate(SCREENS.APP_MENU)}>
-//                     <Image source={require('../../assets/images/logo.png')} style={[styles.logo, isSmartphone && styles.logoSmartphone]} />
-//                 </TouchableOpacity>
-                
-//             </View>
-//             {isPortrait && (<Separator width={'100%'} />)}
-//                 <View style={[
-//                     styles.loginContainer,
-//                     isTablet && styles.loginContainerTablet,
-//                     isSmartphone && styles.loginContainerSmartphone,
-//                     isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape
-//                 ]}>
-//                     <Text style={[
-//                         styles.title,
-//                         isTabletPortrait && styles.titleTabletPortrait,
-//                         isSmartphone && styles.titleSmartphone,
-//                         isSmartphoneLandscape && styles.titleSmartphoneLandscape
-//                     ]}>
-//                         Connexion
-//                     </Text>
-//                     <View style={styles.inputsContainer}>
-//                         <View style={styles.inputGroup}>
-//                             <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>Contract number</Text>
-//                             <View style={styles.inputWrapper}>
-//                                 <InputLogin 
-//                                     placeholder="Enter your contract number"
-//                                     iconName="building-o"
-//                                     iconLibrary="FontAwesome"
-//                                 />
-//                             </View>
-//                         </View>
-//                         <View style={styles.inputGroup}>
-//                             <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>Login</Text>
-//                             <View style={styles.inputWrapper}>
-//                                 <InputLogin 
-//                                     placeholder="Enter your login"
-//                                     iconName="person-outline"
-//                                 />
-//                             </View>
-//                         </View>
-//                         <View style={styles.inputGroup}>
-//                             <Text style={[styles.inputTitle, isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>Password</Text>
-//                             <View style={styles.inputWrapper}>
-//                                 <InputLogin 
-//                                     placeholder="Enter your password"
-//                                     secureTextEntry
-//                                     iconName="lock-closed-outline"
-//                                 />
-//                             </View>
-//                         </View>
-//                         <View style={styles.checkboxContainer}>
-//                             <CheckBox 
-//                                 checked={isChecked}
-//                                 onPress={() => setIsChecked(!isChecked)}
-//                                 label="Stay connected"
-//                             />
-//                         </View>
-//                         <View style={styles.buttonContainer}>
-//                             <ButtonLarge 
-//                                 title="Connexion"
-//                                 onPress={handleLogin}
-//                                 width="94%"
-//                             />
-//                         </View>
-//                     </View>
-//                 </View>
-//             </ScrollView>
-//         </View>
-//     );
-// }
-
-
-
-
-
 import { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import ButtonLarge from '../../components/buttons/ButtonLarge';
+import Button from '../../components/buttons/Button';
 import InputLogin from '../../components/InputLogin';
 import CheckBox from '../../components/CheckBox';
 import SimplifiedLogin from './SimplifiedLogin';
@@ -365,12 +263,12 @@ export default function Login({ onNavigate }) {
                                 </View>
 
                                 <View style={styles.buttonContainer}>
-                                <ButtonLarge 
-                                    title={isLoading ? "Connexion en cours..." : "Connexion"}
-                                    onPress={handleLogin}
-                                    disabled={isLoading}
-                                    width="100%"
-                                />
+                                    <Button 
+                                        variant="large"
+                                        title={isLoading ? "Connecting..." : "Login"}
+                                        onPress={handleLogin}
+                                        width="100%"
+                                    />
                                 </View>
                             </View>
                         </View>

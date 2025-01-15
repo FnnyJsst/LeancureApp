@@ -4,7 +4,7 @@ import { COLORS, SIZES } from '../../constants/style';
 import Navbar from '../../components/navigation/Navbar';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import Header from '../../components/Header';
-import SettingsButton from '../../components/buttons/SettingsButton';
+import SettingsCard from '../../components/cards/SettingsCard';
 import { Ionicons } from '@expo/vector-icons';
 import { SCREENS } from '../../constants/screens';
 
@@ -38,7 +38,7 @@ export default function SettingsMessage({ onNavigate }) {
           isSmartphone && styles.configContainerSmartphone,
           isLandscape && styles.configContainerLandscape
         ]}>
-          <SettingsButton
+          <SettingsCard
             title="Logout"
             description="Logout and go back to login screen"
             icon={<Ionicons name="log-out-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}

@@ -41,7 +41,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
 
   return (
     <View style={styles.container}>
-      <Header showMenuIcon={true} showAccountImage={true} onNavigate={onNavigate} toggleMenu={toggleMenu} onBackPress={() => onNavigate(SCREENS.CHAT)} />
+      <Header showMenuIcon={true} showAccountImage={true} onNavigate={onNavigate} toggleMenu={toggleMenu} onBackPress={() => onNavigate(SCREENS.LOGIN)} />
       <Sidebar 
         onChannelSelect={handleChannelSelect}
         selectedGroup={selectedGroup}

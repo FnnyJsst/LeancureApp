@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import Header from '../../components/Header';
 import TitleSettings from '../../components/text/TitleSettings';
-import SettingsButton from '../../components/buttons/SettingsButton';
+import SettingsCard from '../../components/cards/SettingsCard';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
@@ -108,7 +108,7 @@ export default function SettingsScreen({
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape
           ]}>
-            <SettingsButton
+            <SettingsCard
               title="Quit app"
               icon={<Ionicons name="exit-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
               description="Quit the app and go back to the home screen"
@@ -121,7 +121,7 @@ export default function SettingsScreen({
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape
           ]}>
-            <SettingsButton
+            <SettingsCard
               title="Channels Management"
               description="Access to imported webviews"
               icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
@@ -136,7 +136,7 @@ export default function SettingsScreen({
           ]}>
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
-                <SettingsButton
+                <SettingsCard
                   title="Auto-refresh"
                   description="Define the auto-refresh interval for the webviews"
                   icon={<Ionicons name="reload-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
@@ -164,7 +164,7 @@ export default function SettingsScreen({
           ]}>
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
-                <SettingsButton
+                <SettingsCard
                   title="Read-only access"
                   description="Access to webviews without the ability to modify them"
                   icon={<Ionicons name="eye-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
@@ -191,7 +191,7 @@ export default function SettingsScreen({
           ]}>
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
-                <SettingsButton
+                <SettingsCard
                   title="Password"
                   description="Define a password to access the settings"
                   icon={<Ionicons name="lock-closed-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
@@ -217,7 +217,7 @@ export default function SettingsScreen({
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape
           ]}>
-            <SettingsButton
+            <SettingsCard
               title="Access messages"
               icon={<Ionicons name="mail-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
               description="Access to the messages section"

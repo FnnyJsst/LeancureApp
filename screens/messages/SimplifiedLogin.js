@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import ButtonLarge from '../../components/buttons/ButtonLarge';
+import Button from '../../components/buttons/Button';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
@@ -32,7 +32,7 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
           </TouchableOpacity>
         </View>
         <View style={styles.buttonContainer}>
-          <ButtonLarge 
+          <Button 
             title="Switch account"
             onPress={onSwitchAccount}
             backgroundColor={COLORS.orange}

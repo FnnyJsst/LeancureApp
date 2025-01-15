@@ -2,7 +2,7 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 
-export default function SettingsButton({ icon, title, description, onPress }) {
+export default function SettingsCard({ icon, title, description, onPress }) {
   const { isSmartphone } = useDeviceType();
 
   return (
