@@ -4,32 +4,37 @@ import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
 export default function Navbar({ currentSection, onSectionChange }) {
+
+  // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
+
+  const getColor = (section) => (currentSection === section ? COLORS.orange : COLORS.gray300);
 
   return (
     <View style={styles.navbar}>
       <TouchableOpacity 
-        style={[styles.navItem, currentSection === 'chat' && styles.active]}
+        style={styles.navItem}
         onPress={() => onSectionChange('chat')}
       >
-        <Ionicons name="chatbox-outline" size={isSmartphone ? 24 : 28} color={currentSection === 'chat' ? COLORS.orange : COLORS.gray300} />
-        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, currentSection === 'chat' ? {color: COLORS.orange} : {color: COLORS.gray300}]}>Chat</Text>
+        <Ionicons name="chatbox-outline" size={isSmartphone ? 24 : 28} color={getColor('chat')} />
+        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, { color: getColor('chat') }]}>Chat</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
-        style={[styles.navItem, currentSection === 'settings' && styles.active]}
+        style={styles.navItem}
         onPress={() => onSectionChange('settings')}
       >
-        <Ionicons name="settings-outline" size={isSmartphone ? 24 : 28} color={currentSection === 'settings' ? COLORS.orange : COLORS.gray300} />
-        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, currentSection === 'settings' ? {color: COLORS.orange} : {color: COLORS.gray300}]}>Settings</Text>
+        <Ionicons name="settings-outline" size={isSmartphone ? 24 : 28} color={getColor('settings')} />
+        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, { color: getColor('settings') }]}>Settings</Text>
       </TouchableOpacity>
 
+      {/* When the user clicks on the account button, we navigate to the account section */}
       <TouchableOpacity 
-        style={[styles.navItem, currentSection === 'account' && styles.active]}
+        style={styles.navItem}
         onPress={() => onSectionChange('account')}
       >
-        <Ionicons name="person-outline" size={isSmartphone ? 24 : 28} color={currentSection === 'account' ? COLORS.orange : COLORS.gray300} />
-        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, currentSection === 'account' ? {color: COLORS.orange} : {color: COLORS.gray300}]}>Account</Text>
+        <Ionicons name="person-outline" size={isSmartphone ? 24 : 28} color={getColor('account')} />
+        <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, { color: getColor('account') }]}>Account</Text>
       </TouchableOpacity>
     </View>
   );
@@ -50,7 +55,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   navText: {
-    color: COLORS.gray300,
     marginTop: 5,
     fontSize: SIZES.fonts.subtitleTablet,
   },

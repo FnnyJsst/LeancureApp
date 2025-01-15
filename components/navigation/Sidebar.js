@@ -5,17 +5,24 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
 import { fetchUserChannels } from '../../services/messageApi';
 
+// GroupItem is a component that displays a group of channels
 function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect }) {
-  const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
+
+  // Customized hook to determine the device type and orientation
+  const { isSmartphone} = useDeviceType();
+
+  // State management for the group expansion
   const [isGroupExpanded, setIsGroupExpanded] = useState(false);
 
+  // When the user clicks on a channel, we select it
   const handleChannelSelect = (channel) => {
-    console.log('Canal sélectionné:', channel);
+    // We send the channel name and the messages to the parent component
     onChannelSelect(channel.name, channel.messages || []);
   };
 
   return (
     <View style={styles.groupItem}>
+      {/* When the user clicks on a group, we expand it */}
       <TouchableOpacity 
         style={[styles.groupHeader, isSelected && styles.selectedGroup]}
         onPress={() => {
@@ -53,14 +60,23 @@ function GroupItem({ name, channels, onChannelSelect, isSelected, onGroupSelect 
 }
 
 export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu }) {
+
+  // State management for the channels  
   const [channels, setChannels] = useState({ publicChannels: [], privateGroups: [] });
-  const { isSmartphone, isTablet, isSmartphoneLandscape } = useDeviceType();
+
+  // Customized hook to determine the device type and orientation
+  const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
   
+  // Animation for the sidebar
   const slideAnim = useRef(new Animated.Value(
+    // We slide the sidebar to the left
     isSmartphone ? (isSmartphoneLandscape ? -300 : -500) : -300
   )).current;
+
+  // Animation for the overlay
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  // When the sidebar is expanded, we slide it to the left
   useEffect(() => {
     Animated.parallel([
       Animated.timing(slideAnim, {
@@ -77,12 +93,15 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
   }, [isExpanded]);
 
   useEffect(() => {
+    // We load the channels
     const loadChannels = async () => {
       try {
+        // We fetch the channels
         const data = await fetchUserChannels();
+        // We set the channels
         setChannels(data);
       } catch (error) {
-        console.error("Erreur lors du chargement des canaux:", error);
+        console.error("Error loading channels:", error);
       }
     };
     
@@ -99,7 +118,9 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
               opacity: fadeAnim,
             }
           ]}
+          // We make the overlay clickable
           pointerEvents="auto"
+          // When the user clicks on the overlay, we close the sidebar
           onTouchStart={toggleMenu}
         />
       )}
@@ -113,6 +134,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           }]
         }
       ]}>
+      {/* When the user clicks on the close button, we close the sidebar */}
       <TouchableOpacity 
         onPress={toggleMenu}
         style={styles.closeButton}
@@ -124,8 +146,9 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         />
       </TouchableOpacity>
 
+      {/* We display the channels */}
       <ScrollView style={styles.groupsList}>
-        {/* Canaux publics */}
+        {/* Public channels */}
         {channels.publicChannels.length > 0 && (
           <GroupItem 
             name="Public"
@@ -136,7 +159,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           />
         )}
 
-        {/* Groupes privés */}
+        {/* Private groups */}
         {channels.privateGroups.map(group => (
           <GroupItem 
             key={group.id}
@@ -194,12 +217,6 @@ const styles = StyleSheet.create({
     zIndex: 1000,
     padding: 10,
   },
-  sidebarTabletPortrait: {
-    width: '50%',
-  },
-  sidebarHeader: {
-    alignItems: 'center',
-  },
   inputContainer: {
     width: '85%',
     backgroundColor: COLORS.gray650,
@@ -208,9 +225,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 20,
     borderRadius: SIZES.borderRadius.small,
-  },
-  inputContainerTablet: {
-    marginTop: 20,
   },
   searchInput: {
     flex: 1,

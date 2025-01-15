@@ -7,7 +7,8 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 
 const ImportChannelDialog = ({ visible, onClose, onImport }) => {
-  // State management
+  
+  // State management for the URL, error and channels
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
   const [channels, setChannels] = useState([]);
@@ -46,7 +47,6 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
     // Return the links and titles
     return links;
   };
-
 
   // Handle download of channels from URL
   const handleDownload = () => {

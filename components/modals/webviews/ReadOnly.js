@@ -5,18 +5,17 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../../constants/style';
 
 export default function ReadOnly({ visible, onClose, onToggleReadOnly }) {
-  const { 
-    isSmartphone,
-    isSmartphonePortrait,
-    isSmartphoneLandscape,
-    isTabletPortrait 
-  } = useDeviceType();
 
+  // Customized hook to determine the device type and orientation
+  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+
+  // When the user clicks on the "Yes" button, we toggle the read-only mode and close the modal
   const handleYes = () => {
     onToggleReadOnly(true); 
     onClose();
   };
 
+  // When the user clicks on the "No" button, we close the modal
   const handleNo = () => {
     onToggleReadOnly(false);  
     onClose();

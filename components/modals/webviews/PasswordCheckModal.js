@@ -23,6 +23,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
 
   // Handle the submit button
   const handleSubmit = () => {
+    // If the password is empty, we show an error message
     if (!password) {
       setAlertConfig({
         title: 'Error',
@@ -62,6 +63,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
               placeholder="Enter your password to access settings"
               value={password}
               onChangeText={setPassword}
+              // We need to secure the password
               secureTextEntry={true}
             />
             <View style={MODAL_STYLES.buttonContainer}>

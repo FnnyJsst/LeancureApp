@@ -2,12 +2,12 @@ import React from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
-import { SCREENS, SETTINGS } from '../../constants/screens';
+
 /**
  * WebView Screen Component
  * Displays a web page
  **/
-const WebViewScreen = ({ url, onNavigate, onSettingsAccess }) => {
+const WebViewScreen = ({ url, onSettingsAccess }) => {
   return (
     <View style={styles.container}>
       <WebView

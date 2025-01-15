@@ -25,9 +25,12 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
 
   // Handle form submission
   const handleOk = () => {
+    // We send the URL and title to the parent component
     onSave(url, title);
+    // We reset the URL and title
     setUrl('');
     setTitle('');
+    // We close the modal
     onClose();
   };
 
@@ -62,6 +65,7 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
               // We update the title state
               onChangeText={setTitle} 
               placeholder="Enter channel title"
+              //No need to secure the title
               secureTextEntry={false}
               style={isSmartphone && styles.inputSmartphone}
             />
@@ -78,6 +82,7 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
               // We update the URL state
               onChangeText={setUrl} 
               placeholder="Enter channel URL"
+              //No need to secure the URL
               secureTextEntry={false}
               style={isSmartphone && styles.inputSmartphone}
             />
