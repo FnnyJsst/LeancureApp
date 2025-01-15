@@ -12,12 +12,8 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
   const [error, setError] = useState('');
   const [channels, setChannels] = useState([]);
 
-    const { 
-      isTablet,
-      isSmartphone,
-      isSmartphoneLandscape,
-      isTabletPortrait 
-    } = useDeviceType();
+  // Customized hook to determine the device type and orientation
+  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
 
   // URL validation using regex
   const validateUrl = (url) => {
@@ -131,6 +127,7 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
             placeholder="Enter an URL to import channels"
             value={url}
             onChangeText={handleUrlChange}
+            // We set the secureTextEntry to false so the user can see the URL
             secureTextEntry={false}
           />
           {error ? (
@@ -145,10 +142,10 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
           ) : null}
           <View style={[
             MODAL_STYLES.buttonContainer,
-            isSmartphone && styles.buttonContainerSmartphone,
           ]}>
             <Button 
               title="Cancel" 
+              // We close the modal
               onPress={handleClose}
               backgroundColor={COLORS.gray650}
               color={COLORS.white}
@@ -156,6 +153,7 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
             />
             <Button 
               title="Import" 
+              // We import the channels
               onPress={handleDownload}
               backgroundColor={COLORS.orange}
               color={COLORS.white}

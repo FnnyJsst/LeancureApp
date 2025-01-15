@@ -7,6 +7,8 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style'; 
 
 export default function EditChannel({ visible, onClose, onSave, initialUrl, initialTitle }) {
+
+  // We create a hook to determine the device type and orientation
   const { isTablet, isSmartphone, isTabletLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType(); 
 
   // State management for form inputs
@@ -50,7 +52,6 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
           <TitleModal title="Edit a channel" />
           <View style={[
             styles.inputContainer,
-            isSmartphone && styles.inputContainerSmartphone
           ]}>
             <Text style={[
               styles.text,
@@ -58,6 +59,7 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
             ]}>Title</Text>
             <InputModal 
               value={title} 
+              // We update the title state
               onChangeText={setTitle} 
               placeholder="Enter channel title"
               secureTextEntry={false}
@@ -73,6 +75,7 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
             ]}>URL</Text>
             <InputModal 
               value={url} 
+              // We update the URL state
               onChangeText={setUrl} 
               placeholder="Enter channel URL"
               secureTextEntry={false}
@@ -85,6 +88,7 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
               backgroundColor={COLORS.gray650} 
               color={COLORS.white} 
               width="20%"
+              // We close the modal
               onPress={onClose} 
             />
             <Button 
@@ -92,6 +96,7 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
               backgroundColor={COLORS.orange} 
               color={COLORS.white} 
               width="20%"
+              // We send the URL and title to the parent component
               onPress={handleOk} 
             />
           </View>
@@ -102,45 +107,41 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
 }
 
 const styles = StyleSheet.create({
-  //Container styles
   modalContainerSmartphoneLandscape: {
-    paddingTop: '10%',
+    paddingTop: '10%'
   },
-
-  //Content styles
   modalContent: {
     width: '60%',
     padding: 20,
     backgroundColor: COLORS.gray750,
-    borderRadius: SIZES.borderRadius.large,
+    borderRadius: SIZES.borderRadius.large
   },
   modalContentTabletLandscape: {
-    width: '40%',
+    width: '40%'
   },
   modalContentSmartphonePortrait: {
-    width: '95%',
+    width: '95%'
   },
   modalContentSmartphoneLandscape: {
-    width: '60%',
+    width: '60%'
   },
-  //Input styles
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '90%',
-    marginTop: 15,
+    marginTop: 15
   },
   inputSmartphone: {
-    marginBottom: 10,
+    marginBottom: 10
   },
   text: {
     fontSize: SIZES.fonts.subtitleTablet,
     marginBottom: 20,
-    color: COLORS.gray600,
+    color: COLORS.gray600
   },
   textSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
-    marginBottom: 10,
+    marginBottom: 10
   },
 });

@@ -7,14 +7,14 @@ import { SCREENS, SETTINGS } from '../../constants/screens';
  * WebView Screen Component
  * Displays a web page
  **/
-const WebViewScreen = ({ url, onNavigate }) => {
+const WebViewScreen = ({ url, onNavigate, onSettingsAccess }) => {
   return (
     <View style={styles.container}>
       <WebView
         source={{ uri: url }}
         style={styles.webview}
       />
-      <ParameterButton onPress={() => onNavigate(SCREENS.SETTINGS)} />
+      <ParameterButton onPress={() => onSettingsAccess()} />
     </View>
   );
 };

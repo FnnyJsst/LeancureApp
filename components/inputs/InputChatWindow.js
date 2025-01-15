@@ -6,6 +6,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 
+// FilePreview is used to display the file information in the input of the chat
 const  FilePreview = ({ file, onRemove }) => {
   return (
     <View style={styles.previewContainer}>
@@ -35,11 +36,17 @@ const  FilePreview = ({ file, onRemove }) => {
   );
 };
 
+// InputChatWindow is used to send a message in the chat
 export default function InputChatWindow({ onSendMessage, onFocusChange }) {
+
+  // State to store the message
   const [message, setMessage] = useState('');
+  // State to store the selected file
   const [selectedFile, setSelectedFile] = useState(null);
+  // Hook to determine the device type
   const { isSmartphone } = useDeviceType();
 
+  // Function to format the file size
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 B';
     const k = 1024;
@@ -48,10 +55,13 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  // Function to pick a document
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
+        // We allow all types of files
         type: '*/*',
+        // We allow only one file to be picked
         multiple: false,
       });
   
@@ -59,11 +69,11 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         const file = result.assets[0];
         const fileSize = formatFileSize(file.size);
         
-        // Au lieu d'envoyer directement, on stocke le fichier
+        // We store the file in base64 format
         const base64 = await FileSystem.readAsStringAsync(file.uri, {
           encoding: FileSystem.EncodingType.Base64,
         });
-        
+        // We store the file in the selectedFile state
         setSelectedFile({
           type: 'file',
           fileName: file.name,
@@ -74,35 +84,43 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         });
       }
     } catch (error) {
-      console.error('Erreur lors de la sélection du document:', error);
+      console.error('Error when picking the document:', error);
     }
   };
 
+  // Function to handle the focus of the input
   const handleFocus = () => {
     // Inform parent that the input is focused
     onFocusChange(true);
   };
-   const handleBlur = () => {
+
+  // Function to handle the blur of the input
+  const handleBlur = () => {
     // Inform parent that the input is not focused
     onFocusChange(false);
   };
 
+  // Function to handle the send of the message
   const handleSend = () => {
     if (selectedFile) {
       onSendMessage(selectedFile);
       setSelectedFile(null);
+      // If we have a selected file, we send the file
     } else if (message.trim()) {
       onSendMessage(message);
       setMessage('');
+      // If we have a message, we send the message
     }
   };
 
+  // Function to handle the removal of the file
   const handleRemoveFile = () => {
     setSelectedFile(null);
   };
 
   return (
     <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
+      {/* We display the attach icon */}
       <TouchableOpacity onPress={pickDocument}>
         <Ionicons 
           name="attach-outline" 
@@ -111,13 +129,14 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
           style={styles.attachIcon}
         />
       </TouchableOpacity>
-      
+      {/* If we have a selected file, we display the file preview */}
       {selectedFile ? (
         <FilePreview 
           file={selectedFile} 
           onRemove={handleRemoveFile}
         />
       ) : (
+        // If we don't have a selected file, we display the input for the message
         <TextInput
           style={[styles.input, isSmartphone && styles.smartphoneInput]}
           placeholder="Type a message..."
@@ -134,6 +153,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         style={[
           styles.sendButton, 
           isSmartphone && styles.smartphoneSendButton,
+          // We add the active style if we have a message or a selected file
           (message.trim() || selectedFile) && styles.sendButtonActive
         ]}
         onPress={handleSend}
@@ -159,14 +179,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: SIZES.borderRadius.small,
   },
-  containerTabletLandscape: {
-    marginHorizontal: 20,
-  },
   smartphoneContainer: {
     height: 60,
-  },
-  tabletContainer: {
-    height: 70,
   },
   attachIcon: {
     transform: [{rotate: '45deg'}],

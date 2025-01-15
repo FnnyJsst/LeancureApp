@@ -28,6 +28,7 @@ export const SIZES = {
     medium: 8,
     large: 10,
     xLarge: 12,
+    xxLarge: 20,
   },
 };
 

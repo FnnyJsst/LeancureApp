@@ -8,6 +8,8 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES } from '../../../constants/style';
 
 export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
+
+  // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType(); 
 
   // State for the password and the alert
@@ -18,12 +20,6 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
     message: '',
     type: 'error'
   });
-
-  // Show the alert
-  const showAlert = (title, message, type = 'error') => {
-    setAlertConfig({ title, message, type });
-    setAlertVisible(true);
-  };
 
   // Handle the submit button
   const handleSubmit = () => {
@@ -36,23 +32,10 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
       setAlertVisible(true);
       return;
     }
-
-    onSubmit(password, (isValid) => {
-      if (isValid) {
-        setPassword('');
-        onClose();
-      } else {
-        setAlertConfig({
-          title: 'Error',
-          message: 'Invalid password',
-          type: 'error'
-        });
-        setAlertVisible(true);
-      }
-    });
+    onSubmit(password);
   };
 
-  // Handle the close button
+  // Function to close the modal, reset the password and call the onClose function
   const handleClose = () => {
     setPassword('');
     onClose();
@@ -84,8 +67,9 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
             <View style={MODAL_STYLES.buttonContainer}>
               <Button
                 title="Cancel"
-                backgroundColor={COLORS.buttonGray}
+                backgroundColor={COLORS.gray650}
                 color={COLORS.white}
+                // We close the modal
                 onPress={handleClose}
                 width="20%"
               />
@@ -93,6 +77,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
                 title="Ok"
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
+                // We send the password to the parent component
                 onPress={handleSubmit}
                 width="20%"
               />
@@ -100,7 +85,6 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
           </View>
         </View>
       </Modal>
-
       <CustomAlert
         visible={alertVisible}
         title={alertConfig.title}

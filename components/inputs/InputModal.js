@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useDeviceType } from '../../hooks/useDeviceType'; 
 import { SIZES,COLORS } from '../../constants/style'; 
 
+// Input used in all the modals
 export default function InputModal({
   placeholder, 
   value, 
@@ -10,8 +11,11 @@ export default function InputModal({
   style, 
   secureTextEntry = true
 }) {
+
+  // We create a hook to determine the device type
   const { isSmartphone, isSmartphonePortrait } = useDeviceType(); 
 
+  // We create a state to store if the input is focused
   const [isFocused, setIsFocused] = useState(false); 
 
   return (

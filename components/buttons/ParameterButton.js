@@ -5,16 +5,21 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS } from '../../constants/style';
 
 export default function ParameterButton({ onPress }) {
+
+  // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType(); 
 
+  // State to handle the icon color and border color
   const [iconColor, setIconColor] = useState(COLORS.gray300);  
   const [borderColor, setBorderColor] = useState(COLORS.gray300);
 
+  // When we press the button, we change the icon color to orange
   const handlePressIn = () => {
     setIconColor(COLORS.orange);
     setBorderColor(COLORS.orange);
   };
 
+  // When we release the button, we change the icon color back to gray
   const handlePressOut = () => {
     setIconColor(COLORS.gray300);
     setBorderColor(COLORS.gray300);

@@ -2,11 +2,13 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 
+// SettingsCard is used in the different settings screens
 export default function SettingsCard({ icon, title, description, onPress }) {
+
+  // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
 
   return (
-    <View style={styles.container}>
       <TouchableOpacity 
         style={[
           styles.button,
@@ -32,44 +34,39 @@ export default function SettingsCard({ icon, title, description, onPress }) {
           )}
         </View>
       </TouchableOpacity>
-    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // Tablet styles
   button: {
     flexDirection: 'row',
     width: '100%',
-    
-    alignItems: 'center',
+    alignItems: 'center'
+  },
+  buttonSmartphone: {
+    paddingVertical: 2
   },
   iconContainer: {
-    marginRight: 10,
+    marginRight: 10
   },
   textContainer: {
-    flex: 1,
+    flex: 1
   },
   text: {
     fontSize: SIZES.fonts.subtitleTablet,
     color: COLORS.white,
-    fontWeight: SIZES.fontWeight.regular,
+    fontWeight: SIZES.fontWeight.regular
+  },
+  textSmartphone: {
+    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontWeight: SIZES.fontWeight.medium
   },
   description: {
     fontSize: SIZES.fonts.textTablet,
     color: COLORS.gray600,
-    marginTop: 2,
-  },
-
-  // Smartphone styles
-  buttonSmartphone: {
-    paddingVertical: 2,
-  },
-  textSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
-    fontWeight: SIZES.fontWeight.medium,
+    marginTop: 2
   },
   descriptionSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
-  },
+    fontSize: SIZES.fonts.textSmartphone
+  }
 });

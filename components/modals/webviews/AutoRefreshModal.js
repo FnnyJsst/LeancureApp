@@ -6,12 +6,11 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 
 const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
-  const { 
-    isSmartphone,
-    isSmartphoneLandscape, 
-    isTabletLandscape
-  } = useDeviceType();
 
+  // We create a hook to determine the device type and orientation
+  const { isSmartphone, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
+
+  // State used to store the selected option
   const [selectedOption, setSelectedOption] = useState('never');
 
   // Options for the auto-refresh modal
@@ -66,6 +65,7 @@ const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
                   style={[
                     styles.radioCircle,
                     isSmartphone && styles.radioCircleSmartphone,
+                    // We set the border color to orange if the option is selected
                     selectedOption === option.value && { borderColor: COLORS.orange }  
                   ]}
                 >
@@ -90,8 +90,9 @@ const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
                 color={COLORS.white} 
                 width="20%"
                 onPress={() => {
-                  console.log('Option à envoyer:', selectedOption);
+                  // We send the selected option to the parent component
                   onSelectOption(selectedOption);
+                  // We close the modal
                   onClose();
                 }}
               />

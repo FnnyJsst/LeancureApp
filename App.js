@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View } from 'react-native';
+import { View, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ScreenSaver from './screens/ScreenSaver';
 import SettingsScreen from './screens/webviews/SettingsScreen';
@@ -139,10 +139,13 @@ export default function App() {
   /////FUNCTIONS RELATED TO PASSWORD/////
   // Check if the password is required to access the settings
   const handleSettingsAccess = () => {
-    if (isPasswordRequired && password) {
+    console.log('handleSettingsAccess called');
+    if (isPasswordRequired) {
+      console.log('Password is required');
       setPasswordCheckModalVisible(true);
     } else {
-      navigate('SETTINGS');
+      console.log('Navigating to settings');
+      navigate(SCREENS.SETTINGS);
     }
   };
 
@@ -189,13 +192,12 @@ export default function App() {
   };
   
   // Check if the password is correct
-  const handlePasswordCheck = (enteredPassword, callback) => {
+  const handlePasswordCheck = (enteredPassword) => {
     if (enteredPassword === password) {
-      callback(true);
       setPasswordCheckModalVisible(false);
-      navigate('SETTINGS');
+      navigate(SCREENS.SETTINGS);
     } else {
-      callback(false);
+      Alert.alert('Incorrect password');
     }
   };
 
@@ -288,6 +290,7 @@ export default function App() {
         isPasswordRequired={isPasswordRequired}
         password={password}
         setPasswordCheckModalVisible={setPasswordCheckModalVisible}
+        handleSettingsAccess={handleSettingsAccess}
       />
     }
       
@@ -310,6 +313,7 @@ export default function App() {
           isReadOnly={isReadOnly}
           toggleReadOnly={toggleReadOnly}
           onNavigate={navigate}
+          onSettingsAccess={handleSettingsAccess}
         />
       )}
   
@@ -338,6 +342,7 @@ export default function App() {
         <WebViewScreen 
           url={webViewUrl} 
           onNavigate={navigate}
+          onSettingsAccess={handleSettingsAccess}
         />
       )}
       
@@ -351,9 +356,7 @@ export default function App() {
       <PasswordCheckModal
         visible={passwordCheckModalVisible}
         onClose={() => setPasswordCheckModalVisible(false)}
-        onSubmit={(enteredPassword, callback) => {
-          handlePasswordCheck(enteredPassword, callback);
-        }}
+        onSubmit={handlePasswordCheck}
       />
 
       {/* Screen related to the chat */}

@@ -8,16 +8,18 @@ import { SCREENS } from '../../constants/screens';
 /**
  * Screen displayed when no URL is entered 
  **/
-export default function NoUrlScreen({ onNavigate, isPasswordRequired, password, setPasswordCheckModalVisible }) {
+export default function NoUrlScreen({ 
+  onNavigate, 
+  isPasswordRequired, 
+  password, 
+  setPasswordCheckModalVisible,
+  handleSettingsAccess
+}) {
 
   const { isTablet, isSmartphone } = useDeviceType();
 
   const handleSettingsPress = () => {
-    if (isPasswordRequired && password) {
-      setPasswordCheckModalVisible(true);
-    } else {
-      onNavigate(SCREENS.SETTINGS);
-    }
+    handleSettingsAccess();
   };
   
 

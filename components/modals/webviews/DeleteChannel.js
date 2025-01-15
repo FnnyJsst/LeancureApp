@@ -5,6 +5,8 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES, SIZES } from '../../../constants/style';
 
 export default function DeleteChannel({ visible, onClose, handleDelete }) {
+
+  // We create a hook to determine the device type and orientation
   const { isTablet, isPortrait, isSmartphonePortrait, isSmartphoneLandscape, isSmartphone } = useDeviceType(); 
 
   return (
@@ -45,6 +47,7 @@ export default function DeleteChannel({ visible, onClose, handleDelete }) {
               backgroundColor={COLORS.orange}
               color={COLORS.white} 
               width="20%" 
+              // We send the selected option to the parent component
               onPress={() => handleDelete()} 
             />
           </View>

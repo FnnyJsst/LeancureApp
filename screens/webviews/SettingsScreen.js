@@ -17,6 +17,7 @@ import { SCREENS } from '../../constants/screens';
  **/
 export default function SettingsScreen({ 
   onNavigate, 
+  onSettingsAccess, 
   selectedChannels, 
   refreshOption,
   handlePasswordSubmit,  
@@ -125,7 +126,7 @@ export default function SettingsScreen({
               title="Channels Management"
               description="Access to imported webviews"
               icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
-              onPress={() => onNavigate(SCREENS.CHANNELS_MANAGEMENT)}
+              onPress={() => onSettingsAccess()}
             />
           </View>
           <View style={[

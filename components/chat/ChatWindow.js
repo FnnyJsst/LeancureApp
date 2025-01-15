@@ -7,7 +7,11 @@ import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
 export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange }) {
+
+  // Customized hook to determine the device type and orientation
   const { isSmartphone, isTablet } = useDeviceType();
+
+  // We create a ref for the scroll view to scroll to the bottom of the chat
   const scrollViewRef = useRef();
 
   const [isDocumentPreviewModalVisible, setIsDocumentPreviewModalVisible] = useState(false);
@@ -19,12 +23,15 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
+    // If we have messages, we format them and set them to the messages state
     if (channelMessages && channelMessages.length > 0) {
+      // We format the messages to be displayed in the chat
       const formattedMessages = channelMessages.map(msg => ({
         id: msg.id,
         username: "User",
         text: msg.content || msg.message,
         title: msg.title,
+        // We format the timestamp to be displayed in the chat
         timestamp: new Date(parseInt(msg.savedTimestamp)).toLocaleTimeString([], { 
           hour: '2-digit', 
           minute: '2-digit' 
@@ -42,6 +49,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     }
   }, [channelMessages]);
 
+  // Function to open the document preview modal
   const openDocumentPreviewModal = (message) => {
     setIsDocumentPreviewModalVisible(true);
     setSelectedFileUrl(message.uri);
@@ -51,15 +59,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     setSelectedBase64(message.base64);
   };
 
+  // Function to close the document preview modal
   const closeDocumentPreviewModal = () => {
     setIsDocumentPreviewModalVisible(false);
     setSelectedFileUrl(null);
   };
 
+  // Function to send a message
   const sendMessage = (messageData) => {
     const newMessage = {
       id: Date.now(),
-      username: "Moi",
+      username: "Me",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       isOwnMessage: true,
       ...(typeof messageData === 'string' 
@@ -70,6 +80,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     
     setMessages([...messages, newMessage]);
 
+    // We scroll to the bottom of the chat after the message is sent
     setTimeout(() => {
       if (scrollViewRef.current) {
         scrollViewRef.current.scrollToEnd({ animated: true });
@@ -90,9 +101,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       </View>
       <ScrollView 
         ref={scrollViewRef}
+        // We scroll to the bottom of the chat when the content size changes (for example when a new message is sent)
         onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
         style={[styles.chatContainer, isTablet && styles.chatContainerTablet]}
       >
+        {/* If we have a channel, we display the messages */}
         {channel ? (
           messages.map(message => (
             <ChatMessage 
@@ -103,6 +116,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             />
           ))
         ) : (
+          // If we don't have a channel, we display a message to select a channel
           <View style={styles.noChannelContainer}>
             <Text style={[
               styles.noChannelText,
@@ -113,6 +127,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           </View>
         )}
       </ScrollView>
+      {/* If the document preview modal is visible, we display it */}
       <DocumentPreviewModal
         visible={isDocumentPreviewModalVisible}
         onClose={closeDocumentPreviewModal}
@@ -122,6 +137,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         fileType={selectedFileType}
         base64={selectedBase64}
       />
+      {/* If we have a channel, we display the input chat window */}
       {channel && (
         <InputChatWindow 
           onSendMessage={sendMessage} 
