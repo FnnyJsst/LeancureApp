@@ -52,14 +52,17 @@ export const COLORS = {
   // Base colors
   white: '#ffffff',       
   overlay: 'rgba(0,0,0,0.8)',
-    overlayLight: 'rgba(0, 0, 0, 0.1)',
+  overlayLight: 'rgba(0, 0, 0, 0.1)',
   
   // Status colors
   success: '#24c12f',
   error: '#ff4444',
   
   // Message colors
-  messageOut: 'rgba(255, 128, 82, 0.3)',                 
+  messageOut: 'rgba(255, 128, 82, 0.3)',     
+  
+  // Background colors
+  backgroundModal: 'rgba(0, 0, 0, 0.8)',
 };
 
 export const MODAL_STYLES = {
@@ -67,7 +70,7 @@ export const MODAL_STYLES = {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.backgroundModal,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     paddingBottom: '20%',
   },
   content: {

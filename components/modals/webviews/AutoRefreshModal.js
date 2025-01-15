@@ -78,23 +78,23 @@ const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
             ))}
             </View>
             <View style={MODAL_STYLES.buttonContainer}>
-            <Button 
-              title="Close" 
-              backgroundColor={COLORS.buttonGray}
-              color={COLORS.white} 
-              width="20%"
-              onPress={onClose} />
-            <Button 
-              title="Set" 
-              backgroundColor={COLORS.orange}
-              color={COLORS.white} 
-              width="20%"
-              onPress={() => {
-                console.log('Option à envoyer:', selectedOption);
-                onSelectOption(selectedOption);
-                onClose();
-              }}
-            />
+              <Button 
+                title="Close" 
+                backgroundColor={COLORS.gray700}
+                color={COLORS.white} 
+                width="20%"
+                onPress={onClose} />
+              <Button 
+                title="Set" 
+                backgroundColor={COLORS.orange}
+                color={COLORS.white} 
+                width="20%"
+                onPress={() => {
+                  console.log('Option à envoyer:', selectedOption);
+                  onSelectOption(selectedOption);
+                  onClose();
+                }}
+              />
             </View>
           </ScrollView>
         </View>

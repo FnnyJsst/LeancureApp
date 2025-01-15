@@ -1,4 +1,4 @@
-import { Modal, View, Text, TouchableOpacity, StyleSheet, Dimensions, Linking, Share, Alert, Platform } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, Dimensions, Linking, Share, Alert, Platform, Image } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../../constants/style';
@@ -77,6 +77,16 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
           />
         </View>
       );
+    } else if (fileType?.includes('image')) {
+      return (
+        <View style={styles.imageWrapper}>
+          <Image
+            source={{ uri: `data:${fileType};base64,${base64}` }}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </View>
+      );
     }
   };
 
@@ -93,8 +103,8 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
         return;
       }
 
-      // Créer un fichier temporaire
-      const fileUri = `${FileSystem.cacheDirectory}${fileName.replace(/\s+/g, '_')}.pdf`;
+      const extension = fileType?.includes('pdf') ? '.pdf' : fileType?.includes('image') ? '.jpg' : '';
+      const fileUri = `${FileSystem.cacheDirectory}${fileName.replace(/\s+/g, '_')}${extension}`;
       
       // Convertir le base64 en fichier
       await FileSystem.writeAsStringAsync(fileUri, base64, {
@@ -107,7 +117,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
           const destinationUri = await FileSystem.StorageAccessFramework.createFileAsync(
             directoryUri,
             fileName,
-            'application/pdf'
+            fileType || 'application/octet-stream'
           );
           
           const fileContent = await FileSystem.readAsStringAsync(fileUri, {
@@ -127,7 +137,6 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
         await MediaLibrary.createAlbumAsync('Downloads', asset, false);
         Alert.alert('Succès', 'Le fichier a été téléchargé dans le dossier Downloads');
       }
-
     } catch (error) {
       console.error('Erreur lors du téléchargement:', error);
       Alert.alert('Erreur', 'Impossible de télécharger le fichier');
@@ -145,11 +154,11 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
         <View style={[
           styles.modalContent,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-          isTabletLandscape && styles.modalContentTablet
+          isTabletLandscape && styles.modalContentTabletLandscape
         ]}>
           <View style={styles.header}>
             <View style={styles.fileInfo}>
-              <Text style={styles.fileName}>{fileName}</Text>
+              <Text style={[styles.fileName, isSmartphone && styles.fileNameSmartphone]}>{fileName}</Text>
               <Text style={styles.fileSize}>{fileSize}</Text>
             </View>
             <View style={styles.actions}>
@@ -174,13 +183,13 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
     width: '90%',
-    height: '70%',
+    height: '50%',
     backgroundColor: COLORS.white,
     borderRadius: SIZES.borderRadius.medium,
     overflow: 'hidden',
@@ -189,7 +198,7 @@ const styles = StyleSheet.create({
     width: '45%',
     height: '90%',
   },
-  modalContentTablet: {
+  modalContentTabletLandscape: {
     width: '80%',
     height: '90%',
   },
@@ -227,6 +236,9 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.textTablet,
     marginBottom: 4,
   },
+  fileNameSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
+  },
   fileSize: {
     color: COLORS.gray300,
     fontSize: SIZES.fonts.smallTablet,
@@ -244,5 +256,15 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: COLORS.gray700,
     borderRadius: 20,
+  },
+  imageWrapper: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
   },
 });

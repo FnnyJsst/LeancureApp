@@ -14,7 +14,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
     return (
       <View style={[styles.messageContainer, isOwnMessage ? styles.ownMessage : styles.otherMessage]}>
         <TouchableOpacity onPress={() => onFileClick(message)} style={styles.fileContainer}>
-          
           {isPDF && message.base64 && (
             <View style={styles.previewContainer}>
               <WebView
@@ -86,37 +85,36 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                 originWhitelist={['*']}
                 javaScriptEnabled={true}
               />
-            <View style={styles.fileHeader}>
-            <Ionicons 
-              name="document-outline" 
-              size={25} 
-              color={COLORS.white} 
-            />
-            <View style={styles.fileInfo}>
-              <Text style={styles.fileName} numberOfLines={1}>
-                {message.fileName}
-              </Text>
-              <Text style={styles.fileSize}>
-                PDF • {message.fileSize}
-              </Text>
+              <View style={styles.fileHeader}>
+                <Ionicons 
+                  name="document-outline" 
+                  size={25} 
+                  color={COLORS.white} 
+                />
+                <View style={styles.fileInfo}>
+                  <Text style={styles.fileName} numberOfLines={1}>
+                    {message.fileName}
+                  </Text>
+                  <Text style={styles.fileSize}>
+                    PDF • {message.fileSize}
+                  </Text>
+                </View>
+              </View>
             </View>
-    
-          </View>
-        </View>
           )}
 
           {isImage && message.base64 && (
             <View style={styles.previewContainer}>
               <Image 
                 source={{ uri: `data:${message.fileType};base64,${message.base64}` }}
-                style={styles.imagePreview}
+                style={styles.preview}
                 resizeMode="cover"
               />
               <View style={styles.fileHeader}>
                 <Ionicons 
                   name="image-outline" 
                   size={25} 
-                  color={'white'} 
+                  color={COLORS.white} 
                 />
                 <View style={styles.fileInfo}>
                   <Text style={styles.fileName} numberOfLines={1}>
@@ -198,12 +196,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginBottom: 8,
-    marginLeft: 10,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   fileInfo: {
     flex: 1,
-    marginTop: 2,
   },
   fileName: {
     color: COLORS.white,
@@ -225,10 +226,4 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  imagePreview: {
-    width: '100%',
-    height: 200,
-    borderRadius: SIZES.borderRadius.small,
-    marginBottom: 8,
-  }
 });

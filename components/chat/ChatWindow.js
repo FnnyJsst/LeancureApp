@@ -144,6 +144,8 @@ const styles = StyleSheet.create({
   },
   channelNameContainer: {
     marginLeft: 20,
+    marginBottom: 10,
+    marginTop: -8,
   },
   channelName: {
     fontSize: SIZES.fonts.subtitleTablet,

@@ -50,7 +50,7 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly }) {
           ]}>
             <Button 
               title="Yes" 
-              backgroundColor={COLORS.buttonGray}
+              backgroundColor={COLORS.gray650}
               color={COLORS.white} 
               width="20%"
               onPress={handleYes} 
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '40%',
     padding: 20,
-    backgroundColor: COLORS.gray900,
+    backgroundColor: COLORS.gray750,
     borderRadius: SIZES.borderRadius.large,
   },
   modalContentSmartphonePortrait: {
