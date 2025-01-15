@@ -33,13 +33,13 @@ export default function AppMenu({ onNavigate }) {
       <View style={styles.cardsContainer}>
         <AppMenuCard
           title="Messages"
-          icon={<Ionicons name="mail-outline" size={30} color={COLORS.white} />}
+          icon={<Ionicons name="mail-outline" size={isSmartphone ? 24 : 30} color={COLORS.white} />}
           onPress={() => onNavigate(SCREENS.LOGIN)}
           unreadCount={unreadMessages}
         />
         <AppMenuCard
           title="WebViews"
-          icon={<Ionicons name="tv-outline" size={30} color={COLORS.white} />}
+          icon={<Ionicons name="tv-outline" size={isSmartphone ? 24 : 30} color={COLORS.white} />}
           onPress={() => onNavigate(SCREENS.WEBVIEW)}
         />
       </View>

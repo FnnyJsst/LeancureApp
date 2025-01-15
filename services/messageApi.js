@@ -2,16 +2,19 @@ import axios from 'axios';
 
 const API_URL = 'http://fannyserver.rasp/ic.php';
 
+//This API is used to fetch the user's channels
 export const fetchUserChannels = async () => {
   const timestamp = Date.now();
   
   try {
     const response = await axios.post(API_URL, {
+      //API header  
       "api-version": "2",
       "api-contract-number": "202501121",
       "api-signature": "msgApiKey",
       "api-signature-hash": "sha256", 
       "api-signature-timestamp": timestamp,
+      //API command
       "cmd": [{
         "msg_srv": {
           "client": {
@@ -31,18 +34,22 @@ export const fetchUserChannels = async () => {
       }]
     });
 
+    //API response
     if (response.data.status === "ok") {
+      
+      //If the response is ok, we get the data
       const data = response.data.cmd[0].msg_srv.client.get_account_links.data;
       return formatChannelsData(data);
     } else {
-      throw new Error("Erreur lors de la récupération des données");
+      throw new Error("Error while fetching data");
     }
   } catch (error) {
-    console.error("Erreur API:", error);
+    console.error("API error:", error);
     throw error;
   }
 };
 
+//Format the channels data
 const formatChannelsData = (data) => {
   const formattedData = {
     publicChannels: [],
@@ -52,12 +59,16 @@ const formatChannelsData = (data) => {
 
   // Format the public channels
   if (data.public) {
+    //If the public channels exist, we format them
     Object.entries(data.public).forEach(([channelId, channelData]) => {
+      //We get the unread messages
       const unreadMessages = channelData.messages ? 
         Object.values(channelData.messages).filter(msg => !msg.read).length : 0;
       
+      //We add the unread messages to the unread count    
       formattedData.unreadCount += unreadMessages;
       
+      //We add the channel to the public channels
       formattedData.publicChannels.push({
         id: channelId,
         name: channelData.identifier,
@@ -103,9 +114,11 @@ const formatChannelsData = (data) => {
   return formattedData;
 };
 
+//Format the messages data
 const formatMessages = (messages) => {
   if (!messages) return [];
   
+  //We format the messages
   return Object.entries(messages).map(([messageId, messageData]) => ({
     id: messageId,
     title: messageData.title,

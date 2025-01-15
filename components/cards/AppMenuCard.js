@@ -12,7 +12,7 @@ const AppMenuCard = ({ title, icon, onPress, unreadCount }) => {
       onPress={onPress}
     >
       {unreadCount > 0 && (
-        <View style={styles.badge}>
+        <View style={[styles.badge, isSmartphone && styles.badgeSmartphone]}>
           <Text style={[styles.badgeText, isSmartphone && styles.badgeTextSmartphone]}>{unreadCount}</Text>
         </View>
       )}
@@ -39,8 +39,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cardSmartphone: {
-    width: 150,
-    height: 150,
+    width: 250,
+    height: 100,
     padding: 15,
   },
   iconContainer: {
@@ -67,6 +67,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 4,
+  },
+  badgeSmartphone: {
+    width: 35,
+    height: 35,
+    top: -5,
+    right: -5,
   },
   badgeText: {
     color: COLORS.white,
