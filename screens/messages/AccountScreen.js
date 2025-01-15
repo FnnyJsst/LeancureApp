@@ -4,15 +4,15 @@ import Navbar from '../../components/navigation/Navbar';
 import AccountImage from '../../components/AccountImage';
 import AccountImageInput from '../../components/AccountImageInput';
 import Button from '../../components/buttons/Button';
-import Card from '../../components/Card';
 import Header from '../../components/Header';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function AccountScreen({ onNavigate }) {
   
-  const { isTablet, isSmartphone } = useDeviceType();
+  const { isTablet, isSmartphone, isLandscape } = useDeviceType();
   const [profileImage, setProfileImage] = useState(null);
 
   const handleSectionChange = (section) => {
@@ -40,7 +40,6 @@ export default function AccountScreen({ onNavigate }) {
             <Text style={[styles.accountName, isSmartphone && styles.accountNameSmartphone]}>John Doe</Text>
             <Text style={[styles.accountJobTitle, isSmartphone && styles.accountJobTitleSmartphone]}>Technician</Text>
           </View>
-          <Card backgroundColor={COLORS.gray650} />
           <View style={[styles.buttonContainer, isSmartphone && styles.buttonContainerSmartphone]}>
             <Button 
               title="Edit" 
@@ -75,7 +74,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     paddingVertical: 30,
-    marginTop: 0,
   },
   contentTablet: {
     gap: 30,

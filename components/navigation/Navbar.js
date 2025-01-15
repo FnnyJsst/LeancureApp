@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.subtitleTablet,
   },
   navTextSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: SIZES.fonts.textSmartphone,
     marginTop: 3,
   },
   active: {

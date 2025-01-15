@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style'; 
-import Card from '../../components/Card';
 import Navbar from '../../components/navigation/Navbar';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import Header from '../../components/Header';
