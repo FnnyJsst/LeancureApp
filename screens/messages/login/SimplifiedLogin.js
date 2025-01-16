@@ -1,10 +1,13 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Button from '../../components/buttons/Button';
-import { COLORS, SIZES } from '../../constants/style';
-import { useDeviceType } from '../../hooks/useDeviceType';
+import Button from '../../../components/buttons/Button';
+import { COLORS, SIZES } from '../../../constants/style';
+import { useDeviceType } from '../../../hooks/useDeviceType';
 
+// Simplified login screen is used when the user has already logged in and checked "Stay connected" on the login screen
 export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handleLogin }) {
+
+  // Customized hook to determine the device type and orientation
   const { isSmartphone, isLandscape, isSmartphoneLandscape } = useDeviceType();
   
   return (

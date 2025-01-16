@@ -3,29 +3,26 @@ import { View, StyleSheet, Text } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style'; 
 import Navbar from '../../components/navigation/Navbar';
 import { useDeviceType } from '../../hooks/useDeviceType';
+import { useNavbarNavigation } from '../../hooks/UseNavbarNavigation';
 import Header from '../../components/Header';
 import SettingsCard from '../../components/cards/SettingsCard';
 import { Ionicons } from '@expo/vector-icons';
 import { SCREENS } from '../../constants/screens';
 
+//This screen displays the settings related to the messages
 export default function SettingsMessage({ onNavigate }) {
 
+  // Customized hook to determine the device type and orientation
   const { isSmartphone, isLandscape } = useDeviceType();
 
-  const handleSectionChange = (section) => {
-    if (section === 'chat') {
-      onNavigate('CHAT');
-    } else if (section === 'account') {
-      onNavigate('ACCOUNT');
-    } else if (section === 'settings') {
-      onNavigate('SETTINGS_MESSAGE');
-    }
-  };
+  // Custom hook to handle the navbar navigation
+  const handleSectionChange = useNavbarNavigation(onNavigate);
 
   return (
     <>
+      {/* We show the header with the menu icon, the account image and the back button */}
       <Header showMenuIcon={false} showAccountImage={true} onNavigate={onNavigate} onBackPress={() => onNavigate(SCREENS.CHAT)} />
-      <View style={styles.container}>
+      <View style={styles.pageContainer}>
         <View style={styles.headerContainer}>
           <Text style={[
             styles.header,
@@ -34,8 +31,6 @@ export default function SettingsMessage({ onNavigate }) {
         </View>
         <View style={[
           styles.configContainer,
-          styles.configContainerTablet,
-          isSmartphone && styles.configContainerSmartphone,
           isLandscape && styles.configContainerLandscape
         ]}>
           <SettingsCard
@@ -57,14 +52,10 @@ export default function SettingsMessage({ onNavigate }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  pageContainer: {
     flex: 1,
     backgroundColor: COLORS.gray900,
     paddingHorizontal: 15,
-  },
-  content: {
-    flex: 1,
-    alignItems: 'center',
   },
   headerContainer: {
     marginBottom: 0,
@@ -91,14 +82,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     alignSelf: 'center',
     marginVertical: 8,
-  },
-  configContainerTablet: {
-    // minHeight: 58,
-    width: '95%',
-  },
-  configContainerSmartphone: {
-    // minHeight: 45,
-    width: '95%',
+    width: '95%'
   },
   configContainerLandscape: {
     marginHorizontal: 50,

@@ -12,6 +12,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
    // Custom hook to handle the navbar navigation
    const handleSectionChange = useNavbarNavigation(onNavigate);
 
+  // States related to the chat
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [currentSection, setCurrentSection] = useState('chat');
@@ -34,6 +35,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
 
   return (
     <View style={styles.container}>
+      {/* We show the header with the menu icon, the account image and the back button */}
       <Header showMenuIcon={true} showAccountImage={true} onNavigate={onNavigate} toggleMenu={toggleMenu} onBackPress={() => onNavigate(SCREENS.LOGIN)} />
       <Sidebar 
         onChannelSelect={handleChannelSelect}
@@ -49,6 +51,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
           isExpanded={isExpanded}
           onInputFocusChange={setIsInputFocused}
         />
+        {/* We show the navbar only if the input is not focused */}
       {!isInputFocused && (
         <Navbar 
           currentSection={currentSection}

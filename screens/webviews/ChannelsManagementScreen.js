@@ -25,7 +25,9 @@ export default function ChannelsManagementScreen({
   onNavigateToWebView,
   onImport
 }) {
-  const { isTablet, isSmartphone, isSmartphoneLandscape, isSmartphonePortrait } = useDeviceType();
+
+  // Customized hook to determine the device type and orientation
+  const { isTablet, isSmartphone, isSmartphonePortrait } = useDeviceType();
 
   // States for modals and interractions management
   const [isImportModalVisible, setImportModalVisible] = useState(false);
@@ -67,12 +69,17 @@ export default function ChannelsManagementScreen({
   /////CHANNEL OPERATIONS/////
   // Delete a channel from the list
   const handleDeleteChannel = (channelToDelete) => {
+    // Check if the channel to delete is not null
     if (channelToDelete) {
+      // Filter the channels to remove the one to delete
       const updatedChannels = selectedChannels.filter(
         channel => channel.href !== channelToDelete.href
       );
+      // Set the updated channels
       setSelectedChannels(updatedChannels);
+      // Save the updated channels
       saveSelectedChannels(updatedChannels);
+      // Close the delete modal
       closeDeleteModal();
 
       // Save the updated channels in AsyncStorage
@@ -86,11 +93,15 @@ export default function ChannelsManagementScreen({
 
   // Move a channel up
   const moveChannelUp = (index) => {
+    // Check if we are not at the first channel
     if (index > 0) {
+      // Create a copy of the selected channels
       const updatedChannels = [...selectedChannels];
+      // Swap the channel with the one above
       const temp = updatedChannels[index - 1];
       updatedChannels[index - 1] = updatedChannels[index];
       updatedChannels[index] = temp;
+      // Set the updated channels
       setSelectedChannels(updatedChannels);
       saveSelectedChannels(updatedChannels);
     }
@@ -98,47 +109,57 @@ export default function ChannelsManagementScreen({
 
   // Move a channel down
   const moveChannelDown = (index) => {
+    // Check if we are not at the last channel
     if (index < selectedChannels.length - 1) {
+      // Create a copy of the selected channels
       const updatedChannels = [...selectedChannels];
+      // Swap the channel with the one below
       const temp = updatedChannels[index + 1];
       updatedChannels[index + 1] = updatedChannels[index];
       updatedChannels[index] = temp;
+      // Set the updated channels
       setSelectedChannels(updatedChannels);
+      // Save the updated channels
       saveSelectedChannels(updatedChannels);
     }
   };
 
   // Edit a channel
   const handleEditChannel = async (oldChannel, newUrl, newTitle) => {
+    // Create a copy of the selected channels
     const updatedChannels = selectedChannels.map(channel => {
+      // Check if the channel href is the same as the old channel href
       if (channel.href === oldChannel.href) {
         return { ...channel, href: newUrl, title: newTitle };
       }
       return channel;
     });
-    
+    // Set the updated channels
     setSelectedChannels(updatedChannels);
+    // Save the updated channels
     await saveSelectedChannels(updatedChannels);
-  };
-
-  const handleBackPress = () => {
-    onNavigate('SETTINGS');
   };
 
 return (
   <View style={styles.pageContainer}>
     <Header
+      // Check if the user is not read only
       onRightIconPress={!isReadOnly ? openImportModal : null}
+      // Set the right icon to add to the list
       rightIcon="add-to-list"
+      // Navigate back to the settings screen
       onBackPress={() => onNavigate(SCREENS.SETTINGS)}
+      // Check if the user is not read only
       showIcons={!isReadOnly}
-      
+      // Check if the user is not read only
     />
+    {/* Modal to import channels */}
     <ImportChannelDialog
       visible={isImportModalVisible}
       onClose={closeImportModal}
       onImport={onImport}
     />
+    {/* Modal to edit a channel */}
     <EditChannel
       visible={isEditModalVisible}
       onClose={closeEditModal}
@@ -146,14 +167,16 @@ return (
       initialTitle={channelToEdit?.title}
       onSave={(newUrl, newTitle) => handleEditChannel(channelToEdit, newUrl, newTitle)}
     />
+    {/* Modal to delete a channel */}
     <DeleteChannel
       visible={isDeleteModalVisible}
       onClose={closeDeleteModal}
       handleDelete={() => handleDeleteChannel(channelToDelete)}
     />
+    {/* List of channels */}
     <ScrollView>
       <View style={styles.channelsContainer}>
-        <View style={[styles.headerContainer, isSmartphone && styles.headerContainerSmartphone]}>
+        <View style={styles.headerContainer}>
           <Text style={[styles.header, isSmartphone && styles.headerSmartphone]}>Channels management</Text>
         </View>
         {selectedChannels && selectedChannels.map((channel, index) => (
@@ -169,8 +192,11 @@ return (
                 styles.titleContainer,
                 isSmartphone && styles.titleContainerSmartphone
               ]}
+              // Navigate to the webview with the channel href
               onPress={() => onNavigateToWebView(channel.href)}
+              // Set the selected title id
               onPressIn={() => setSelectedTitleId(channel.href)}
+              // Reset the selected title id
               onPressOut={() => setSelectedTitleId(null)}
             >
               <Text 
@@ -180,12 +206,14 @@ return (
                   selectedTitleId === channel.href && styles.textSelected
                 ]}
                 numberOfLines={1}
+                // Add an ellipsis at the end of the text if it is too long
                 ellipsizeMode="tail"
               >
                 {channel.title}
               </Text>
             </TouchableOpacity>
             
+            {/* Check if the user is not read only */}
             {!isReadOnly && (
               <View style={[
                 styles.controlsContainer,
@@ -247,6 +275,7 @@ return (
                     ]} 
                   />
                 </TouchableOpacity>
+                {/* Delete a channel */}
                 <TouchableOpacity
                   onPress={() => openDeleteModal(channel)}
                   onPressIn={() => setSelectedBinIndex(index)}

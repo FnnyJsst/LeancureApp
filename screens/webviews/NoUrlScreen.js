@@ -6,18 +6,17 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { SCREENS } from '../../constants/screens';
 
 /**
- * Screen displayed when no URL is entered 
+ * Screen displayed when the user hasn't imported any channels
  **/
 export default function NoUrlScreen({ 
   onNavigate, 
-  isPasswordRequired, 
-  password, 
-  setPasswordCheckModalVisible,
   handleSettingsAccess
 }) {
 
+  // Customized hook to determine the device type and orientation
   const { isTablet, isSmartphone } = useDeviceType();
 
+  // Function to handle the settings depending on if the user is using a password or not
   const handleSettingsPress = () => {
     handleSettingsAccess();
   };

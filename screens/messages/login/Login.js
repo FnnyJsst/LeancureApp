@@ -2,18 +2,21 @@ import { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import Button from '../../components/buttons/Button';
-import InputLogin from '../../components/InputLogin';
-import CheckBox from '../../components/CheckBox';
+import Button from '../../../components/buttons/Button';
+import InputLogin from '../../../components/InputLogin';
+import CheckBox from '../../../components/CheckBox';
 import SimplifiedLogin from './SimplifiedLogin';
-import { COLORS, SIZES } from '../../constants/style';
-import { useDeviceType } from '../../hooks/useDeviceType';
-import { SCREENS } from '../../constants/screens';
+import { COLORS, SIZES } from '../../../constants/style';
+import { useDeviceType } from '../../../hooks/useDeviceType';
+import { SCREENS } from '../../../constants/screens';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Login({ onNavigate }) {
+
+    // Customized hook to determine the device type and orientation
     const { isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
     
+    // States related to the login form
     const [contractNumber, setContractNumber] = useState('');
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
@@ -22,21 +25,25 @@ export default function Login({ onNavigate }) {
     const [isChecked, setIsChecked] = useState(false);
     const [isSimplifiedLogin, setIsSimplifiedLogin] = useState(false);
 
+    // UseEffect to load the login info from AsyncStorage when the component is mounted
     useEffect(() => {
         loadLoginInfo();
     }, []);
 
+    // Function to handle the login process
     const handleLogin = async () => {
         // If the user has checked the "Stay connected" checkbox, use the saved password
         if (isSimplifiedLogin) {
             setIsLoading(true);
             setError('');
-        
+            
             try {
+                // Send the login request to the server
                 const response = await axios.post('http://fannyserver.rasp/ic.php', {
                     cmd: [{
                         accounts: {
                             loginmsg: {
+                                // We get the login info from the server
                                 get: {
                                     contractnumber: contractNumber,
                                     login: login,
@@ -47,29 +54,35 @@ export default function Login({ onNavigate }) {
                     }]
                 });
         
+                // If the login is successful, navigate to the chat screen
                 if (response.data.status === 'ok') {
                     onNavigate(SCREENS.CHAT);
+                // If the login is not successful, set an error message
                 } else {
                     setError('Incorrect credentials');
                 }
+            // If there is an error, set an error message
             } catch (error) {
                 console.error('Server connection error:', error);
                 setError('Server connection error');
             } finally {
+                // Finally, set the loading state to false to hide the loading spinner
                 setIsLoading(false);
             }
             return;
         }
-
+        // If the user has not checked the "Stay connected" checkbox, we need to check if all fields are filled
         if (!contractNumber || !login || !password) {
             setError('Please fill in all fields');
             return;
         }
-    
+        // Set the loading state to true to show the loading spinner
         setIsLoading(true);
+        // Reset the error message
         setError('');
     
         try {
+            // Send the login request to the server
             const response = await axios.post('http://fannyserver.rasp/ic.php', {
                 cmd: [{
                     accounts: {
@@ -97,7 +110,6 @@ export default function Login({ onNavigate }) {
             }
         //If there is an error, set an error message
         } catch (error) {
-            console.error('Server connection error:', error);
             setError('Server connection error');
         //Finally, set the loading state to false to hide the loading spinner
         } finally {
@@ -109,6 +121,7 @@ export default function Login({ onNavigate }) {
     const saveLoginInfo = async () => {
         if (isChecked) {
             try {
+                // Save the login info in AsyncStorage
                 await AsyncStorage.setItem('savedLoginInfo', JSON.stringify({
                     contractNumber,
                     login,
@@ -116,11 +129,12 @@ export default function Login({ onNavigate }) {
                     isSimplifiedLogin: true,
                     wasChecked: isChecked
                 }));
+            // If there is an error, set an error message
             } catch (error) {
                 console.error('Error saving login info:', error);
             }
         } else {
-            // Si la case n'est pas cochée, on supprime les infos
+            // If the case is not checked, we remove the login info from AsyncStorage
             try {
                 await AsyncStorage.removeItem('savedLoginInfo');
                 setIsSimplifiedLogin(false);
@@ -172,6 +186,7 @@ export default function Login({ onNavigate }) {
         </View>
         <View style={[styles.formContainerPortrait, isSmartphone && styles.formContainerSmartphonePortrait]}>
             <ScrollView>
+                {/* If the user has checked the "Stay connected" checkbox, we show the simplified login screen */}
                 {isSimplifiedLogin ? (
                     <SimplifiedLogin 
                         contractNumber={contractNumber}
@@ -181,6 +196,7 @@ export default function Login({ onNavigate }) {
                     />
                 ) : (
                     <>
+                        {/* If the user has not checked the "Stay connected" checkbox, we show the login form */}
                         <Text style={[
                             styles.title,
                             isSmartphone && styles.titleSmartphone,
@@ -265,6 +281,7 @@ export default function Login({ onNavigate }) {
                                 <View style={styles.buttonContainer}>
                                     <Button 
                                         variant="large"
+                                        // If the login is in progress, we show "Connecting..."
                                         title={isLoading ? "Connecting..." : "Login"}
                                         onPress={handleLogin}
                                         width="100%"

@@ -5,7 +5,7 @@ import ParameterButton from '../../components/buttons/ParameterButton';
 
 /**
  * WebView Screen Component
- * Displays a web page
+ * Displays a web page when the user has imported a channel
  **/
 const WebViewScreen = ({ url, onSettingsAccess }) => {
   return (
@@ -22,7 +22,7 @@ const WebViewScreen = ({ url, onSettingsAccess }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    //Delete the top horizontal gray850 bar on Android
+    //Delete the top horizontal gray bar on Android
     marginTop: Platform.OS === 'ios' ? 0 : -10,
   },
   webview: {

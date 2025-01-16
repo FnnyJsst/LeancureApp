@@ -3,7 +3,6 @@ import { ScrollView, View, Text, StyleSheet, BackHandler, TouchableOpacity } fro
 import Header from '../../components/Header';
 import TitleSettings from '../../components/text/TitleSettings';
 import SettingsCard from '../../components/cards/SettingsCard';
-
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnly from '../../components/modals/webviews/ReadOnly';
@@ -13,7 +12,7 @@ import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 /**
  * Settings Screen Component
- * Displays the settings page
+ * Displays the settings for the webviews
  **/
 export default function SettingsScreen({ 
   onNavigate, 
@@ -57,15 +56,18 @@ export default function SettingsScreen({
     }
   };
 
+  // Function to access the messages section
   const accessMessages = () => {
     onNavigate(SCREENS.LOGIN);
   };
 
+  // Function to format the refresh option and display it in a readable format
   const formatRefreshOption = (option) => {
+    // Check if the option is not null and is not 'never' 
     if (!option || option === 'never') return 'never';
-    
-    // Extraire le nombre et l'unité
+    // Extract the number and the unit
     const match = option.match(/every (\d+) (\w+)/i);
+    // Check if the match is not null
     if (!match) {
       if (option === 'every hour') return '1h';
       if (option === 'every day') return '24h';
@@ -75,7 +77,7 @@ export default function SettingsScreen({
 
     const [_, number, unit] = match;
     
-    // Formater selon l'unité
+    // Format the option depending on the unit
     if (unit.includes('hour')) {
       return `${number}h`;
     } else if (unit.includes('minute')) {
@@ -88,9 +90,11 @@ export default function SettingsScreen({
   return (
     <View>
       <ScrollView 
+        // Show the vertical scroll indicator
         showsVerticalScrollIndicator={true}
       >
         <Header 
+          // Handle the back button press
           onBackPress={handleBackPress} 
         />
         <View style={[
@@ -152,6 +156,7 @@ export default function SettingsScreen({
                   styles.text,
                   isSmartphone && styles.textSmartphone 
                 ]}>
+                  {/* Display the formatted refresh option */}
                   {formatRefreshOption(refreshOption)}
                 </Text>
               </TouchableOpacity>
@@ -169,17 +174,20 @@ export default function SettingsScreen({
                   title="Read-only access"
                   description="Access to webviews without the ability to modify them"
                   icon={<Ionicons name="eye-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
+                  //
                   onPress={openReadOnlyModal}
                 />
               </View>
               <TouchableOpacity 
                 style={styles.baseToggle} 
+                // Open the read only modal
                 onPress={openReadOnlyModal}
               >
                   <Text style={[
                     styles.text,
                     isSmartphone && styles.textSmartphone 
                   ]}>
+                  {/* Display if the user is read only mode is active or not */}
                   {isReadOnly ? 'Yes' : 'No'}
                 </Text>
               </TouchableOpacity>

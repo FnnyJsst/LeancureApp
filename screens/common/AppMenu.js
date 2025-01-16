@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SIZES } from '../constants/style';
-import { useDeviceType } from '../hooks/useDeviceType';
-import { SCREENS } from '../constants/screens';
-import AppMenuCard from '../components/cards/AppMenuCard';
-import { fetchUserChannels } from '../services/messageApi';
+import { COLORS, SIZES } from '../../constants/style';
+import { useDeviceType } from '../../hooks/useDeviceType';
+import { SCREENS } from '../../constants/screens';
+import AppMenuCard from '../../components/cards/AppMenuCard';
+import { fetchUserChannels } from '../../services/messageApi';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function AppMenu({ onNavigate }) {

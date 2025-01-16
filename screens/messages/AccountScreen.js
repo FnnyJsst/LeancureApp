@@ -12,7 +12,10 @@ import { SCREENS } from '../../constants/screens';
 
 export default function AccountScreen({ onNavigate }) {
   
+  // Customized hook to determine the device type and orientation
   const { isTablet, isSmartphone } = useDeviceType();
+
+  // We use the useState hook to store the profile image
   const [profileImage, setProfileImage] = useState(null);
 
   // Custom hook to handle the navbar navigation
@@ -20,6 +23,7 @@ export default function AccountScreen({ onNavigate }) {
 
   return (
     <View style={styles.container}>
+      {/*We show the header with the menu icon, the account image and the back button*/}
       <Header showMenuIcon={false} showAccountImage={true} onNavigate={onNavigate} onBackPress={() => onNavigate(SCREENS.CHAT)} />
         <View style={[styles.content, isSmartphone && styles.contentSmartphone, isTablet && styles.contentTablet]}>
           <AccountImage 
@@ -44,6 +48,7 @@ export default function AccountScreen({ onNavigate }) {
         </View>
       <Navbar 
         currentSection='account' 
+        // We pass the function to handle the navbar navigation
         onSectionChange={handleSectionChange}
       />
     </View>
