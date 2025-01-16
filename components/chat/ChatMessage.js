@@ -1,8 +1,12 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Platform } from "react-native";
 import { COLORS, SIZES } from "../../constants/style";
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
 import { useDeviceType } from '../../hooks/useDeviceType';
+
+// Définir isEmulator comme une constante
+const isEmulator = Platform.OS === 'android' && !Platform.isTV;
 
 // ChatMessage is used in the ChatScreen to display the messages
 export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
@@ -10,104 +14,135 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
   // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
 
+  console.log('Rendering ChatMessage component');
+  console.log('Message type:', message.type);
+  console.log('Is Emulator:', isEmulator);
+
   const PDF_PREVIEW_HTML = `
     <!DOCTYPE html>
     <html>
       <head>
-        <!-- We set the viewport to the device width and initial scale to 1.0 -->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- We load the PDF.js library -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
-        <!-- We set the styles for the PDF preview -->
-
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
         <style>
-          html, body {
+          body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            background: transparent;
             overflow: hidden;
+            background-color: #f0f0f0;
           }
-          #viewer {
+          #pdf-viewer {
             width: 100%;
             height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-          }
-          canvas {
-            width: 100%;
-            height: auto;
-            transform: translateX(-15%);
-            transform: translateY(0%);
+            border: none;
           }
         </style>
       </head>
       <body>
-        <!-- We create a div to display the PDF preview -->
-        <div id="viewer"></div>
-
-        <!-- We load the PDF.js library -->
         <script>
-          // We decode the base64 encoded PDF data
-          const pdfData = atob('${message.base64}');
-          const pdfBytes = new Uint8Array(pdfData.length);
-          for (let i = 0; i < pdfData.length; i++) {
-            pdfBytes[i] = pdfData.charCodeAt(i);
+          function sendToReact(message) {
+            window.ReactNativeWebView.postMessage(JSON.stringify(message));
           }
 
-          // We get the PDF document and display the first page
-          pdfjsLib.getDocument({data: pdfBytes}).promise.then(function(pdf) {
-            pdf.getPage(1).then(function(page) {
-              const canvas = document.createElement('canvas');
-              const container = document.getElementById('viewer');
-              container.appendChild(canvas);
-              
-              // We get the viewport of the page and set the canvas width and height
-              const viewport = page.getViewport({scale: ${isSmartphone ? 2.0 : 2.5}});
-              canvas.width = viewport.width;
-              canvas.height = viewport.height;
-              
-              // We render the page on the canvas
-              page.render({
-                canvasContext: canvas.getContext('2d'),
-                viewport: viewport
-              });
+          try {
+            sendToReact({ type: 'info', message: 'Starting PDF viewer script' });
+            
+            // Create object element for PDF viewing
+            const obj = document.createElement('object');
+            obj.id = 'pdf-viewer';
+            obj.type = 'application/pdf';
+            obj.data = 'data:application/pdf;base64,${message.base64}';
+            document.body.appendChild(obj);
+            
+            sendToReact({ type: 'info', message: 'PDF viewer object created and appended' });
+            
+            // Add load event listener
+            obj.addEventListener('load', function() {
+              sendToReact({ type: 'info', message: 'PDF loaded in object element' });
             });
-          });
+            
+            // Add error event listener
+            obj.addEventListener('error', function(error) {
+              sendToReact({ type: 'error', message: 'Object error: ' + error.message });
+            });
+            
+          } catch (error) {
+            sendToReact({ type: 'error', message: 'Error in PDF viewer script: ' + error.message });
+          }
         </script>
       </body>
     </html>
-  `
+  `;
 
-  // If the message contains a file or image, we display it
   if (message.type === 'file') {
     const isPDF = message.fileType === 'application/pdf';
     const isImage = message.fileType?.includes('image');
     
+    console.log('File detected:', message.fileName);
+    console.log('Is PDF:', isPDF);
+    console.log('Is Image:', isImage);
+    
     return (
-      // We define different styles for the message depending on if it's an own message or not
       <View style={[styles.messageContainer, isOwnMessage ? styles.ownMessage : styles.otherMessage]}>
-        <TouchableOpacity onPress={() => onFileClick(message)} style={styles.fileContainer}>
-          {/* If the message is a PDF, we display the PDF preview */}
+        <TouchableOpacity onPress={() => {
+          console.log('File clicked:', message.fileName);
+          onFileClick(message);
+        }} style={styles.fileContainer}>
           {isPDF && message.base64 && (
             <View style={styles.previewContainer}>
-              {/* We display the PDF preview using the WebView component */}
-              <WebView
-                source={{
-                  html: PDF_PREVIEW_HTML
-                }}
-                style={styles.preview}
-                // We allow the WebView to load any origin
-                originWhitelist={['*']}
-                // We enable JavaScript in the WebView
-                javaScriptEnabled={true}
-              />
-              {/* We display the file header with the file icon and the file info */}
+              {isEmulator ? (
+                <View style={[styles.preview, { justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.overlayLight }]}>
+                  <Text style={{ color: COLORS.white }}>
+                    Prévisualisation PDF non disponible sur l'émulateur
+                  </Text>
+                </View>
+              ) : (
+                <WebView
+                  source={{
+                    html: `
+                      <!DOCTYPE html>
+                      <html>
+                        <head>
+                          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+                          <style>
+                            body, html {
+                              margin: 0;
+                              padding: 0;
+                              width: 100%;
+                              height: 100%;
+                              overflow: hidden;
+                              background-color: #f0f0f0;
+                            }
+                            #pdf-viewer {
+                              width: 100%;
+                              height: 100%;
+                              border: none;
+                            }
+                          </style>
+                        </head>
+                        <body>
+                          <object
+                            id="pdf-viewer"
+                            type="application/pdf"
+                            data="data:application/pdf;base64,${message.base64}"
+                            width="100%"
+                            height="100%"
+                          >
+                          </object>
+                        </body>
+                      </html>
+                    `
+                  }}
+                  style={styles.preview}
+                  originWhitelist={['*']}
+                  javaScriptEnabled={true}
+                  domStorageEnabled={true}
+                  allowFileAccess={true}
+                  allowUniversalAccessFromFileURLs={true}
+                  allowFileAccessFromFileURLs={true}
+                />
+              )}
               <View style={styles.fileHeader}>
                 <Ionicons 
                   name="document-outline" 
@@ -126,16 +161,13 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
             </View>
           )}
 
-          {/* If the message is an image, we display the image preview */}
           {isImage && message.base64 && (
             <View style={styles.previewContainer}>
-              {/* We display the image preview using the Image component */}
               <Image 
                 source={{ uri: `data:${message.fileType};base64,${message.base64}` }}
                 style={styles.preview}
                 resizeMode="cover"
               />
-              {/* We display the file header with the file icon and the file info */}
               <View style={styles.fileHeader}>
                 <Ionicons 
                   name="image-outline" 
@@ -157,6 +189,8 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
       </View>
     );
   }
+
+  console.log('Rendering text message:', message.text);
 
   return (
     <View style={[
@@ -187,7 +221,7 @@ const styles = StyleSheet.create({
   },
   ownMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: COLORS.messageOut,
+    backgroundColor: COLORS.orange,
   },
   otherMessage: {
     alignSelf: 'flex-start',

@@ -8,11 +8,11 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handleLogin }) {
 
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isLandscape, isSmartphoneLandscape } = useDeviceType();
+  const { isSmartphone, isLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType();
   
   return (
     <View>
-      <View style={[styles.welcomeContainer, isLandscape && styles.welcomeContainerLandscape, isSmartphoneLandscape && styles.welcomeContainerSmartphoneLandscape]}>
+      <View style={[styles.welcomeContainer, isLandscape && styles.welcomeContainerLandscape, isSmartphonePortrait && styles.welcomeContainerSmartphonePortrait, isSmartphoneLandscape && styles.welcomeContainerSmartphoneLandscape]}>
         <Text style={[
           styles.welcomeText,
           isSmartphone && styles.welcomeTextSmartphone,
@@ -31,12 +31,13 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
             style={styles.loginIcon}
             onPress={() => handleLogin()}
           >
-            <Ionicons name="log-in-outline" size={isSmartphone ? 28 : 40} color={COLORS.white} />
+            <Ionicons name="chevron-forward-outline" size={isSmartphone ? 25 : 40} color={COLORS.white} />
           </TouchableOpacity>
         </View>
         <View style={styles.buttonContainer}>
           <Button 
             title="Switch account"
+            variant="large"
             onPress={onSwitchAccount}
             backgroundColor={COLORS.orange}
           />
@@ -53,8 +54,11 @@ const styles = StyleSheet.create({
     width: '70%',
     alignSelf: 'center',
   },
+  welcomeContainerSmartphonePortrait: {
+    width: '95%',
+  },
   welcomeContainerLandscape: {
-    width: '40%',
+    width: '50%',
     marginTop: 4,
   },
   welcomeContainerSmartphoneLandscape: {
@@ -66,15 +70,14 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray800,
     alignSelf: 'center',
     padding: 20,
-    marginHorizontal: 20,
     borderRadius: SIZES.borderRadius.small, 
     width: '70%',
   },
   loginContainerSmartphone: {
-    width: '90%',
+    width: '95%',
   },
   loginContainerLandscape: {
-    width: '40%',
+    width: '50%',
   },
   accountContainer: {
     width: '100%',
@@ -95,10 +98,10 @@ const styles = StyleSheet.create({
   },
   contractNumberText: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.textTablet,
+    fontSize: SIZES.fonts.subtitleTablet,
   },
   contractNumberTextSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   contractNumber: {
     color: COLORS.white,

@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Button from '../../../components/buttons/Button';
 import InputLogin from '../../../components/InputLogin';
-import CheckBox from '../../../components/CheckBox';
+import CheckBox from '../../../components/inputs/CheckBox';
 import SimplifiedLogin from './SimplifiedLogin';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 export default function Login({ onNavigate }) {
 
     // Customized hook to determine the device type and orientation
-    const { isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
+    const { isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape, isLandscape } = useDeviceType();
     
     // States related to the login form
     const [contractNumber, setContractNumber] = useState('');
@@ -180,8 +180,8 @@ export default function Login({ onNavigate }) {
     return (
     <View style={[styles.pageContainer, isTablet && styles.pageContainerTablet]}>
         <View style={styles.headerContainer}>
-            <TouchableOpacity style={styles.backButton} onPress={() => onNavigate(SCREENS.APP_MENU)}>
-                <Ionicons name="chevron-back-outline" size={isSmartphone ? 25 : 40} color={COLORS.gray300} />
+            <TouchableOpacity onPress={() => onNavigate(SCREENS.APP_MENU)}>
+                <Ionicons name="chevron-back-outline" size={isSmartphone ? 30 : 40} color={COLORS.gray300} />
             </TouchableOpacity>
         </View>
         <View style={[styles.formContainerPortrait, isSmartphone && styles.formContainerSmartphonePortrait]}>
@@ -197,20 +197,10 @@ export default function Login({ onNavigate }) {
                 ) : (
                     <>
                         {/* If the user has not checked the "Stay connected" checkbox, we show the login form */}
-                        <Text style={[
-                            styles.title,
-                            isSmartphone && styles.titleSmartphone,
-                            isSmartphoneLandscape && styles.titleSmartphoneLandscape, 
-                            isTabletLandscape && styles.titleTabletLandscape
-                        ]}>
-                            Welcome
-                        </Text>
                         <View style={[
                             styles.loginContainer,
-                            isTablet && styles.loginContainerTablet,
                             isSmartphone && styles.loginContainerSmartphone,
-                            isSmartphoneLandscape && styles.loginContainerSmartphoneLandscape,
-                            isTabletPortrait && styles.loginContainerTabletPortrait
+                            isLandscape && styles.loginContainerLandscape
                         ]}>
                             <View style={styles.inputsContainer}>
                                 <View style={styles.inputGroup}>
@@ -298,9 +288,6 @@ export default function Login({ onNavigate }) {
 }
 
 const styles = StyleSheet.create({
-    backButton: {
-        margin: 20,
-    },
     pageContainer: {
         flex: 1,
         backgroundColor: COLORS.gray900,
@@ -320,43 +307,21 @@ const styles = StyleSheet.create({
     loginContainer: {
         flex: 1,
         backgroundColor: COLORS.gray800,
-        marginHorizontal: 20,
         padding: 25,
         borderRadius: SIZES.borderRadius.large,
+        alignSelf: 'center',
+        marginTop: 100,
+        width: '70%',
     },
-    loginContainerTablet: {
-        marginHorizontal: 40,
-        padding: 40,
+    loginContainerSmartphone: {
+        width: '95%',
+    },
+    loginContainerLandscape: {
+        width: '50%',
+        marginTop: 70
     },
     loginContainerTabletPortrait: {
         marginTop: 50,
-    },
-    loginContainerSmartphone: {
-        marginTop: 30,
-        margin: 10,
-        padding: 15,
-        paddingVertical: 35,
-    },
-    loginContainerSmartphoneLandscape: {
-        marginTop: 10,
-    },
-    title: {
-        fontSize: SIZES.fonts.headerTablet,
-        fontWeight: SIZES.fontWeight.bold,
-        color: COLORS.white,
-        marginLeft: 30,
-        marginTop: 50
-    },
-    titleTabletLandscape: {
-        marginTop: 10,
-        marginBottom: 30,
-    },
-    titleSmartphone: {
-        fontSize: SIZES.fonts.headerSmartphone,
-    },
-    titleSmartphoneLandscape: {
-        marginBottom: 10,
-        marginTop: 15
     },
     inputsContainer: {
         width: '100%',
@@ -389,6 +354,12 @@ const styles = StyleSheet.create({
     },
     checkboxContainer: {
         marginLeft: 15,
+    },
+    checkboxLabel: {
+        fontSize: SIZES.fonts.subtitleTablet,
+    },
+    checkboxLabelSmartphone: {
+        fontSize: SIZES.fonts.subtitleSmartphone,
     },
     buttonContainer: {
         alignSelf: 'center',

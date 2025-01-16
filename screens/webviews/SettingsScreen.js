@@ -130,7 +130,7 @@ export default function SettingsScreen({
               title="Channels Management"
               description="Access to imported webviews"
               icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
-              onPress={() => onSettingsAccess()}
+              onPress={() => onNavigate(SCREENS.CHANNELS_MANAGEMENT)}
             />
           </View>
           <View style={[

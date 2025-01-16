@@ -70,7 +70,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
   // Animation for the sidebar
   const slideAnim = useRef(new Animated.Value(
     // We slide the sidebar to the left
-    isSmartphone ? (isSmartphoneLandscape ? -300 : -500) : -300
+    isSmartphone ? (isSmartphoneLandscape ? -300 : -500) :  -300
   )).current;
 
   // Animation for the overlay
@@ -80,7 +80,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
   useEffect(() => {
     Animated.parallel([
       Animated.timing(slideAnim, {
-        toValue: isExpanded ? 0 : (isSmartphone ? -500 : -300),
+        toValue: isExpanded ? 0 : -500,
         duration: 300,
         useNativeDriver: true
       }),

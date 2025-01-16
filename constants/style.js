@@ -10,11 +10,11 @@ export const SIZES = {
     inputTitleSmartphone: 16,
     inputTitleTablet: 20,
     subtitleSmartphone: 18,
-    subtitleTablet: 22,
+    subtitleTablet: 24,
     titleSmartphone: 20,
     titleTablet: 24,
     headerSmartphone: 24,
-    headerTablet: 28,
+    headerTablet: 30,
   },
   fontWeight: {
     light: '300',

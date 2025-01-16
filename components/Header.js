@@ -17,7 +17,7 @@ export default function Header({
   toggleMenu
 }) {
   const { isSmartphone } = useDeviceType();
-  const iconSize = isSmartphone ? 25 : 40;
+  const iconSize = isSmartphone ? 30 : 40;
 
   const renderLeftSection = () => (
     <View style={styles.leftSection}>
@@ -39,7 +39,8 @@ export default function Header({
           <Ionicons 
             name="menu-outline" 
             size={iconSize}
-            color={COLORS.gray300} 
+            color={COLORS.gray300}
+            style={{ marginLeft: 20 }} 
           />
         </TouchableOpacity>
       )}
@@ -50,7 +51,7 @@ export default function Header({
     if (!showIcons) return null;
     
     if (showAccountImage) {
-      return <AccountImage onNavigate={onNavigate} width={55} height={55} />;
+      return <AccountImage onNavigate={onNavigate} width={isSmartphone ? 50 : 60} height={isSmartphone ? 50 : 60} />;
     }
     
     if (rightIcon) {
@@ -73,7 +74,10 @@ export default function Header({
 
   return (
     <View>
-      <View style={styles.headerContainer}>
+      <View style={[
+        styles.headerContainer,
+        isSmartphone && styles.headerContainerSmartphone
+      ]}>
         {renderLeftSection()}
 
         {title && (
@@ -99,11 +103,14 @@ export default function Header({
 const styles = StyleSheet.create({
   headerContainer: {
     width: '100%',
-    height: 60,
+    height: 70,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 15,
+  },
+  headerContainerSmartphone: {
+    height: 55
   },
   titleSection: {
     flex: 1,

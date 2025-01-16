@@ -1,7 +1,8 @@
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SIZES } from '../constants/style';
+import { COLORS, SIZES } from '../../constants/style';
+import { useDeviceType } from '../../hooks/useDeviceType';
 
 export default function CheckBox({ 
   checked, 
@@ -10,6 +11,9 @@ export default function CheckBox({
   disabled = false,
   style 
 }) {
+
+  const { isSmartphone } = useDeviceType();
+
   return (
     <TouchableOpacity 
       onPress={onPress}
@@ -32,6 +36,7 @@ export default function CheckBox({
       {label && (
         <Text style={[
           styles.label,
+          isSmartphone && styles.labelSmartphone,
           disabled && styles.labelDisabled
         ]}>
           {label}
@@ -46,6 +51,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    marginTop: 10,
   },
   checkbox: {
     width: 18,
@@ -65,7 +71,10 @@ const styles = StyleSheet.create({
   },
   label: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.subtitleTablet,
+  },
+  labelSmartphone: {
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   labelDisabled: {
     color: COLORS.gray300,

@@ -124,7 +124,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
       <TouchableOpacity onPress={pickDocument}>
         <Ionicons 
           name="attach-outline" 
-          size={isSmartphone ? 24 : 30} 
+          size={isSmartphone ? 30 : 40} 
           color={COLORS.gray300} 
           style={styles.attachIcon}
         />
@@ -160,7 +160,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
       >
         <Ionicons 
           name="send" 
-          size={isSmartphone ? 20 : 24} 
+          size={isSmartphone ? 25 : 30} 
           color={COLORS.white} 
         />
       </TouchableOpacity>
@@ -190,6 +190,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: SIZES.fonts.subtitleTablet,
     marginRight: 10,
+    color: COLORS.white
   },
   smartphoneInput: {
     fontSize: SIZES.fonts.subtitleSmartphone,
@@ -198,13 +199,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 40,
-    height: 40,
+    width: 45,
+    height: 45,
     backgroundColor: COLORS.gray600,
     borderRadius: SIZES.borderRadius.small,
   },
   smartphoneSendButton: {
     padding: 5,
+    width: 40,
+    height: 40,
   },
   sendButtonActive: {
     backgroundColor: COLORS.orange,
