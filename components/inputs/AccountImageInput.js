@@ -2,8 +2,8 @@ import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../constants/style';
-import { useDeviceType } from '../hooks/useDeviceType';
+import { COLORS } from '../../constants/style';
+import { useDeviceType } from '../../hooks/useDeviceType';
 
 export default function AccountImageInput({ onImageSelected }) {
   const [image, setImage] = useState(null);

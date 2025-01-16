@@ -1,15 +1,13 @@
 import { useState } from 'react';
 import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { COLORS } from '../constants/style';
-import { useDeviceType } from '../hooks/useDeviceType';
 
 export default function AccountImage({ setCurrentScreen, width, height, customImage, alwaysSelected }) {
-  const { isTablet, isSmartphone } = useDeviceType();
+
   const [isSelected, setIsSelected] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
 
-  // const imageSize = isTablet ? { width: 60, height: 60 } : { width, height };
-
+  // When the user clicks on the account image, we select it
   const handlePress = () => {
     setIsSelected(true);
     if (setCurrentScreen) {

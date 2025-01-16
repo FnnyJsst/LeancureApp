@@ -2,28 +2,21 @@ import { useState } from 'react';
 import { View, Text, StyleSheet} from 'react-native';
 import Navbar from '../../components/navigation/Navbar';
 import AccountImage from '../../components/AccountImage';
-import AccountImageInput from '../../components/AccountImageInput';
+import AccountImageInput from '../../components/inputs/AccountImageInput';
 import Button from '../../components/buttons/Button';
 import Header from '../../components/Header';
 import { useDeviceType } from '../../hooks/useDeviceType';
+import { useNavbarNavigation } from '../../hooks/UseNavbarNavigation';
 import { COLORS, SIZES } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
-import { Ionicons } from '@expo/vector-icons';
 
 export default function AccountScreen({ onNavigate }) {
   
-  const { isTablet, isSmartphone, isLandscape } = useDeviceType();
+  const { isTablet, isSmartphone } = useDeviceType();
   const [profileImage, setProfileImage] = useState(null);
 
-  const handleSectionChange = (section) => {
-    if (section === 'chat') {
-      onNavigate('CHAT');
-    } else if (section === 'account') {
-      onNavigate('ACCOUNT');
-    } else if (section === 'settings') {
-      onNavigate('SETTINGS_MESSAGE');
-    }
-  };
+  // Custom hook to handle the navbar navigation
+  const handleSectionChange = useNavbarNavigation(onNavigate);
 
   return (
     <View style={styles.container}>
