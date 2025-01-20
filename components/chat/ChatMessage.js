@@ -23,7 +23,11 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
     const isImage = message.fileType?.includes('image');
     
     return (
-      <View style={[styles.messageContainer, isOwnMessage ? styles.ownMessage : styles.otherMessage]}>
+      <View style={[
+        styles.messageContainer, 
+        isOwnMessage ? styles.ownMessage : styles.otherMessage,
+        styles.fileMessageContainer
+      ]}>
         <TouchableOpacity onPress={() => {
           console.log('File clicked:', message.fileName);
           onFileClick(message);
@@ -135,7 +139,8 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
   return (
     <View style={[
       styles.messageContainer,
-      isOwnMessage ? styles.ownMessage : styles.otherMessage
+      isOwnMessage ? styles.ownMessage : styles.otherMessage,
+      styles.textMessageContainer
     ]}>
       {!isOwnMessage && (
         <Text style={[
@@ -154,10 +159,15 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
 
 const styles = StyleSheet.create({
   messageContainer: {
-    maxWidth: '80%',
-    padding: 8,
+    maxWidth: '75%',
     marginVertical: 5,
     borderRadius: SIZES.borderRadius.small,
+  },
+  textMessageContainer: {
+    padding: 8,
+  },
+  fileMessageContainer: {
+    padding: 0,
   },
   ownMessage: {
     alignSelf: 'flex-end',

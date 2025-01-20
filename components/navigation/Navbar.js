@@ -16,7 +16,7 @@ export default function Navbar({ currentSection, onSectionChange }) {
         style={styles.navItem}
         onPress={() => onSectionChange('chat')}
       >
-        <Ionicons name="chatbox-outline" size={isSmartphone ? 24 : 28} color={getColor('chat')} />
+        <Ionicons name="chatbox-outline" size={isSmartphone ? 20 : 28} color={getColor('chat')} />
         <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, { color: getColor('chat') }]}>Chat</Text>
       </TouchableOpacity>
 
@@ -24,7 +24,7 @@ export default function Navbar({ currentSection, onSectionChange }) {
         style={styles.navItem}
         onPress={() => onSectionChange('settings')}
       >
-        <Ionicons name="settings-outline" size={isSmartphone ? 24 : 28} color={getColor('settings')} />
+        <Ionicons name="settings-outline" size={isSmartphone ? 20 : 28} color={getColor('settings')} />
         <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, { color: getColor('settings') }]}>Settings</Text>
       </TouchableOpacity>
 
@@ -33,7 +33,7 @@ export default function Navbar({ currentSection, onSectionChange }) {
         style={styles.navItem}
         onPress={() => onSectionChange('account')}
       >
-        <Ionicons name="person-outline" size={isSmartphone ? 24 : 28} color={getColor('account')} />
+        <Ionicons name="person-outline" size={isSmartphone ? 20 : 28} color={getColor('account')} />
         <Text style={[styles.navText, isSmartphone && styles.navTextSmartphone, { color: getColor('account') }]}>Account</Text>
       </TouchableOpacity>
     </View>
@@ -46,8 +46,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: COLORS.gray750,
-    paddingVertical: 6,
-    borderTopWidth: 1,
+    paddingVertical: 5,
+    borderTopWidth: 0.5,
     borderTopColor: COLORS.gray600,
     zIndex: 1,
   },
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   },
   navTextSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
-    marginTop: 3,
+    marginTop: 1,
   },
   active: {
     color: COLORS.orange,

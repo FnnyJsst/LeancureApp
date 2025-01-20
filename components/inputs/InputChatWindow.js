@@ -139,8 +139,8 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         // If we don't have a selected file, we display the input for the message
         <TextInput
           style={[styles.input, isSmartphone && styles.smartphoneInput]}
-          placeholder="Type a message..."
-          placeholderTextColor={COLORS.white}
+          placeholder="Type your message here..."
+          placeholderTextColor={COLORS.gray300}
           value={message}
           onChangeText={setMessage}
           multiline
@@ -159,9 +159,10 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         onPress={handleSend}
       >
         <Ionicons 
-          name="send" 
-          size={isSmartphone ? 25 : 30} 
-          color={COLORS.white} 
+          name="send-outline" 
+          size={isSmartphone ? 20 : 30} 
+          color={COLORS.white}
+          style={styles.sendIcon}
         />
       </TouchableOpacity>
     </View>
@@ -174,13 +175,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 15,
     paddingVertical: 10,
-    backgroundColor: COLORS.gray650,
+    backgroundColor: COLORS.gray750,
     marginHorizontal: 10,
     marginBottom: 20,
     borderRadius: SIZES.borderRadius.small,
   },
   smartphoneContainer: {
     height: 60,
+    paddingHorizontal: 10,
+    marginBottom: 10,
   },
   attachIcon: {
     transform: [{rotate: '45deg'}],
@@ -188,12 +191,11 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: SIZES.fonts.subtitleTablet,
+    fontSize: SIZES.fonts.textTablet,
     marginRight: 10,
-    color: COLORS.white
   },
   smartphoneInput: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: SIZES.fonts.textSmartphone,
   },
   sendButton: {
     flexDirection: 'row',
@@ -201,14 +203,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 45,
     height: 45,
-    backgroundColor: COLORS.gray600,
+    backgroundColor: COLORS.orange,
     borderRadius: SIZES.borderRadius.small,
   },
   smartphoneSendButton: {
-    padding: 5,
-    width: 40,
-    height: 40,
+    width: 35,
+    height: 35,
   },
+  sendIcon: {
+    transform: [{rotate: '-40deg'}],
+  },
+
   sendButtonActive: {
     backgroundColor: COLORS.orange,
   },

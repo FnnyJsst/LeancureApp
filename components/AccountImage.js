@@ -46,8 +46,7 @@ const styles = StyleSheet.create({
   },
   image: {
     borderRadius: 100,
-    borderWidth: 3,
-    borderColor: COLORS.gray900,
+    borderWidth: 2,
   },
   selected: {
     borderColor: COLORS.orange,

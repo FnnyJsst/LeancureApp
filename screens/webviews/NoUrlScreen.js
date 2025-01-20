@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import ParameterButton from '../../components/buttons/ParameterButton';
 import { Ionicons } from '@expo/vector-icons';
+import Header from '../../components/Header';
 import { SIZES, COLORS } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SCREENS } from '../../constants/screens';
@@ -10,31 +11,19 @@ import { SCREENS } from '../../constants/screens';
  **/
 export default function NoUrlScreen({ 
   onNavigate, 
-  handleSettingsAccess
 }) {
 
   // Customized hook to determine the device type and orientation
-  const { isTablet, isSmartphone } = useDeviceType();
+  const { isSmartphone } = useDeviceType();
 
-  // Function to handle the settings depending on if the user is using a password or not
-  const handleSettingsPress = () => {
-    handleSettingsAccess();
+  // Function to handle the back button press
+  const handleBackPress = () => {
+    onNavigate(SCREENS.APP_MENU);
   };
-  
 
   return (
     <View style={styles.pageContainer}>
-      <TouchableOpacity 
-        onPress={() => onNavigate(SCREENS.APP_MENU)} 
-        style={styles.backButton}
-      >
-        <Ionicons 
-          name="chevron-back-outline" 
-          size={isTablet ? 40 : 25} 
-          style={styles.leftArrowIcon} 
-        />
-      </TouchableOpacity>
-
+      <Header  onBackPress={() => onNavigate(SCREENS.APP_MENU)} />
       <View style={styles.textContainer}>
         <Text style={[
           styles.text,
@@ -56,7 +45,7 @@ const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
     top: 20,
-    left: 55,
+    left: 55, 
     zIndex: 1,
 
   },

@@ -67,7 +67,8 @@ export const fetchUserChannels = async (contractNumber, login, password, email, 
       const publicChannels = Object.entries(data.public || {}).map(([id, channel]) => ({
         id,
         title: channel.identifier || 'Canal sans titre',
-        description: channel.description || ''
+        description: channel.description || '',
+        messages: formatMessages(channel.messages)
       }));
 
       // Traiter les groupes privés
@@ -79,7 +80,8 @@ export const fetchUserChannels = async (contractNumber, login, password, email, 
         channels: group.channels === "No channel" ? [] : Object.entries(group.channels || {}).map(([channelId, channel]) => ({
           id: channelId,
           title: channel.identifier || 'Canal sans titre',
-          description: channel.description || ''
+          description: channel.description || '',
+          messages: formatMessages(channel.messages)
         }))
       }));
 
@@ -111,27 +113,40 @@ const formatChannelsData = (data) => {
   try {
     console.log('🔄 Données reçues dans formatChannelsData:', data);
     
-    // Vérifier si data.public et data.private existent
-    if (!data.public && !data.private) {
-      console.error('❌ Structure invalide dans formatChannelsData:', data);
-      return {
-        status: 'error',
-        error: 'Invalid data structure'
-      };
-    }
+    // Formater les messages
+    const formatMessages = (messages) => {
+      if (!messages) return [];
+      return Object.entries(messages).map(([msgId, msg]) => ({
+        id: msgId,
+        title: msg.title,
+        message: msg.message,
+        savedTimestamp: msg.savedts,
+        endTimestamp: msg.enddatets,
+        fileType: msg.filetype
+      }));
+    };
 
-    const publicChannels = Array.isArray(data.public) ? data.public.map(channel => ({
-      id: channel.id || String(Math.random()),
-      title: channel.title || 'Canal sans titre',
-      description: channel.description || '',
-      messages: []
+    // Formater les canaux publics
+    const publicChannels = data.public ? Object.entries(data.public).map(([id, channel]) => ({
+      id,
+      title: channel.identifier,
+      description: channel.description,
+      messages: formatMessages(channel.messages)
     })) : [];
 
-    const privateGroups = Array.isArray(data.private) ? data.private.map(group => ({
-      id: group.id || String(Math.random()),
-      title: group.title || 'Groupe sans titre',
-      description: group.description || '',
-      messages: []
+    // Formater les groupes privés et leurs canaux
+    const privateGroups = data.private?.groups ? Object.entries(data.private.groups).map(([groupId, group]) => ({
+      id: groupId,
+      title: group.identifier,
+      description: group.description,
+      rights: group.rights,
+      channels: group.channels === "No channel" ? [] :
+        Object.entries(group.channels).map(([channelId, channel]) => ({
+          id: channelId,
+          title: channel.identifier,
+          description: channel.description,
+          messages: formatMessages(channel.messages)
+        }))
     })) : [];
 
     console.log('✅ Données formatées:', { publicChannels, privateGroups });

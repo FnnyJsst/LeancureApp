@@ -1,17 +1,36 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, useWindowDimensions, Platform, Image } from 'react-native';
 import { WebView } from 'react-native-webview';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { COLORS, SIZES, MODAL_STYLES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { Ionicons } from '@expo/vector-icons';
+import Button from '../../../components/buttons/Button';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
 /** Component for previewing a document sent in a chat **/
 export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileName, fileSize, fileType, base64 }) {
-  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
-  const { isSmartphone, isTabletLandscape } = useDeviceType();
-  const isEmulator = Platform.OS === 'android' && !Platform.isTV;
+  const { isSmartphone, isSmartphoneLandscape, isTablet } = useDeviceType();
+
+  // Bloquer l'orientation en portrait quand la modal est visible
+  useEffect(() => {
+    const lockOrientation = async () => {
+      if (visible) {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+      } else {
+        // Rétablir l'orientation automatique à la fermeture
+        await ScreenOrientation.unlockAsync();
+      }
+    };
+
+    lockOrientation();
+
+    // Cleanup : rétablir l'orientation automatique quand le composant est démonté
+    return () => {
+      ScreenOrientation.unlockAsync();
+    };
+  }, [visible]);
 
   // Function to handle file download
   const handleDownload = async () => {
@@ -65,7 +84,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
                         pdf.getPage(1).then(function(page) {
                           const canvas = document.createElement('canvas');
                           const context = canvas.getContext('2d');
-                          const viewport = page.getViewport({scale: 0.70});
+                          const viewport = page.getViewport({scale: 0.56});
                           
                           canvas.width = viewport.width;
                           canvas.height = viewport.height;
@@ -111,60 +130,89 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
       animationType="fade"
       onRequestClose={onClose}
     >
-      <View style={styles=MODAL_STYLES.modalContainer}>
-        <TouchableOpacity style={styles.downloadButton} onPress={handleDownload}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="cloud-download-outline" size={24} color={COLORS.white} />
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-          <View style={styles.iconContainer}>
+      <View style={[
+        MODAL_STYLES.modalContainer,
+        isSmartphoneLandscape && styles.modalContainerSmartphoneLandscape,
+      ]}>
+        <View style={styles.modalContent}>
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Ionicons name="close" size={24} color={COLORS.white} />
+          </TouchableOpacity>
+          
+          <View style={styles.fileHeader}>
+            <Ionicons 
+              name={fileType?.includes('pdf') ? "document-outline" : "image-outline"} 
+              size={24} 
+              color={COLORS.white} 
+            />
+            <View style={styles.fileInfo}>
+              <Text style={[styles.fileName, isSmartphone && styles.fileNameSmartphone]} numberOfLines={1}>
+                {fileName}
+              </Text>
+              <Text style={[styles.fileSize, isSmartphone && styles.fileSizeSmartphone]}>
+                {fileType?.includes('pdf') ? 'PDF' : 'Image'} • {fileSize}
+              </Text>
+            </View>
           </View>
-        </TouchableOpacity>
-        {renderPreview()}
+
+          {renderPreview()}
+          <View style={styles.buttonContainer}> 
+            <Button title="Download" variant="large"onPress={handleDownload} />
+          </View>
+        </View>
       </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  modalContainer: {
+  modalContent: {
     flex: 1,
     backgroundColor: COLORS.gray900,
-    marginTop: '20%',
-    marginBottom: '20%',
+    marginTop: '15%',
+    marginBottom: '15%',
     padding: 20,
     backgroundColor: COLORS.gray750,
     borderRadius: SIZES.borderRadius.large,
-  },
-  downloadButton: {
-    position: 'absolute',
-    top: 40,
-    right: 60,
-    zIndex: 1,
+    width: '90%',
   },
   closeButton: {
     position: 'absolute',
-    top: 40,
+    top: 20,
     right: 20,
     zIndex: 1,
-  },
-  iconContainer: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: COLORS.overlayLight,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   previewWrapper: {
     flex: 1,
     backgroundColor: 'transparent',
-    marginTop: 30,
+    marginTop: 20,
   },
   image: {
     width: '100%',
     height: '100%',
+  },
+  fileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  fileInfo: {
+    marginLeft: 10,
+    flex: 1,
+  },
+  fileName: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.textTablet,
+    fontWeight: '500',
+  },
+  fileNameSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
+  },
+  fileSize: {
+    color: COLORS.gray400,
+    fontSize: SIZES.fonts.textTablet,
+    marginTop: 2,
+  },
+  fileSizeSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
   },
 });

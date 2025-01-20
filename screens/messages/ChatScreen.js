@@ -25,9 +25,10 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
     setIsExpanded(!isExpanded);
   };
 
-  const handleChannelSelect = (channel, messages) => {
+  const handleChannelSelect = (channel) => {
+    console.log('Canal sélectionné:', channel);
     setSelectedChannel(channel);
-    setChannelMessages(messages || []);
+    setChannelMessages(channel.messages || []);
     if (isExpanded) {
       toggleMenu();
     }

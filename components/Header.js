@@ -3,7 +3,6 @@ import { Ionicons, Entypo } from '@expo/vector-icons';
 import { useDeviceType } from '../hooks/useDeviceType';
 import { COLORS, SIZES } from '../constants/style';
 import AccountImage from './AccountImage';
-import Separator from './Separator';
 
 export default function Header({ 
   title, 
@@ -95,7 +94,6 @@ export default function Header({
           {renderRightSection()}
         </View>
       </View>
-      <Separator width="150%" />
     </View>
   );
 }
@@ -108,6 +106,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 15,
+    borderBottomWidth: 0.5,
+    borderBottomColor: COLORS.gray600,
   },
   headerContainerSmartphone: {
     height: 55
