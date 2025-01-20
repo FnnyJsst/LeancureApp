@@ -25,11 +25,58 @@ export default function Login({ onNavigate }) {
     const [isLoading, setIsLoading] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
     const [isSimplifiedLogin, setIsSimplifiedLogin] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+    // Déplacer loadLoginInfo ici, avant useEffect
+    const loadLoginInfo = async () => {
+        try {
+            const savedInfo = await AsyncStorage.getItem('savedLoginInfo');
+            if (savedInfo) {
+                const { 
+                    contractNumber: savedContract, 
+                    login: savedLogin, 
+                    password: savedPassword,
+                    wasChecked
+                } = JSON.parse(savedInfo);
+                
+                if (wasChecked === true) {
+                    setContractNumber(savedContract);
+                    setLogin(savedLogin);
+                    setPassword(savedPassword);
+                    setIsChecked(true);
+                    setIsSimplifiedLogin(true);
+                } else {
+                    setContractNumber('');
+                    setLogin('');
+                    setPassword('');
+                    setIsChecked(false);
+                    setIsSimplifiedLogin(false);
+                    await AsyncStorage.removeItem('savedLoginInfo');
+                }
+            }
+        } catch (error) {
+            console.error('Error loading login info:', error);
+        }
+    };
 
     // UseEffect to load the login info from AsyncStorage when the component is mounted
     useEffect(() => {
-        loadLoginInfo();
+        const init = async () => {
+            try {
+                await loadLoginInfo();
+            } catch (error) {
+                console.error('Error during initialization:', error);
+            } finally {
+                setIsInitialLoading(false);
+            }
+        };
+        init();
     }, []);
+
+    // If on is in initial loading, we don't render anything
+    if (isInitialLoading) {
+        return null;
+    }
 
     // Function to handle the login process
     const handleLogin = async () => {
@@ -46,18 +93,22 @@ export default function Login({ onNavigate }) {
             const loginResponse = await loginApi(contractNumber, login, password);
 
             if (loginResponse && loginResponse.status === 'ok') {
-                // Sauvegarder les credentials
+                // If the "Stay connected" checkbox is not checked, we remove the login info from AsyncStorage
+                if (!isChecked) {
+                    await AsyncStorage.removeItem('savedLoginInfo');
+                    setIsSimplifiedLogin(false);
+                } else {
+                    await saveLoginInfo();
+                }
+
+                // Save the credentials for the current session
                 await AsyncStorage.setItem('userCredentials', JSON.stringify({
                     contractNumber,
                     login,
                     password
                 }));
 
-                if (isChecked) {
-                    await saveLoginInfo();
-                }
-
-                // Charger les canaux immédiatement après le login
+                // Load the channels immediately after login
                 const channelsResponse = await fetchUserChannels(contractNumber, login, password);
                 console.log('📊 Canaux chargés:', channelsResponse);
 
@@ -79,61 +130,20 @@ export default function Login({ onNavigate }) {
     
     // Save login info in AsyncStorage to keep the user logged in when the app is closed
     const saveLoginInfo = async () => {
-        if (isChecked) {
-            try {
-                // Save the login info in AsyncStorage
+        try {
+            if (isChecked) {
                 await AsyncStorage.setItem('savedLoginInfo', JSON.stringify({
                     contractNumber,
                     login,
                     password,
-                    isSimplifiedLogin: true,
-                    wasChecked: isChecked
+                    wasChecked: true
                 }));
-            // If there is an error, set an error message
-            } catch (error) {
-                console.error('Error saving login info:', error);
-            }
-        } else {
-            // If the case is not checked, we remove the login info from AsyncStorage
-            try {
+            } else {
                 await AsyncStorage.removeItem('savedLoginInfo');
                 setIsSimplifiedLogin(false);
-            } catch (error) {
-                console.error('Error removing login info:', error);
-            }
-        }
-    };
-
-    // Load login info from AsyncStorage if the user has checked the "Stay connected" checkbox
-    const loadLoginInfo = async () => {
-        try {
-            //Get the login info from AsyncStorage
-            const savedInfo = await AsyncStorage.getItem('savedLoginInfo');
-            if (savedInfo) {
-                //Parse the login info from AsyncStorage to an object 
-                const { 
-                    contractNumber: savedContract, 
-                    login: savedLogin, 
-                    password: savedPassword,
-                    isSimplifiedLogin,
-                    wasChecked
-                } = JSON.parse(savedInfo);
-                
-                // If the case was checked, load the login info
-                if (wasChecked) {
-                    setContractNumber(savedContract);
-                    setLogin(savedLogin);
-                    setPassword(savedPassword);
-                    setIsSimplifiedLogin(isSimplifiedLogin);
-                    setIsChecked(true);  
-                } else {
-                    // If the case was not checked, reset everything
-                    await AsyncStorage.removeItem('savedLoginInfo');
-                    setIsSimplifiedLogin(false);
-                }
             }
         } catch (error) {
-            console.error('Error loading login info:', error);
+            console.error('Error saving login info:', error);
         }
     };
 
