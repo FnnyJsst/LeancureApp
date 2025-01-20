@@ -8,21 +8,21 @@ import { fetchUserChannels } from '../../services/messageApi';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function AppMenu({ onNavigate }) {
-  const [unreadMessages, setUnreadMessages] = useState(0);
+  // const [unreadMessages, setUnreadMessages] = useState(0);
   const { isLandscape, isSmartphone, isSmartphoneLandscape } = useDeviceType();
 
-  useEffect(() => {
-    const loadUnreadCount = async () => {
-      try {
-        const data = await fetchUserChannels();
-        setUnreadMessages(data.unreadCount);
-      } catch (error) {
-        console.error("Erreur lors du chargement des messages non lus:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const loadUnreadCount = async () => {
+  //     try {
+  //       const data = await fetchUserChannels();
+  //       setUnreadMessages(data.unreadCount);
+  //     } catch (error) {
+  //       console.error("Erreur lors du chargement des messages non lus:", error);
+  //     }
+  //   };
     
-    loadUnreadCount();
-  }, []);
+  //   loadUnreadCount();
+  // }, []);
 
   return (
     <View style={styles.container}>
@@ -35,7 +35,7 @@ export default function AppMenu({ onNavigate }) {
           title="Messages"
           icon={<Ionicons name="mail-outline" size={isSmartphone ? 24 : 30} color={COLORS.white} />}
           onPress={() => onNavigate(SCREENS.LOGIN)}
-          unreadCount={unreadMessages}
+          // unreadCount={unreadMessages}
         />
         <AppMenuCard
           title="WebViews"

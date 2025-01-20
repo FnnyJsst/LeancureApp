@@ -149,7 +149,7 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
               onPress={handleClose}
               backgroundColor={COLORS.gray650}
               color={COLORS.white}
-              width="20%"
+              width="22%"
             />
             <Button 
               title="Import" 
@@ -157,7 +157,7 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
               onPress={handleDownload}
               backgroundColor={COLORS.orange}
               color={COLORS.white}
-              width="20%"
+              width="22%"
             />
           </View>
         </View>

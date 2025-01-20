@@ -7,11 +7,7 @@ import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
 export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange }) {
-
-  // Customized hook to determine the device type and orientation
   const { isSmartphone, isTablet } = useDeviceType();
-
-  // We create a ref for the scroll view to scroll to the bottom of the chat
   const scrollViewRef = useRef();
 
   const [isDocumentPreviewModalVisible, setIsDocumentPreviewModalVisible] = useState(false);
@@ -23,20 +19,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    // If we have messages, we format them and set them to the messages state
-    if (channelMessages && channelMessages.length > 0) {
-      // We format the messages to be displayed in the chat
-      const formattedMessages = channelMessages.map(msg => ({
+    if (channel?.messages && Array.isArray(channel.messages)) {
+      const formattedMessages = channel.messages.map(msg => ({
         id: msg.id,
-        username: "User",
-        text: msg.content || msg.message,
+        username: msg.isOwnMessage ? "Moi" : "Utilisateur",
+        text: msg.message,
         title: msg.title,
-        // We format the timestamp to be displayed in the chat
-        timestamp: new Date(parseInt(msg.savedTimestamp)).toLocaleTimeString([], { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        }),
-        isOwnMessage: false,
+        timestamp: new Date(parseInt(msg.savedTimestamp)).toLocaleTimeString(),
+        isOwnMessage: msg.isOwnMessage || false,
         fileType: msg.fileType,
         fileName: msg.fileName,
         fileSize: msg.fileSize,
@@ -47,7 +37,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     } else {
       setMessages([]);
     }
-  }, [channelMessages]);
+  }, [channel]);
 
   // Function to open the document preview modal
   const openDocumentPreviewModal = (message) => {
@@ -90,43 +80,46 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        {channel && (
-          <View style={styles.channelNameContainer}>
-            <Text style={[styles.channelName, isSmartphone && styles.channelNameSmartphone]}>
-              {channel}
-            </Text>
+      {channel ? (
+        <>
+          <View style={styles.header}>
+            <View style={styles.channelNameContainer}>
+              <Text style={[
+                styles.channelName,
+                isSmartphone && styles.channelNameSmartphone
+              ]}>{channel.title}</Text>
+            </View>
           </View>
-        )}
-      </View>
-      <ScrollView 
-        ref={scrollViewRef}
-        // We scroll to the bottom of the chat when the content size changes (for example when a new message is sent)
-        onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
-        style={[styles.chatContainer, isTablet && styles.chatContainerTablet]}
-      >
-        {/* If we have a channel, we display the messages */}
-        {channel ? (
-          messages.map(message => (
-            <ChatMessage 
-              key={message.id}
-              message={message}
-              isOwnMessage={message.isOwnMessage}
-              onFileClick={openDocumentPreviewModal}
-            />
-          ))
-        ) : (
-          // If we don't have a channel, we display a message to select a channel
-          <View style={styles.noChannelContainer}>
-            <Text style={[
-              styles.noChannelText,
-              isSmartphone && styles.noChannelTextSmartphone
-            ]}>
-              Select a channel to start chatting
-            </Text>
-          </View>
-        )}
-      </ScrollView>
+
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.messagesContainer}
+            onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+          >
+            {messages.map((message, index) => (
+              <ChatMessage
+                key={message.id || index}
+                message={message}
+                isOwnMessage={message.isOwnMessage}
+              />
+            ))}
+          </ScrollView>
+
+          <InputChatWindow 
+            onSendMessage={sendMessage} 
+            onFocusChange={onInputFocusChange}
+          />
+        </>
+      ) : (
+        <View style={styles.noChannelContainer}>
+          <Text style={[
+            styles.noChannelText,
+            isSmartphone && styles.noChannelTextSmartphone
+          ]}>
+            Sélectionnez un canal pour commencer à discuter
+          </Text>
+        </View>
+      )}
       {/* If the document preview modal is visible, we display it */}
       <DocumentPreviewModal
         visible={isDocumentPreviewModalVisible}
@@ -137,13 +130,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         fileType={selectedFileType}
         base64={selectedBase64}
       />
-      {/* If we have a channel, we display the input chat window */}
-      {channel && (
-        <InputChatWindow 
-          onSendMessage={sendMessage} 
-          onFocusChange={onInputFocusChange}
-        />
-      )}
     </View>
   );
 }
@@ -187,5 +173,15 @@ const styles = StyleSheet.create({
   },
   noChannelTextSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
+  },
+  channelDescription: {
+    fontSize: SIZES.fonts.textSmartphone,
+    color: COLORS.gray300,
+    marginTop: 4
+  },
+  messagesContainer: {
+    flex: 1,
+    padding: 10,
+    marginBottom: 10,
   },
 });

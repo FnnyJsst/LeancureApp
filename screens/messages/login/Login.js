@@ -32,86 +32,52 @@ export default function Login({ onNavigate }) {
 
     // Function to handle the login process
     const handleLogin = async () => {
-        // If the user has checked the "Stay connected" checkbox, use the saved password
-        if (isSimplifiedLogin) {
-            setIsLoading(true);
-            setError('');
-            
-            try {
-                // Send the login request to the server
-                const response = await axios.post('http://fannyserver.rasp/ic.php', {
-                    cmd: [{
-                        accounts: {
-                            loginmsg: {
-                                // We get the login info from the server
-                                get: {
-                                    contractnumber: contractNumber,
-                                    login: login,
-                                    password: password
-                                }
-                            }
-                        }
-                    }]
-                });
-        
-                // If the login is successful, navigate to the chat screen
-                if (response.data.status === 'ok') {
-                    onNavigate(SCREENS.CHAT);
-                // If the login is not successful, set an error message
-                } else {
-                    setError('Incorrect credentials');
-                }
-            // If there is an error, set an error message
-            } catch (error) {
-                console.error('Server connection error:', error);
-                setError('Server connection error');
-            } finally {
-                // Finally, set the loading state to false to hide the loading spinner
-                setIsLoading(false);
-            }
-            return;
-        }
-        // If the user has not checked the "Stay connected" checkbox, we need to check if all fields are filled
         if (!contractNumber || !login || !password) {
             setError('Please fill in all fields');
             return;
         }
-        // Set the loading state to true to show the loading spinner
+        
         setIsLoading(true);
-        // Reset the error message
         setError('');
-    
+
         try {
-            // Send the login request to the server
-            const response = await axios.post('http://fannyserver.rasp/ic.php', {
-                cmd: [{
-                    accounts: {
-                        loginmsg: {
-                            get: {
-                                contractnumber: contractNumber,
-                                login: login,
-                                password: password
+            console.log('🔄 Tentative de connexion...');
+            const response = await axios.post('http://192.168.77.100/ic.php', {
+                "api-version": "2",
+                "api-contract-number": contractNumber,
+                "api-signature": "msgApiKey",
+                "api-signature-hash": "sha256",
+                "api-signature-timestamp": Date.now(),
+                "cmd": [{
+                    "accounts": {
+                        "loginmsg": {
+                            "get": {
+                                "contractnumber": contractNumber,
+                                "login": login,
+                                "password": password,
+                                "msg-msgapikey": "12d0fd-e0bd67-4933ec-5ed14a-6f767b"
                             }
                         }
                     }
                 }]
             });
-    
-            if (response.data.status === 'ok') {
-                //If the user has checked the "Stay connected" checkbox, save the login info in AsyncStorage
+
+            console.log('✅ Réponse reçue:', response.data);
+
+            if (response.data && response.data.status === 'ok') {
                 if (isChecked) {
                     await saveLoginInfo();
                 }
-                //Navigate to the chat screen
                 onNavigate(SCREENS.CHAT);
-            //If credentials are incorrect, set an error message
             } else {
-                setError('Incorrect credentials');
+                setError(response.data.error || 'Incorrect credentials');
             }
-        //If there is an error, set an error message
         } catch (error) {
+            console.error('🔴 Erreur de connexion:', error);
+            if (error.response) {
+                console.log('Détails de l\'erreur:', error.response.data);
+            }
             setError('Server connection error');
-        //Finally, set the loading state to false to hide the loading spinner
         } finally {
             setIsLoading(false);
         }

@@ -11,6 +11,12 @@
         {
           "photosPermission": "L'application souhaite accéder à vos photos."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/logo.png"
+        }
       ]
     ],
     "ios": {
@@ -22,6 +28,9 @@
       },
       "permissions": [
         "INTERNET",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.ACCESS_WIFI_STATE",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"
       ],
