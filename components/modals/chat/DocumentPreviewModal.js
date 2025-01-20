@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, useWindowDimensions, Platform, Image } from 'react-native';
+import { Modal, View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { COLORS, SIZES, MODAL_STYLES } from '../../../constants/style';
@@ -10,8 +10,8 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
 /** Component for previewing a document sent in a chat **/
-export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileName, fileSize, fileType, base64 }) {
-  const { isSmartphone, isSmartphoneLandscape, isTablet } = useDeviceType();
+export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64 }) {
+  const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
 
   // Bloquer l'orientation en portrait quand la modal est visible
   useEffect(() => {
