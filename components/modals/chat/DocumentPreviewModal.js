@@ -13,7 +13,7 @@ import * as Sharing from 'expo-sharing';
 export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64 }) {
   const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
 
-  // Bloquer l'orientation en portrait quand la modal est visible
+  // Lock the orientation to portrait when the modal is visible
   useEffect(() => {
     const lockOrientation = async () => {
       if (visible) {

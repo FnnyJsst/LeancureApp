@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     bottom: 25,
-    left: 25,
+    left: 10,
   },
   icon: {
     padding: 8,

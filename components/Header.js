@@ -13,7 +13,9 @@ export default function Header({
   onNavigate,
   showIcons = true,
   showMenuIcon,
-  toggleMenu
+  toggleMenu,
+  noBorder,
+  transparent
 }) {
   const { isSmartphone } = useDeviceType();
   const iconSize = isSmartphone ? 30 : 40;
@@ -50,7 +52,7 @@ export default function Header({
     if (!showIcons) return null;
     
     if (showAccountImage) {
-      return <AccountImage onNavigate={onNavigate} width={isSmartphone ? 50 : 60} height={isSmartphone ? 50 : 60} />;
+      return <AccountImage onNavigate={onNavigate} width={isSmartphone ? 42 : 50} height={isSmartphone ? 42 : 50} />;
     }
     
     if (rightIcon) {
@@ -72,10 +74,12 @@ export default function Header({
   };
 
   return (
-    <View>
+    <View style={transparent && styles.transparentContainer}>
       <View style={[
         styles.headerContainer,
-        isSmartphone && styles.headerContainerSmartphone
+        isSmartphone && styles.headerContainerSmartphone,
+        noBorder && styles.noBorder,
+        transparent && styles.transparent
       ]}>
         {renderLeftSection()}
 
@@ -99,6 +103,13 @@ export default function Header({
 }
 
 const styles = StyleSheet.create({
+  transparentContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1
+  },
   headerContainer: {
     width: '100%',
     height: 70,
@@ -108,6 +119,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderBottomWidth: 0.5,
     borderBottomColor: COLORS.gray600,
+  },
+  noBorder: {
+    borderBottomWidth: 0,
+  },
+  transparent: {
+    backgroundColor: 'transparent',
   },
   headerContainerSmartphone: {
     height: 55

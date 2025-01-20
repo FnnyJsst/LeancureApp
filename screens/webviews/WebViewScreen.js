@@ -28,6 +28,7 @@ const WebViewScreen = ({ url, onNavigate, onSettingsAccess }) => {
     <View style={styles.container}>
       <Header 
         noBorder
+        transparent
         onBackPress={() => onNavigate(SCREENS.APP_MENU)}
         showIcons={true}
       />
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     //Delete the top horizontal gray bar on Android
-    marginTop: Platform.OS === 'ios' ? 0 : -10,
+    // marginTop: Platform.OS === 'ios' ? 0 : -10,
   },
   webview: {
     flex: 1,
