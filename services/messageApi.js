@@ -3,46 +3,42 @@ import axios from 'axios';
 const API_URL = 'http://192.168.77.100/ic.php';
 
 //This API is used to fetch the user's channels
-export const fetchUserChannels = async () => {
+export const fetchUserChannels = async (contractNumber, login, password, email, nom, prenom) => {
   const timestamp = Date.now();
   
   try {
     const response = await axios.post(API_URL, {
-      //API header  
       "api-version": "2",
-      "api-contract-number": "202501121",
+      "api-contract-number": contractNumber,
       "api-signature": "msgApiKey",
-      "api-signature-hash": "sha256", 
+      "api-signature-hash": "sha256",
       "api-signature-timestamp": timestamp,
-      //API command
       "cmd": [{
         "msg_srv": {
           "client": {
             "get_account_links": {
               "accountinfos": {
-                "login": "admin",
-                "email": "admin@leancure.com",
-                "password": "mesadmin",
-                "nom": "Admin",
-                "prenom": "Leancure"
+                "login": login,
+                "email": email || '',
+                "password": password,
+                "nom": nom || '',
+                "prenom": prenom || ''
               },
               "msg-msgapikey": "12d0fd-e0bd67-4933ec-5ed14a-6f767b",
-              "msg-contract-number": "202501121"
+              "msg-contract-number": contractNumber
             }
           }
         }
       }]
     });
 
-    //API response
+    // Nettoyer la réponse SQL
     let cleanData = response.data;
     if (typeof response.data === 'string') {
-      // Trouver le début du JSON après la requête SQL
-      const jsonStartIndex = response.data.indexOf('{"status"');
-      if (jsonStartIndex !== -1) {
+      const jsonStart = response.data.indexOf('{"status"');
+      if (jsonStart !== -1) {
         try {
-          const jsonStr = response.data.substring(jsonStartIndex);
-          cleanData = JSON.parse(jsonStr);
+          cleanData = JSON.parse(response.data.substring(jsonStart));
         } catch (e) {
           console.error('❌ Erreur parsing JSON:', e);
           return {
@@ -53,10 +49,47 @@ export const fetchUserChannels = async () => {
       }
     }
 
+    console.log('📥 Réponse nettoyée:', cleanData);
+
     if (cleanData.status === "ok") {
-      console.log('✅ Réponse des canaux:', cleanData);
-      const data = cleanData.cmd[0].msg_srv.client.get_account_links.data;
-      return formatChannelsData(data);
+      const data = cleanData.cmd?.[0]?.msg_srv?.client?.get_account_links?.data;
+      console.log('🔍 Data extraite:', data);
+      
+      if (!data) {
+        console.log('❌ Pas de données dans la réponse:', cleanData);
+        return {
+          status: 'error',
+          error: 'Invalid data structure'
+        };
+      }
+
+      // Traiter les canaux publics
+      const publicChannels = Object.entries(data.public || {}).map(([id, channel]) => ({
+        id,
+        title: channel.identifier || 'Canal sans titre',
+        description: channel.description || ''
+      }));
+
+      // Traiter les groupes privés
+      const privateGroups = Object.entries(data.private?.groups || {}).map(([id, group]) => ({
+        id,
+        title: group.identifier || 'Groupe sans titre',
+        description: group.description || '',
+        rights: group.rights,
+        channels: group.channels === "No channel" ? [] : Object.entries(group.channels || {}).map(([channelId, channel]) => ({
+          id: channelId,
+          title: channel.identifier || 'Canal sans titre',
+          description: channel.description || ''
+        }))
+      }));
+
+      console.log('✅ Données formatées:', { publicChannels, privateGroups });
+      
+      return {
+        status: 'ok',
+        publicChannels,
+        privateGroups
+      };
     } else {
       console.error('❌ Erreur dans la réponse:', cleanData);
       return {
@@ -75,66 +108,46 @@ export const fetchUserChannels = async () => {
 
 //Format the channels data
 const formatChannelsData = (data) => {
-  const formattedData = {
-    publicChannels: [],
-    privateGroups: [],
-    unreadCount: 0
-  };
-
-  // Format the public channels
-  if (data.public) {
-    //If the public channels exist, we format them
-    Object.entries(data.public).forEach(([channelId, channelData]) => {
-      //We get the unread messages
-      const unreadMessages = channelData.messages ? 
-        Object.values(channelData.messages).filter(msg => !msg.read).length : 0;
-      
-      //We add the unread messages to the unread count    
-      formattedData.unreadCount += unreadMessages;
-      
-      //We add the channel to the public channels
-      formattedData.publicChannels.push({
-        id: channelId,
-        name: channelData.identifier,
-        description: channelData.description,
-        messages: formatMessages(channelData.messages),
-        unreadCount: unreadMessages
-      });
-    });
-  }
-
-  // Format the private groups
-  if (data.private?.groups) {
-    Object.entries(data.private.groups).forEach(([groupId, groupData]) => {
-      const groupChannels = [];
-      
-      // Format channels for this group
-      if (groupData.channels && groupData.channels !== "No channel") {
-        Object.entries(groupData.channels).forEach(([channelId, channelData]) => {
-          const formattedMessages = formatMessages(channelData.messages);
-          groupChannels.push({
-            id: channelId,
-            title: channelData.identifier,
-            description: channelData.description,
-            messages: formattedMessages,
-            groupId: groupId
-          });
-        });
-      }
-
-      const group = {
-        id: groupId,
-        name: groupData.identifier,
-        description: groupData.description,
-        rights: groupData.rights,
-        channels: groupChannels
+  try {
+    console.log('🔄 Données reçues dans formatChannelsData:', data);
+    
+    // Vérifier si data.public et data.private existent
+    if (!data.public && !data.private) {
+      console.error('❌ Structure invalide dans formatChannelsData:', data);
+      return {
+        status: 'error',
+        error: 'Invalid data structure'
       };
+    }
 
-      formattedData.privateGroups.push(group);
-    });
+    const publicChannels = Array.isArray(data.public) ? data.public.map(channel => ({
+      id: channel.id || String(Math.random()),
+      title: channel.title || 'Canal sans titre',
+      description: channel.description || '',
+      messages: []
+    })) : [];
+
+    const privateGroups = Array.isArray(data.private) ? data.private.map(group => ({
+      id: group.id || String(Math.random()),
+      title: group.title || 'Groupe sans titre',
+      description: group.description || '',
+      messages: []
+    })) : [];
+
+    console.log('✅ Données formatées:', { publicChannels, privateGroups });
+
+    return {
+      status: 'ok',
+      publicChannels,
+      privateGroups
+    };
+  } catch (error) {
+    console.error('❌ Erreur lors du formatage:', error);
+    return {
+      status: 'error',
+      error: 'Error formatting data'
+    };
   }
-
-  return formattedData;
 };
 
 //Format the messages data
@@ -159,23 +172,18 @@ export const loginApi = async (contractNumber, login, password) => {
     
     const body = {
       "api-version": "2",
-      "api-contract-number": "202501121",
+      "api-contract-number": contractNumber,
       "api-signature": "msgApiKey",
       "api-signature-hash": "sha256",
       "api-signature-timestamp": timestamp,
       "cmd": [{
-        "msg_srv": {
-          "client": {
-            "get_account_links": {
-              "accountinfos": {
-                "login": "admin",
-                "email": "admin@leancure.com",
-                "password": "$2y$10$.szCk5TjdRc1GNozxtrboecgqW5H1jQSvfL90Hrb.CSAOZceedYuy",
-                "nom": "Admin",
-                "prenom": "Leancure"
-              },
-              "msg-msgapikey": "12d0fd-e0bd67-4933ec-5ed14a-6f767b",
-              "msg-contract-number": "202501121"
+        "accounts": {
+          "loginmsg": {
+            "get": {
+              "contractnumber": contractNumber,
+              "login": login,
+              "password": password,
+              "msg-msgapikey": "12d0fd-e0bd67-4933ec-5ed14a-6f767b"
             }
           }
         }

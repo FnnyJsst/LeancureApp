@@ -10,6 +10,7 @@ import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SCREENS } from '../../../constants/screens';
 import { Ionicons } from '@expo/vector-icons';
+import { loginApi, fetchUserChannels } from '../../../services/messageApi';
 
 export default function Login({ onNavigate }) {
 
@@ -42,42 +43,35 @@ export default function Login({ onNavigate }) {
 
         try {
             console.log('🔄 Tentative de connexion...');
-            const response = await axios.post('http://192.168.77.100/ic.php', {
-                "api-version": "2",
-                "api-contract-number": contractNumber,
-                "api-signature": "msgApiKey",
-                "api-signature-hash": "sha256",
-                "api-signature-timestamp": Date.now(),
-                "cmd": [{
-                    "accounts": {
-                        "loginmsg": {
-                            "get": {
-                                "contractnumber": contractNumber,
-                                "login": login,
-                                "password": password,
-                                "msg-msgapikey": "12d0fd-e0bd67-4933ec-5ed14a-6f767b"
-                            }
-                        }
-                    }
-                }]
-            });
+            const loginResponse = await loginApi(contractNumber, login, password);
 
-            console.log('✅ Réponse reçue:', response.data);
+            if (loginResponse && loginResponse.status === 'ok') {
+                // Sauvegarder les credentials
+                await AsyncStorage.setItem('userCredentials', JSON.stringify({
+                    contractNumber,
+                    login,
+                    password
+                }));
 
-            if (response.data && response.data.status === 'ok') {
                 if (isChecked) {
                     await saveLoginInfo();
                 }
-                onNavigate(SCREENS.CHAT);
+
+                // Charger les canaux immédiatement après le login
+                const channelsResponse = await fetchUserChannels(contractNumber, login, password);
+                console.log('📊 Canaux chargés:', channelsResponse);
+
+                if (channelsResponse.status === 'ok') {
+                    onNavigate(SCREENS.CHAT);
+                } else {
+                    setError('Erreur lors du chargement des canaux');
+                }
             } else {
-                setError(response.data.error || 'Incorrect credentials');
+                setError(loginResponse.error || 'Identifiants incorrects');
             }
         } catch (error) {
             console.error('🔴 Erreur de connexion:', error);
-            if (error.response) {
-                console.log('Détails de l\'erreur:', error.response.data);
-            }
-            setError('Server connection error');
+            setError('Erreur de connexion au serveur');
         } finally {
             setIsLoading(false);
         }

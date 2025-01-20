@@ -101,6 +101,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 key={message.id || index}
                 message={message}
                 isOwnMessage={message.isOwnMessage}
+                onFileClick={openDocumentPreviewModal}
               />
             ))}
           </ScrollView>

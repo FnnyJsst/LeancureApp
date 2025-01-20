@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { fetchUserChannels } from '../../services/messageApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu }) {
   const [channels, setChannels] = useState([]);
@@ -36,10 +37,15 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     const loadChannels = async () => {
       try {
         setLoading(true);
-        const response = await fetchUserChannels();
+        const credentials = await AsyncStorage.getItem('userCredentials');
+        if (!credentials) {
+          throw new Error('No credentials found');
+        }
+        const { contractNumber, login, password } = JSON.parse(credentials);
+        
+        const response = await fetchUserChannels(contractNumber, login, password);
         console.log('📊 Données chargées:', response);
         
-        // Utilisation des bonnes propriétés
         setChannels(response.publicChannels || []);
         setGroups(response.privateGroups || []);
       } catch (error) {
@@ -51,11 +57,6 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     
     loadChannels();
   }, []);
-
-  const getChannelsForGroup = (groupId) => {
-    const group = groups.find(g => g.id === groupId);
-    return group ? group.channels || [] : [];
-  };
 
   return (
     <>
@@ -96,19 +97,14 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                   <Text style={[
                     styles.groupName,
                     isSmartphone && styles.groupNameSmartphone
-                  ]}>{group.name}</Text>
+                  ]}>{group.title}</Text>
                 </TouchableOpacity>
 
-                {selectedGroup?.id === group.id && getChannelsForGroup(group.id).map((channel) => (
+                {selectedGroup?.id === group.id && group.channels && group.channels.map((channel) => (
                   <TouchableOpacity
                     key={channel.id}
                     style={styles.channelItem}
-                    onPress={() => onChannelSelect({
-                      id: channel.id,
-                      title: channel.title,
-                      description: channel.description,
-                      messages: channel.messages
-                    })}
+                    onPress={() => onChannelSelect(channel)}
                   >
                     <Text style={[
                       styles.channelName,
@@ -203,10 +199,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32
   },
   channelName: {
-    color: COLORS.gray400,
+    color: COLORS.gray300,
     fontSize: 16
   },
   channelNameSmartphone: {
-    fontSize: 14
+    fontSize: 14,
   }
 });

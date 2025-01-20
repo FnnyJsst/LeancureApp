@@ -17,6 +17,12 @@
         {
           "icon": "./assets/logo.png"
         }
+      ],
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
       ]
     ],
     "ios": {

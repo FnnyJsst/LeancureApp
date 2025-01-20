@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, useWindowDimensions, Platform, Image } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { COLORS, SIZES } from '../../../constants/style';
+import { COLORS, SIZES, MODAL_STYLES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { Ionicons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
@@ -29,96 +29,65 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
 
   // Function to render the preview
   const renderPreview = () => {
-    // Message pour l'émulateur uniquement pour les PDFs
-    if (isEmulator && fileType?.includes('pdf')) {
-      return (
-        <View style={[styles.previewWrapper, { justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.overlayLight }]}>
-          <Text style={{ color: COLORS.white }}>
-            Prévisualisation PDF non disponible sur l'émulateur
-          </Text>
-        </View>
-      );
-    }
-
-    if (fileType?.includes('pdf') && !isEmulator) {
-      const pdfScale = isSmartphone ? 1.2 : (isTabletLandscape ? 2.8 : 2.3);
-
-      const PDF_PREVIEW_HTML = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
-            <style>
-              body {
-                margin: 0;
-                padding: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background: transparent;
-                min-height: 100vh;
-                overflow: hidden;
-              }
-              canvas {
-                width: 100%;
-                height: 100%;
-                max-width: ${windowWidth * 0.9}px;
-                max-height: ${windowHeight * 0.9}px;
-                object-fit: contain;
-              }
-            </style>
-          </head>
-          <body>
-            <canvas id="pdfCanvas"></canvas>
-            <script>
-              console.log('Starting PDF.js script');
-              try {
-                pdfjsLib.getDocument({data: atob('${base64}')}).promise.then(function(pdf) {
-                  console.log('PDF document loaded');
-                  pdf.getPage(1).then(function(page) {
-                    console.log('Page 1 loaded');
-                    const canvas = document.getElementById('pdfCanvas');
-                    const context = canvas.getContext('2d');
-                    const viewport = page.getViewport({scale: ${pdfScale}});
-                    
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-                    
-                    page.render({
-                      canvasContext: context,
-                      viewport: viewport
-                    }).promise.then(function() {
-                      console.log('Page rendered successfully');
-                    }).catch(function(error) {
-                      console.error('Error rendering page:', error);
-                    });
-                  }).catch(function(error) {
-                    console.error('Error loading page:', error);
-                  });
-                }).catch(function(error) {
-                  console.error('Error loading PDF document:', error);
-                });
-              } catch (error) {
-                console.error('Error in PDF.js script:', error);
-              }
-            </script>
-          </body>
-        </html>
-      `;
-      
+    if (fileType?.includes('pdf')) {
       return (
         <View style={styles.previewWrapper}>
           <WebView
-            source={{ html: PDF_PREVIEW_HTML }}
-            originWhitelist={['*']}
-            javaScriptEnabled={true}
-            scalesPageToFit={false}
-            onError={(syntheticEvent) => {
-              const { nativeEvent } = syntheticEvent;
-              console.warn('WebView error: ', nativeEvent);
+            source={{
+              html: `
+                <!DOCTYPE html>
+                <html>
+                  <head>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js"></script>
+                    <style>
+                      body, html {
+                        margin: 0;
+                        padding: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: white;
+                      }
+                      #viewer {
+                        width: 100%;
+                        height: 100%;
+                      }
+                    </style>
+                  </head>
+                  <body>
+                    <div id="viewer"></div>
+                    <script>
+                      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+                      
+                      const loadingTask = pdfjsLib.getDocument({data: atob('${base64}')});
+                      loadingTask.promise.then(function(pdf) {
+                        pdf.getPage(1).then(function(page) {
+                          const canvas = document.createElement('canvas');
+                          const context = canvas.getContext('2d');
+                          const viewport = page.getViewport({scale: 0.70});
+                          
+                          canvas.width = viewport.width;
+                          canvas.height = viewport.height;
+                          
+                          const renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                          };
+                          
+                          document.getElementById('viewer').appendChild(canvas);
+                          page.render(renderContext);
+                        });
+                      });
+                    </script>
+                  </body>
+                </html>
+              `
             }}
-            onLoadEnd={() => console.log('WebView load ended')}
+            style={[styles.previewWrapper, { backgroundColor: 'white' }]}
+            originWhitelist={['*']}
+            scalesPageToFit={true}
+            javaScriptEnabled={true}
           />
         </View>
       );
@@ -142,7 +111,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileUrl, fileNa
       animationType="fade"
       onRequestClose={onClose}
     >
-      <View style={styles.modalContainer}>
+      <View style={styles=MODAL_STYLES.modalContainer}>
         <TouchableOpacity style={styles.downloadButton} onPress={handleDownload}>
           <View style={styles.iconContainer}>
             <Ionicons name="cloud-download-outline" size={24} color={COLORS.white} />
@@ -163,6 +132,11 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     backgroundColor: COLORS.gray900,
+    marginTop: '20%',
+    marginBottom: '20%',
+    padding: 20,
+    backgroundColor: COLORS.gray750,
+    borderRadius: SIZES.borderRadius.large,
   },
   downloadButton: {
     position: 'absolute',
@@ -187,6 +161,7 @@ const styles = StyleSheet.create({
   previewWrapper: {
     flex: 1,
     backgroundColor: 'transparent',
+    marginTop: 30,
   },
   image: {
     width: '100%',

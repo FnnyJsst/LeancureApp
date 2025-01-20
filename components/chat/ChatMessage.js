@@ -18,70 +18,9 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
   console.log('Message type:', message.type);
   console.log('Is Emulator:', isEmulator);
 
-  const PDF_PREVIEW_HTML = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-        <style>
-          body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #f0f0f0;
-          }
-          #pdf-viewer {
-            width: 100%;
-            height: 100%;
-            border: none;
-          }
-        </style>
-      </head>
-      <body>
-        <script>
-          function sendToReact(message) {
-            window.ReactNativeWebView.postMessage(JSON.stringify(message));
-          }
-
-          try {
-            sendToReact({ type: 'info', message: 'Starting PDF viewer script' });
-            
-            // Create object element for PDF viewing
-            const obj = document.createElement('object');
-            obj.id = 'pdf-viewer';
-            obj.type = 'application/pdf';
-            obj.data = 'data:application/pdf;base64,${message.base64}';
-            document.body.appendChild(obj);
-            
-            sendToReact({ type: 'info', message: 'PDF viewer object created and appended' });
-            
-            // Add load event listener
-            obj.addEventListener('load', function() {
-              sendToReact({ type: 'info', message: 'PDF loaded in object element' });
-            });
-            
-            // Add error event listener
-            obj.addEventListener('error', function(error) {
-              sendToReact({ type: 'error', message: 'Object error: ' + error.message });
-            });
-            
-          } catch (error) {
-            sendToReact({ type: 'error', message: 'Error in PDF viewer script: ' + error.message });
-          }
-        </script>
-      </body>
-    </html>
-  `;
-
   if (message.type === 'file') {
     const isPDF = message.fileType === 'application/pdf';
     const isImage = message.fileType?.includes('image');
-    
-    console.log('File detected:', message.fileName);
-    console.log('Is PDF:', isPDF);
-    console.log('Is Image:', isImage);
     
     return (
       <View style={[styles.messageContainer, isOwnMessage ? styles.ownMessage : styles.otherMessage]}>
@@ -91,64 +30,65 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
         }} style={styles.fileContainer}>
           {isPDF && message.base64 && (
             <View style={styles.previewContainer}>
-              {isEmulator ? (
-                <View style={[styles.preview, { justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.overlayLight }]}>
-                  <Text style={{ color: COLORS.white }}>
-                    Prévisualisation PDF non disponible sur l'émulateur
-                  </Text>
-                </View>
-              ) : (
-                <WebView
-                  source={{
-                    html: `
-                      <!DOCTYPE html>
-                      <html>
-                        <head>
-                          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-                          <style>
-                            body, html {
-                              margin: 0;
-                              padding: 0;
-                              width: 100%;
-                              height: 100%;
-                              overflow: hidden;
-                              background-color: #f0f0f0;
-                            }
-                            #pdf-viewer {
-                              width: 100%;
-                              height: 100%;
-                              border: none;
-                            }
-                          </style>
-                        </head>
-                        <body>
-                          <object
-                            id="pdf-viewer"
-                            type="application/pdf"
-                            data="data:application/pdf;base64,${message.base64}"
-                            width="100%"
-                            height="100%"
-                          >
-                          </object>
-                        </body>
-                      </html>
-                    `
-                  }}
-                  style={styles.preview}
-                  originWhitelist={['*']}
-                  javaScriptEnabled={true}
-                  domStorageEnabled={true}
-                  allowFileAccess={true}
-                  allowUniversalAccessFromFileURLs={true}
-                  allowFileAccessFromFileURLs={true}
-                />
-              )}
+              <WebView
+                source={{
+                  html: `
+                    <!DOCTYPE html>
+                    <html>
+                      <head>
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js"></script>
+                        <style>
+                          body, html {
+                            margin: 0;
+                            padding: 0;
+                            width: 100%;
+                            height: 100%;
+                            background-color: white;
+                          }
+                          #viewer {
+                            width: 100%;
+                            height: 100%;
+                          }
+                        </style>
+                      </head>
+                      <body>
+                        <div id="viewer"></div>
+                        <script>
+                          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+                          
+                          const loadingTask = pdfjsLib.getDocument({data: atob('${message.base64}')});
+                          loadingTask.promise.then(function(pdf) {
+                            pdf.getPage(1).then(function(page) {
+                              const canvas = document.createElement('canvas');
+                              const context = canvas.getContext('2d');
+                              const viewport = page.getViewport({scale: 1.0});
+                              
+                              canvas.width = viewport.width;
+                              canvas.height = viewport.height;
+                              
+                              const renderContext = {
+                                canvasContext: context,
+                                viewport: viewport
+                              };
+                              
+                              document.getElementById('viewer').appendChild(canvas);
+                              page.render(renderContext);
+                            });
+                          });
+                        </script>
+                      </body>
+                    </html>
+                  `
+                }}
+                style={styles.preview}
+                originWhitelist={['*']}
+                scalesPageToFit={true}
+                javaScriptEnabled={true}
+              />
               <View style={styles.fileHeader}>
-                <Ionicons 
-                  name="document-outline" 
-                  size={25} 
-                  color={COLORS.white} 
-                />
+                <Ionicons name="document-outline" size={25} color={COLORS.white} />
                 <View style={styles.fileInfo}>
                   <Text style={styles.fileName} numberOfLines={1}>
                     {message.fileName}
