@@ -14,10 +14,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
   // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
 
-  console.log('Rendering ChatMessage component');
-  console.log('Message type:', message.type);
-  console.log('Is Emulator:', isEmulator);
-
   if (message.type === 'file') {
     const isPDF = message.fileType === 'application/pdf';
     const isImage = message.fileType?.includes('image');
@@ -134,8 +130,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
     );
   }
 
-  console.log('Rendering text message:', message.text);
-
   return (
     <View style={[
       styles.messageContainer,
@@ -159,7 +153,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
 
 const styles = StyleSheet.create({
   messageContainer: {
-    maxWidth: '75%',
+    maxWidth: '70%',
     marginVertical: 5,
     borderRadius: SIZES.borderRadius.small,
   },
@@ -226,8 +220,8 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.errorText,
   },
   previewContainer: {
-    width: '100%',
-    height: 200,
+    width: '93%',
+    height: 150,
     borderRadius: SIZES.borderRadius.small,
     overflow: 'hidden',
     backgroundColor: COLORS.overlayLight,

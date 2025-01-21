@@ -13,6 +13,7 @@ export default function Header({
   onNavigate,
   showIcons = true,
   showMenuIcon,
+  showBackButton = true,
   toggleMenu,
   noBorder,
   transparent
@@ -22,26 +23,27 @@ export default function Header({
 
   const renderLeftSection = () => (
     <View style={styles.leftSection}>
-      <TouchableOpacity 
-        style={styles.iconButton} 
-        onPress={onBackPress}
-      >
-        <Ionicons 
-          name="chevron-back-outline" 
-          size={iconSize}
-          color={COLORS.gray300} 
-        />
-      </TouchableOpacity>
-      {showMenuIcon && (
+      {showBackButton && (
         <TouchableOpacity 
           style={styles.iconButton} 
+          onPress={onBackPress}
+        >
+          <Ionicons 
+            name="chevron-back-outline" 
+            size={iconSize}
+            color={COLORS.gray300} 
+          />
+        </TouchableOpacity>
+      )}
+      {showMenuIcon && (
+        <TouchableOpacity 
+          style={[styles.iconButton, !showBackButton && styles.menuButtonLeft]} 
           onPress={toggleMenu}
         >
           <Ionicons 
             name="menu-outline" 
             size={iconSize}
             color={COLORS.gray300}
-            style={{ marginLeft: 20 }} 
           />
         </TouchableOpacity>
       )}
@@ -151,5 +153,8 @@ const styles = StyleSheet.create({
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  menuButtonLeft: {
+    marginLeft: 0,
   }
 });

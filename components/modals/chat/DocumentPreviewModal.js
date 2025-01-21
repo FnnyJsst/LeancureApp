@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
     marginTop: 20,
+    minHeight: 100,
   },
   image: {
     width: '100%',

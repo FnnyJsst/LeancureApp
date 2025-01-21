@@ -82,15 +82,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     <View style={styles.container}>
       {channel ? (
         <>
-          <View style={styles.header}>
-            <View style={styles.channelNameContainer}>
-              <Text style={[
-                styles.channelName,
-                isSmartphone && styles.channelNameSmartphone
-              ]}>{channel.title}</Text>
-            </View>
-          </View>
-
           <ScrollView
             ref={scrollViewRef}
             style={styles.messagesContainer}
@@ -139,22 +130,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.gray900,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  channelNameContainer: {
-    marginLeft: 20,
-    marginVertical: 10,
-  },
-  channelName: {
-    fontSize: SIZES.fonts.subtitleTablet,
-    color: COLORS.gray300,
-  },
-  channelNameSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   chatContainer: {
     flex: 1,

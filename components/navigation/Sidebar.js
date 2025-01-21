@@ -5,11 +5,13 @@ import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { fetchUserChannels } from '../../services/messageApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SCREENS } from '../../constants/screens';
 
-export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu }) {
+export default function Sidebar({ onChannelSelect, selectedGroup, selectedChannel, onGroupSelect, isExpanded, toggleMenu, onNavigate, currentSection }) {
   const [channels, setChannels] = useState([]);
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showGroups, setShowGroups] = useState(false);
   const { isSmartphone } = useDeviceType();
   
   const slideAnim = useRef(new Animated.Value(
@@ -76,47 +78,94 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           <Ionicons name="close" size={isSmartphone ? 30 : 40} color={COLORS.gray300} />
         </TouchableOpacity>
 
-        <ScrollView style={styles.groupsList}>
-          {loading ? (
-            <Text style={styles.loadingText}>Chargement des canaux...</Text>
-          ) : groups.length > 0 ? (
-            groups.map((group) => (
-              <View key={group.id} style={[
-                styles.groupItem,
-                selectedGroup?.id === group.id && styles.selectedGroup
-              ]}>
-                <TouchableOpacity 
-                  style={styles.groupHeader}
-                  onPress={() => onGroupSelect(group)}
-                >
-                  <Ionicons 
-                    name={selectedGroup?.id === group.id ? "chevron-down" : "chevron-forward"} 
-                    size={24} 
-                    color={COLORS.gray300} 
-                  />
-                  <Text style={[
-                    styles.groupName,
-                    isSmartphone && styles.groupNameSmartphone
-                  ]}>{group.title}</Text>
-                </TouchableOpacity>
+        <ScrollView style={styles.menuList}>
+          {/* Bouton Groupes */}
+          <TouchableOpacity 
+            style={[
+              styles.menuItem,
+              showGroups && styles.selectedItem
+            ]}
+            onPress={() => setShowGroups(!showGroups)}
+          >
+            <Ionicons name="people-outline" size={24} color={COLORS.gray300} />
+            <Text style={styles.menuText}>Groupes</Text>
+            <Ionicons 
+              name={showGroups ? "chevron-down" : "chevron-forward"} 
+              size={24} 
+              color={COLORS.gray300} 
+              style={styles.chevron}
+            />
+          </TouchableOpacity>
 
-                {selectedGroup?.id === group.id && group.channels && group.channels.map((channel) => (
-                  <TouchableOpacity
-                    key={channel.id}
-                    style={styles.channelItem}
-                    onPress={() => onChannelSelect(channel)}
+          {/* Liste des groupes si showGroups est true */}
+          {showGroups && (
+            <View style={styles.groupsList}>
+              {loading ? (
+                <Text style={styles.loadingText}>Chargement...</Text>
+              ) : groups.map((group) => (
+                <View key={group.id} style={[
+                  styles.groupItem,
+                  selectedGroup?.id === group.id && styles.selectedGroup
+                ]}>
+                  <TouchableOpacity 
+                    style={styles.groupHeader}
+                    onPress={() => onGroupSelect(group)}
                   >
-                    <Text style={[
-                      styles.channelName,
-                      isSmartphone && styles.channelNameSmartphone
-                    ]}>{channel.title}</Text>
+                    <View style={styles.groupHeaderContent}>
+                      <Ionicons 
+                        name={selectedGroup?.id === group.id ? "chevron-down" : "chevron-forward"} 
+                        size={24} 
+                        color={COLORS.gray300}
+                        style={styles.groupChevron}
+                      />
+                      <Text style={[
+                        styles.groupName,
+                        isSmartphone && styles.groupNameSmartphone
+                      ]}>{group.title}</Text>
+                    </View>
                   </TouchableOpacity>
-                ))}
-              </View>
-            ))
-          ) : (
-            <Text style={styles.noChannelsText}>Aucun groupe disponible</Text>
+
+                  {selectedGroup?.id === group.id && group.channels && group.channels.map((channel) => (
+                    <TouchableOpacity
+                      key={channel.id}
+                      style={styles.channelItem}
+                      onPress={() => onChannelSelect(channel)}
+                    >
+                      <Text style={[
+                        styles.channelName,
+                        isSmartphone && styles.channelNameSmartphone
+                      ]}>{channel.title}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ))}
+            </View>
           )}
+
+          {/* Bouton Dashboard */}
+          <TouchableOpacity 
+            style={[
+              styles.menuItem,
+              currentSection === 'dashboard' && styles.selectedItem
+            ]}
+            onPress={() => onNavigate(SCREENS.DASHBOARD)}
+          >
+            <Ionicons name="grid-outline" size={24} color={COLORS.gray300} />
+            <Text style={styles.menuText}>Dashboard</Text>
+          </TouchableOpacity>
+
+          {/* Bouton Logout */}
+          <TouchableOpacity 
+            style={[
+              styles.menuItem,
+              styles.logoutButton,
+              currentSection === 'logout' && styles.selectedItem
+            ]}
+            onPress={() => onNavigate(SCREENS.LOGIN)}
+          >
+            <Ionicons name="log-out-outline" size={24} color={COLORS.gray900} />
+            <Text style={[styles.menuText, styles.logoutText]}>Logout</Text>
+          </TouchableOpacity>
         </ScrollView>
       </Animated.View>
     </>
@@ -156,7 +205,7 @@ const styles = StyleSheet.create({
     zIndex: 3,
     padding: 10
   },
-  groupsList: {
+  menuList: {
     marginTop: 60,
     paddingHorizontal: 20
   },
@@ -175,15 +224,22 @@ const styles = StyleSheet.create({
   groupItem: {
     marginBottom: 15
   },
-  selectedGroup: {
+  selectedItem: {
     backgroundColor: COLORS.gray800,
     borderRadius: 8,
-    padding: 5
+    padding: 8,
   },
   groupHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 8
+  },
+  groupHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  groupChevron: {
+    marginRight: 10,
   },
   groupName: {
     color: COLORS.gray300,
@@ -192,11 +248,19 @@ const styles = StyleSheet.create({
     marginLeft: 10
   },
   groupNameSmartphone: {
-    fontSize: 16
+    fontSize: SIZES.fonts.subtitleSmartphone
   },
   channelItem: {
     paddingVertical: 8,
-    paddingHorizontal: 32
+    paddingHorizontal: 32,
+    marginLeft: 20,
+  },
+  channelContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  channelIcon: {
+    marginRight: 8,
   },
   channelName: {
     color: COLORS.gray300,
@@ -204,5 +268,31 @@ const styles = StyleSheet.create({
   },
   channelNameSmartphone: {
     fontSize: 14,
-  }
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginVertical: 4,
+  },
+  menuText: {
+    color: COLORS.gray300,
+    fontSize: 16,
+    marginLeft: 15,
+  },
+  chevron: {
+    marginLeft: 'auto',
+  },
+  logoutButton: {
+    marginTop: 'auto',
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray800,
+  },
+  logoutText: {
+    color: COLORS.gray300
+  },
+  groupsList: {
+    marginLeft: 20,
+  },
 });

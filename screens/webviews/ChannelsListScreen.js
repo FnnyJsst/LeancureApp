@@ -4,6 +4,7 @@ import Header from '../../components/Header';
 import { useDeviceType } from '../../hooks/useDeviceType'; 
 import { COLORS, SIZES } from '../../constants/style';
 import Button from '../../components/buttons/Button';
+import CheckBox from '../../components/inputs/CheckBox';
 
 // This screen displays the list of channels available for the user to import
 export default function ChannelsListScreen({ channels, selectedChannels, onBack, onBackPress }) {
@@ -72,16 +73,12 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
               ]}
               onPress={() => toggleChannelSelection(item)}
             >
-              <Text style={[
-                styles.checkbox,
-                isSmartphone && styles.checkboxSmartphone,
-                localSelectedChannels.some(c => c.href === item.href) && styles.checkboxSelected
-              ]}>
-                {localSelectedChannels.some(c => c.href === item.href) ? '☑' : '☐'}
-              </Text>
-              <Text style={[styles.channelTitle, isSmartphone && styles.channelTitleSmartphone]}>
-                {item.title}
-              </Text>
+              <CheckBox
+                checked={localSelectedChannels.some(c => c.href === item.href)}
+                onPress={() => toggleChannelSelection(item)}
+                label={item.title}
+                labelStyle={[styles.channelTitle, isSmartphone && styles.channelTitleSmartphone]}
+              />
             </TouchableOpacity>
           )}
         />
@@ -122,16 +119,6 @@ const styles = StyleSheet.create({
   },
   channelTitleSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
-  },
-  checkbox: {
-    fontSize: SIZES.fonts.subtitleTablet,
-    color: COLORS.white,
-  },
-  checkboxSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
-  },
-  checkboxSelected: {
-    color: COLORS.orange,
   },
   listContainer: {
     flex: 1,

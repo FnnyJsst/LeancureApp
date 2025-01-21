@@ -37,7 +37,14 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
   return (
     <View style={styles.container}>
       {/* We show the header with the menu icon, the account image and the back button */}
-      <Header showMenuIcon={true} showAccountImage={true} onNavigate={onNavigate} toggleMenu={toggleMenu} onBackPress={() => onNavigate(SCREENS.APP_MENU)} />
+      <Header 
+        showMenuIcon={true}
+        showBackButton={false}
+        showAccountImage={true} 
+        onNavigate={onNavigate} 
+        toggleMenu={toggleMenu} 
+        title={selectedChannel?.title}
+      />
       <Sidebar 
         onChannelSelect={handleChannelSelect}
         selectedGroup={selectedGroup}
@@ -53,12 +60,12 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
           onInputFocusChange={setIsInputFocused}
         />
         {/* We show the navbar only if the input is not focused */}
-      {!isInputFocused && (
+      {/* {!isInputFocused && (
         <Navbar 
           currentSection={currentSection}
           onSectionChange={handleSectionChange}
         />
-      )}
+      )} */}
       </View>
     </View>
   );
