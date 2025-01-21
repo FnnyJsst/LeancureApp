@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet} from 'react-native';
-import Navbar from '../../components/navigation/Navbar';
 import AccountImage from '../../components/AccountImage';
 import AccountImageInput from '../../components/inputs/AccountImageInput';
 import Button from '../../components/buttons/Button';
 import Header from '../../components/Header';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { useNavbarNavigation } from '../../hooks/UseNavbarNavigation';
 import { COLORS, SIZES } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 
@@ -17,9 +15,6 @@ export default function AccountScreen({ onNavigate }) {
 
   // We use the useState hook to store the profile image
   const [profileImage, setProfileImage] = useState(null);
-
-  // Custom hook to handle the navbar navigation
-  const handleSectionChange = useNavbarNavigation(onNavigate);
 
   return (
     <View style={styles.container}>
@@ -46,11 +41,6 @@ export default function AccountScreen({ onNavigate }) {
             />
           </View>
         </View>
-      <Navbar 
-        currentSection='account' 
-        // We pass the function to handle the navbar navigation
-        onSectionChange={handleSectionChange}
-      />
     </View>
   )
 }

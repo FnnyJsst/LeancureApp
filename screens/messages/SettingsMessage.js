@@ -1,9 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style'; 
-import Navbar from '../../components/navigation/Navbar';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { useNavbarNavigation } from '../../hooks/UseNavbarNavigation';
 import Header from '../../components/Header';
 import SettingsCard from '../../components/cards/SettingsCard';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,9 +12,6 @@ export default function SettingsMessage({ onNavigate }) {
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isLandscape } = useDeviceType();
-
-  // Custom hook to handle the navbar navigation
-  const handleSectionChange = useNavbarNavigation(onNavigate);
 
   return (
     <>
@@ -43,10 +38,6 @@ export default function SettingsMessage({ onNavigate }) {
           />
         </View>
       </View>
-      <Navbar 
-        currentSection="settings" 
-        onSectionChange={handleSectionChange}
-      />
     </>
   );
 }
