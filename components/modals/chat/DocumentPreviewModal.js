@@ -154,7 +154,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
               </Text>
             </View>
           </View>
-          
+          <View style={styles.previewWrapper}></View>
           {renderPreview()}
           <View style={styles.buttonContainer}> 
             <Button title="Download" variant="large"onPress={handleDownload} />

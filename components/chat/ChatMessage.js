@@ -131,33 +131,77 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
   }
 
   return (
-    <View style={[
-      styles.messageContainer,
-      isOwnMessage ? styles.ownMessage : styles.otherMessage,
-      styles.textMessageContainer
-    ]}>
-      {!isOwnMessage && (
+    <View style={styles.messageWrapper(isOwnMessage)}>
+      {/* Username and timestamp container */}
+      <View style={[
+        styles.messageHeader,
+        isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft
+      ]}>
         <Text style={[
           styles.username,
           isSmartphone && styles.usernameSmartphone
         ]}>{message.username}</Text>
-      )}
-      <Text style={[
-        styles.messageText,
-        isSmartphone && styles.messageTextSmartphone
-      ]}>{message.text}</Text>
-      <Text style={styles.timestamp}>{message.timestamp}</Text>
+        <Text style={styles.timestamp}>{message.timestamp}</Text>
+      </View>
+
+      {/* Message bubble */}
+      <View style={[
+        styles.messageContainer,
+        isOwnMessage ? styles.ownMessage : styles.otherMessage,
+        styles.textMessageContainer,
+        isSmartphone && styles.textMessageContainerSmartphone
+      ]}>
+        <Text style={[
+          styles.messageText,
+          isSmartphone && styles.messageTextSmartphone
+        ]}>{message.text}</Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  messageContainer: {
+  messageWrapper: (isOwnMessage) => ({
+    marginVertical: 4,
     maxWidth: '70%',
-    marginVertical: 5,
+    alignSelf: isOwnMessage ? 'flex-end' : 'flex-start',
+  }),
+  messageHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+    paddingHorizontal: 4,
+    gap: 8,
+  },
+  messageHeaderLeft: {
+    alignSelf: 'flex-start',
+  },
+  messageHeaderRight: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row-reverse',
+  },
+  username: {
+    color: COLORS.gray300,
+    fontSize: SIZES.fonts.messageTextTablet,
+    fontWeight: SIZES.fontWeight.medium,
+  },
+  usernameSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
+  },
+  timestamp: {
+    color: COLORS.gray600,
+    fontSize: SIZES.fonts.errorTextSmartphone,
+    fontWeight: SIZES.fontWeight.light,
+  },
+  messageContainer: {
+    maxWidth: '100%',
+    marginVertical: 2,
     borderRadius: SIZES.borderRadius.small,
   },
   textMessageContainer: {
+    padding: 12,
+  },
+  textMessageContainerSmartphone: {
     padding: 8,
   },
   fileMessageContainer: {
@@ -165,32 +209,19 @@ const styles = StyleSheet.create({
   },
   ownMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: COLORS.orange,
+    backgroundColor: COLORS.messageOut,
   },
   otherMessage: {
     alignSelf: 'flex-start',
     backgroundColor: COLORS.gray750,
   },
-  username: {
-    color: COLORS.gray300,
-    fontSize: SIZES.fonts.textTablet,
-    marginBottom: 2,
-  },
-  usernameSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
-  },
   messageText: {
     color: COLORS.white,
-    fontSize: SIZES.fonts.subtitleTablet,
+    fontSize: SIZES.fonts.textTablet,
+    fontWeight: SIZES.fontWeight.light,
   },
   messageTextSmartphone: {
     fontSize: SIZES.fonts.messageTextSmartphone,
-  },
-  timestamp: {
-    color: COLORS.gray300,
-    fontSize: SIZES.fonts.textSmartphone,
-    alignSelf: 'flex-end',
-    marginTop: 2,
   },
   fileContainer: {
     minWidth: 280,

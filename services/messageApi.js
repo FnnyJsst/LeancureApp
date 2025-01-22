@@ -206,6 +206,9 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
   try {
     const timestamp = Date.now();
     
+    // Vérifier si messageContent est un objet fichier ou un texte simple
+    const isFile = typeof messageContent === 'object' && messageContent.base64;
+    
     const data = {
       "api-version": "2",
       "api-contract-number": "202501121",
@@ -227,9 +230,17 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
                 "msg-msgapikey": "12d0fd-e0bd67-4933ec-5ed14a-6f767b",
                 "msg-contract-number": "202501121",
                 "channelid": parseInt(channelId),
-                "title": "Nouveau message",
-                "details": messageContent,
-                "enddatets": timestamp + 99999
+                "title": isFile ? messageContent.name : "Nouveau message",
+                "details": isFile ? "" : messageContent,
+                "enddatets": timestamp + 99999,
+                ...(isFile && {
+                  "filetype": messageContent.type.split('/')[1],
+                  "img": {
+                    "base64": messageContent.base64,
+                    "type": messageContent.type.split('/')[1],
+                    "real_name": messageContent.name
+                  }
+                })
               }
             }
           }

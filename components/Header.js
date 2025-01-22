@@ -53,9 +53,9 @@ export default function Header({
   const renderRightSection = () => {
     if (!showIcons) return null;
     
-    if (showAccountImage) {
-      return <AccountImage onNavigate={onNavigate} width={isSmartphone ? 42 : 50} height={isSmartphone ? 42 : 50} />;
-    }
+    // if (showAccountImage) {
+    //   return <AccountImage onNavigate={onNavigate} width={isSmartphone ? 42 : 50} height={isSmartphone ? 42 : 50} />;
+    // }
     
     if (rightIcon) {
       return (
@@ -119,8 +119,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 15,
-    borderBottomWidth: 0.5,
-    borderBottomColor: COLORS.gray600,
   },
   noBorder: {
     borderBottomWidth: 0,

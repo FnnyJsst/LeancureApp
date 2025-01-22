@@ -6,20 +6,28 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { fetchUserChannels } from '../../services/messageApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SCREENS } from '../../constants/screens';
+import AccountImage from '../../components/AccountImage';
 
-export default function Sidebar({ onChannelSelect, selectedGroup, selectedChannel, onGroupSelect, isExpanded, toggleMenu, onNavigate, currentSection }) {
+
+// Sidebar menu component
+export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu, onNavigate, currentSection }) {
   const [channels, setChannels] = useState([]);
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showGroups, setShowGroups] = useState(false);
+
+  // Get the device type
   const { isSmartphone } = useDeviceType();
   
+  // Animation for the sidebar
   const slideAnim = useRef(new Animated.Value(
     isSmartphone ? -500 : -300
   )).current;
 
+  // Animation for the overlay
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  // Animation for the sidebar
   useEffect(() => {
     Animated.parallel([
       Animated.timing(slideAnim, {
@@ -35,33 +43,39 @@ export default function Sidebar({ onChannelSelect, selectedGroup, selectedChanne
     ]).start();
   }, [isExpanded, isSmartphone]);
 
+  // Load the channels and groups
   useEffect(() => {
     const loadChannels = async () => {
       try {
+        // Set the loading state to true
         setLoading(true);
+        // Get the credentials from the async storage
         const credentials = await AsyncStorage.getItem('userCredentials');
         if (!credentials) {
           throw new Error('No credentials found');
         }
+        // Parse the credentials
         const { contractNumber, login, password } = JSON.parse(credentials);
-        
+        // Fetch the user channels
         const response = await fetchUserChannels(contractNumber, login, password);
         console.log('📊 Données chargées:', response);
-        
+        // Set the channels and groups
         setChannels(response.publicChannels || []);
         setGroups(response.privateGroups || []);
+        // If there is an error, log it
       } catch (error) {
         console.error('🔴 Erreur dans Sidebar:', error);
       } finally {
         setLoading(false);
       }
     };
-    
+    // Load the channels and groups
     loadChannels();
   }, []);
 
   return (
     <>
+      {/* Overlay */}
       {isExpanded && (
         <Animated.View 
           style={[styles.overlay, { opacity: fadeAnim }]}
@@ -69,17 +83,20 @@ export default function Sidebar({ onChannelSelect, selectedGroup, selectedChanne
           onTouchStart={toggleMenu}
         />
       )}
+      {/* Sidebar */}
       <Animated.View style={[
         styles.sidebar,
         isSmartphone && styles.sidebarSmartphone,
         { transform: [{ translateX: slideAnim }] }
       ]}>
+        {/* Close button */}
         <TouchableOpacity onPress={toggleMenu} style={styles.closeButton}>
           <Ionicons name="close" size={isSmartphone ? 30 : 40} color={COLORS.gray300} />
         </TouchableOpacity>
 
+        {/* Menu list */}
         <ScrollView style={styles.menuList}>
-          {/* Bouton Groupes */}
+          {/* Group button */}
           <TouchableOpacity 
             style={[
               styles.menuItem,
@@ -87,25 +104,25 @@ export default function Sidebar({ onChannelSelect, selectedGroup, selectedChanne
             ]}
             onPress={() => setShowGroups(!showGroups)}
           >
-            <Ionicons name="people-outline" size={24} color={COLORS.gray300} />
-            <Text style={styles.menuText}>Groupes</Text>
+            <Ionicons name="people-outline" size={isSmartphone ? 24 : 30} color={COLORS.gray300} />
+            <Text style={[styles.menuText, isSmartphone && styles.menuTextSmartphone]}>Groupes</Text>
             <Ionicons 
               name={showGroups ? "chevron-down" : "chevron-forward"} 
-              size={24} 
+              size={isSmartphone ? 20 : 24} 
               color={COLORS.gray300} 
               style={styles.chevron}
             />
           </TouchableOpacity>
 
-          {/* Liste des groupes si showGroups est true */}
+          {/* List of groups if showGroups is true */}
           {showGroups && (
             <View style={styles.groupsList}>
               {loading ? (
-                <Text style={styles.loadingText}>Chargement...</Text>
+                <Text style={styles.loadingText}>Loading...</Text>
               ) : groups.map((group) => (
                 <View key={group.id} style={[
                   styles.groupItem,
-                  selectedGroup?.id === group.id && styles.selectedGroup
+                  selectedGroup?.id === group.id
                 ]}>
                   <TouchableOpacity 
                     style={styles.groupHeader}
@@ -114,7 +131,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, selectedChanne
                     <View style={styles.groupHeaderContent}>
                       <Ionicons 
                         name={selectedGroup?.id === group.id ? "chevron-down" : "chevron-forward"} 
-                        size={24} 
+                        size={isSmartphone ? 20 : 24} 
                         color={COLORS.gray300}
                         style={styles.groupChevron}
                       />
@@ -125,16 +142,23 @@ export default function Sidebar({ onChannelSelect, selectedGroup, selectedChanne
                     </View>
                   </TouchableOpacity>
 
+                  {/* List of channels if the group is selected */}
                   {selectedGroup?.id === group.id && group.channels && group.channels.map((channel) => (
                     <TouchableOpacity
                       key={channel.id}
-                      style={styles.channelItem}
+                      style={[styles.channelItem, isSmartphone && styles.channelItemSmartphone]}
                       onPress={() => onChannelSelect(channel)}
                     >
-                      <Text style={[
-                        styles.channelName,
-                        isSmartphone && styles.channelNameSmartphone
-                      ]}>{channel.title}</Text>
+                      <View style={styles.channelContent}>
+                        <Text style={[
+                          styles.channelIcon,
+                          styles.hashIcon
+                        ]}>#</Text>
+                        <Text style={[
+                          styles.channelName,
+                          isSmartphone && styles.channelNameSmartphone
+                        ]}>{channel.title}</Text>
+                      </View>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -142,20 +166,20 @@ export default function Sidebar({ onChannelSelect, selectedGroup, selectedChanne
             </View>
           )}
 
-          {/* Bouton Dashboard/Account */}
+          {/* Account button */}
           <TouchableOpacity 
             style={[
               styles.menuItem,
-              currentSection === 'account' && styles.selectedItem
+              currentSection === 'settings' && styles.selectedItem
             ]}
-            onPress={() => onNavigate(SCREENS.ACCOUNT)}
+            onPress={() => onNavigate(SCREENS.SETTINGS_MESSAGE)}
           >
-            <Ionicons name="person-outline" size={24} color={COLORS.gray300} />
-            <Text style={styles.menuText}>Account</Text>
+            <Ionicons name="settings-outline" size={24} color={COLORS.gray300} />
+            <Text style={[styles.menuText, isSmartphone && styles.menuTextSmartphone]}>Settings</Text>
           </TouchableOpacity>
 
-          {/* Bouton Logout */}
-          <TouchableOpacity 
+          {/* Logout button */}
+          {/* <TouchableOpacity 
             style={[
               styles.menuItem,
               styles.logoutButton,
@@ -163,10 +187,27 @@ export default function Sidebar({ onChannelSelect, selectedGroup, selectedChanne
             ]}
             onPress={() => onNavigate(SCREENS.LOGIN)}
           >
-            <Ionicons name="log-out-outline" size={24} color={COLORS.gray900} />
-            <Text style={[styles.menuText, styles.logoutText]}>Logout</Text>
-          </TouchableOpacity>
+            <Ionicons name="log-out-outline" size={24} color={COLORS.gray300} />
+            <Text style={[styles.menuText, isSmartphone && styles.menuTextSmartphone]}>Logout</Text>
+          </TouchableOpacity> */}
         </ScrollView>
+        
+        {/* User profile banner */}
+        <View style={styles.profileBanner}>
+          <View style={styles.profileInfo}>
+            <AccountImage width={40} height={40} />
+            <View style={styles.userInfo}>
+              <Text style={[styles.userName, isSmartphone && styles.userNameSmartphone]}>John Doe</Text>
+              <Text style={[styles.userRole, isSmartphone && styles.userRoleSmartphone]}>Technician</Text>
+            </View>
+          </View>
+          <TouchableOpacity 
+            onPress={() => onNavigate(SCREENS.SETTINGS)}
+            style={styles.settingsButton}
+          >
+            <Ionicons name="power-outline" size={20} color={COLORS.gray300} />
+          </TouchableOpacity>
+        </View>
       </Animated.View>
     </>
   );
@@ -191,8 +232,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray900,
     zIndex: 2,
     paddingTop: 20,
-    borderRightWidth: 1,
-    borderRightColor: COLORS.gray800
   },
   sidebarSmartphone: {
     width: '80%',
@@ -207,15 +246,10 @@ const styles = StyleSheet.create({
   },
   menuList: {
     marginTop: 60,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
+    paddingBottom: 90,
   },
   loadingText: {
-    color: COLORS.gray300,
-    fontSize: 16,
-    textAlign: 'center',
-    marginTop: 20
-  },
-  noChannelsText: {
     color: COLORS.gray300,
     fontSize: 16,
     textAlign: 'center',
@@ -243,7 +277,7 @@ const styles = StyleSheet.create({
   },
   groupName: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: SIZES.fonts.subtitleTablet,
     marginLeft: 10
   },
   groupNameSmartphone: {
@@ -252,6 +286,9 @@ const styles = StyleSheet.create({
   channelItem: {
     paddingVertical: 8,
     paddingHorizontal: 32,
+    marginBottom: 8,
+  },
+  channelItemSmartphone: {
     marginLeft: 20,
   },
   channelContent: {
@@ -261,12 +298,17 @@ const styles = StyleSheet.create({
   channelIcon: {
     marginRight: 8,
   },
+  hashIcon: {
+    color: COLORS.gray300,
+    fontSize: SIZES.fonts.subtitleTablet,
+    fontWeight: SIZES.fontWeight.medium,
+  },
   channelName: {
     color: COLORS.gray300,
-    fontSize: 16
+    fontSize: SIZES.fonts.sideBarTextTablet,
   },
   channelNameSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
+    fontSize: SIZES.fonts.sideBarTextSmartphone,
   },
   menuItem: {
     flexDirection: 'row',
@@ -277,9 +319,11 @@ const styles = StyleSheet.create({
   },
   menuText: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.subtitleSmartphone,
-    fontWeight: '600',
+    fontSize: SIZES.fonts.subtitleTablet,
     marginLeft: 15,
+  },
+  menuTextSmartphone: {
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   chevron: {
     marginLeft: 'auto',
@@ -289,10 +333,54 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: COLORS.gray800,
   },
-  logoutText: {
-    color: COLORS.gray300
-  },
   groupsList: {
     marginLeft: 20,
+  },
+  profileBanner: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 80,
+    backgroundColor: COLORS.gray800,
+    padding: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  profileInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  userInfo: {
+    justifyContent: 'center',
+  },
+  userName: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.textTablet,
+    fontWeight: SIZES.fontWeight.medium,
+  },
+  userNameSmartphone: {
+    fontSize: SIZES.fonts.sideBarTextSmartphone,
+  },
+  userRole: {
+    color: COLORS.orange,
+    fontSize: SIZES.fonts.textTablet,
+    fontWeight: SIZES.fontWeight.regular,
+  },
+  userRoleSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
+  },
+  settingsButton: {
+    backgroundColor: "#111111",
+    // padding: 5,
+    borderRadius: SIZES.borderRadius.small,
+    width: 50,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.gray300,
   },
 });

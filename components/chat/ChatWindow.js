@@ -27,7 +27,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         username: msg.isOwnMessage ? "Moi" : "Utilisateur",
         text: msg.message,
         title: msg.title,
-        timestamp: new Date(parseInt(msg.savedTimestamp)).toLocaleTimeString(),
+        timestamp: new Date(parseInt(msg.savedTimestamp)).toLocaleTimeString([], { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        }),
         isOwnMessage: msg.isOwnMessage || false,
         fileType: msg.fileType,
         fileName: msg.fileName,
@@ -74,14 +77,22 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         const newMessage = {
           id: Date.now(),
           username: "Moi",
-          text: messageData,
-          timestamp: new Date().toLocaleTimeString(),
-          isOwnMessage: true
+          text: typeof messageData === 'string' ? messageData : '',
+          timestamp: new Date().toLocaleTimeString([], { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }),
+          isOwnMessage: true,
+          type: messageData.type,
+          fileName: messageData.fileName,
+          fileSize: messageData.fileSize,
+          fileType: messageData.fileType,
+          uri: messageData.uri,
+          base64: messageData.base64
         };
         
         setMessages([...messages, newMessage]);
 
-        // Scroll to bottom
         setTimeout(() => {
           if (scrollViewRef.current) {
             scrollViewRef.current.scrollToEnd({ animated: true });
@@ -123,7 +134,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             styles.noChannelText,
             isSmartphone && styles.noChannelTextSmartphone
           ]}>
-            Sélectionnez un canal pour commencer à discuter
+            Select a channel to start chatting
           </Text>
         </View>
       )}
@@ -144,7 +155,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray900,
+    backgroundColor: "#111111"
   },
   chatContainer: {
     flex: 1,

@@ -173,25 +173,31 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    backgroundColor: COLORS.gray750,
-    marginHorizontal: 10,
-    marginBottom: 20,
-    borderRadius: SIZES.borderRadius.small,
+    padding: 10,
+    backgroundColor: COLORS.gray800, // Fond très sombre
+    marginHorizontal: 0,
+    marginBottom: 0,
+    borderRadius: 0,
   },
   smartphoneContainer: {
     height: 60,
-    paddingHorizontal: 10,
+    padding: 10,
   },
   attachIcon: {
     transform: [{rotate: '45deg'}],
     marginRight: 10,
+    color: COLORS.gray300,
   },
   input: {
     flex: 1,
     fontSize: SIZES.fonts.textTablet,
     marginRight: 10,
+    color: COLORS.gray300,
+    backgroundColor: COLORS.gray750, // Fond gris pour l'input
+    borderRadius: SIZES.borderRadius.small,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    height: 36,
   },
   smartphoneInput: {
     fontSize: SIZES.fonts.textSmartphone,
@@ -200,19 +206,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 45,
-    height: 45,
+    width: 36,
+    height: 36,
     backgroundColor: COLORS.orange,
     borderRadius: SIZES.borderRadius.small,
   },
   smartphoneSendButton: {
-    width: 35,
-    height: 35,
+    width: 36,
+    height: 36,
   },
   sendIcon: {
-    transform: [{rotate: '-40deg'}],
+    transform: [{rotate: '0deg'}],
   },
-
   sendButtonActive: {
     backgroundColor: COLORS.orange,
   },
