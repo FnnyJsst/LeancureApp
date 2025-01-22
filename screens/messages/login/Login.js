@@ -11,6 +11,8 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SCREENS } from '../../../constants/screens';
 import { Ionicons } from '@expo/vector-icons';
 import { loginApi, fetchUserChannels } from '../../../services/messageApi';
+import Header from '../../../components/Header';
+import LoginTitle from '../../../components/text/LoginTitle';
 
 export default function Login({ onNavigate }) {
 
@@ -149,11 +151,11 @@ export default function Login({ onNavigate }) {
 
     return (
     <View style={[styles.pageContainer, isTablet && styles.pageContainerTablet]}>
-        <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={() => onNavigate(SCREENS.APP_MENU)}>
-                <Ionicons name="chevron-back-outline" size={isSmartphone ? 30 : 40} color={COLORS.gray300} />
-            </TouchableOpacity>
-        </View>
+        <Header 
+            // title="Sign in to your account"
+            onBackPress={() => onNavigate(SCREENS.APP_MENU)}
+        />
+        <LoginTitle />
         <View style={[styles.formContainerPortrait, isSmartphone && styles.formContainerSmartphonePortrait]}>
             <ScrollView>
                 {/* If the user has checked the "Stay connected" checkbox, we show the simplified login screen */}
@@ -172,6 +174,7 @@ export default function Login({ onNavigate }) {
                             isSmartphone && styles.loginContainerSmartphone,
                             isLandscape && styles.loginContainerLandscape
                         ]}>
+                            
                             <View style={styles.inputsContainer}>
                                 <View style={styles.inputGroup}>
                                     <Text style={[
@@ -262,6 +265,15 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.gray900,
     },
+    // titleSection: {
+    //     marginTop: 50,
+    //     marginBottom: 30,
+    // },
+    // loginTitle: {
+    //     color: COLORS.white,
+    //     fontSize: SIZES.fonts.titleSmartphone,
+    //     // fontWeight: SIZES.fontWeight.bold,
+    // },
     formContainer: {
         flex: 1,
         paddingHorizontal: '15%',
@@ -280,7 +292,6 @@ const styles = StyleSheet.create({
         padding: 25,
         borderRadius: SIZES.borderRadius.large,
         alignSelf: 'center',
-        marginTop: 100,
         width: '70%',
     },
     loginContainerSmartphone: {

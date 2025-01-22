@@ -33,13 +33,13 @@ export default function AppMenu({ onNavigate }) {
       <View style={[styles.cardsContainer, isSmartphoneLandscape && styles.cardsContainerSmartphoneLandscape]}>
         <AppMenuCard
           title="Messages"
-          icon={<Ionicons name="mail-outline" size={isSmartphone ? 24 : 30} color={COLORS.white} />}
+          icon={<Ionicons name="mail-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
           onPress={() => onNavigate(SCREENS.LOGIN)}
           // unreadCount={unreadMessages}
         />
         <AppMenuCard
           title="WebViews"
-          icon={<Ionicons name="tv-outline" size={isSmartphone ? 24 : 30} color={COLORS.white} />}
+          icon={<Ionicons name="tv-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
           onPress={() => onNavigate(SCREENS.WEBVIEW)}
         />
       </View>
@@ -57,6 +57,7 @@ const styles = StyleSheet.create({
   title: {
     color: COLORS.white,
     fontSize: SIZES.fonts.headerTablet,
+    fontWeight: SIZES.fontWeight.bold,
     paddingVertical: 30,
   },
   titleSmartphone: {

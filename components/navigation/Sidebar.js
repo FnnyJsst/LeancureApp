@@ -202,7 +202,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
             </View>
           </View>
           <TouchableOpacity 
-            onPress={() => onNavigate(SCREENS.SETTINGS)}
+            onPress={() => onNavigate(SCREENS.LOGIN)}
             style={styles.settingsButton}
           >
             <Ionicons name="power-outline" size={20} color={COLORS.gray300} />

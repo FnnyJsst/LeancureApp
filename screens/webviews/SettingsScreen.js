@@ -96,17 +96,18 @@ export default function SettingsScreen({
         <Header 
           // Handle the back button press
           onBackPress={handleBackPress} 
+          title="Settings"
         />
         <View style={[
           styles.pageContainer,
           isSmartphonePortrait && styles.pageContainerSmartphonePortrait
         ]}>
-          <View style={styles.headerContainer}>
+          {/* <View style={styles.headerContainer}>
             <Text style={[
               styles.header,
               isSmartphone && styles.headerSmartphone
             ]}>Settings</Text>
-          </View>
+          </View> */}
           <View style={[
             styles.configContainer,
             styles.configContainerTablet,

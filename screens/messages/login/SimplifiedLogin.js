@@ -12,13 +12,13 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
   
   return (
     <View>
-      <View style={[styles.welcomeContainer, isLandscape && styles.welcomeContainerLandscape, isSmartphonePortrait && styles.welcomeContainerSmartphonePortrait, isSmartphoneLandscape && styles.welcomeContainerSmartphoneLandscape]}>
+      {/* <View style={[styles.welcomeContainer, isLandscape && styles.welcomeContainerLandscape, isSmartphonePortrait && styles.welcomeContainerSmartphonePortrait, isSmartphoneLandscape && styles.welcomeContainerSmartphoneLandscape]}>
         <Text style={[
           styles.welcomeText,
           isSmartphone && styles.welcomeTextSmartphone,
           isSmartphoneLandscape && styles.welcomeContainerSmartphoneLandscape
         ]}>Welcome back</Text>
-      </View>
+      </View> */}
       <View style={[styles.loginContainer, isSmartphone && styles.loginContainerSmartphone, isLandscape && styles.loginContainerLandscape]}>
         <View style={[styles.accountContainer, isSmartphone && styles.accountContainerSmartphone]}>
           <View style={styles.accountDetailsContainer}>
@@ -48,23 +48,23 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
 }
 
 const styles = StyleSheet.create({
-  welcomeContainer: {
-    marginTop: 50,
-    marginBottom: 30,
-    width: '70%',
-    alignSelf: 'center',
-  },
-  welcomeContainerSmartphonePortrait: {
-    width: '95%',
-  },
-  welcomeContainerLandscape: {
-    width: '50%',
-    marginTop: 4,
-  },
-  welcomeContainerSmartphoneLandscape: {
-    marginTop: 0,
-    marginBottom: 10,
-  },
+  // welcomeContainer: {
+  //   marginTop: 50,
+  //   marginBottom: 30,
+  //   width: '70%',
+  //   alignSelf: 'center',
+  // },
+  // welcomeContainerSmartphonePortrait: {
+  //   width: '95%',
+  // },
+  // welcomeContainerLandscape: {
+  //   width: '50%',
+  //   marginTop: 4,
+  // },
+  // welcomeContainerSmartphoneLandscape: {
+  //   marginTop: 0,
+  //   marginBottom: 10,
+  // },
   loginContainer: {
     gap: 20,
     backgroundColor: COLORS.gray800,

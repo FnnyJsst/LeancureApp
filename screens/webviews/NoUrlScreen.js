@@ -11,6 +11,7 @@ import { SCREENS } from '../../constants/screens';
  **/
 export default function NoUrlScreen({ 
   onNavigate, 
+  handleSettingsAccess
 }) {
 
   // Customized hook to determine the device type and orientation
@@ -32,7 +33,7 @@ export default function NoUrlScreen({
       </View>
 
       <View style={styles.buttonContainer}>
-        <ParameterButton onPress={handleSettingsPress} />
+        <ParameterButton onPress={() => handleSettingsAccess()} />
       </View>
     </View>
   );
