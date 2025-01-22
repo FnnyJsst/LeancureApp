@@ -32,15 +32,19 @@ export const fetchUserChannels = async (contractNumber, login, password, email, 
       }]
     });
 
-    // Nettoyer la réponse SQL
+    // Clean response
     let cleanData = response.data;
+    // If response is a string, parse it
     if (typeof response.data === 'string') {
+      // Find the start of the JSON object
       const jsonStart = response.data.indexOf('{"status"');
+      // If JSON object is found, parse it
       if (jsonStart !== -1) {
         try {
           cleanData = JSON.parse(response.data.substring(jsonStart));
+        // If parsing fails, return an error
         } catch (e) {
-          console.error('❌ Erreur parsing JSON:', e);
+          console.error('❌ Error parsing JSON:', e);
           return {
             status: 'error',
             error: 'Invalid JSON response'
@@ -48,22 +52,22 @@ export const fetchUserChannels = async (contractNumber, login, password, email, 
         }
       }
     }
+    console.log('📥 Cleaned response:', cleanData);
 
-    console.log('📥 Réponse nettoyée:', cleanData);
-
+    // If status is ok, extract the data
     if (cleanData.status === "ok") {
       const data = cleanData.cmd?.[0]?.msg_srv?.client?.get_account_links?.data;
-      console.log('🔍 Data extraite:', data);
-      
+      console.log('🔍 Extracted data:', data);
+      // If data is not found, return an error
       if (!data) {
-        console.log('❌ Pas de données dans la réponse:', cleanData);
+        console.log('❌ No data in the response:', cleanData);
         return {
           status: 'error',
           error: 'Invalid data structure'
         };
       }
 
-      // Traiter les canaux publics
+      // Process public channels
       const publicChannels = Object.entries(data.public || {}).map(([id, channel]) => ({
         id,
         title: channel.identifier || 'Canal sans titre',
@@ -71,29 +75,30 @@ export const fetchUserChannels = async (contractNumber, login, password, email, 
         messages: formatMessages(channel.messages)
       }));
 
-      // Traiter les groupes privés
+      // Process private groups
       const privateGroups = Object.entries(data.private?.groups || {}).map(([id, group]) => ({
         id,
-        title: group.identifier || 'Groupe sans titre',
+        title: group.identifier || 'Group without title',
         description: group.description || '',
         rights: group.rights,
         channels: group.channels === "No channel" ? [] : Object.entries(group.channels || {}).map(([channelId, channel]) => ({
           id: channelId,
-          title: channel.identifier || 'Canal sans titre',
+          title: channel.identifier || 'Channel without title',
           description: channel.description || '',
           messages: formatMessages(channel.messages)
         }))
       }));
 
-      console.log('✅ Données formatées:', { publicChannels, privateGroups });
-      
+      console.log('✅ Formatted data:', { publicChannels, privateGroups });
+      // Return the formatted data
       return {
         status: 'ok',
         publicChannels,
         privateGroups
       };
+      // If status is not ok, return an error
     } else {
-      console.error('❌ Erreur dans la réponse:', cleanData);
+      console.error('❌ Error in the response:', cleanData);
       return {
         status: 'error',
         error: cleanData.error || 'Error while fetching data'
@@ -108,67 +113,11 @@ export const fetchUserChannels = async (contractNumber, login, password, email, 
   }
 };
 
-//Format the channels data
-// const formatChannelsData = (data) => {
-//   try {
-//     console.log('🔄 Données reçues dans formatChannelsData:', data);
-    
-//     // Formater les messages
-//     const formatMessages = (messages) => {
-//       if (!messages) return [];
-//       return Object.entries(messages).map(([msgId, msg]) => ({
-//         id: msgId,
-//         title: msg.title,
-//         message: msg.message,
-//         savedTimestamp: msg.savedts,
-//         endTimestamp: msg.enddatets,
-//         fileType: msg.filetype
-//       }));
-//     };
-
-    // Formater les canaux publics
-//     const publicChannels = data.public ? Object.entries(data.public).map(([id, channel]) => ({
-//       id,
-//       title: channel.identifier,
-//       description: channel.description,
-//       messages: formatMessages(channel.messages)
-//     })) : [];
-
-//     // Formater les groupes privés et leurs canaux
-//     const privateGroups = data.private?.groups ? Object.entries(data.private.groups).map(([groupId, group]) => ({
-//       id: groupId,
-//       title: group.identifier,
-//       description: group.description,
-//       rights: group.rights,
-//       channels: group.channels === "No channel" ? [] :
-//         Object.entries(group.channels).map(([channelId, channel]) => ({
-//           id: channelId,
-//           title: channel.identifier,
-//           description: channel.description,
-//           messages: formatMessages(channel.messages)
-//         }))
-//     })) : [];
-
-//     console.log('✅ Données formatées:', { publicChannels, privateGroups });
-
-//     return {
-//       status: 'ok',
-//       publicChannels,
-//       privateGroups
-//     };
-//   } catch (error) {
-//     console.error('❌ Erreur lors du formatage:', error);
-//     return {
-//       status: 'error',
-//       error: 'Error formatting data'
-//     };
-//   }
-// };
-
-//Format the messages data
+//Format the messages data to be used in the UI
 const formatMessages = (messages) => {
+  // If messages is not found, return an empty array
   if (!messages) return [];
-  
+  // Return the formatted messages
   return Object.entries(messages).map(([id, msg]) => ({
     id,
     title: msg.title,
@@ -180,10 +129,11 @@ const formatMessages = (messages) => {
   }));
 };
 
+//Function used to login to the API
 export const loginApi = async (contractNumber, login, password) => {
   try {
     const timestamp = Date.now();
-    console.log('🔄 Début de loginApi...', { contractNumber, login });
+    console.log('🔄 Start of loginApi...', { contractNumber, login });
     
     const body = {
       "api-version": "2",
@@ -204,49 +154,54 @@ export const loginApi = async (contractNumber, login, password) => {
         }
       }]
     };
-
-    console.log('📤 Envoi de la requête login avec:', JSON.stringify(body, null, 2));
-    
+    // Log the request body
+    console.log('📤 Sending login request with:', JSON.stringify(body, null, 2));
+    // Send the request
     const response = await axios.post(API_URL, body);
-    console.log('📥 Réponse brute:', {
+    // Log the response
+    console.log('📥 Raw response:', {
       data: response.data,
       status: response.status,
       headers: response.headers,
       type: typeof response.data
     });
 
-    // Si la réponse est une string
+    // If the response is a string
     let cleanData = response.data;
     if (typeof response.data === 'string') {
-      // Extraire la partie JSON après la requête SQL
+      // Extract the JSON part after the SQL request
       const sqlEnd = response.data.indexOf('{');
       if (sqlEnd !== -1) {
         try {
+          // Extract the JSON part after the SQL request
           const jsonStr = response.data.substring(sqlEnd);
-          console.log('📝 JSON extrait:', jsonStr);
+          console.log('📝 Extracted JSON:', jsonStr);
+          // Parse the JSON
           cleanData = JSON.parse(jsonStr);
-          console.log('✨ JSON parsé:', cleanData);
+          console.log('✨ Parsed JSON:', cleanData);
         } catch (e) {
-          console.error('❌ Erreur parsing JSON:', e);
+          console.error('❌ Error parsing JSON:', e);
           throw e;
         }
       }
     }
 
-    // Vérifier le status
+    // Check the status
     if (cleanData.status === 'error') {
-      console.error('❌ Erreur de login:', cleanData.error);
+      console.error('❌ Login error:', cleanData.error);
       throw new Error(cleanData.error || 'Login failed');
     }
 
-    console.log('✅ Login réussi:', cleanData);
+    console.log('✅ Login successful:', cleanData);
+    // Return the login data
     return cleanData;
   } catch (error) {
-    console.error('🔴 Erreur login:', error);
+    console.error('🔴 Login error:', error);
     throw error;
   }
 };
 
+//Function used to send a message to the API
 export const sendMessageApi = async (channelId, messageContent, userCredentials) => {
   try {
     const timestamp = Date.now();
@@ -298,7 +253,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     };
 
   } catch (error) {
-    console.error('🔴 Erreur envoi message:', error);
+    console.error('🔴 Error sending message:', error);
     throw error;
   }
 };
@@ -377,11 +332,11 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
       });
     }
 
-    console.log(`📨 Messages trouvés pour le canal ${channelId}:`, channelMessages.length);
+    console.log(`📨 Messages found for channel ${channelId}:`, channelMessages.length);
     return channelMessages;
 
   } catch (error) {
-    console.error('🔴 Erreur détaillée:', error);
+    console.error('🔴 Detailed error:', error);
     return [];
   }
 };
