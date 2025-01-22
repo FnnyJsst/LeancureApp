@@ -102,15 +102,20 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
 
   // Function to handle the send of the message
   const handleSend = () => {
+    // Si on a un fichier sélectionné, on l'envoie même si le message est vide
     if (selectedFile) {
       onSendMessage(selectedFile);
       setSelectedFile(null);
-      // If we have a selected file, we send the file
-    } else if (message.trim()) {
-      onSendMessage(message);
-      setMessage('');
-      // If we have a message, we send the message
+      return;
     }
+
+    // If a message is empty, we don't send it
+    if (!message.trim()) {
+      return;
+    }
+
+    onSendMessage(message);
+    setMessage('');
   };
 
   // Function to handle the removal of the file
@@ -121,10 +126,16 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   return (
     <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
       {/* We display the attach icon */}
-      <TouchableOpacity onPress={pickDocument}>
+      <TouchableOpacity 
+        onPress={pickDocument}
+        style={[
+          styles.attachButton,
+          isSmartphone && styles.attachButtonSmartphone
+        ]}
+      >
         <Ionicons 
           name="attach-outline" 
-          size={isSmartphone ? 30 : 40} 
+          size={isSmartphone ? 24 : 30} 
           color={COLORS.gray300} 
           style={styles.attachIcon}
         />
@@ -174,26 +185,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: COLORS.gray800, // Fond très sombre
-    marginHorizontal: 0,
+    backgroundColor: COLORS.gray800, 
     marginBottom: 0,
+    marginTop: -10,
     borderRadius: 0,
   },
   smartphoneContainer: {
     height: 60,
     padding: 10,
   },
+  attachButton: {
+    backgroundColor: '#111111',
+    borderRadius: SIZES.borderRadius.small,
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  attachButtonSmartphone: {
+    width: 32,
+    height: 32,
+  },
   attachIcon: {
     transform: [{rotate: '45deg'}],
-    marginRight: 10,
-    color: COLORS.gray300,
   },
   input: {
     flex: 1,
     fontSize: SIZES.fonts.textTablet,
     marginRight: 10,
     color: COLORS.gray300,
-    backgroundColor: COLORS.gray750, // Fond gris pour l'input
+    backgroundColor: COLORS.gray850, // Fond gris pour l'input
     borderRadius: SIZES.borderRadius.small,
     paddingHorizontal: 12,
     paddingVertical: 8,

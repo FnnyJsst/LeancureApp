@@ -265,15 +265,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.gray900,
     },
-    // titleSection: {
-    //     marginTop: 50,
-    //     marginBottom: 30,
-    // },
-    // loginTitle: {
-    //     color: COLORS.white,
-    //     fontSize: SIZES.fonts.titleSmartphone,
-    //     // fontWeight: SIZES.fontWeight.bold,
-    // },
     formContainer: {
         flex: 1,
         paddingHorizontal: '15%',

@@ -7,6 +7,7 @@ import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendMessageApi } from '../../services/messageApi';
+import DateBanner from './DateBanner';
 
 export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange }) {
   const { isSmartphone, isTablet } = useDeviceType();
@@ -36,7 +37,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         fileName: msg.fileName,
         fileSize: msg.fileSize,
         uri: msg.uri,
-        base64: msg.base64
+        base64: msg.base64,
+        savedTimestamp: msg.savedTimestamp || Date.now().toString(),
       }));
       setMessages(formattedMessages);
     } else {
@@ -63,6 +65,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   // Function to send a message
   const sendMessage = async (messageData) => {
     try {
+      if (typeof messageData === 'string' && !messageData.trim()) {
+        return;
+      }
+
       const credentialsStr = await AsyncStorage.getItem('userCredentials');
       if (!credentialsStr) {
         console.error('❌ Pas de credentials trouvées');
@@ -104,6 +110,24 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     }
   };
 
+  const formatDate = (timestamp) => {
+    const date = new Date(parseInt(timestamp));
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return "Today";
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return "Yesterday";
+    }
+    return date.toLocaleDateString('en-US', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+  };
+
   return (
     <View style={styles.container}>
       {channel ? (
@@ -113,14 +137,31 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             style={styles.messagesContainer}
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
           >
-            {messages.map((message, index) => (
-              <ChatMessage
-                key={message.id || index}
-                message={message}
-                isOwnMessage={message.isOwnMessage}
-                onFileClick={openDocumentPreviewModal}
-              />
-            ))}
+            {messages.reduce((acc, message, index) => {
+              const currentDate = formatDate(message.savedTimestamp);
+              const prevMessage = messages[index - 1];
+              const prevDate = prevMessage ? formatDate(prevMessage.savedTimestamp) : null;
+
+              if (currentDate !== prevDate) {
+                acc.push(
+                  <DateBanner 
+                    key={`date-${message.savedTimestamp}`} 
+                    date={currentDate} 
+                  />
+                );
+              }
+
+              acc.push(
+                <ChatMessage
+                  key={message.id || index}
+                  message={message}
+                  isOwnMessage={message.isOwnMessage}
+                  onFileClick={openDocumentPreviewModal}
+                />
+              );
+
+              return acc;
+            }, [])}
           </ScrollView>
 
           <InputChatWindow 

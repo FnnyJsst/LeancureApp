@@ -133,7 +133,6 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                         name={selectedGroup?.id === group.id ? "chevron-down" : "chevron-forward"} 
                         size={isSmartphone ? 20 : 24} 
                         color={COLORS.gray300}
-                        style={styles.groupChevron}
                       />
                       <Text style={[
                         styles.groupName,
@@ -146,7 +145,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                   {selectedGroup?.id === group.id && group.channels && group.channels.map((channel) => (
                     <TouchableOpacity
                       key={channel.id}
-                      style={[styles.channelItem, isSmartphone && styles.channelItemSmartphone]}
+                      style={styles.channelItem}
                       onPress={() => onChannelSelect(channel)}
                     >
                       <View style={styles.channelContent}>
@@ -220,7 +219,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: COLORS.black,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     zIndex: 1
   },
   sidebar: {
@@ -272,9 +271,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  groupChevron: {
-    marginRight: 10,
-  },
   groupName: {
     color: COLORS.gray300,
     fontSize: SIZES.fonts.subtitleTablet,
@@ -285,11 +281,8 @@ const styles = StyleSheet.create({
   },
   channelItem: {
     paddingVertical: 8,
-    paddingHorizontal: 32,
-    marginBottom: 8,
-  },
-  channelItemSmartphone: {
-    marginLeft: 20,
+    paddingHorizontal: 30,
+    marginBottom: 6,
   },
   channelContent: {
     flexDirection: 'row',
@@ -341,9 +334,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 80,
+    height: 60,
     backgroundColor: COLORS.gray800,
-    padding: 15,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
