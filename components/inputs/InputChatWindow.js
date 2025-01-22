@@ -5,6 +5,7 @@ import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
+import EmojiPickerModal from '../modals/chat/EmojiPickerModal';
 
 // FilePreview is used to display the file information in the input of the chat
 const  FilePreview = ({ file, onRemove }) => {
@@ -45,6 +46,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   const [selectedFile, setSelectedFile] = useState(null);
   // Hook to determine the device type
   const { isSmartphone } = useDeviceType();
+  const [isEmojiPickerVisible, setIsEmojiPickerVisible] = useState(false);
 
   // Function to format the file size
   const formatFileSize = (bytes) => {
@@ -123,60 +125,89 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
     setSelectedFile(null);
   };
 
-  return (
-    <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
-      {/* We display the attach icon */}
-      <TouchableOpacity 
-        onPress={pickDocument}
-        style={[
-          styles.attachButton,
-          isSmartphone && styles.attachButtonSmartphone
-        ]}
-      >
-        <Ionicons 
-          name="attach-outline" 
-          size={isSmartphone ? 24 : 30} 
-          color={COLORS.gray300} 
-          style={styles.attachIcon}
-        />
-      </TouchableOpacity>
-      {/* If we have a selected file, we display the file preview */}
-      {selectedFile ? (
-        <FilePreview 
-          file={selectedFile} 
-          onRemove={handleRemoveFile}
-        />
-      ) : (
-        // If we don't have a selected file, we display the input for the message
-        <TextInput
-          style={[styles.input, isSmartphone && styles.smartphoneInput]}
-          placeholder="Type your message here..."
-          placeholderTextColor={COLORS.gray300}
-          value={message}
-          onChangeText={setMessage}
-          multiline
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-        />
-      )}
+  // Fonction pour gérer la sélection d'emoji
+  const handleEmojiSelect = (emoji) => {
+    setMessage((prevMessage) => prevMessage + emoji);
+    setIsEmojiPickerVisible(false);
+  };
 
-      <TouchableOpacity 
-        style={[
-          styles.sendButton, 
-          isSmartphone && styles.smartphoneSendButton,
-          // We add the active style if we have a message or a selected file
-          (message.trim() || selectedFile) && styles.sendButtonActive
-        ]}
-        onPress={handleSend}
-      >
-        <Ionicons 
-          name="send-outline" 
-          size={isSmartphone ? 20 : 30} 
-          color={COLORS.white}
-          style={styles.sendIcon}
-        />
-      </TouchableOpacity>
-    </View>
+  return (
+    <>
+      <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
+        {/* We display the attach icon */}
+        <TouchableOpacity 
+          onPress={pickDocument}
+          style={[
+            styles.attachButton,
+            isSmartphone && styles.attachButtonSmartphone
+          ]}
+        >
+          <Ionicons 
+            name="attach-outline" 
+            size={isSmartphone ? 24 : 30} 
+            color={COLORS.gray300} 
+            style={styles.attachIcon}
+          />
+        </TouchableOpacity>
+        {/* If we have a selected file, we display the file preview */}
+        {selectedFile ? (
+          <FilePreview 
+            file={selectedFile} 
+            onRemove={handleRemoveFile}
+          />
+        ) : (
+          // If we don't have a selected file, we display the input for the message
+          <TextInput
+            style={[styles.input, isSmartphone && styles.smartphoneInput]}
+            placeholder="Type your message here..."
+            placeholderTextColor={COLORS.gray300}
+            value={message}
+            onChangeText={setMessage}
+            multiline
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+          />
+        )}
+
+        {/* Emoji button */}
+        <TouchableOpacity 
+          style={[
+            styles.emojiButton,
+            isSmartphone && styles.emojiButtonSmartphone
+          ]}
+          onPress={() => setIsEmojiPickerVisible(true)}
+        >
+          <Ionicons 
+            name="happy-outline" 
+            size={isSmartphone ? 24 : 30} 
+            color={COLORS.gray300}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[
+            styles.sendButton, 
+            isSmartphone && styles.smartphoneSendButton,
+            // We add the active style if we have a message or a selected file
+            (message.trim() || selectedFile) && styles.sendButtonActive
+          ]}
+          onPress={handleSend}
+        >
+          <Ionicons 
+            name="send-outline" 
+            size={isSmartphone ? 20 : 30} 
+            color={COLORS.white}
+            style={styles.sendIcon}
+          />
+        </TouchableOpacity>
+      </View>
+
+      <EmojiPickerModal
+        visible={isEmojiPickerVisible}
+        onClose={() => setIsEmojiPickerVisible(false)}
+        onEmojiSelect={handleEmojiSelect}
+      />
+    </>
   );
 }
 
@@ -266,5 +297,16 @@ const styles = StyleSheet.create({
   fileSize: {
     color: COLORS.gray600,
     fontSize: SIZES.fonts.xSmall,
+  },
+  emojiButton: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  emojiButtonSmartphone: {
+    width: 32,
+    height: 32,
   },
 });
