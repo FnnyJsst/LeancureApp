@@ -142,16 +142,16 @@ export default function Sidebar({ onChannelSelect, selectedGroup, selectedChanne
             </View>
           )}
 
-          {/* Bouton Dashboard */}
+          {/* Bouton Dashboard/Account */}
           <TouchableOpacity 
             style={[
               styles.menuItem,
-              currentSection === 'dashboard' && styles.selectedItem
+              currentSection === 'account' && styles.selectedItem
             ]}
-            onPress={() => onNavigate(SCREENS.DASHBOARD)}
+            onPress={() => onNavigate(SCREENS.ACCOUNT)}
           >
-            <Ionicons name="grid-outline" size={24} color={COLORS.gray300} />
-            <Text style={styles.menuText}>Dashboard</Text>
+            <Ionicons name="person-outline" size={24} color={COLORS.gray300} />
+            <Text style={styles.menuText}>Account</Text>
           </TouchableOpacity>
 
           {/* Bouton Logout */}
@@ -243,8 +243,7 @@ const styles = StyleSheet.create({
   },
   groupName: {
     color: COLORS.gray300,
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: SIZES.fonts.subtitleSmartphone,
     marginLeft: 10
   },
   groupNameSmartphone: {
@@ -267,7 +266,7 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   channelNameSmartphone: {
-    fontSize: 14,
+    fontSize: SIZES.fonts.textSmartphone,
   },
   menuItem: {
     flexDirection: 'row',
@@ -278,7 +277,8 @@ const styles = StyleSheet.create({
   },
   menuText: {
     color: COLORS.gray300,
-    fontSize: 16,
+    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontWeight: '600',
     marginLeft: 15,
   },
   chevron: {

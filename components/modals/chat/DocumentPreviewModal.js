@@ -154,7 +154,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
               </Text>
             </View>
           </View>
-
+          
           {renderPreview()}
           <View style={styles.buttonContainer}> 
             <Button title="Download" variant="large"onPress={handleDownload} />
@@ -169,12 +169,14 @@ const styles = StyleSheet.create({
   modalContent: {
     flex: 1,
     backgroundColor: COLORS.gray900,
-    marginTop: '15%',
-    marginBottom: '15%',
+    // marginTop: '15%',
+    // marginBottom: '15%',
     padding: 20,
     backgroundColor: COLORS.gray750,
     borderRadius: SIZES.borderRadius.large,
-    width: '90%',
+    width: '100%',
+    height: '100%',
+    
   },
   closeButton: {
     position: 'absolute',

@@ -5,6 +5,8 @@ import InputChatWindow from '../inputs/InputChatWindow';
 import ChatMessage from './ChatMessage';
 import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { sendMessageApi } from '../../services/messageApi';
 
 export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange }) {
   const { isSmartphone, isTablet } = useDeviceType();
@@ -56,26 +58,39 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   };
 
   // Function to send a message
-  const sendMessage = (messageData) => {
-    const newMessage = {
-      id: Date.now(),
-      username: "Me",
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isOwnMessage: true,
-      ...(typeof messageData === 'string' 
-        ? { type: 'text', text: messageData }
-        : { type: 'file', ...messageData }
-      )
-    };
-    
-    setMessages([...messages, newMessage]);
-
-    // We scroll to the bottom of the chat after the message is sent
-    setTimeout(() => {
-      if (scrollViewRef.current) {
-        scrollViewRef.current.scrollToEnd({ animated: true });
+  const sendMessage = async (messageData) => {
+    try {
+      const credentialsStr = await AsyncStorage.getItem('userCredentials');
+      if (!credentialsStr) {
+        console.error('❌ Pas de credentials trouvées');
+        return;
       }
-    }, 100);
+      
+      const credentials = JSON.parse(credentialsStr);
+      
+      const response = await sendMessageApi(channel.id, messageData, credentials);
+      
+      if (response.status === 'ok') {
+        const newMessage = {
+          id: Date.now(),
+          username: "Moi",
+          text: messageData,
+          timestamp: new Date().toLocaleTimeString(),
+          isOwnMessage: true
+        };
+        
+        setMessages([...messages, newMessage]);
+
+        // Scroll to bottom
+        setTimeout(() => {
+          if (scrollViewRef.current) {
+            scrollViewRef.current.scrollToEnd({ animated: true });
+          }
+        }, 100);
+      }
+    } catch (error) {
+      console.error('🔴 Erreur envoi message:', error);
+    }
   };
 
   return (

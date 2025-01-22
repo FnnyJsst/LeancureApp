@@ -183,7 +183,6 @@ const styles = StyleSheet.create({
   smartphoneContainer: {
     height: 60,
     paddingHorizontal: 10,
-    marginBottom: 10,
   },
   attachIcon: {
     transform: [{rotate: '45deg'}],
