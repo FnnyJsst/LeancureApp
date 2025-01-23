@@ -179,7 +179,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                     <View style={styles.groupHeaderContent}>
                       <Ionicons 
                         name={selectedGroup?.id === group.id ? "chevron-down" : "chevron-forward"} 
-                        size={isSmartphone ? 20 : 24} 
+                        size={isSmartphone ? 10 : 15} 
                         color={COLORS.gray300}
                       />
                       <Text style={[
@@ -206,6 +206,11 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                           isSmartphone && styles.channelNameSmartphone
                         ]}>{channel.title}</Text>
                       </View>
+                      {channel.unreadCount > 0 && (
+                        <View style={styles.unreadBadge}>
+                          <Text style={styles.unreadCount}>{channel.unreadCount}</Text>
+                        </View>
+                      )}
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -325,6 +330,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   channelItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 8,
     paddingHorizontal: 30,
     marginBottom: 6,
@@ -338,7 +346,7 @@ const styles = StyleSheet.create({
   },
   hashIcon: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.subtitleTablet,
+    fontSize: 14,
     fontWeight: SIZES.fontWeight.medium,
   },
   channelName: {
@@ -402,7 +410,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   userRole: {
-    color: COLORS.gray300,
+    color: COLORS.orange,
     fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.regular,
   },
@@ -412,7 +420,9 @@ const styles = StyleSheet.create({
   settingsButton: {
     backgroundColor: "#271E1E",
     // padding: 5,
-    borderRadius: SIZES.borderRadius.small,
+    borderRadius: SIZES.borderRadius.medium,
+    borderWidth: 0.5,
+    borderColor: '#403430',
     width: 50,
     height: 36,
     justifyContent: 'center',
@@ -439,5 +449,19 @@ const styles = StyleSheet.create({
   searchInputSmartphone: {
     fontSize: 14,
     
+  },
+  unreadBadge: {
+    backgroundColor: COLORS.orange,
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+  },
+  unreadCount: {
+    color: COLORS.white,
+    fontSize: 12,
+    fontWeight: SIZES.fontWeight.bold,
   },
 });

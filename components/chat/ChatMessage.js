@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     minWidth: 50,
     marginBottom: 10,
-    marginTop: 3,
+    marginTop: 4,
     borderRadius: SIZES.borderRadius.large,
   },
   textMessageContainer: {
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   },
   otherMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.gray750,
+    backgroundColor: "#222222",
   },
   messageText: {
     color: COLORS.white,

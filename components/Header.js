@@ -119,6 +119,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 15,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#403430',
   },
   noBorder: {
     borderBottomWidth: 0,
@@ -140,10 +142,11 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: SIZES.fonts.subtitleTablet,
-    color: COLORS.gray300,
+    color: COLORS.white,
+    fontWeight: SIZES.fontWeight.medium,
   },
   headerTextSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: 16,
   },
   iconButton: {
     padding: 5,
@@ -154,15 +157,5 @@ const styles = StyleSheet.create({
   },
   menuButtonLeft: {
     marginLeft: 0,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    height: 60,
-    backgroundColor: "#111111",
-    borderBottomWidth: 1,
-    borderBottomColor: '#403430',
   },
 });
