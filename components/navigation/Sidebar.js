@@ -370,6 +370,7 @@ const styles = StyleSheet.create({
   },
   menuTextSmartphone: {
     fontSize: 15,
+    fontWeight: SIZES.fontWeight.medium,
   },
   logoutButton: {
     marginTop: 'auto',

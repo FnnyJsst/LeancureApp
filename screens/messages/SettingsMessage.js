@@ -21,7 +21,7 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded 
     <>
       <Header 
         showMenuIcon={true} 
-        showAccountImage={true} 
+        // showAccountImage={true} 
         onNavigate={onNavigate} 
         toggleMenu={toggleMenu}
       />
