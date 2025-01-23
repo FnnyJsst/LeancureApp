@@ -9,56 +9,65 @@ export default function SettingsCard({ icon, title, description, onPress }) {
   const { isSmartphone } = useDeviceType();
 
   return (
-      <TouchableOpacity 
-        style={[
-          styles.button,
-          isSmartphone && styles.buttonSmartphone
-        ]} 
-        onPress={onPress}
-      >
-        {icon && <View style={styles.iconContainer}>{icon}</View>}
+    <TouchableOpacity 
+      style={styles.container} 
+      onPress={onPress}
+    >
+      <View style={styles.content}>
+        <View style={[
+          styles.iconContainer,
+          isSmartphone && styles.iconContainerSmartphone
+        ]}>
+          {icon}
+        </View>
         <View style={styles.textContainer}>
           <Text style={[
-            styles.text,
-            isSmartphone && styles.textSmartphone
-          ]}>
-            {title}
-          </Text>
-          {description && (
-            <Text style={[
-              styles.description,
-              isSmartphone && styles.descriptionSmartphone
-            ]}>
-              {description}
-            </Text>
-          )}
+            styles.title,
+            isSmartphone && styles.titleSmartphone
+          ]}>{title}</Text>
+          <Text style={[
+            styles.description,
+            isSmartphone && styles.descriptionSmartphone
+          ]}>{description}</Text>
         </View>
-      </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
+  container: {
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center'
   },
-  buttonSmartphone: {
-    paddingVertical: 2
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   iconContainer: {
-    marginRight: 10
+    width: 50,
+    height: 50,
+    borderRadius: SIZES.borderRadius.small,
+    backgroundColor: '#403430',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  iconContainerSmartphone: {
+    width: 40,
+    height: 40,
   },
   textContainer: {
     flex: 1
   },
-  text: {
+  title: {
     fontSize: SIZES.fonts.subtitleTablet,
     color: COLORS.white,
     fontWeight: SIZES.fontWeight.regular
   },
-  textSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+  titleSmartphone: {
+    fontSize: 15,
     fontWeight: SIZES.fontWeight.medium
   },
   description: {

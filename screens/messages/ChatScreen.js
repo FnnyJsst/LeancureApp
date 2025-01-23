@@ -83,6 +83,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
         onNavigate={onNavigate} 
         toggleMenu={toggleMenu} 
         title={selectedChannel?.title}
+        currentSection={currentSection}
       />
       <Sidebar 
         onChannelSelect={handleChannelSelect}

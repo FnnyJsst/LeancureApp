@@ -10,37 +10,31 @@ export default function ParameterButton({ onPress }) {
   const { isSmartphone } = useDeviceType(); 
 
   // State to handle the icon color and border color
-  const [iconColor, setIconColor] = useState(COLORS.gray300);  
-  const [borderColor, setBorderColor] = useState(COLORS.gray300);
+  const [iconColor, setIconColor] = useState(COLORS.white);  
 
   // When we press the button, we change the icon color to orange
   const handlePressIn = () => {
     setIconColor(COLORS.orange);
-    setBorderColor(COLORS.orange);
   };
 
   // When we release the button, we change the icon color back to gray
   const handlePressOut = () => {
-    setIconColor(COLORS.gray300);
-    setBorderColor(COLORS.gray300);
+    setIconColor(COLORS.white);
   };
 
   return (
     <View style={styles.container}>
       <TouchableOpacity 
+        style={styles.buttonContainer}
         onPress={onPress}
         onPressIn={handlePressIn}   
         onPressOut={handlePressOut}  
       >
-        <View style={[
-          styles.iconContainer,
-          { borderColor: borderColor } 
-        ]}>
+        <View style={styles.iconContainer}>
           <Ionicons 
             name="settings-outline" 
             color={iconColor}    
-            size={isSmartphone ? 35 : 50} 
-            style={styles.icon} 
+            size={isSmartphone ? 24 : 28} 
           />
         </View>
       </TouchableOpacity>
@@ -52,9 +46,17 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     bottom: 25,
-    left: 10,
   },
-  icon: {
-    padding: 8,
+  buttonContainer: {
+    backgroundColor: '#271E1E',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  iconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });

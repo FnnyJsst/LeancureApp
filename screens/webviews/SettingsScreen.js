@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Header from '../../components/Header';
 import TitleSettings from '../../components/text/TitleSettings';
 import SettingsCard from '../../components/cards/SettingsCard';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnly from '../../components/modals/webviews/ReadOnly';
 import PasswordModal from '../../components/modals/webviews/PasswordModal';
@@ -89,25 +89,24 @@ export default function SettingsScreen({
 
   return (
     <View>
-      <ScrollView 
-        // Show the vertical scroll indicator
-        showsVerticalScrollIndicator={true}
-      >
-        <Header 
-          // Handle the back button press
-          onBackPress={handleBackPress} 
-          title="Settings"
-        />
+      <ScrollView showsVerticalScrollIndicator={true}>
+        <View style={styles.customHeaderContainer}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={handleBackPress}
+          >
+            <Ionicons 
+              name="chevron-back-outline" 
+              size={isSmartphone ? 24 : 28} 
+              color={COLORS.white} 
+            />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Settings</Text>
+        </View>
         <View style={[
           styles.pageContainer,
           isSmartphonePortrait && styles.pageContainerSmartphonePortrait
         ]}>
-          {/* <View style={styles.headerContainer}>
-            <Text style={[
-              styles.header,
-              isSmartphone && styles.headerSmartphone
-            ]}>Settings</Text>
-          </View> */}
           <View style={[
             styles.configContainer,
             styles.configContainerTablet,
@@ -236,7 +235,7 @@ export default function SettingsScreen({
           </View>
           <View style={styles.separatorContainer}>
           </View>
-          <TitleSettings title="Information" />
+          <TitleSettings title="Informations" />
           <Text style={[
             styles.text,
             isTablet ? styles.versionTextTablet : styles.versionTextSmartphone,
@@ -282,31 +281,17 @@ const styles = StyleSheet.create({
     paddingTop: '3%',
   },
 
-  // HEADER CONTAINER
-  headerContainer: {
-    marginBottom: 20,
-    marginTop: 20,
-    marginLeft: 30,
-    alignItems: 'flex-start',
-  },
-  header: {
-    color: COLORS.white,
-    fontSize: SIZES.fonts.headerTablet,
-    fontWeight: SIZES.fontWeight.bold,
-  },
-  headerSmartphone: {
-    fontSize: SIZES.fonts.headerSmartphone,
-  },
-
   // CONFIG CONTAINER
   configContainer: {
     backgroundColor: COLORS.gray800,
-    borderRadius: SIZES.borderRadius.small,
-    paddingVertical: 20,
+    borderRadius: SIZES.borderRadius.large,
+    paddingVertical: 12,
     paddingHorizontal: 15,
     marginHorizontal: 15,
     alignSelf: 'center',
     marginVertical: 8,
+    borderWidth: 1,
+    borderColor: '#403430',
   },
   configContainerTablet: {
     // minHeight: 58,
@@ -357,8 +342,31 @@ const styles = StyleSheet.create({
   versionTextSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
     marginLeft: 30,
+    marginTop: -5
   },
   versionTextSmartphoneLandscape: {
     marginBottom: 40,
+  },
+
+  customHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    marginBottom: 5,
+  },
+  backButton: {
+    backgroundColor: '#271E1E',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  headerTitle: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.subtitleTablet,
+    fontWeight: SIZES.fontWeight.bold,
   },
 });

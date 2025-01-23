@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
+import Entypo from '@expo/vector-icons/Entypo';
 
 /**
  * Channel Management Screen Component
@@ -142,17 +143,39 @@ export default function ChannelsManagementScreen({
 
 return (
   <View style={styles.pageContainer}>
-    <Header
-      // Check if the user is not read only
-      onRightIconPress={!isReadOnly ? openImportModal : null}
-      // Set the right icon to add to the list
-      rightIcon="add-to-list"
-      // Navigate back to the settings screen
-      onBackPress={() => onNavigate(SCREENS.SETTINGS)}
-      // Check if the user is not read only
-      showIcons={!isReadOnly}
-      // Check if the user is not read only
-    />
+    <View style={styles.customHeaderContainer}>
+      <TouchableOpacity 
+        style={styles.iconBackground}
+        onPress={() => onNavigate(SCREENS.SETTINGS)}
+      >
+        <Ionicons 
+          name="chevron-back-outline" 
+          size={isSmartphone ? 24 : 28} 
+          color={COLORS.gray300} 
+        />
+      </TouchableOpacity>
+      {/* <Text style={styles.headerTitle}>Channels management</Text> */}
+      {!isReadOnly && (
+        <TouchableOpacity 
+          style={styles.iconBackground}
+          onPress={openImportModal}
+        >
+          <Entypo 
+            name="add-to-list"
+            size={isSmartphone ? 24 : 28}
+            color={COLORS.gray300}
+          />
+        </TouchableOpacity>
+      )}
+    </View>
+    
+    <Text style={[
+      styles.addChannelText, 
+      isSmartphone && styles.addChannelTextSmartphone
+    ]}>
+      Use the top right button to add a channel
+    </Text>
+
     {/* Modal to import channels */}
     <ImportChannelDialog
       visible={isImportModalVisible}
@@ -176,9 +199,6 @@ return (
     {/* List of channels */}
     <ScrollView>
       <View style={styles.channelsContainer}>
-        <View style={styles.headerContainer}>
-          <Text style={[styles.header, isSmartphone && styles.headerSmartphone]}>Channels management</Text>
-        </View>
         {selectedChannels && selectedChannels.map((channel, index) => (
           <View 
             style={[
@@ -380,7 +400,38 @@ const styles = StyleSheet.create({
   textSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
   },
+  addChannelText: {
+    color: COLORS.gray300,
+    fontSize: SIZES.fonts.textTablet,
+    textAlign: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  addChannelTextSmartphone: {
+    fontSize: 16,
+  },
   textSelected: {
     color: COLORS.orange,
+  },
+  customHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    marginBottom: 5,
+  },
+  iconBackground: {
+    backgroundColor: '#271E1E',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.headerTablet,
+    fontWeight: SIZES.fontWeight.bold,
   },
 });

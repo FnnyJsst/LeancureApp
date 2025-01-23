@@ -16,7 +16,8 @@ export default function Header({
   showBackButton = true,
   toggleMenu,
   noBorder,
-  transparent
+  transparent,
+  currentSection
 }) {
   const { isSmartphone } = useDeviceType();
   const iconSize = isSmartphone ? 30 : 40;
@@ -80,8 +81,8 @@ export default function Header({
       <View style={[
         styles.headerContainer,
         isSmartphone && styles.headerContainerSmartphone,
-        noBorder && styles.noBorder,
-        transparent && styles.transparent
+        transparent && styles.transparent,
+        currentSection !== 'chat' && styles.noBorder
       ]}>
         {renderLeftSection()}
 

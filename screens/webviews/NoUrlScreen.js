@@ -24,7 +24,18 @@ export default function NoUrlScreen({
 
   return (
     <View style={styles.pageContainer}>
-      <Header  onBackPress={() => onNavigate(SCREENS.APP_MENU)} />
+      <View style={styles.customHeaderContainer}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={handleBackPress}
+        >
+          <Ionicons 
+            name="chevron-back-outline" 
+            size={isSmartphone ? 24 : 28} 
+            color={COLORS.white} 
+          />
+        </TouchableOpacity>
+      </View>
       <View style={styles.textContainer}>
         <Text style={[
           styles.text,
@@ -43,15 +54,26 @@ const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
   },
-  backButton: {
-    position: 'absolute',
-    top: 20,
-    left: 55, 
-    zIndex: 1,
-
+  customHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    marginBottom: 5,
   },
-  leftArrowIcon: {
-    color: COLORS.gray300,
+  backButton: {
+    backgroundColor: '#271E1E',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  headerTitle: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.subtitleTablet,
+    fontWeight: SIZES.fontWeight.bold,
   },
   textContainer: {
     flex: 1,
