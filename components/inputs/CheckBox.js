@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.subtitleTablet,
   },
   labelSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: SIZES.fonts.textSmartphone,
   },
   labelDisabled: {
     color: COLORS.gray300,

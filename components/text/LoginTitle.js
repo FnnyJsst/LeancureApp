@@ -7,36 +7,53 @@ export default function LoginTitle() {
   const { isSmartphone } = useDeviceType();
 
   return (
-    <View style={styles.titleContainer}>
-      <Image 
-        source={require('../../assets/images/logo.png')}
-        style={styles.logo}
-      />
+    <View style={styles.container}>
       <Text style={[
-        styles.title,
-        isSmartphone && styles.titleSmartphone
-      ]}>Sign in to your account</Text>
+        styles.welcomeTitle,
+        isSmartphone && styles.welcomeTitleSmartphone
+      ]}>
+        Welcome
+      </Text>
+      <Text style={[
+        styles.subtitle,
+        isSmartphone && styles.subtitleSmartphone
+      ]}>
+        Sign in to your account
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
     alignItems: 'center',
-    marginVertical: 30,
+    marginTop: 40,
+    marginBottom: 30,
   },
-  logo: {
-    width: 120,
-    height: 120,
-    resizeMode: 'contain',
-    marginBottom: -25,
-  },
-  title: {
+  welcomeTitle: {
+    fontSize: 42,
+    fontWeight: '700',
     color: COLORS.white,
+    marginBottom: 8,
+    letterSpacing: 0.5,
+    // Effet de dégradé subtil
+    textShadowColor: COLORS.orange + '20',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+    // Effet de dégradé sur le texte
+    opacity: 0.95,
+  },
+  welcomeTitleSmartphone: {
+    fontSize: 35,
+  },
+  subtitle: {
     fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: SIZES.fontWeight.regular,
+    color: COLORS.gray400,
+    fontWeight: '400',
+    letterSpacing: 0.4,
   },
-  titleSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
-  },
+  subtitleSmartphone: {
+    fontSize: 15,
+    color: COLORS.gray300,
+  }
 }); 

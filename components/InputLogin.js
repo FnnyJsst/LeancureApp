@@ -14,12 +14,13 @@ export default function InputLogin({
 }) {
     const { isSmartphone } = useDeviceType();
     const [showPassword, setShowPassword] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
 
     const renderIcon = () => {
         const iconProps = {
             name: iconName,
             size: 20,
-            color: COLORS.gray600,
+            color: isFocused ? COLORS.orange : COLORS.gray600,
             style: styles.icon
         };
 
@@ -38,7 +39,10 @@ export default function InputLogin({
     };
 
     return (
-        <View style={styles.inputContainer}>
+        <View style={[
+            styles.inputContainer,
+            isFocused && styles.inputContainerFocused
+        ]}>
             {renderIcon()}
             <TextInput 
                 style={[
@@ -49,19 +53,21 @@ export default function InputLogin({
                 value={value} 
                 onChangeText={onChangeText} 
                 secureTextEntry={secureTextEntry && !showPassword} 
-                placeholderTextColor={COLORS.gray600}
+                placeholderTextColor={"#808080"}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
             />
             {secureTextEntry && (
                 <TouchableOpacity 
                     onPress={() => setShowPassword(!showPassword)}
                     style={styles.eyeIcon}
                 >
-                <Ionicons 
-                    name={showPassword ? "eye-outline" : "eye-off-outline"} 
-                    size={20} 
-                    color={COLORS.gray600} 
-                />
-            </TouchableOpacity>
+                    <Ionicons 
+                        name={showPassword ? "eye-outline" : "eye-off-outline"} 
+                        size={20} 
+                        color={COLORS.gray600} 
+                    />
+                </TouchableOpacity>
             )}
         </View>
     )
@@ -71,10 +77,20 @@ const styles = StyleSheet.create({
     inputContainer: {
         width: '95%',
         backgroundColor: COLORS.gray900,
-        borderRadius: SIZES.borderRadius.small,
+        borderRadius: SIZES.borderRadius.medium,
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: 'transparent',
+        transition: 'all 0.3s ease',
+    },
+    inputContainerFocused: {
+        borderColor: COLORS.orange + '50',  // Orange avec 50% d'opacité
+        shadowColor: COLORS.orange,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 3,
     },
     icon: {
         marginLeft: 10,

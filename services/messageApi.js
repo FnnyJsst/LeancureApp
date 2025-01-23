@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://192.168.77.101/ic.php';
+const API_URL = 'http://192.168.1.67/ic.php';
 
 //This API is used to fetch the user's channels
 export const fetchUserChannels = async (contractNumber, login, password, email, nom, prenom) => {

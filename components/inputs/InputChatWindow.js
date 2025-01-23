@@ -47,6 +47,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   // Hook to determine the device type
   const { isSmartphone } = useDeviceType();
   const [isEmojiPickerVisible, setIsEmojiPickerVisible] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   // Function to format the file size
   const formatFileSize = (bytes) => {
@@ -92,13 +93,13 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
 
   // Function to handle the focus of the input
   const handleFocus = () => {
-    // Inform parent that the input is focused
+    setIsFocused(true);
     onFocusChange(true);
   };
 
   // Function to handle the blur of the input
   const handleBlur = () => {
-    // Inform parent that the input is not focused
+    setIsFocused(false);
     onFocusChange(false);
   };
 
@@ -158,9 +159,13 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         ) : (
           // If we don't have a selected file, we display the input for the message
           <TextInput
-            style={[styles.input, isSmartphone && styles.smartphoneInput]}
+            style={[
+              styles.input,
+              isSmartphone && styles.smartphoneInput,
+              isFocused && styles.inputFocused
+            ]}
             placeholder="Type your message here..."
-            placeholderTextColor={COLORS.gray300}
+            placeholderTextColor={COLORS.gray600}
             value={message}
             onChangeText={setMessage}
             multiline
@@ -246,11 +251,21 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.textTablet,
     marginRight: 10,
     color: COLORS.gray300,
-    backgroundColor: COLORS.gray850, // Fond gris pour l'input
+    backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.small,
     paddingHorizontal: 12,
     paddingVertical: 8,
     height: 36,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  inputFocused: {
+    borderColor: COLORS.orange + '50',
+    shadowColor: COLORS.orange,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
   },
   smartphoneInput: {
     fontSize: SIZES.fonts.textSmartphone,

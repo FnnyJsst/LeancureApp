@@ -1,77 +1,70 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import Button from '../../../components/buttons/Button';
+import InputLogin from '../../../components/InputLogin';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 
 // Simplified login screen is used when the user has already logged in and checked "Stay connected" on the login screen
 export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handleLogin }) {
-
-  // Customized hook to determine the device type and orientation
-  const { isSmartphone, isLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType();
+  const { isSmartphone, isLandscape } = useDeviceType();
   
   return (
     <View>
-      {/* <View style={[styles.welcomeContainer, isLandscape && styles.welcomeContainerLandscape, isSmartphonePortrait && styles.welcomeContainerSmartphonePortrait, isSmartphoneLandscape && styles.welcomeContainerSmartphoneLandscape]}>
-        <Text style={[
-          styles.welcomeText,
-          isSmartphone && styles.welcomeTextSmartphone,
-          isSmartphoneLandscape && styles.welcomeContainerSmartphoneLandscape
-        ]}>Welcome back</Text>
-      </View> */}
-      <View style={[styles.loginContainer, isSmartphone && styles.loginContainerSmartphone, isLandscape && styles.loginContainerLandscape]}>
-        <View style={[styles.accountContainer, isSmartphone && styles.accountContainerSmartphone]}>
-          <View style={styles.accountDetailsContainer}>
-            <Text style={[styles.contractNumberText, isSmartphone && styles.contractNumberTextSmartphone]}>
-              Contract number
-            </Text>
-            <Text style={[styles.contractNumber, isSmartphone && styles.contractNumberSmartphone]}>{contractNumber}</Text>
+      <View style={[
+        styles.loginContainer, 
+        isSmartphone && styles.loginContainerSmartphone, 
+        isLandscape && styles.loginContainerLandscape
+      ]}>
+        <View style={styles.inputGroup}>
+          <Text style={[
+            styles.inputTitle,
+            isSmartphone && styles.inputTitleSmartphone
+          ]}>
+            Contract number
+          </Text>
+          <View style={styles.inputWrapper}>
+            <InputLogin 
+              placeholder="Enter your contract number"
+              value={contractNumber}
+              editable={false}
+              iconName="document-text-outline"
+              iconLibrary="Ionicons"
+            />
           </View>
-          <TouchableOpacity 
-            style={styles.loginIcon}
-            onPress={() => handleLogin()}
-          >
-            <Ionicons name="chevron-forward-outline" size={isSmartphone ? 25 : 40} color={COLORS.white} />
-          </TouchableOpacity>
         </View>
+
         <View style={styles.buttonContainer}>
           <Button 
-            title="Switch account"
+            title="Login"
             variant="large"
-            onPress={onSwitchAccount}
+            onPress={handleLogin}
             backgroundColor={COLORS.orange}
           />
         </View>
       </View>
+      
+      <TouchableOpacity 
+        style={styles.switchAccountLink}
+        onPress={onSwitchAccount}
+      >
+        <Text style={styles.switchAccountText}>
+          Switch account
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // welcomeContainer: {
-  //   marginTop: 50,
-  //   marginBottom: 30,
-  //   width: '70%',
-  //   alignSelf: 'center',
-  // },
-  // welcomeContainerSmartphonePortrait: {
-  //   width: '95%',
-  // },
-  // welcomeContainerLandscape: {
-  //   width: '50%',
-  //   marginTop: 4,
-  // },
-  // welcomeContainerSmartphoneLandscape: {
-  //   marginTop: 0,
-  //   marginBottom: 10,
-  // },
   loginContainer: {
-    gap: 20,
-    backgroundColor: COLORS.gray800,
+    backgroundColor: "#271E1E",
+    padding: 25,
+    borderRadius: SIZES.borderRadius.xxLarge,
     alignSelf: 'center',
-    padding: 20,
-    borderRadius: SIZES.borderRadius.small, 
     width: '70%',
+    borderWidth: 1,
+    borderColor: '#403430',
+    marginTop: 20,
   },
   loginContainerSmartphone: {
     width: '95%',
@@ -79,51 +72,34 @@ const styles = StyleSheet.create({
   loginContainerLandscape: {
     width: '50%',
   },
-  accountContainer: {
-    width: '100%',
-    backgroundColor: COLORS.gray650,
-    borderRadius: SIZES.borderRadius.large,
-    padding: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
+  inputGroup: {
+    marginBottom: 10,
   },
-  accountContainerSmartphone: {
-    paddingVertical: 10,
-  },
-  accountDetailsContainer: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    flex: 1,
-  },
-  contractNumberText: {
+  inputTitle: {
     color: COLORS.gray300,
     fontSize: SIZES.fonts.subtitleTablet,
+    fontWeight: SIZES.fontWeight.regular,
+    marginLeft: 10,
+    marginBottom: 5,
   },
-  contractNumberTextSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+  inputTitleSmartphone: {
+    fontSize: SIZES.fonts.inputTitleSmartphone,
   },
-  contractNumber: {
-    color: COLORS.white,
-    fontSize: SIZES.fonts.textTablet,
-    fontWeight: SIZES.fontWeight.medium,
-    marginTop: 5,
-  },
-  contractNumberSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
-  },
-  loginIcon: {
-    padding: 10,
-  },
-  welcomeText: {
-    color: COLORS.white,
-    fontWeight: SIZES.fontWeight.bold,
-    fontSize: SIZES.fonts.headerTablet,
-  },
-  welcomeTextSmartphone: {
-    fontSize: SIZES.fonts.headerSmartphone,
+  inputWrapper: {
+    width: '100%',
+    alignItems: 'center',
   },
   buttonContainer: {
     width: '100%',
+  },
+  switchAccountLink: {
+    padding: 15,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  switchAccountText: {
+    color: COLORS.gray300,
+    fontSize: SIZES.fonts.textSmartphone,
+    textDecorationLine: 'underline',
   },
 });

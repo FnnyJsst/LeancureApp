@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, Image, StyleSheet, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import Button from '../../../components/buttons/Button';
 import InputLogin from '../../../components/InputLogin';
 import CheckBox from '../../../components/inputs/CheckBox';
@@ -11,8 +10,8 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SCREENS } from '../../../constants/screens';
 import { Ionicons } from '@expo/vector-icons';
 import { loginApi, fetchUserChannels } from '../../../services/messageApi';
-import Header from '../../../components/Header';
 import LoginTitle from '../../../components/text/LoginTitle';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function Login({ onNavigate }) {
 
@@ -150,120 +149,157 @@ export default function Login({ onNavigate }) {
     };
 
     return (
-    <View style={[styles.pageContainer, isTablet && styles.pageContainerTablet]}>
-        <Header 
-            // title="Sign in to your account"
-            onBackPress={() => onNavigate(SCREENS.APP_MENU)}
-        />
-        <LoginTitle />
-        <View style={[styles.formContainerPortrait, isSmartphone && styles.formContainerSmartphonePortrait]}>
-            <ScrollView>
-                {/* If the user has checked the "Stay connected" checkbox, we show the simplified login screen */}
-                {isSimplifiedLogin ? (
-                    <SimplifiedLogin 
-                        contractNumber={contractNumber}
-                        login={login}
-                        onSwitchAccount={() => setIsSimplifiedLogin(false)}
-                        handleLogin={handleLogin}
-                    />
-                ) : (
-                    <>
-                        {/* If the user has not checked the "Stay connected" checkbox, we show the login form */}
-                        <View style={[
-                            styles.loginContainer,
-                            isSmartphone && styles.loginContainerSmartphone,
-                            isLandscape && styles.loginContainerLandscape
-                        ]}>
-                            
-                            <View style={styles.inputsContainer}>
-                                <View style={styles.inputGroup}>
-                                    <Text style={[
-                                        styles.inputTitle,
-                                        isSmartphone && styles.inputTitleSmartphone,
-                                        isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape
-                                    ]}>Contract number</Text>
-                                    <View style={styles.inputWrapper}>
-                                        <InputLogin 
-                                            placeholder="Enter your contract number"
-                                            value={contractNumber}
-                                            onChangeText={setContractNumber}
-                                            iconName="document-text-outline"
-                                            iconLibrary="Ionicons"
-                                        />
-                                    </View>
-                                </View>
-
-                                <View style={styles.inputGroup}>
-                                    <Text style={[
-                                        styles.inputTitle,
-                                        isSmartphone && styles.inputTitleSmartphone,
-                                        isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape
-                                    ]}>
-                                        Login
-                                    </Text>
-                                    <View style={styles.inputWrapper}>
-                                        <InputLogin 
-                                            placeholder="Enter your login"
-                                            value={login}
-                                            onChangeText={setLogin}
-                                            iconName="person-outline"
-                                        />
-                                    </View>
-                                </View>
-
-                                <View style={styles.inputGroup}>
-                                    <Text style={[
-                                        styles.inputTitle, 
-                                        isSmartphone && styles.inputTitleSmartphone,
-                                        isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>
-                                        Password
-                                    </Text>
-                                    <View style={styles.inputWrapper}>
-                                        <InputLogin 
-                                            placeholder="Enter your password"
-                                            value={password}
-                                            onChangeText={setPassword}
-                                            secureTextEntry
-                                            iconName="lock-closed-outline"
-                                        />
-                                    </View>
-                                </View>
-
-                                {error ? (
-                                    <Text style={styles.errorText}>{error}</Text>
-                                ) : null}
-
-                                <View style={styles.checkboxContainer}>
-                                    <CheckBox 
-                                        checked={isChecked}
-                                        onPress={() => setIsChecked(!isChecked)}
-                                        label="Stay connected"
+        <>
+            <StatusBar 
+                backgroundColor="#121212"
+                barStyle="light-content"
+                translucent={true}
+            />
+            <LinearGradient
+                colors={[
+                    '#452616',  // Orange marron clair
+                    '#2a1c15',  // Transition
+                    '#121212',  // Gris très foncé
+                    '#121212',  // Gris très foncé
+                ]}
+                locations={[0, 0.15, 0.3, 1]}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}  // Étendu sur toute la hauteur
+                style={[styles.container, { paddingTop: StatusBar.currentHeight }]}
+            >
+                <View style={[styles.pageContainer, isTablet && styles.pageContainerTablet]}>
+                    <ScrollView>
+                        <View style={styles.contentContainer}>
+                            <LoginTitle />
+                            <View style={[styles.formContainerPortrait, isSmartphone && styles.formContainerSmartphonePortrait]}>
+                                {/* If the user has checked the "Stay connected" checkbox, we show the simplified login screen */}
+                                {isSimplifiedLogin ? (
+                                    <SimplifiedLogin 
+                                        contractNumber={contractNumber}
+                                        login={login}
+                                        onSwitchAccount={() => setIsSimplifiedLogin(false)}
+                                        handleLogin={handleLogin}
                                     />
-                                </View>
+                                ) : (
+                                    <>
+                                        {/* If the user has not checked the "Stay connected" checkbox, we show the login form */}
+                                        <View style={[
+                                            styles.loginContainer,
+                                            isSmartphone && styles.loginContainerSmartphone,
+                                            isLandscape && styles.loginContainerLandscape
+                                        ]}>
+                                            
+                                            <View style={styles.inputsContainer}>
+                                                <View style={styles.inputGroup}>
+                                                    <Text style={[
+                                                        styles.inputTitle,
+                                                        isSmartphone && styles.inputTitleSmartphone,
+                                                        isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape
+                                                    ]}>Contract number</Text>
+                                                    <View style={styles.inputWrapper}>
+                                                        <InputLogin 
+                                                            placeholder="Enter your contract number"
+                                                            value={contractNumber}
+                                                            onChangeText={setContractNumber}
+                                                            iconName="document-text-outline"
+                                                            iconLibrary="Ionicons"
+                                                        />
+                                                    </View>
+                                                </View>
 
-                                <View style={styles.buttonContainer}>
-                                    <Button 
-                                        variant="large"
-                                        // If the login is in progress, we show "Connecting..."
-                                        title={isLoading ? "Connecting..." : "Login"}
-                                        onPress={handleLogin}
-                                        width="100%"
-                                    />
-                                </View>
+                                                <View style={styles.inputGroup}>
+                                                    <Text style={[
+                                                        styles.inputTitle,
+                                                        isSmartphone && styles.inputTitleSmartphone,
+                                                        isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape
+                                                    ]}>
+                                                        Login
+                                                    </Text>
+                                                    <View style={styles.inputWrapper}>
+                                                        <InputLogin 
+                                                            placeholder="Enter your login"
+                                                            value={login}
+                                                            onChangeText={setLogin}
+                                                            iconName="person-outline"
+                                                        />
+                                                    </View>
+                                                </View>
+
+                                                <View style={styles.inputGroup}>
+                                                    <Text style={[
+                                                        styles.inputTitle, 
+                                                        isSmartphone && styles.inputTitleSmartphone,
+                                                        isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>
+                                                        Password
+                                                    </Text>
+                                                    <View style={styles.inputWrapper}>
+                                                        <InputLogin 
+                                                            placeholder="Enter your password"
+                                                            value={password}
+                                                            onChangeText={setPassword}
+                                                            secureTextEntry
+                                                            iconName="lock-closed-outline"
+                                                        />
+                                                    </View>
+                                                </View>
+
+                                                {error ? (
+                                                    <Text style={styles.errorText}>{error}</Text>
+                                                ) : null}
+
+                                                <View style={styles.checkboxContainer}>
+                                                    <CheckBox 
+                                                        checked={isChecked}
+                                                        onPress={() => setIsChecked(!isChecked)}
+                                                        label="Stay connected"
+                                                    />
+                                                </View>
+
+                                                <View style={styles.buttonContainer}>
+                                                    <Button 
+                                                        variant="large"
+                                                        // If the login is in progress, we show "Connecting..."
+                                                        title={isLoading ? "Connecting..." : "Login"}
+                                                        onPress={handleLogin}
+                                                        width="100%"
+                                                    />
+                                                </View>
+                                            </View>
+                                        </View>
+                                        <TouchableOpacity 
+                                            style={styles.backLink}
+                                            onPress={() => onNavigate(SCREENS.APP_MENU)}
+                                        >
+                                            <Text style={styles.backLinkText}>
+                                                Return to title screen
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </>
+                                )}
                             </View>
                         </View>
-                    </>
-                )}
-            </ScrollView>
-        </View>
-    </View>
+                    </ScrollView>
+                </View>
+            </LinearGradient>
+        </>
     );
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
     pageContainer: {
         flex: 1,
-        backgroundColor: COLORS.gray900,
+        backgroundColor: 'transparent',
+    },
+    contentContainer: {
+        flex: 1,
+        paddingTop: 20,
+    },
+    titleGradient: {
+        paddingVertical: 20,
+        width: '100%',
     },
     formContainer: {
         flex: 1,
@@ -279,11 +315,13 @@ const styles = StyleSheet.create({
     },
     loginContainer: {
         flex: 1,
-        backgroundColor: COLORS.gray800,
-        padding: 25,
-        borderRadius: SIZES.borderRadius.large,
+        backgroundColor: "#271E1E",
+        padding: 30,
+        borderRadius: SIZES.borderRadius.xxLarge,
         alignSelf: 'center',
         width: '70%',
+        borderWidth: 1,
+        borderColor: '#403430',
     },
     loginContainerSmartphone: {
         width: '95%',
@@ -309,7 +347,8 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     inputTitleSmartphone: {
-        fontSize: SIZES.fonts.inputTitleSmartphone,
+        fontSize: 14,
+        fontWeight: SIZES.fontWeight.medium,
     },
     inputTitleSmartphoneLandscape: {
         marginLeft: 15,
@@ -337,5 +376,16 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         width: '95%',
         marginBottom: 10,
+    },
+    backLink: {
+        padding: 15,
+        alignItems: 'center',
+        marginTop: 10, 
+    },
+    backLinkText: {
+        color: COLORS.orange,
+        fontSize: SIZES.fonts.textSmartphone,
+        fontWeight: SIZES.fontWeight.regular,
+        textDecorationLine: 'underline',
     },
 });

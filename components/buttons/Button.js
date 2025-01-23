@@ -1,6 +1,7 @@
 import { StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style'; 
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function Button({ 
   title, 
@@ -28,6 +29,17 @@ export default function Button({
       onPress={onPress}
       activeOpacity={0.8} 
     >
+      <LinearGradient
+        colors={[
+          COLORS.orange + '50',  // Très transparent
+          COLORS.orange + '90',  // Plus visible au centre
+          COLORS.orange + '10',  // Très transparent
+        ]}
+        locations={[0, 1, 1]}  // Centre la couleur la plus visible
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}    // Gradient horizontal
+        style={styles.gradient}
+      />
       <Text style={[
         styles.buttonText, 
         isSmartphone && styles.buttonTextSmartphone,
@@ -41,38 +53,46 @@ export default function Button({
 const styles = StyleSheet.create({
   button: {
     marginTop: 15,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    borderRadius: SIZES.borderRadius.medium,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    backgroundColor: COLORS.gray900,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
   },
   buttonLarge: {
+    height: 45,
     paddingVertical: 15,
-    paddingHorizontal: 10,
+    paddingHorizontal: 24,
     marginVertical: 10,
+    backgroundColor: 'transparent',
+  },
+  gradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    borderRadius: 8,
   },
   buttonSmartphone: {
     marginTop: 10,
     paddingVertical: 6,
     paddingHorizontal: 6,
-    borderRadius: SIZES.borderRadius.small,
+    borderRadius: SIZES.borderRadius.xLarge,
   },
   buttonSmartphoneLandscape: {
     marginTop: 8,
   },
   buttonText: {
-    fontSize: SIZES.fonts.subtitleTablet,
+    fontSize: SIZES.fonts.textTablet,
     textAlign: 'center',
-    fontWeight: SIZES.fontWeight.bold,
+    fontWeight: SIZES.fontWeight.medium,
     color: COLORS.white,
   },
   buttonTextSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: SIZES.fonts.textSmartphone,
   }
 });
