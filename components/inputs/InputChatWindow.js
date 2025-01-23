@@ -5,7 +5,6 @@ import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
-import EmojiPickerModal from '../modals/chat/EmojiPickerModal';
 
 // FilePreview is used to display the file information in the input of the chat
 const  FilePreview = ({ file, onRemove }) => {
@@ -46,7 +45,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   const [selectedFile, setSelectedFile] = useState(null);
   // Hook to determine the device type
   const { isSmartphone } = useDeviceType();
-  const [isEmojiPickerVisible, setIsEmojiPickerVisible] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
   // Function to format the file size
@@ -126,12 +124,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
     setSelectedFile(null);
   };
 
-  // Fonction pour gérer la sélection d'emoji
-  const handleEmojiSelect = (emoji) => {
-    setMessage((prevMessage) => prevMessage + emoji);
-    setIsEmojiPickerVisible(false);
-  };
-
   return (
     <>
       <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
@@ -144,10 +136,9 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
           ]}
         >
           <Ionicons 
-            name="attach-outline" 
+            name="add-outline" 
             size={isSmartphone ? 24 : 30} 
             color={COLORS.gray300} 
-            style={styles.attachIcon}
           />
         </TouchableOpacity>
         {/* If we have a selected file, we display the file preview */}
@@ -171,23 +162,14 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
             multiline
             onFocus={handleFocus}
             onBlur={handleBlur}
+            autoCapitalize="none"
+            autoCorrect={false}
+            textAlignVertical="center"
+            allowFontScaling={false}
+            maxFontSizeMultiplier={1}
+            keyboardType="default"
           />
         )}
-
-        {/* Emoji button */}
-        <TouchableOpacity 
-          style={[
-            styles.emojiButton,
-            isSmartphone && styles.emojiButtonSmartphone
-          ]}
-          onPress={() => setIsEmojiPickerVisible(true)}
-        >
-          <Ionicons 
-            name="happy-outline" 
-            size={isSmartphone ? 24 : 30} 
-            color={COLORS.gray300}
-          />
-        </TouchableOpacity>
 
         <TouchableOpacity 
           style={[
@@ -200,18 +182,12 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         >
           <Ionicons 
             name="send-outline" 
-            size={isSmartphone ? 20 : 30} 
+            size={isSmartphone ? 18 : 25} 
             color={COLORS.white}
             style={styles.sendIcon}
           />
         </TouchableOpacity>
       </View>
-
-      <EmojiPickerModal
-        visible={isEmojiPickerVisible}
-        onClose={() => setIsEmojiPickerVisible(false)}
-        onEmojiSelect={handleEmojiSelect}
-      />
     </>
   );
 }
@@ -221,10 +197,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: COLORS.gray800, 
+    backgroundColor: '#111111',
     marginBottom: 0,
     marginTop: -10,
     borderRadius: 0,
+    borderTopWidth: 0.5,
+    borderTopColor: '#403430',
   },
   smartphoneContainer: {
     height: 60,
@@ -243,51 +221,46 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
   },
-  attachIcon: {
-    transform: [{rotate: '45deg'}],
-  },
   input: {
     flex: 1,
     fontSize: SIZES.fonts.textTablet,
     marginRight: 10,
     color: COLORS.gray300,
-    backgroundColor: COLORS.gray850,
+    backgroundColor: COLORS.gray900,
     borderRadius: SIZES.borderRadius.small,
     paddingHorizontal: 12,
     paddingVertical: 8,
     height: 36,
-    borderWidth: 1,
-    borderColor: 'transparent',
+    // borderWidth: 0.5,
+    // borderColor: '#403430',
   },
-  inputFocused: {
-    borderColor: COLORS.orange + '50',
-    shadowColor: COLORS.orange,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 3,
-  },
+  // inputFocused: {
+  //   borderColor: COLORS.orange + '50',
+  //   shadowColor: COLORS.orange,
+  //   shadowOffset: { width: 0, height: 0 },
+  //   shadowOpacity: 0.5,
+  //   shadowRadius: 6,
+  // },
   smartphoneInput: {
     fontSize: SIZES.fonts.textSmartphone,
   },
   sendButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
     width: 36,
     height: 36,
-    backgroundColor: COLORS.orange,
+    backgroundColor: COLORS.gray900,
     borderRadius: SIZES.borderRadius.small,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 0,
   },
   smartphoneSendButton: {
     width: 36,
     height: 36,
   },
   sendIcon: {
-    transform: [{rotate: '0deg'}],
-  },
-  sendButtonActive: {
-    backgroundColor: COLORS.orange,
+    transform: [{rotate: '-40deg'}],
+    marginLeft: 2,
+    marginBottom: 2,
   },
   previewContainer: {
     flex: 1,
@@ -312,16 +285,5 @@ const styles = StyleSheet.create({
   fileSize: {
     color: COLORS.gray600,
     fontSize: SIZES.fonts.xSmall,
-  },
-  emojiButton: {
-    width: 36,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  emojiButtonSmartphone: {
-    width: 32,
-    height: 32,
   },
 });

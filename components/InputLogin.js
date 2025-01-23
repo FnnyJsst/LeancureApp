@@ -76,7 +76,7 @@ export default function InputLogin({
 const styles = StyleSheet.create({
     inputContainer: {
         width: '95%',
-        backgroundColor: COLORS.gray900,
+        backgroundColor: "#111111",
         borderRadius: SIZES.borderRadius.medium,
         flexDirection: 'row',
         alignItems: 'center',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Animated, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Animated, StyleSheet, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
@@ -15,6 +15,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showGroups, setShowGroups] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Get the device type
   const { isSmartphone } = useDeviceType();
@@ -73,6 +74,32 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     loadChannels();
   }, []);
 
+  // Filtrer les channels en fonction de la recherche
+  const filteredGroups = groups.map(group => ({
+    ...group,
+    channels: group.channels?.filter(channel => 
+      channel.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  })).filter(group => group.channels?.length > 0);
+
+  // Fonction pour gérer le clic sur le bouton Groupes
+  const handleGroupsClick = () => {
+    if (currentSection === 'settings') {
+      onNavigate(SCREENS.CHAT); // Retourner au chat si on est dans settings
+      setShowGroups(true); // Ouvrir les groupes
+      return;
+    }
+    setShowGroups(!showGroups);
+  };
+
+  // Fonction pour gérer le clic sur Settings
+  const handleSettingsClick = () => {
+    if (showGroups) {
+      setShowGroups(false); // Fermer les groupes si ouverts
+    }
+    onNavigate(SCREENS.SETTINGS_MESSAGE);
+  };
+
   return (
     <>
       {/* Overlay */}
@@ -96,22 +123,43 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
 
         {/* Menu list */}
         <ScrollView style={styles.menuList}>
+          {/* Search input */}
+          <View style={styles.searchContainer}>
+            <Ionicons 
+              name="search-outline" 
+              size={isSmartphone ? 20 : 24} 
+              color={COLORS.gray300} 
+            />
+            <TextInput
+              style={[
+                styles.searchInput,
+                isSmartphone && styles.searchInputSmartphone
+              ]}
+              placeholder="Search a channel"
+              placeholderTextColor={COLORS.gray300}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+
           {/* Group button */}
           <TouchableOpacity 
             style={[
               styles.menuItem,
               showGroups && styles.selectedItem
             ]}
-            onPress={() => setShowGroups(!showGroups)}
+            onPress={handleGroupsClick}
           >
-            <Ionicons name="people-outline" size={isSmartphone ? 24 : 30} color={COLORS.gray300} />
-            <Text style={[styles.menuText, isSmartphone && styles.menuTextSmartphone]}>Groupes</Text>
             <Ionicons 
-              name={showGroups ? "chevron-down" : "chevron-forward"} 
+              name="people-outline" 
               size={isSmartphone ? 20 : 24} 
-              color={COLORS.gray300} 
-              style={styles.chevron}
+              color={showGroups ? COLORS.orange : COLORS.gray300} 
             />
+            <Text style={[
+              styles.menuText, 
+              isSmartphone && styles.menuTextSmartphone,
+              showGroups && { color: COLORS.orange }
+            ]}>Groupes</Text>
           </TouchableOpacity>
 
           {/* List of groups if showGroups is true */}
@@ -119,7 +167,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
             <View style={styles.groupsList}>
               {loading ? (
                 <Text style={styles.loadingText}>Loading...</Text>
-              ) : groups.map((group) => (
+              ) : filteredGroups.map((group) => (
                 <View key={group.id} style={[
                   styles.groupItem,
                   selectedGroup?.id === group.id
@@ -165,30 +213,25 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
             </View>
           )}
 
-          {/* Account button */}
+          {/* Settings button */}
           <TouchableOpacity 
             style={[
               styles.menuItem,
               currentSection === 'settings' && styles.selectedItem
             ]}
-            onPress={() => onNavigate(SCREENS.SETTINGS_MESSAGE)}
+            onPress={handleSettingsClick}
           >
-            <Ionicons name="settings-outline" size={24} color={COLORS.gray300} />
-            <Text style={[styles.menuText, isSmartphone && styles.menuTextSmartphone]}>Settings</Text>
+            <Ionicons 
+              name="settings-outline" 
+              size={isSmartphone ? 20 : 24} 
+              color={currentSection === 'settings' ? COLORS.orange : COLORS.gray300} 
+            />
+            <Text style={[
+              styles.menuText, 
+              isSmartphone && styles.menuTextSmartphone,
+              currentSection === 'settings' && { color: COLORS.orange }
+            ]}>Settings</Text>
           </TouchableOpacity>
-
-          {/* Logout button */}
-          {/* <TouchableOpacity 
-            style={[
-              styles.menuItem,
-              styles.logoutButton,
-              currentSection === 'logout' && styles.selectedItem
-            ]}
-            onPress={() => onNavigate(SCREENS.LOGIN)}
-          >
-            <Ionicons name="log-out-outline" size={24} color={COLORS.gray300} />
-            <Text style={[styles.menuText, isSmartphone && styles.menuTextSmartphone]}>Logout</Text>
-          </TouchableOpacity> */}
         </ScrollView>
         
         {/* User profile banner */}
@@ -228,9 +271,11 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     width: 300,
-    backgroundColor: COLORS.gray900,
+    backgroundColor: "#111111",
     zIndex: 2,
     paddingTop: 20,
+    borderRightWidth: 1,
+    borderRightColor: '#403430',
   },
   sidebarSmartphone: {
     width: '80%',
@@ -258,8 +303,8 @@ const styles = StyleSheet.create({
     marginBottom: 15
   },
   selectedItem: {
-    backgroundColor: COLORS.gray800,
-    borderRadius: 8,
+    backgroundColor: "#271E1E",
+    borderRadius: SIZES.borderRadius.large,
     padding: 8,
   },
   groupHeader: {
@@ -277,7 +322,7 @@ const styles = StyleSheet.create({
     marginLeft: 10
   },
   groupNameSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone
+    fontSize: 14,
   },
   channelItem: {
     paddingVertical: 8,
@@ -301,7 +346,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.sideBarTextTablet,
   },
   channelNameSmartphone: {
-    fontSize: SIZES.fonts.sideBarTextSmartphone,
+    fontSize: 14,
   },
   menuItem: {
     flexDirection: 'row',
@@ -316,10 +361,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   menuTextSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
-  },
-  chevron: {
-    marginLeft: 'auto',
+    fontSize: 15,
   },
   logoutButton: {
     marginTop: 'auto',
@@ -335,11 +377,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 60,
-    backgroundColor: COLORS.gray800,
+    backgroundColor: "#111111",
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderTopWidth: 0.5,
+    borderTopColor: "#403430",
   },
   profileInfo: {
     flexDirection: 'row',
@@ -355,25 +399,45 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.medium,
   },
   userNameSmartphone: {
-    fontSize: SIZES.fonts.sideBarTextSmartphone,
+    fontSize: 14,
   },
   userRole: {
-    color: COLORS.orange,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.regular,
   },
   userRoleSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
+    fontSize: 12,
   },
   settingsButton: {
-    backgroundColor: "#111111",
+    backgroundColor: "#271E1E",
     // padding: 5,
     borderRadius: SIZES.borderRadius.small,
     width: 50,
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: COLORS.gray300,
+  },
+  chevron: {
+    marginLeft: 8,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.gray900,
+    borderRadius: SIZES.borderRadius.large,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 20,
+  },
+  searchInput: {
+    flex: 1,
+    color: COLORS.white,
+    marginLeft: 8,
+    fontSize: SIZES.fonts.textTablet,
+  },
+  searchInputSmartphone: {
+    fontSize: 14,
+    
   },
 });

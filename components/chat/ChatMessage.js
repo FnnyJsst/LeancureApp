@@ -178,10 +178,9 @@ const styles = StyleSheet.create({
   },
   messageHeaderRight: {
     alignSelf: 'flex-end',
-    flexDirection: 'row-reverse',
   },
   username: {
-    color: COLORS.gray300,
+    color: COLORS.white,
     fontSize: SIZES.fonts.messageTextTablet,
     fontWeight: SIZES.fontWeight.medium,
   },
@@ -190,26 +189,29 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     color: COLORS.gray600,
-    fontSize: SIZES.fonts.errorTextSmartphone,
+    fontSize: 12,
     fontWeight: SIZES.fontWeight.light,
   },
   messageContainer: {
     maxWidth: '100%',
-    marginVertical: 2,
-    borderRadius: SIZES.borderRadius.small,
+    minWidth: 50,
+    marginBottom: 10,
+    marginTop: 3,
+    borderRadius: SIZES.borderRadius.large,
   },
   textMessageContainer: {
-    padding: 12,
+    padding: 14,
   },
   textMessageContainerSmartphone: {
-    padding: 8,
+    paddingVertical: 11,
+    paddingHorizontal: 15,
   },
   fileMessageContainer: {
     padding: 0,
   },
   ownMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: COLORS.messageOut,
+    backgroundColor: COLORS.orange,
   },
   otherMessage: {
     alignSelf: 'flex-start',
@@ -219,9 +221,11 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.light,
+
   },
   messageTextSmartphone: {
-    fontSize: SIZES.fonts.messageTextSmartphone,
+    fontSize: 16,
+    fontWeight: SIZES.fontWeight.regular,
   },
   fileContainer: {
     minWidth: 280,

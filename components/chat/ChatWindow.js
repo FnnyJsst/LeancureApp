@@ -196,7 +196,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111111"
+    backgroundColor: COLORS.gray900
   },
   chatContainer: {
     flex: 1,

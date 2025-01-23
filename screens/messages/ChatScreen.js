@@ -110,7 +110,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray900,
+    backgroundColor: '#111111',
   },
   mainContent: {
     flex: 1,

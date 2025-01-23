@@ -250,7 +250,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
 
     const response = await axios({
       method: 'POST',
-      url: 'http://192.168.77.101/ic.php',
+      url: 'http://192.168.1.67/ic.php',
       data: data,
       headers: {
         'Content-Type': 'application/json'

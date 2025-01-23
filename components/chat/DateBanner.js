@@ -13,7 +13,7 @@ export default function DateBanner({ date }) {
 const styles = StyleSheet.create({
   container: {
     alignSelf: 'center',
-    backgroundColor: COLORS.gray750,
+    backgroundColor: '#271E1E',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,

@@ -267,84 +267,130 @@ export default function App() {
     return <ScreenSaver />;
   }
 
-  return (
-    <View style={{ flex: 1, backgroundColor: COLORS.gray900 }}>
-{currentScreen === SCREENS.APP_MENU && (
-  <AppMenu 
-    onNavigate={(screen) => {
-      if (screen === SCREENS.WEBVIEW) {
-        navigate(selectedChannels?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-      } else if (screen === SCREENS.SETTINGS) {
-        handleSettingsAccess();
-      } else {
-        navigate(screen);
-      }
-    }} 
-  />
-)}
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case SCREENS.APP_MENU:
+        return (
+          <AppMenu 
+            onNavigate={(screen) => {
+              if (screen === SCREENS.WEBVIEW) {
+                navigate(selectedChannels?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+              } else if (screen === SCREENS.SETTINGS) {
+                handleSettingsAccess();
+              } else {
+                navigate(screen);
+              }
+            }} 
+          />
+        );
 
-      {/* Screen related to the webviews */}
-      {currentScreen === SCREENS.NO_URL && 
-      <NoUrlScreen 
-        onNavigate={navigate}
-        isPasswordRequired={isPasswordRequired}
-        password={password}
-        setPasswordCheckModalVisible={setPasswordCheckModalVisible}
-        handleSettingsAccess={handleSettingsAccess}
-      />
+      case SCREENS.NO_URL:
+        return (
+          <NoUrlScreen 
+            onNavigate={navigate}
+            isPasswordRequired={isPasswordRequired}
+            password={password}
+            setPasswordCheckModalVisible={setPasswordCheckModalVisible}
+            handleSettingsAccess={handleSettingsAccess}
+          />
+        );
+
+      case SCREENS.SETTINGS:
+        return (
+          <SettingsScreen
+            selectedChannels={selectedChannels}
+            setRefreshInterval={setRefreshInterval}
+            getIntervalInMilliseconds={getIntervalInMilliseconds}
+            saveRefreshOption={saveRefreshOption}
+            handleSelectOption={handleSelectOption}
+            refreshOption={refreshOption}
+            password={password}
+            isPasswordRequired={isPasswordRequired}
+            handlePasswordCheck={handlePasswordCheck}
+            handlePasswordSubmit={handlePasswordSubmit}
+            disablePassword={disablePassword}
+            openPasswordModal={openPasswordModal}
+            closePasswordModal={closePasswordModal}
+            isPasswordModalVisible={isPasswordModalVisible}
+            isReadOnly={isReadOnly}
+            toggleReadOnly={toggleReadOnly}
+            onNavigate={navigate}
+            onSettingsAccess={handleSettingsAccess}
+          />
+        );
+
+      case SCREENS.CHANNELS_MANAGEMENT:
+        return (
+          <ChannelsManagementScreen
+            onImport={navigateToChannelsList}
+            selectedChannels={selectedChannels}
+            setSelectedChannels={setSelectedChannels}
+            saveSelectedChannels={saveSelectedChannels}
+            onNavigate={navigate}
+            onNavigateToWebView={navigateToWebView}
+            isReadOnly={isReadOnly}
+          />
+        );
+
+      case SCREENS.CHANNELS_LIST:
+        return (
+          <ChannelsListScreen
+            channels={channels}
+            selectedChannels={selectedChannels}
+            onBack={handleImportChannels}
+            onBackPress={() => navigate(SCREENS.CHANNELS_MANAGEMENT)}
+          />
+        );
+
+      case SCREENS.WEBVIEW:
+        return (
+          <WebViewScreen 
+            url={webViewUrl} 
+            onNavigate={navigate}
+            onSettingsAccess={handleSettingsAccess}
+          />
+        );
+
+      case SCREENS.LOGIN:
+        return (
+          <Login 
+            onNavigate={navigate}
+          />
+        );
+
+      case SCREENS.ACCOUNT:
+        return (
+          <AccountScreen 
+            onNavigate={navigate}
+          />
+        );
+
+      case SCREENS.CHAT:
+        return (
+          <ChatScreen 
+            onNavigate={navigate}
+            isExpanded={isExpanded}
+            setIsExpanded={setIsExpanded}
+          />
+        );
+
+      case SCREENS.SETTINGS_MESSAGE:
+        return (
+          <SettingsMessage 
+            onNavigate={navigate}
+            isExpanded={isExpanded}
+            setIsExpanded={setIsExpanded}
+          />
+        );
+
+      default:
+        return null;
     }
-      
-      {currentScreen === SCREENS.SETTINGS && (
-        <SettingsScreen
-          selectedChannels={selectedChannels}
-          setRefreshInterval={setRefreshInterval}
-          getIntervalInMilliseconds={getIntervalInMilliseconds}
-          saveRefreshOption={saveRefreshOption}
-          handleSelectOption={handleSelectOption}
-          refreshOption={refreshOption}
-          password={password}
-          isPasswordRequired={isPasswordRequired}
-          handlePasswordCheck={handlePasswordCheck}
-          handlePasswordSubmit={handlePasswordSubmit}
-          disablePassword={disablePassword}
-          openPasswordModal={openPasswordModal}
-          closePasswordModal={closePasswordModal}
-          isPasswordModalVisible={isPasswordModalVisible}
-          isReadOnly={isReadOnly}
-          toggleReadOnly={toggleReadOnly}
-          onNavigate={navigate}
-          onSettingsAccess={handleSettingsAccess}
-        />
-      )}
-  
-      {currentScreen === SCREENS.CHANNELS_MANAGEMENT && (
-        <ChannelsManagementScreen
-          onImport={navigateToChannelsList}
-          selectedChannels={selectedChannels}
-          setSelectedChannels={setSelectedChannels}
-          saveSelectedChannels={saveSelectedChannels}
-          onNavigate={navigate}
-          onNavigateToWebView={navigateToWebView}
-          isReadOnly={isReadOnly}
-        />
-      )}
-  
-      {currentScreen === SCREENS.CHANNELS_LIST && (
-        <ChannelsListScreen
-          channels={channels}
-          selectedChannels={selectedChannels}
-          onBack={handleImportChannels}
-          onBackPress={() => navigate(SCREENS.CHANNELS_MANAGEMENT)}
-        />
-      )}
-  
-      {currentScreen === SCREENS.WEBVIEW && (
-        <WebViewScreen 
-          url={webViewUrl} 
-          onNavigate={navigate}
-          onSettingsAccess={handleSettingsAccess}
-        />
-      )}
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: "#111111" }}>
+      {renderScreen()}
       
       <PasswordModal
         visible={isPasswordModalVisible}
@@ -358,30 +404,6 @@ export default function App() {
         onClose={() => setPasswordCheckModalVisible(false)}
         onSubmit={handlePasswordCheck}
       />
-
-      {/* Screen related to the chat */}
-      {currentScreen === SCREENS.LOGIN && (
-        <Login 
-          onNavigate={navigate}
-        />
-      )}
-      {currentScreen === SCREENS.ACCOUNT && (
-        <AccountScreen 
-          onNavigate={navigate}
-        />
-      )}
-      {currentScreen === SCREENS.CHAT && (
-        <ChatScreen 
-          onNavigate={navigate}
-          isExpanded={isExpanded}
-          setIsExpanded={setIsExpanded}
-        />
-      )}
-      {currentScreen === SCREENS.SETTINGS_MESSAGE && (
-        <SettingsMessage
-          onNavigate={navigate}
-        />
-      )}
     </View>
   );
 }

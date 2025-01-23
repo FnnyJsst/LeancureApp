@@ -154,5 +154,15 @@ const styles = StyleSheet.create({
   },
   menuButtonLeft: {
     marginLeft: 0,
-  }
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    height: 60,
+    backgroundColor: "#111111",
+    borderBottomWidth: 1,
+    borderBottomColor: '#403430',
+  },
 });

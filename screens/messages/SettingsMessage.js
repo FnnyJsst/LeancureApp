@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style'; 
 import { useDeviceType } from '../../hooks/useDeviceType';
@@ -6,17 +6,34 @@ import Header from '../../components/Header';
 import SettingsCard from '../../components/cards/SettingsCard';
 import { Ionicons } from '@expo/vector-icons';
 import { SCREENS } from '../../constants/screens';
+import Sidebar from '../../components/navigation/Sidebar';
 
 //This screen displays the settings related to the messages
-export default function SettingsMessage({ onNavigate }) {
-
-  // Customized hook to determine the device type and orientation
+export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded }) {
   const { isSmartphone, isLandscape } = useDeviceType();
+  const [currentSection, setCurrentSection] = useState('settings');
+
+  const toggleMenu = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   return (
     <>
-      {/* We show the header with the menu icon, the account image and the back button */}
-      <Header showMenuIcon={false} showAccountImage={true} onNavigate={onNavigate} onBackPress={() => onNavigate(SCREENS.CHAT)} />
+      <Header 
+        showMenuIcon={true} 
+        showAccountImage={true} 
+        onNavigate={onNavigate} 
+        toggleMenu={toggleMenu}
+      />
+      <Sidebar 
+        onChannelSelect={() => {}}
+        selectedGroup={null}
+        onGroupSelect={() => {}}
+        isExpanded={isExpanded}
+        toggleMenu={toggleMenu}
+        onNavigate={onNavigate}
+        currentSection={currentSection}
+      />
       <View style={styles.pageContainer}>
         <View style={styles.headerContainer}>
           <Text style={[
