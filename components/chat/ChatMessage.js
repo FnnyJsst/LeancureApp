@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   textMessageContainerSmartphone: {
-    paddingVertical: 11,
+    paddingVertical: 8,
     paddingHorizontal: 15,
   },
   fileMessageContainer: {
