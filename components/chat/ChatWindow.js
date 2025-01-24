@@ -28,7 +28,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         username: msg.isOwnMessage ? "Moi" : "Utilisateur",
         text: msg.message,
         title: msg.title,
-        timestamp: new Date(parseInt(msg.savedTimestamp)).toLocaleTimeString([], { 
+        timestamp: new Date(parseInt(msg.savedTimestamp || Date.now())).toLocaleTimeString([], { 
           hour: '2-digit', 
           minute: '2-digit' 
         }),
@@ -80,14 +80,16 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       const response = await sendMessageApi(channel.id, messageData, credentials);
       
       if (response.status === 'ok') {
+        const currentTimestamp = Date.now();
         const newMessage = {
-          id: Date.now(),
+          id: currentTimestamp,
           username: "Moi",
           text: typeof messageData === 'string' ? messageData : '',
           timestamp: new Date().toLocaleTimeString([], { 
             hour: '2-digit', 
             minute: '2-digit' 
           }),
+          savedTimestamp: currentTimestamp.toString(),
           isOwnMessage: true,
           type: messageData.type,
           fileName: messageData.fileName,
@@ -111,7 +113,19 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   };
 
   const formatDate = (timestamp) => {
-    const date = new Date(parseInt(timestamp));
+    if (!timestamp) {
+      console.warn('Missing timestamp for message');
+      return 'Today'; // Valeur par défaut
+    }
+
+    const parsedTimestamp = typeof timestamp === 'string' ? parseInt(timestamp) : timestamp;
+    
+    if (isNaN(parsedTimestamp)) {
+      console.warn('Invalid timestamp format:', timestamp);
+      return 'Today'; // Valeur par défaut
+    }
+
+    const date = new Date(parsedTimestamp);
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -121,6 +135,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     } else if (date.toDateString() === yesterday.toDateString()) {
       return "Yesterday";
     }
+    
     return date.toLocaleDateString('en-US', { 
       day: 'numeric', 
       month: 'long', 
