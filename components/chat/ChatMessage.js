@@ -149,7 +149,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
         styles.messageContainer,
         isOwnMessage ? styles.ownMessage : styles.otherMessage,
         styles.textMessageContainer,
-        isSmartphone && styles.textMessageContainerSmartphone
       ]}>
         <Text style={[
           styles.messageText,
@@ -162,7 +161,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
 
 const styles = StyleSheet.create({
   messageWrapper: (isOwnMessage) => ({
-    marginVertical: 4,
+    marginVertical: 3,
     maxWidth: '70%',
     alignSelf: isOwnMessage ? 'flex-end' : 'flex-start',
   }),
@@ -197,18 +196,14 @@ const styles = StyleSheet.create({
     minWidth: 50,
     marginBottom: 10,
     marginTop: 4,
-    borderRadius: SIZES.borderRadius.large,
+    borderRadius: SIZES.borderRadius.xLarge,
   },
   textMessageContainer: {
-    padding: 14,
+    padding: 15,
   },
-  textMessageContainerSmartphone: {
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-  },
-  fileMessageContainer: {
-    padding: 0,
-  },
+  // fileMessageContainer: {
+  //   padding: 0,
+  // },
   ownMessage: {
     alignSelf: 'flex-end',
     backgroundColor: COLORS.orange,
@@ -221,15 +216,16 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.light,
-
   },
   messageTextSmartphone: {
     fontSize: 16,
     fontWeight: SIZES.fontWeight.regular,
   },
   fileContainer: {
-    minWidth: 280,
-    padding: 8,
+    minWidth: 250,
+    paddingVertical: 8,
+    alignItems: 'center',
+
   },
   fileHeader: {
     flexDirection: 'row',

@@ -175,14 +175,14 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
           style={[
             styles.sendButton, 
             isSmartphone && styles.smartphoneSendButton,
-            message.trim() && styles.sendButtonActive
+            (message.trim() || selectedFile) && styles.sendButtonActive
           ]}
           onPress={handleSend}
         >
           <Ionicons 
             name="send-outline" 
             size={isSmartphone ? 18 : 25} 
-            color={message.trim() ? COLORS.orange : COLORS.white}
+            color={(message.trim() || selectedFile) ? COLORS.orange : COLORS.white}
             style={styles.sendIcon}
           />
         </TouchableOpacity>
