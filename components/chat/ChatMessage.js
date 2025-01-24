@@ -201,9 +201,6 @@ const styles = StyleSheet.create({
   textMessageContainer: {
     padding: 15,
   },
-  // fileMessageContainer: {
-  //   padding: 0,
-  // },
   ownMessage: {
     alignSelf: 'flex-end',
     backgroundColor: COLORS.orange,
@@ -225,7 +222,6 @@ const styles = StyleSheet.create({
     minWidth: 250,
     paddingVertical: 8,
     alignItems: 'center',
-
   },
   fileHeader: {
     flexDirection: 'row',

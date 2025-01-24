@@ -50,7 +50,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
   const renderPreview = () => {
     if (fileType?.includes('pdf')) {
       return (
-        <View style={styles.previewWrapper}>
+        <View style={styles.previewContainer}>
           <WebView
             source={{
               html: `
@@ -84,7 +84,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                         pdf.getPage(1).then(function(page) {
                           const canvas = document.createElement('canvas');
                           const context = canvas.getContext('2d');
-                          const viewport = page.getViewport({scale: 0.56});
+                          const viewport = page.getViewport({scale: 0.62});
                           
                           canvas.width = viewport.width;
                           canvas.height = viewport.height;
@@ -103,7 +103,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                 </html>
               `
             }}
-            style={[styles.previewWrapper, { backgroundColor: 'white' }]}
+            style={styles.previewContent}
             originWhitelist={['*']}
             scalesPageToFit={true}
             javaScriptEnabled={true}
@@ -112,7 +112,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       );
     } else if (fileType?.includes('image')) {
       return (
-        <View style={styles.previewWrapper}>
+        <View style={styles.previewContainer}>
           <Image
             source={{ uri: `data:${fileType};base64,${base64}` }}
             style={styles.image}
@@ -154,10 +154,16 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
               </Text>
             </View>
           </View>
-          <View style={styles.previewWrapper}></View>
-          {renderPreview()}
+          <View style={styles.previewContainer}>
+            {renderPreview()}
+          </View>
           <View style={styles.buttonContainer}> 
-            <Button title="Download" variant="large"onPress={handleDownload} />
+            <Button 
+              title="Download" 
+              variant="large"
+              onPress={handleDownload} 
+              width="100%"
+            />
           </View>
         </View>
       </View>
@@ -168,15 +174,14 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
 const styles = StyleSheet.create({
   modalContent: {
     flex: 1,
-    backgroundColor: COLORS.gray900,
-    // marginTop: '15%',
-    // marginBottom: '15%',
+    backgroundColor: COLORS.gray850,
+    borderWidth: 1,
+    borderColor: '#403430',
+    marginTop: '10%',
     padding: 20,
-    backgroundColor: COLORS.gray750,
-    borderRadius: SIZES.borderRadius.large,
+    borderRadius: SIZES.borderRadius.xxLarge,
     width: '100%',
     height: '100%',
-    
   },
   closeButton: {
     position: 'absolute',
@@ -184,15 +189,19 @@ const styles = StyleSheet.create({
     right: 20,
     zIndex: 1,
   },
-  previewWrapper: {
+  previewContainer: {
     flex: 1,
+    marginTop: 15,
     backgroundColor: 'transparent',
-    marginTop: 20,
-    minHeight: 100,
+  },
+  previewContent: {
+    flex: 1,
+    backgroundColor: 'white',
   },
   image: {
     width: '100%',
     height: '100%',
+    backgroundColor: 'transparent',
   },
   fileHeader: {
     flexDirection: 'row',
@@ -217,5 +226,11 @@ const styles = StyleSheet.create({
   },
   fileSizeSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
+  },
+  buttonContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 20,
+    paddingHorizontal: 20,
   },
 });
