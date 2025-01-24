@@ -59,8 +59,10 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '30%',
     padding: 20,
-    backgroundColor: COLORS.gray900,
+    backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,
+    borderWidth: 1,
+    borderColor: "#403430"
   },
   modalContentSmartphoneLandscape: {
     width: '40%',

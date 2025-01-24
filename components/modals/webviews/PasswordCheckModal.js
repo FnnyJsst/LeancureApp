@@ -6,8 +6,8 @@ import TitleModal from '../../text/TitleModal';
 import CustomAlert from '../../CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES } from '../../../constants/style';
-
-export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
+import { Ionicons } from '@expo/vector-icons';
+export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocused }) {
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType(); 
@@ -60,11 +60,19 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
           ]}>
             <TitleModal title="Enter password" />
             <InputModal
-              placeholder="Enter your password to access settings"
+              placeholder="Enter your password"
               value={password}
               onChangeText={setPassword}
               // We need to secure the password
               secureTextEntry={true}
+              icon={
+                <Ionicons 
+                  name="lock-closed-outline" 
+                  size={20} 
+                  color={isFocused ? COLORS.orange : COLORS.gray300}
+                  style={styles.icon}
+                />
+              }
             />
             <View style={MODAL_STYLES.buttonContainer}>
               <Button
@@ -73,7 +81,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
                 color={COLORS.white}
                 // We close the modal
                 onPress={handleClose}
-                width="20%"
+                width="22%"
               />
               <Button
                 title="Ok"
@@ -81,7 +89,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit }) {
                 color={COLORS.white}
                 // We send the password to the parent component
                 onPress={handleSubmit}
-                width="20%"
+                width="22%"
               />
             </View>
           </View>

@@ -29,6 +29,6 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   titleSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: 16,
   },
 });

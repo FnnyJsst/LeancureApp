@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 export default function Button({ 
   title, 
   backgroundColor = COLORS.orange,
+  textColor = COLORS.white,
   onPress, 
   width,
   variant = 'default', // 'default' for a small button, 'large' for a large one
@@ -29,7 +30,7 @@ export default function Button({
       onPress={onPress}
       activeOpacity={0.8} 
     >
-      <LinearGradient
+      {/* <LinearGradient
         colors={[
           COLORS.orange + '50',  // Très transparent
           COLORS.orange + '90',  // Plus visible au centre
@@ -39,10 +40,11 @@ export default function Button({
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}    // Gradient horizontal
         style={styles.gradient}
-      />
+      /> */}
       <Text style={[
         styles.buttonText, 
         isSmartphone && styles.buttonTextSmartphone,
+        { color: textColor }
       ]}>
         {title}
       </Text>
@@ -58,9 +60,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'transparent',
-    backgroundColor: COLORS.gray900,
+    // backgroundColor: COLORS.gray900,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: SIZES.borderRadius.medium,
   },
   buttonLarge: {
     height: 45,
@@ -68,6 +71,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     marginVertical: 10,
     backgroundColor: 'transparent',
+    borderRadius: SIZES.borderRadius.xLarge,
   },
   gradient: {
     position: 'absolute',
@@ -81,7 +85,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingVertical: 6,
     paddingHorizontal: 6,
-    borderRadius: SIZES.borderRadius.xLarge,
   },
   buttonSmartphoneLandscape: {
     marginTop: 8,
@@ -90,7 +93,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.textTablet,
     textAlign: 'center',
     fontWeight: SIZES.fontWeight.medium,
-    color: COLORS.white,
+    // color: COLORS.white,
   },
   buttonTextSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,

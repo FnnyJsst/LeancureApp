@@ -39,14 +39,14 @@ export default function DeleteChannel({ visible, onClose, handleDelete }) {
               title="Cancel" 
               backgroundColor={COLORS.gray650}
               color={COLORS.white}
-              width="20%" 
+              width="22%" 
               onPress={onClose} 
             />
             <Button 
               title="Delete" 
               backgroundColor={COLORS.orange}
               color={COLORS.white} 
-              width="20%" 
+              width="22%" 
               // We send the selected option to the parent component
               onPress={() => handleDelete()} 
             />
@@ -81,6 +81,6 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   titleSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: 16,
   },
 });

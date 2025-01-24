@@ -85,12 +85,11 @@ const styles = StyleSheet.create({
         transition: 'all 0.3s ease',
     },
     inputContainerFocused: {
-        borderColor: COLORS.orange + '50',  // Orange avec 50% d'opacité
+        borderColor: COLORS.orange + '50', 
         shadowColor: COLORS.orange,
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.2,
-        shadowRadius: 5,
-        elevation: 3,
+        elevation: 1,
     },
     icon: {
         marginLeft: 10,

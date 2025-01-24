@@ -4,6 +4,7 @@ import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
+import { Ionicons } from '@expo/vector-icons';
 
 const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
 
@@ -61,16 +62,12 @@ const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
                 ]}
                 onPress={() => setSelectedOption(option.value)}
               >
-                <View 
-                  style={[
-                    styles.radioCircle,
-                    isSmartphone && styles.radioCircleSmartphone,
-                    // We set the border color to orange if the option is selected
-                    selectedOption === option.value && { borderColor: COLORS.orange }  
-                  ]}
-                >
-                  {selectedOption === option.value && <View style={styles.selectedRb} />}
-                </View>
+                <Ionicons 
+                  name={selectedOption === option.value ? "radio-button-on-outline" : "radio-button-off-outline"}
+                  size={isSmartphone ? 20 : 24}
+                  color={selectedOption === option.value ? COLORS.orange : COLORS.gray600}
+                  style={styles.radioIcon}
+                />
                 <Text style={[
                   styles.radioText,
                   isSmartphone && styles.radioTextSmartphone]}>{option.label}</Text>
@@ -80,15 +77,15 @@ const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
             <View style={MODAL_STYLES.buttonContainer}>
               <Button 
                 title="Close" 
-                backgroundColor={COLORS.gray700}
-                color={COLORS.white} 
-                width="20%"
+                backgroundColor={"#111111"}
+                textColor={COLORS.gray300} 
+                width="22%"
                 onPress={onClose} />
               <Button 
                 title="Set" 
                 backgroundColor={COLORS.orange}
                 color={COLORS.white} 
-                width="20%"
+                width="22%"
                 onPress={() => {
                   // We send the selected option to the parent component
                   onSelectOption(selectedOption);
@@ -121,8 +118,11 @@ const styles = StyleSheet.create({
   modalContent: {
     width: "55%",
     padding: 20,
-    backgroundColor: COLORS.gray900,
-    borderRadius: SIZES.borderRadius.xLarge,
+    backgroundColor: COLORS.gray850,
+    padding: 30,
+    borderRadius: SIZES.borderRadius.xxLarge,
+    borderWidth: 1,
+    borderColor: '#403430',
   },
   modalContentSmartphone: {
     width: '90%',
@@ -149,33 +149,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 10,
     marginLeft: 25,
-  },
-  radioCircle: {
-    height: 20,
-    width: 20,
-    borderRadius: 10,
-    borderWidth: 1.58,
-    borderColor: COLORS.gray600,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  selectedRb: {
-    width: 12,
-    height: 12,
-    borderRadius: SIZES.borderRadius.xSmall,
-    backgroundColor: COLORS.orange,
   },
   radioContainerSmartphone: {
     marginBottom: 8,
     marginLeft: 20,
   },
-  radioCircleSmartphone: {
-    height: 16,
-    width: 16,
-    borderRadius: SIZES.borderRadius.small,
-    borderWidth: 1.5,
-    marginRight: 8,
+  radioIcon: {
+    marginRight: 10,
   },
   radioText: {
     fontSize: SIZES.fonts.textTablet,
@@ -183,6 +164,7 @@ const styles = StyleSheet.create({
   },
   radioTextSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
+    fontWeight: SIZES.fontWeight.medium,
   },
 });
 

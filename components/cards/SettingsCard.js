@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: SIZES.fonts.subtitleTablet,
-    color: COLORS.white,
+    color: "#d1d1d1",
     fontWeight: SIZES.fontWeight.regular
   },
   titleSmartphone: {

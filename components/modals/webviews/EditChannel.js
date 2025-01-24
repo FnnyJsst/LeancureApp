@@ -5,7 +5,7 @@ import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
 import { useDeviceType } from '../../../hooks/useDeviceType'; 
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style'; 
-
+import { Ionicons } from '@expo/vector-icons';
 export default function EditChannel({ visible, onClose, onSave, initialUrl, initialTitle }) {
 
   // We create a hook to determine the device type and orientation
@@ -14,6 +14,8 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
   // State management for form inputs
   const [url, setUrl] = useState(initialUrl || '');
   const [title, setTitle] = useState(initialTitle || '');
+  const [isTitleFocused, setIsTitleFocused] = useState(false);
+  const [isUrlFocused, setIsUrlFocused] = useState(false);
 
   // Reset form 
   useEffect(() => {
@@ -42,10 +44,7 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
       onRequestClose={onClose}
       statusBarTranslucent={true} 
     >
-      <View style={[
-        MODAL_STYLES.modalContainer,
-        !isTablet && styles.modalContainerSmartphoneLandscape,
-      ]}>
+      <View style={MODAL_STYLES.modalContainer}>
         <View style={[
           styles.modalContent,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
@@ -68,6 +67,15 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
               //No need to secure the title
               secureTextEntry={false}
               style={isSmartphone && styles.inputSmartphone}
+              onFocus={() => setIsTitleFocused(true)}
+              onBlur={() => setIsTitleFocused(false)}
+              icon={
+                <Ionicons 
+                  name="text-outline" 
+                  size={20} 
+                  color={isTitleFocused ? COLORS.orange : COLORS.gray300}
+                />
+              }
             />
           </View>
           <View style={[
@@ -85,6 +93,15 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
               //No need to secure the URL
               secureTextEntry={false}
               style={isSmartphone && styles.inputSmartphone}
+              onFocus={() => setIsUrlFocused(true)}
+              onBlur={() => setIsUrlFocused(false)}
+              icon={
+                <Ionicons 
+                  name="link-outline" 
+                  size={20} 
+                  color={isUrlFocused ? COLORS.orange : COLORS.gray300}
+                />
+              }
             />
           </View>
           <View style={MODAL_STYLES.buttonContainer}>
@@ -92,7 +109,7 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
               title="Cancel" 
               backgroundColor={COLORS.gray650} 
               color={COLORS.white} 
-              width="20%"
+              width="22%"
               // We close the modal
               onPress={onClose} 
             />
@@ -100,7 +117,7 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
               title="Ok" 
               backgroundColor={COLORS.orange} 
               color={COLORS.white} 
-              width="20%"
+              width="22%"
               // We send the URL and title to the parent component
               onPress={handleOk} 
             />
@@ -118,8 +135,10 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '60%',
     padding: 20,
-    backgroundColor: COLORS.gray750,
-    borderRadius: SIZES.borderRadius.large
+    backgroundColor: COLORS.gray850,
+    borderRadius: SIZES.borderRadius.xxLarge,
+    borderWidth: 1,
+    borderColor: '#403430',
   },
   modalContentTabletLandscape: {
     width: '40%'

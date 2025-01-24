@@ -115,7 +115,15 @@ export default function SettingsScreen({
           ]}>
             <SettingsCard
               title="Quit app"
-              icon={<Ionicons name="exit-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
+              icon={
+                <View style={styles.quitIconBackground}>
+                  <Ionicons 
+                    name="exit-outline" 
+                    size={isSmartphone ? 22 : 28} 
+                    color="#e74242" 
+                  />
+                </View>
+              }
               description="Quit the app and go back to the home screen"
               onPress={handleQuitApp}
             />
@@ -233,16 +241,6 @@ export default function SettingsScreen({
               onPress={accessMessages}
             />
           </View>
-          <View style={styles.separatorContainer}>
-          </View>
-          <TitleSettings title="Informations" />
-          <Text style={[
-            styles.text,
-            isTablet ? styles.versionTextTablet : styles.versionTextSmartphone,
-            isSmartphoneLandscape && styles.versionTextSmartphoneLandscape
-          ]}>
-            Version 1.0.0
-          </Text>
         </View>
       </ScrollView>
   
@@ -283,15 +281,15 @@ const styles = StyleSheet.create({
 
   // CONFIG CONTAINER
   configContainer: {
-    backgroundColor: COLORS.gray800,
-    borderRadius: SIZES.borderRadius.large,
+    backgroundColor: COLORS.gray850,
+    borderRadius: SIZES.borderRadius.xLarge,
     paddingVertical: 12,
     paddingHorizontal: 15,
     marginHorizontal: 15,
     alignSelf: 'center',
     marginVertical: 8,
     borderWidth: 1,
-    borderColor: '#403430',
+    borderColor: COLORS.gray650,
   },
   configContainerTablet: {
     // minHeight: 58,
@@ -333,27 +331,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // VERSION TEXT
-  versionTextTablet: {
-    fontSize: SIZES.fonts.textTablet,
-    marginLeft: 50,
-    fontWeight: SIZES.fontWeight.light,
-  },
-  versionTextSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
-    marginLeft: 30,
-    marginTop: -5
-  },
-  versionTextSmartphoneLandscape: {
-    marginBottom: 40,
-  },
-
   customHeaderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 15,
-    marginBottom: 5,
+    marginBottom: 20,
   },
   backButton: {
     backgroundColor: '#271E1E',
@@ -368,5 +351,13 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: SIZES.fonts.subtitleTablet,
     fontWeight: SIZES.fontWeight.bold,
+  },
+  quitIconBackground: {
+    backgroundColor: '#502e2e',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -6,6 +6,7 @@ import InputModal from '../../inputs/InputModal';
 import CustomAlert from '../../CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType'; 
 import { COLORS, MODAL_STYLES } from '../../../constants/style';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function PasswordModal({ visible, onClose, onSubmitPassword, onDisablePassword }) {
 
@@ -21,6 +22,7 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
     message: '',
     type: 'error'
   });
+  const [isFocused, setIsFocused] = useState(false);
 
   // Show custom alert
   const showAlert = (title, message, type = 'error') => {
@@ -88,16 +90,34 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
               isSmartphone && styles.inputContainerSmartphone
             ]}>
               <InputModal
-                placeholder="Enter a password (6 or more characters)"
+                placeholder="Enter a password (6+ chars)"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={true}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                icon={
+                  <Ionicons 
+                    name="lock-closed-outline" 
+                    size={20} 
+                    color={isFocused ? COLORS.orange : COLORS.gray300}
+                    style={styles.icon}
+                  />
+                }
               />
               <InputModal
                 placeholder="Re-enter password"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry={true}
+                icon={
+                  <Ionicons 
+                    name="lock-closed-outline" 
+                    size={20} 
+                    color={isFocused ? COLORS.orange : COLORS.gray300}
+                    style={styles.icon}
+                  />
+                }
               />
             </View>
             <View style={MODAL_STYLES.buttonContainer}>
@@ -170,4 +190,7 @@ const styles = StyleSheet.create({
   inputContainerSmartphone: {
     marginTop: 10,
 },
+  icon: {
+    marginRight: 10,
+  },
 });

@@ -5,16 +5,19 @@ import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
-
+import { Ionicons } from '@expo/vector-icons';
 const ImportChannelDialog = ({ visible, onClose, onImport }) => {
   
   // State management for the URL, error and channels
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
   const [channels, setChannels] = useState([]);
+  const [isFocused, setIsFocused] = useState(false);
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+
+
 
   // URL validation using regex
   const validateUrl = (url) => {
@@ -129,6 +132,13 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
             onChangeText={handleUrlChange}
             // We set the secureTextEntry to false so the user can see the URL
             secureTextEntry={false}
+            icon={
+              <Ionicons 
+                name="link-outline" 
+                size={20} 
+                color={isFocused ? COLORS.orange : COLORS.gray300}
+              />
+            }
           />
           {error ? (
             <View style={[
@@ -147,8 +157,9 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
               title="Cancel" 
               // We close the modal
               onPress={handleClose}
-              backgroundColor={COLORS.gray650}
-              color={COLORS.white}
+              backgroundColor={"#111111"}
+              textColor={"#808080"}
+              
               width="22%"
             />
             <Button 
@@ -156,7 +167,6 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
               // We import the channels
               onPress={handleDownload}
               backgroundColor={COLORS.orange}
-              color={COLORS.white}
               width="22%"
             />
           </View>

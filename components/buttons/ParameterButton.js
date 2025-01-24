@@ -45,12 +45,12 @@ export default function ParameterButton({ onPress }) {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 25,
+    bottom: 0,
   },
   buttonContainer: {
     backgroundColor: '#271E1E',
-    width: 40,
-    height: 40,
+    width: 45,
+    height: 45,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',

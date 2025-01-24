@@ -141,182 +141,183 @@ export default function ChannelsManagementScreen({
     await saveSelectedChannels(updatedChannels);
   };
 
-return (
-  <View style={styles.pageContainer}>
-    <View style={styles.customHeaderContainer}>
-      <TouchableOpacity 
-        style={styles.iconBackground}
-        onPress={() => onNavigate(SCREENS.SETTINGS)}
-      >
-        <Ionicons 
-          name="chevron-back-outline" 
-          size={isSmartphone ? 24 : 28} 
-          color={COLORS.gray300} 
-        />
-      </TouchableOpacity>
-      {/* <Text style={styles.headerTitle}>Channels management</Text> */}
-      {!isReadOnly && (
+  return (
+    <View style={styles.pageContainer}>
+      <View style={styles.customHeaderContainer}>
         <TouchableOpacity 
           style={styles.iconBackground}
-          onPress={openImportModal}
+          onPress={() => onNavigate(SCREENS.SETTINGS)}
         >
-          <Entypo 
-            name="add-to-list"
-            size={isSmartphone ? 24 : 28}
-            color={COLORS.gray300}
+          <Ionicons 
+            name="chevron-back-outline" 
+            size={isSmartphone ? 24 : 28} 
+            color={COLORS.gray300} 
           />
         </TouchableOpacity>
-      )}
-    </View>
-    
-    <Text style={[
-      styles.addChannelText, 
-      isSmartphone && styles.addChannelTextSmartphone
-    ]}>
-      Use the top right button to add a channel
-    </Text>
-
-    {/* Modal to import channels */}
-    <ImportChannelDialog
-      visible={isImportModalVisible}
-      onClose={closeImportModal}
-      onImport={onImport}
-    />
-    {/* Modal to edit a channel */}
-    <EditChannel
-      visible={isEditModalVisible}
-      onClose={closeEditModal}
-      initialUrl={channelToEdit?.href}
-      initialTitle={channelToEdit?.title}
-      onSave={(newUrl, newTitle) => handleEditChannel(channelToEdit, newUrl, newTitle)}
-    />
-    {/* Modal to delete a channel */}
-    <DeleteChannel
-      visible={isDeleteModalVisible}
-      onClose={closeDeleteModal}
-      handleDelete={() => handleDeleteChannel(channelToDelete)}
-    />
-    {/* List of channels */}
-    <ScrollView>
-      <View style={styles.channelsContainer}>
-        {selectedChannels && selectedChannels.map((channel, index) => (
-          <View 
-            style={[
-              styles.channelContainer,
-              isSmartphone && styles.channelContainerSmartphone
-            ]} 
-            key={channel.href}
+        {!isReadOnly && (
+          <TouchableOpacity 
+            style={styles.iconBackground}
+            onPress={openImportModal}
           >
-            <TouchableOpacity
+            <Entypo 
+              name="add-to-list"
+              size={isSmartphone ? 24 : 28}
+              color={COLORS.gray300}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
+      
+      {selectedChannels.length === 0 && (
+        <Text style={[
+          styles.addChannelText, 
+          isSmartphone && styles.addChannelTextSmartphone
+        ]}>
+          Use the top right button to add a channel
+        </Text>
+      )}
+
+      {/* Modal to import channels */}
+      <ImportChannelDialog
+        visible={isImportModalVisible}
+        onClose={closeImportModal}
+        onImport={onImport}
+      />
+      {/* Modal to edit a channel */}
+      <EditChannel
+        visible={isEditModalVisible}
+        onClose={closeEditModal}
+        initialUrl={channelToEdit?.href}
+        initialTitle={channelToEdit?.title}
+        onSave={(newUrl, newTitle) => handleEditChannel(channelToEdit, newUrl, newTitle)}
+      />
+      {/* Modal to delete a channel */}
+      <DeleteChannel
+        visible={isDeleteModalVisible}
+        onClose={closeDeleteModal}
+        handleDelete={() => handleDeleteChannel(channelToDelete)}
+      />
+      {/* List of channels */}
+      <ScrollView>
+        <View style={styles.channelsContainer}>
+          {selectedChannels && selectedChannels.map((channel, index) => (
+            <View 
               style={[
-                styles.titleContainer,
-                isSmartphone && styles.titleContainerSmartphone
-              ]}
-              // Navigate to the webview with the channel href
-              onPress={() => onNavigateToWebView(channel.href)}
-              // Set the selected title id
-              onPressIn={() => setSelectedTitleId(channel.href)}
-              // Reset the selected title id
-              onPressOut={() => setSelectedTitleId(null)}
+                styles.channelContainer,
+                isSmartphone && styles.channelContainerSmartphone
+              ]} 
+              key={channel.href}
             >
-              <Text 
-                style={[
-                  styles.text,
-                  isSmartphone && styles.textSmartphone,
-                  selectedTitleId === channel.href && styles.textSelected
-                ]}
-                numberOfLines={1}
-                // Add an ellipsis at the end of the text if it is too long
-                ellipsizeMode="tail"
-              >
-                {channel.title}
-              </Text>
-            </TouchableOpacity>
-            
-            {/* Check if the user is not read only */}
-            {!isReadOnly && (
-              <View style={[
-                styles.controlsContainer,
-                isSmartphone && styles.controlsContainerSmartphone
-              ]}>
-                <View style={[
-                  styles.arrowContainer,
-                  isSmartphone && styles.arrowContainerSmartphone
-                ]}>
-                <TouchableOpacity
-                onPress={() => moveChannelUp(index)}
-                onPressIn={() => setSelectedUpIndex(index)}
-                onPressOut={() => setSelectedUpIndex(null)}
-                style={styles.arrowButton}
-              >
-                <AntDesign 
-                  name="up" 
-                  size={isTablet ? 30 : 23} 
-                  style={[
-                    { marginRight: isSmartphonePortrait ? 0 : 15 }, 
-                    { color: selectedUpIndex === index ? COLORS.orange : COLORS.white }
-                  ]} 
-                />
-              </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => moveChannelDown(index)}
-                onPressIn={() => setSelectedDownIndex(index)}
-                onPressOut={() => setSelectedDownIndex(null)}
-                style={styles.arrowButton}
+                style={[
+                  styles.titleContainer,
+                  isSmartphone && styles.titleContainerSmartphone
+                ]}
+                // Navigate to the webview with the channel href
+                onPress={() => onNavigateToWebView(channel.href)}
+                // Set the selected title id
+                onPressIn={() => setSelectedTitleId(channel.href)}
+                // Reset the selected title id
+                onPressOut={() => setSelectedTitleId(null)}
               >
-                <AntDesign 
-                  name="down" 
-                  size={isTablet ? 30 : 23} 
+                <Text 
                   style={[
-                    { marginLeft: isSmartphonePortrait ? 0 : 15 },
-                    { marginRight: isSmartphonePortrait ? 0 : 15 },
-                    { color: selectedDownIndex === index ? COLORS.orange : COLORS.white }
-                  ]} 
-                />
-              </TouchableOpacity>
-                </View>
-                
-                <View style={[
-                  styles.iconsContainer,
-                  isSmartphone && styles.iconsContainerSmartphone
-                ]}>
-                <TouchableOpacity
-                  onPress={() => openEditModal(channel)}
-                  onPressIn={() => setSelectedPencilIndex(index)}
-                  onPressOut={() => setSelectedPencilIndex(null)}
-                  style={styles.iconButton}
+                    styles.text,
+                    isSmartphone && styles.textSmartphone,
+                    selectedTitleId === channel.href && styles.textSelected
+                  ]}
+                  numberOfLines={1}
+                  // Add an ellipsis at the end of the text if it is too long
+                  ellipsizeMode="tail"
                 >
-                  <EvilIcons 
-                    name="pencil" 
-                    size={isTablet ? 40 : 29} 
+                  {channel.title}
+                </Text>
+              </TouchableOpacity>
+              
+              {/* Check if the user is not read only */}
+              {!isReadOnly && (
+                <View style={[
+                  styles.controlsContainer,
+                  isSmartphone && styles.controlsContainerSmartphone
+                ]}>
+                  <View style={[
+                    styles.arrowContainer,
+                    isSmartphone && styles.arrowContainerSmartphone
+                  ]}>
+                  <TouchableOpacity
+                  onPress={() => moveChannelUp(index)}
+                  onPressIn={() => setSelectedUpIndex(index)}
+                  onPressOut={() => setSelectedUpIndex(null)}
+                  style={styles.arrowButton}
+                >
+                  <AntDesign 
+                    name="up" 
+                    size={isTablet ? 30 : 23} 
                     style={[
                       { marginRight: isSmartphonePortrait ? 0 : 15 }, 
-                      { color: isTablet && selectedPencilIndex === index ? COLORS.orange : COLORS.white }
+                      { color: selectedUpIndex === index ? COLORS.orange : COLORS.gray300 }
                     ]} 
                   />
                 </TouchableOpacity>
-                {/* Delete a channel */}
                 <TouchableOpacity
-                  onPress={() => openDeleteModal(channel)}
-                  onPressIn={() => setSelectedBinIndex(index)}
-                  onPressOut={() => setSelectedBinIndex(null)}
-                  style={styles.iconButton}
+                  onPress={() => moveChannelDown(index)}
+                  onPressIn={() => setSelectedDownIndex(index)}
+                  onPressOut={() => setSelectedDownIndex(null)}
+                  style={styles.arrowButton}
                 >
-                  <Ionicons 
-                    name="trash-outline" 
+                  <AntDesign 
+                    name="down" 
                     size={isTablet ? 30 : 23} 
-                    style={{ color: selectedBinIndex === index ? COLORS.orange : COLORS.white }} 
+                    style={[
+                      { marginLeft: isSmartphonePortrait ? 0 : 15 },
+                      { marginRight: isSmartphonePortrait ? 0 : 15 },
+                      { color: selectedDownIndex === index ? COLORS.orange : COLORS.gray300 }
+                    ]} 
                   />
                 </TouchableOpacity>
+                  </View>
+                  
+                  <View style={[
+                    styles.iconsContainer,
+                    isSmartphone && styles.iconsContainerSmartphone
+                  ]}>
+                  <TouchableOpacity
+                    onPress={() => openEditModal(channel)}
+                    onPressIn={() => setSelectedPencilIndex(index)}
+                    onPressOut={() => setSelectedPencilIndex(null)}
+                    style={styles.iconButton}
+                  >
+                    <EvilIcons 
+                      name="pencil" 
+                      size={isTablet ? 40 : 29} 
+                      style={[
+                        { marginRight: isSmartphonePortrait ? 0 : 15 }, 
+                        { color: isTablet && selectedPencilIndex === index ? COLORS.orange : COLORS.gray300 }
+                      ]} 
+                    />
+                  </TouchableOpacity>
+                  {/* Delete a channel */}
+                  <TouchableOpacity
+                    onPress={() => openDeleteModal(channel)}
+                    onPressIn={() => setSelectedBinIndex(index)}
+                    onPressOut={() => setSelectedBinIndex(null)}
+                    style={styles.iconButton}
+                  >
+                    <Ionicons 
+                      name="trash-outline" 
+                      size={isTablet ? 30 : 23} 
+                      style={{ color: selectedBinIndex === index ? COLORS.orange : COLORS.gray300 }} 
+                    />
+                  </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            )}
-          </View>
-        ))}
-      </View>
-    </ScrollView>
-  </View>
-);
+              )}
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -346,10 +347,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginVertical: 15,
-    backgroundColor: COLORS.gray800,
+    backgroundColor: COLORS.gray850,
     height: 75,
     width: '95%',
     borderRadius: SIZES.borderRadius.xLarge,
+    borderWidth: 1,
+    borderColor: "#403430",
   },
   channelContainerSmartphone: {
     width: '100%',
@@ -394,7 +397,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   text: {
-    color: COLORS.white,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.textTablet,
   },
   textSmartphone: {
@@ -428,10 +431,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  headerTitle: {
-    color: COLORS.white,
-    fontSize: SIZES.fonts.headerTablet,
-    fontWeight: SIZES.fontWeight.bold,
   },
 });

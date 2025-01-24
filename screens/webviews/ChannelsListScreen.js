@@ -5,6 +5,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
 import Button from '../../components/buttons/Button';
 import CheckBox from '../../components/inputs/CheckBox';
+import { Ionicons } from '@expo/vector-icons';
 
 // This screen displays the list of channels available for the user to import
 export default function ChannelsListScreen({ channels, selectedChannels, onBack, onBackPress }) {
@@ -57,10 +58,19 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
 
   return (
     <View style={styles.pageContainer}>
-      <Header 
-        onBackPress={onBackPress}
-        showIcons={false}
-      />
+      <View style={styles.customHeaderContainer}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={onBackPress}
+        >
+          <Ionicons 
+            name="chevron-back" 
+            size={isSmartphone ? 24 : 28} 
+            color={COLORS.white} 
+          />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Import channels</Text>
+      </View>
       <View style={[styles.listContainer, isLandscape && styles.listContainerLandscape]}>
         <FlatList
           data={availableChannels}
@@ -86,6 +96,7 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
       <View style={styles.buttonContainer}>
         <Button 
           title="Import channels"
+          variant="large"
           backgroundColor={COLORS.orange}
           color={COLORS.white}
           onPress={handleImportChannels}
@@ -102,14 +113,12 @@ const styles = StyleSheet.create({
   },
   channelContainer: {
     flexDirection: 'row',
-    marginTop: 15,
     marginHorizontal: 30,
     borderRadius: SIZES.borderRadius.large,
     padding: 10,
   },
   channelContainerSmartphonePortrait: {
     marginHorizontal: 5,
-    marginTop: 20,
   },
   channelTitle: {
     fontSize: SIZES.fonts.subtitleTablet,
@@ -118,7 +127,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   channelTitleSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
+    fontSize: 16,
   },
   listContainer: {
     flex: 1,
@@ -130,5 +139,26 @@ const styles = StyleSheet.create({
   buttonContainer: {
     bottom: 30,
     alignItems: 'center',
-  }
+  },
+  customHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    marginBottom: 20,
+  },
+  backButton: {
+    backgroundColor: '#271E1E',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  headerTitle: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.subtitleTablet,
+    fontWeight: SIZES.fontWeight.bold,
+  },
 });
