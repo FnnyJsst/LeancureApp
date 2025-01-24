@@ -39,7 +39,6 @@ const WebViewScreen = ({ url, onNavigate, onSettingsAccess }) => {
             color={COLORS.gray300} 
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>WebViews</Text>
       </View>
       <WebView
         source={{ uri: url }}
@@ -53,15 +52,18 @@ const WebViewScreen = ({ url, onNavigate, onSettingsAccess }) => {
 const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
-    //Delete the top horizontal gray bar on Android
-    // marginTop: Platform.OS === 'ios' ? 0 : -10,
+    backgroundColor: COLORS.gray900,
   },
   customHeaderContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 15,
-    marginBottom: 5,
   },
   backButton: {
     backgroundColor: '#271E1E',

@@ -17,7 +17,9 @@ export default function Header({
   toggleMenu,
   noBorder,
   transparent,
-  currentSection
+  currentSection,
+  showBell = false,
+  onBellPress
 }) {
   const { isSmartphone } = useDeviceType();
   const iconSize = isSmartphone ? 30 : 40;
@@ -54,26 +56,34 @@ export default function Header({
   const renderRightSection = () => {
     if (!showIcons) return null;
     
-    // if (showAccountImage) {
-    //   return <AccountImage onNavigate={onNavigate} width={isSmartphone ? 42 : 50} height={isSmartphone ? 42 : 50} />;
-    // }
-    
-    if (rightIcon) {
-      return (
-        <TouchableOpacity 
-          style={styles.iconButton} 
-          onPress={onRightIconPress}
-        >
-          <Entypo 
-            name={rightIcon}
-            size={iconSize}
-            color={COLORS.gray300}
-          />
-        </TouchableOpacity>
-      );
-    }
-    
-    return null;
+    return (
+      <View style={styles.rightIconsContainer}>
+        {showBell && (
+          <TouchableOpacity 
+            style={styles.bellIconButton} 
+            onPress={onBellPress}
+          >
+            <Ionicons 
+              name="notifications-outline"
+              size={iconSize - 5}
+              color={COLORS.gray300}
+            />
+          </TouchableOpacity>
+        )}
+        {rightIcon && (
+          <TouchableOpacity 
+            style={styles.iconButton} 
+            onPress={onRightIconPress}
+          >
+            <Entypo 
+              name={rightIcon}
+              size={iconSize}
+              color={COLORS.gray300}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
+    );
   };
 
   return (
@@ -152,11 +162,23 @@ const styles = StyleSheet.create({
   iconButton: {
     padding: 5,
   },
+  bellIconButton: {
+    padding: 5,
+    backgroundColor: "#271E1E",
+    borderRadius: SIZES.borderRadius.small,
+    borderWidth: 0.5,
+    borderColor: '#403430',
+  },
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   menuButtonLeft: {
     marginLeft: 0,
+  },
+  rightIconsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
 });

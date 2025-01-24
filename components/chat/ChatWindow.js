@@ -22,8 +22,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    if (channel?.messages && Array.isArray(channel.messages)) {
-      const formattedMessages = channel.messages.map(msg => ({
+    if (channelMessages && Array.isArray(channelMessages)) {
+      const formattedMessages = channelMessages.map(msg => ({
         id: msg.id,
         username: msg.isOwnMessage ? "Moi" : "Utilisateur",
         text: msg.message,
@@ -41,10 +41,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         savedTimestamp: msg.savedTimestamp || Date.now().toString(),
       }));
       setMessages(formattedMessages);
-    } else {
-      setMessages([]);
     }
-  }, [channel]);
+  }, [channelMessages]);
 
   // Function to open the document preview modal
   const openDocumentPreviewModal = (message) => {
@@ -80,26 +78,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       const response = await sendMessageApi(channel.id, messageData, credentials);
       
       if (response.status === 'ok') {
-        const currentTimestamp = Date.now();
-        const newMessage = {
-          id: currentTimestamp,
-          username: "Moi",
-          text: typeof messageData === 'string' ? messageData : '',
-          timestamp: new Date().toLocaleTimeString([], { 
+        // Récupérer les messages mis à jour immédiatement après l'envoi
+        const updatedMessages = await fetchChannelMessages(channel.id, credentials);
+        setMessages(updatedMessages.map(msg => ({
+          ...msg,
+          username: msg.isOwnMessage ? "Moi" : "Utilisateur",
+          text: msg.message,
+          timestamp: new Date(parseInt(msg.savedTimestamp)).toLocaleTimeString([], { 
             hour: '2-digit', 
             minute: '2-digit' 
-          }),
-          savedTimestamp: currentTimestamp.toString(),
-          isOwnMessage: true,
-          type: messageData.type,
-          fileName: messageData.fileName,
-          fileSize: messageData.fileSize,
-          fileType: messageData.fileType,
-          uri: messageData.uri,
-          base64: messageData.base64
-        };
-        
-        setMessages([...messages, newMessage]);
+          })
+        })));
 
         setTimeout(() => {
           if (scrollViewRef.current) {

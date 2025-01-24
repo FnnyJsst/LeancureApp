@@ -29,8 +29,17 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
     }
   };
 
-  const handleNewMessage = (message) => {
-    setChannelMessages(prevMessages => [...prevMessages, message]);
+  const handleNewMessage = async (message) => {
+    try {
+      const credentialsStr = await AsyncStorage.getItem('userCredentials');
+      if (!credentialsStr || !selectedChannel) return;
+      
+      const credentials = JSON.parse(credentialsStr);
+      const messages = await fetchChannelMessages(selectedChannel.id, credentials);
+      setChannelMessages(messages);
+    } catch (error) {
+      console.error('Erreur mise à jour messages:', error);
+    }
   };
 
   useEffect(() => {
@@ -84,6 +93,11 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
         toggleMenu={toggleMenu} 
         title={selectedChannel?.title}
         currentSection={currentSection}
+        showBell={true}
+        onBellPress={() => {
+          console.log('Bell pressed');
+          // Ajoutez ici la logique pour gérer les notifications
+        }}
       />
       <Sidebar 
         onChannelSelect={handleChannelSelect}

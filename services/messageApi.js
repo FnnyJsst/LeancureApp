@@ -250,19 +250,38 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
 
     const response = await axios({
       method: 'POST',
-      url: 'http://192.168.77.102/ic.php',
+      url: API_URL,
       data: data,
       headers: {
         'Content-Type': 'application/json'
       }
     });
 
-    return {
-      status: 'ok',
-      message: messageContent,
-      timestamp: timestamp
-    };
+    // Parser la réponse
+    let cleanData = response.data;
+    if (typeof response.data === 'string') {
+      const jsonMatches = response.data.match(/\{(?:[^{}]|(?:\{[^{}]*\}))*\}/g);
+      if (jsonMatches) {
+        try {
+          cleanData = JSON.parse(jsonMatches[jsonMatches.length - 1]);
+        } catch (e) {
+          console.error('❌ Erreur parsing JSON:', e);
+          throw new Error('Format de réponse invalide');
+        }
+      }
+    }
 
+    if (cleanData.status === 'ok' && 
+        cleanData.cmd?.[0]?.msg_srv?.client?.add_msg?.status === 'ok') {
+      return {
+        status: 'ok',
+        message: messageContent,
+        timestamp: timestamp,
+        messageId: cleanData.cmd?.[0]?.msg_srv?.client?.add_msg?.msgid
+      };
+    } else {
+      throw new Error(cleanData.error || 'Erreur lors de l\'envoi du message');
+    }
   } catch (error) {
     console.error('🔴 Error sending message:', error);
     throw error;
@@ -275,7 +294,7 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
     
     const data = {
       "api-version": "2",
-      "api-contract-number": "202501121",
+      "api-contract-number": userCredentials.contractNumber,
       "api-signature": "msgApiKey",
       "api-signature-hash": "sha256",
       "api-signature-timestamp": timestamp,
@@ -292,7 +311,7 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
                   "prenom": ""
                 },
                 "msg-msgapikey": "12d0fd-e0bd67-4933ec-5ed14a-6f767b",
-                "msg-contract-number": "202501121"
+                "msg-contract-number": userCredentials.contractNumber
               }
             }
           }
@@ -309,20 +328,27 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
       }
     });
 
-    // Extraire les messages du canal spécifique
-    const allData = response.data?.cmd?.[0]?.msg_srv?.client?.get_account_links?.data;
-    let channelMessages = [];
+    let cleanData = response.data;
+    if (typeof response.data === 'string') {
+      const jsonMatches = response.data.match(/\{(?:[^{}]|(?:\{[^{}]*\}))*\}/g);
+      if (jsonMatches) {
+        cleanData = JSON.parse(jsonMatches[jsonMatches.length - 1]);
+      }
+    }
+
+    const allData = cleanData?.cmd?.[0]?.msg_srv?.client?.get_account_links?.data;
+    let messages = [];
 
     // Chercher dans les canaux publics
     if (allData?.public?.[channelId]?.messages) {
-      const messages = allData.public[channelId].messages;
-      channelMessages = Object.entries(messages).map(([id, msg]) => ({
+      messages = Object.entries(allData.public[channelId].messages).map(([id, msg]) => ({
         id,
         title: msg.title,
-        message: msg.message,
+        message: msg.message || msg.details,
         savedTimestamp: msg.savedts,
         endTimestamp: msg.enddatets,
-        fileType: msg.filetype || 'none'
+        fileType: msg.filetype || 'none',
+        isOwnMessage: msg.isOwnMessage || false
       }));
     }
 
@@ -330,21 +356,20 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
     if (allData?.private?.groups) {
       Object.values(allData.private.groups).forEach(group => {
         if (group.channels?.[channelId]?.messages) {
-          const messages = group.channels[channelId].messages;
-          channelMessages = Object.entries(messages).map(([id, msg]) => ({
+          messages = Object.entries(group.channels[channelId].messages).map(([id, msg]) => ({
             id,
             title: msg.title,
-            message: msg.message,
+            message: msg.message || msg.details,
             savedTimestamp: msg.savedts,
             endTimestamp: msg.enddatets,
-            fileType: msg.filetype || 'none'
+            fileType: msg.filetype || 'none',
+            isOwnMessage: msg.isOwnMessage || false
           }));
         }
       });
     }
 
-    console.log(`📨 Messages found for channel ${channelId}:`, channelMessages.length);
-    return channelMessages;
+    return messages;
 
   } catch (error) {
     console.error('🔴 Detailed error:', error);

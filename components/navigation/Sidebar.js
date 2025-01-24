@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#111111",
     zIndex: 2,
     paddingTop: 20,
-    borderRightWidth: 1,
+    borderRightWidth: 0.5,
     borderRightColor: '#403430',
   },
   sidebarSmartphone: {
@@ -420,7 +420,6 @@ const styles = StyleSheet.create({
   },
   settingsButton: {
     backgroundColor: "#271E1E",
-    // padding: 5,
     borderRadius: SIZES.borderRadius.medium,
     borderWidth: 0.5,
     borderColor: '#403430',
@@ -449,7 +448,6 @@ const styles = StyleSheet.create({
   },
   searchInputSmartphone: {
     fontSize: 14,
-    
   },
   unreadBadge: {
     backgroundColor: COLORS.orange,
