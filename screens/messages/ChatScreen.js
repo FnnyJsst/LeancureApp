@@ -15,12 +15,15 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [currentSection, setCurrentSection] = useState('chat');
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [channelMessages, setChannelMessages] = useState([]);
 
+  // Toggle the menu
   const toggleMenu = () => {
     setIsExpanded(!isExpanded);
   };
 
+  // Handle the channel selection
   const handleChannelSelect = (channel) => {
     setSelectedChannel(channel);
     setChannelMessages(channel.messages || []);
@@ -29,6 +32,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
     }
   };
 
+  // Handle the new message
   const handleNewMessage = async (message) => {
     try {
       // Get the credentials from the async storage
@@ -44,6 +48,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
         message: message,
         savedTimestamp: Date.now().toString(),
         isOwnMessage: true,
+        isUnread: false,
         login: credentials.login
       };
       
@@ -54,7 +59,8 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
       const updatedMessages = messages.map(msg => ({
         ...msg,
-        isOwnMessage: msg.login === credentials.login
+        isOwnMessage: msg.login === credentials.login,
+        isUnread: !msg.isOwnMessage && msg.status === 'unread'
       }));
       setChannelMessages(updatedMessages);
       
@@ -63,34 +69,55 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
     }
   };
 
+  // Handle the input focus change, so we can mark all the messages as read as soon as we use the chat input
+  const handleInputFocusChange = (isFocused) => {
+    setIsInputFocused(isFocused);
+    if (isFocused) {
+      setHasUserInteracted(true);
+      // Force the fetch of the messages
+      fetchMessages();
+    }
+  };
+
+  const fetchMessages = async () => {
+    try {
+      const credentialsStr = await AsyncStorage.getItem('userCredentials');
+      if (!credentialsStr || !selectedChannel) return;
+      
+      const credentials = JSON.parse(credentialsStr);
+      const messages = await fetchChannelMessages(selectedChannel.id, credentials);
+      
+      const updatedMessages = messages.map(msg => {
+        const existingMessage = channelMessages.find(m => m.id === msg.id);
+        const isOwnMessage = msg.login === credentials.login;
+        
+        return {
+          ...msg,
+          isOwnMessage,
+          // Un message est non lu seulement si:
+          // - ce n'est pas notre message ET
+          // - l'utilisateur n'a pas interagi ET
+          // - soit c'est un nouveau message, soit il était déjà non lu
+          isUnread: !isOwnMessage && !hasUserInteracted && (
+            !existingMessage || existingMessage.isUnread
+          )
+        };
+      });
+      
+      setChannelMessages(updatedMessages);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  };
+
+  // Réinitialiser hasUserInteracted quand on change de canal
+  useEffect(() => {
+    setHasUserInteracted(false);
+  }, [selectedChannel]);
+
   useEffect(() => {
     let interval;
     
-    const fetchMessages = async () => {
-      try {
-        // Get the credentials from the async storage
-        const credentialsStr = await AsyncStorage.getItem('userCredentials');
-        // If the credentials are not found or the selected channel is not found, we don't do anything
-        if (!credentialsStr || !selectedChannel) return;
-        // Parse the credentials
-        const credentials = JSON.parse(credentialsStr);
-        const messages = await fetchChannelMessages(selectedChannel.id, credentials);
-        
-        // Keep the isOwnMessage state of the existing messages
-        const updatedMessages = messages.map(msg => {
-          const existingMessage = channelMessages.find(m => m.id === msg.id);
-          return {
-            ...msg,
-            isOwnMessage: existingMessage ? existingMessage.isOwnMessage : (msg.login === credentials.login)
-          };
-        });
-        
-        setChannelMessages(updatedMessages);
-      } catch (error) {
-        console.error('Error fetching messages:', error);
-      }
-    };
-
     // If the channel is selected, we fetch the messages and set an interval to fetch the messages every 2 seconds
     if (selectedChannel) {
       fetchMessages();
@@ -129,7 +156,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
           channel={selectedChannel}
           messages={channelMessages}
           isExpanded={isExpanded}
-          onInputFocusChange={setIsInputFocused}
+          onInputFocusChange={handleInputFocusChange}
           onMessageSent={handleNewMessage}
         />
       </View>

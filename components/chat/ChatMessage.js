@@ -145,21 +145,22 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
         <Text style={styles.timestamp}>{message.timestamp}</Text>
       </View>
 
-      {message.isUnread && (
-            <View style={styles.unreadIndicator}>
-              <View style={styles.unreadDot} />
-            </View>
-          )}
       {/* Message bubble */}
       <View style={[
         styles.messageContainer,
         isOwnMessage ? styles.ownMessage : styles.otherMessage,
         styles.textMessageContainer,
+        message.isUnread && styles.unreadMessage
       ]}>
         <Text style={[
           styles.messageText,
           isSmartphone && styles.messageTextSmartphone
         ]}>{message.text}</Text>
+        {message.isUnread && !isOwnMessage && (
+          <View style={styles.unreadIndicator}>
+            <View style={styles.unreadDot} />
+          </View>
+        )}
       </View>
     </View>
   );
@@ -198,12 +199,21 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.light,
   },
   unreadMessage: {
+    backgroundColor: COLORS.darkGray,
     borderLeftWidth: 3,
     borderLeftColor: COLORS.orange,
   },
   unreadIndicator: {
-    marginLeft: 8,
-    justifyContent: 'center',
+    position: 'absolute',
+    right: -8,
+    top: '50%',
+    transform: [{ translateY: -4 }],
+  },
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.orange,
   },
   messageContainer: {
     maxWidth: '100%',

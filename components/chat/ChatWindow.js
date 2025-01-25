@@ -33,6 +33,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           minute: '2-digit' 
         }),
         isOwnMessage: msg.isOwnMessage || false,
+        isUnread: msg.isUnread || false,
         fileType: msg.fileType,
         fileName: msg.fileName,
         fileSize: msg.fileSize,
@@ -41,6 +42,13 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         savedTimestamp: msg.savedTimestamp || Date.now().toString(),
       }));
       setMessages(formattedMessages);
+      
+      // Scroll to the bottom of the chat to display the new message
+      setTimeout(() => {
+        if (scrollViewRef.current) {
+          scrollViewRef.current.scrollToEnd({ animated: true });
+        }
+      }, 100);
     } else {
       setMessages([]);
     }
@@ -169,7 +177,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
               acc.push(
                 <ChatMessage
                   key={message.id || index}
-                  message={message}
+                  message={{
+                    ...message,
+                    isUnread: message.isUnread || false
+                  }}
                   isOwnMessage={message.isOwnMessage}
                   onFileClick={openDocumentPreviewModal}
                 />

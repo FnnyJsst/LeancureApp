@@ -82,20 +82,20 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     )
   })).filter(group => group.channels?.length > 0);
 
-  // Fonction pour gérer le clic sur le bouton Groupes
+  // Function to handle the click on the Groups button
   const handleGroupsClick = () => {
     if (currentSection === 'settings') {
-      onNavigate(SCREENS.CHAT); // Retourner au chat si on est dans settings
-      setShowGroups(true); // Ouvrir les groupes
+      onNavigate(SCREENS.CHAT); // Go back to chat
+      setShowGroups(true); // Open groups
       return;
     }
     setShowGroups(!showGroups);
   };
 
-  // Fonction pour gérer le clic sur Settings
+  // Function to handle the click on Settings
   const handleSettingsClick = () => {
     if (showGroups) {
-      setShowGroups(false); // Fermer les groupes si ouverts
+      setShowGroups(false); // Close groups if open
     }
     onNavigate(SCREENS.SETTINGS_MESSAGE);
   };

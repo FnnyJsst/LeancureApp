@@ -325,7 +325,9 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
         fileType: msg.filetype || 'none',
         login: msg.login,
         // Check if the message is from the user
-        isOwnMessage: msg.login === userCredentials.login
+        isOwnMessage: msg.login === userCredentials.login,
+        // Check if the message is unread
+        isUnread: msg.status === 'unread'
       }));
     }
 
@@ -343,7 +345,9 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
             fileType: msg.filetype || 'none',
             login: msg.login,
             // Check if the message is from the user
-            isOwnMessage: msg.login === userCredentials.login
+            isOwnMessage: msg.login === userCredentials.login,
+            // Check if the message is unread
+            isUnread: msg.status === 'unread'
           }));
         }
       });
