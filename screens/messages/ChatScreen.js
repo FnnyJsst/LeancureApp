@@ -31,14 +31,35 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
 
   const handleNewMessage = async (message) => {
     try {
+      // Get the credentials from the async storage
       const credentialsStr = await AsyncStorage.getItem('userCredentials');
+      // If the credentials are not found or the selected channel is not found, we don't do anything
       if (!credentialsStr || !selectedChannel) return;
-      
+      // Parse the credentials
       const credentials = JSON.parse(credentialsStr);
+      
+      // Add the new message with isOwnMessage to true if it comes from us
+      const newMessage = {
+        id: Date.now().toString(),
+        message: message,
+        savedTimestamp: Date.now().toString(),
+        isOwnMessage: true,
+        login: credentials.login
+      };
+      
+      // Add the new message to the channel messages
+      setChannelMessages(prev => [...prev, newMessage]);
+
+      //Force the fetch of the messages
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
-      setChannelMessages(messages);
+      const updatedMessages = messages.map(msg => ({
+        ...msg,
+        isOwnMessage: msg.login === credentials.login
+      }));
+      setChannelMessages(updatedMessages);
+      
     } catch (error) {
-      console.error('Erreur mise à jour messages:', error);
+      console.error('Error updating messages:', error);
     }
   };
 
@@ -47,38 +68,37 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
     
     const fetchMessages = async () => {
       try {
+        // Get the credentials from the async storage
         const credentialsStr = await AsyncStorage.getItem('userCredentials');
-        console.log('🔑 Credentials trouvées:', !!credentialsStr);
-        
-        if (!credentialsStr || !selectedChannel) {
-          console.log('❌ Pas de credentials ou de canal sélectionné');
-          return;
-        }
-        
+        // If the credentials are not found or the selected channel is not found, we don't do anything
+        if (!credentialsStr || !selectedChannel) return;
+        // Parse the credentials
         const credentials = JSON.parse(credentialsStr);
-        console.log('📱 Canal sélectionné:', selectedChannel.id);
-        
         const messages = await fetchChannelMessages(selectedChannel.id, credentials);
-        console.log('📨 Nombre de messages reçus:', messages.length);
         
-        setChannelMessages(messages);
+        // Keep the isOwnMessage state of the existing messages
+        const updatedMessages = messages.map(msg => {
+          const existingMessage = channelMessages.find(m => m.id === msg.id);
+          return {
+            ...msg,
+            isOwnMessage: existingMessage ? existingMessage.isOwnMessage : (msg.login === credentials.login)
+          };
+        });
+        
+        setChannelMessages(updatedMessages);
       } catch (error) {
-        console.error('Erreur récupération messages:', error);
+        console.error('Error fetching messages:', error);
       }
     };
 
+    // If the channel is selected, we fetch the messages and set an interval to fetch the messages every 2 seconds
     if (selectedChannel) {
-      // Charger les messages immédiatement
       fetchMessages();
-      
-      // Rafraîchir toutes les 5 secondes
-      interval = setInterval(fetchMessages, 5000);
+      interval = setInterval(fetchMessages, 2000);
     }
 
     return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
+      if (interval) clearInterval(interval);
     };
   }, [selectedChannel]);
 
@@ -93,11 +113,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
         toggleMenu={toggleMenu} 
         title={selectedChannel?.title}
         currentSection={currentSection}
-        showBell={true}
-        onBellPress={() => {
-          console.log('Bell pressed');
-          // Ajoutez ici la logique pour gérer les notifications
-        }}
       />
       <Sidebar 
         onChannelSelect={handleChannelSelect}

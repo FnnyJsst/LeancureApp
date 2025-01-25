@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://192.168.77.102/ic.php';
+const API_URL = 'http://192.168.1.67/ic.php';
 
 //This API is used to fetch the user's channels
 export const fetchUserChannels = async (contractNumber, login, password, email, nom, prenom) => {
@@ -250,38 +250,19 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
 
     const response = await axios({
       method: 'POST',
-      url: API_URL,
+      url: 'http://192.168.1.67/ic.php',
       data: data,
       headers: {
         'Content-Type': 'application/json'
       }
     });
 
-    // Parser la réponse
-    let cleanData = response.data;
-    if (typeof response.data === 'string') {
-      const jsonMatches = response.data.match(/\{(?:[^{}]|(?:\{[^{}]*\}))*\}/g);
-      if (jsonMatches) {
-        try {
-          cleanData = JSON.parse(jsonMatches[jsonMatches.length - 1]);
-        } catch (e) {
-          console.error('❌ Erreur parsing JSON:', e);
-          throw new Error('Format de réponse invalide');
-        }
-      }
-    }
+    return {
+      status: 'ok',
+      message: messageContent,
+      timestamp: timestamp
+    };
 
-    if (cleanData.status === 'ok' && 
-        cleanData.cmd?.[0]?.msg_srv?.client?.add_msg?.status === 'ok') {
-      return {
-        status: 'ok',
-        message: messageContent,
-        timestamp: timestamp,
-        messageId: cleanData.cmd?.[0]?.msg_srv?.client?.add_msg?.msgid
-      };
-    } else {
-      throw new Error(cleanData.error || 'Erreur lors de l\'envoi du message');
-    }
   } catch (error) {
     console.error('🔴 Error sending message:', error);
     throw error;
@@ -294,7 +275,7 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
     
     const data = {
       "api-version": "2",
-      "api-contract-number": userCredentials.contractNumber,
+      "api-contract-number": "202501121",
       "api-signature": "msgApiKey",
       "api-signature-hash": "sha256",
       "api-signature-timestamp": timestamp,
@@ -311,7 +292,7 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
                   "prenom": ""
                 },
                 "msg-msgapikey": "12d0fd-e0bd67-4933ec-5ed14a-6f767b",
-                "msg-contract-number": userCredentials.contractNumber
+                "msg-contract-number": "202501121"
               }
             }
           }
@@ -328,48 +309,48 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
       }
     });
 
-    let cleanData = response.data;
-    if (typeof response.data === 'string') {
-      const jsonMatches = response.data.match(/\{(?:[^{}]|(?:\{[^{}]*\}))*\}/g);
-      if (jsonMatches) {
-        cleanData = JSON.parse(jsonMatches[jsonMatches.length - 1]);
-      }
-    }
+    // Extract the data from the response
+    const allData = response.data?.cmd?.[0]?.msg_srv?.client?.get_account_links?.data;
+    let channelMessages = [];
 
-    const allData = cleanData?.cmd?.[0]?.msg_srv?.client?.get_account_links?.data;
-    let messages = [];
-
-    // Chercher dans les canaux publics
+    // Search in public channels
     if (allData?.public?.[channelId]?.messages) {
-      messages = Object.entries(allData.public[channelId].messages).map(([id, msg]) => ({
+      const messages = allData.public[channelId].messages;
+      channelMessages = Object.entries(messages).map(([id, msg]) => ({
         id,
         title: msg.title,
-        message: msg.message || msg.details,
+        message: msg.message,
         savedTimestamp: msg.savedts,
         endTimestamp: msg.enddatets,
         fileType: msg.filetype || 'none',
-        isOwnMessage: msg.isOwnMessage || false
+        login: msg.login,
+        // Check if the message is from the user
+        isOwnMessage: msg.login === userCredentials.login
       }));
     }
 
-    // Chercher dans les groupes privés
+    // Search in private groups
     if (allData?.private?.groups) {
       Object.values(allData.private.groups).forEach(group => {
         if (group.channels?.[channelId]?.messages) {
-          messages = Object.entries(group.channels[channelId].messages).map(([id, msg]) => ({
+          const messages = group.channels[channelId].messages;
+          channelMessages = Object.entries(messages).map(([id, msg]) => ({
             id,
             title: msg.title,
-            message: msg.message || msg.details,
+            message: msg.message,
             savedTimestamp: msg.savedts,
             endTimestamp: msg.enddatets,
             fileType: msg.filetype || 'none',
-            isOwnMessage: msg.isOwnMessage || false
+            login: msg.login,
+            // Check if the message is from the user
+            isOwnMessage: msg.login === userCredentials.login
           }));
         }
       });
     }
 
-    return messages;
+    // console.log(`📨 Messages found for channel ${channelId}:`, channelMessages.length);
+    return channelMessages;
 
   } catch (error) {
     console.error('🔴 Detailed error:', error);

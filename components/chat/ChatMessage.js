@@ -22,7 +22,8 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
       <View style={[
         styles.messageContainer, 
         isOwnMessage ? styles.ownMessage : styles.otherMessage,
-        styles.fileMessageContainer
+        styles.fileMessageContainer,
+        message.isUnread && styles.unreadMessage
       ]}>
         <TouchableOpacity onPress={() => {
           console.log('File clicked:', message.fileName);
@@ -144,6 +145,11 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
         <Text style={styles.timestamp}>{message.timestamp}</Text>
       </View>
 
+      {message.isUnread && (
+            <View style={styles.unreadIndicator}>
+              <View style={styles.unreadDot} />
+            </View>
+          )}
       {/* Message bubble */}
       <View style={[
         styles.messageContainer,
@@ -190,6 +196,14 @@ const styles = StyleSheet.create({
     color: COLORS.gray600,
     fontSize: 12,
     fontWeight: SIZES.fontWeight.light,
+  },
+  unreadMessage: {
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.orange,
+  },
+  unreadIndicator: {
+    marginLeft: 8,
+    justifyContent: 'center',
   },
   messageContainer: {
     maxWidth: '100%',
