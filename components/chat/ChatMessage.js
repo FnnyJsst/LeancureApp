@@ -16,116 +16,130 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
     const isImage = message.fileType?.includes('image');
     
     return (
-      <View style={[
-        styles.messageContainer, 
-        isOwnMessage ? styles.ownMessage : styles.otherMessage,
-        styles.fileMessageContainer,
-        message.isUnread && styles.unreadMessage
-      ]}>
-        <TouchableOpacity onPress={() => {
-          onFileClick(message);
-        }} style={styles.fileContainer}>
-          {isPDF && message.base64 && (
-            <View style={styles.previewContainer}>
-              <WebView
-                source={{
-                  html: `
-                    <!DOCTYPE html>
-                    <html>
-                      <head>
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <!-- script used to render the pdf -->
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js"></script>
-                        <!-- styles for the pdf viewer -->
-                        <style>
-                          body, html {
-                            margin: 0;
-                            padding: 0;
-                            width: 100%;
-                            height: 100%;
-                            background-color: white;
-                          }
-                          #viewer {
-                            width: 100%;
-                            height: 100%;
-                          }
-                        </style>
-                      </head>
-                      <body>
-                        <div id="viewer"></div>
-                        <!-- script used to render the pdf -->
-                        <script>
-                          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
-                          
-                          const loadingTask = pdfjsLib.getDocument({data: atob('${message.base64}')});
-                          loadingTask.promise.then(function(pdf) {
-                            pdf.getPage(1).then(function(page) {
-                              const canvas = document.createElement('canvas');
-                              const context = canvas.getContext('2d');
-                              const viewport = page.getViewport({scale: 1.0});
-                              
-                              canvas.width = viewport.width;
-                              canvas.height = viewport.height;
-                              
-                              const renderContext = {
-                                canvasContext: context,
-                                viewport: viewport
-                              };
-                              
-                              document.getElementById('viewer').appendChild(canvas);
-                              page.render(renderContext);
-                            });
-                          });
-                        </script>
-                      </body>
-                    </html>
-                  `
-                }}
-                style={styles.preview}
-                originWhitelist={['*']}
-                scalesPageToFit={true}
-                javaScriptEnabled={true}
-              />
-              <View style={styles.fileHeader}>
-                <Ionicons name="document-outline" size={25} color={COLORS.white} />
-                <View style={styles.fileInfo}>
-                  <Text style={styles.fileName} numberOfLines={1}>
-                    {message.fileName}
-                  </Text>
-                  <Text style={styles.fileSize}>
-                    PDF • {message.fileSize}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          )}
+      <View style={styles.messageWrapper(isOwnMessage)}>
+        {/* Ajout de l'en-tête avec username et timestamp */}
+        <View style={[
+          styles.messageHeader,
+          isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft
+        ]}>
+          <Text style={[
+            styles.username,
+            isSmartphone && styles.usernameSmartphone
+          ]}>{message.username}</Text>
+          <Text style={styles.timestamp}>{message.timestamp}</Text>
+        </View>
 
-          {isImage && message.base64 && (
-            <View style={styles.previewContainer}>
-              <Image 
-                source={{ uri: `data:${message.fileType};base64,${message.base64}` }}
-                style={styles.preview}
-                resizeMode="cover"
-              />
-              <View style={styles.fileHeader}>
-                <Ionicons 
-                  name="image-outline" 
-                  size={25} 
-                  color={COLORS.white} 
+        <View style={[
+          styles.messageContainer, 
+          isOwnMessage ? styles.ownMessage : styles.otherMessage,
+          styles.fileMessageContainer,
+          message.isUnread && styles.unreadMessage
+        ]}>
+          <TouchableOpacity onPress={() => {
+            onFileClick(message);
+          }} style={styles.fileContainer}>
+            {isPDF && message.base64 && (
+              <View style={styles.previewContainer}>
+                <WebView
+                  source={{
+                    html: `
+                      <!DOCTYPE html>
+                      <html>
+                        <head>
+                          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                          <!-- script used to render the pdf -->
+                          <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+                          <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js"></script>
+                          <!-- styles for the pdf viewer -->
+                          <style>
+                            body, html {
+                              margin: 0;
+                              padding: 0;
+                              width: 100%;
+                              height: 100%;
+                              background-color: white;
+                            }
+                            #viewer {
+                              width: 100%;
+                              height: 100%;
+                            }
+                          </style>
+                        </head>
+                        <body>
+                          <div id="viewer"></div>
+                          <!-- script used to render the pdf -->
+                          <script>
+                            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+                            
+                            const loadingTask = pdfjsLib.getDocument({data: atob('${message.base64}')});
+                            loadingTask.promise.then(function(pdf) {
+                              pdf.getPage(1).then(function(page) {
+                                const canvas = document.createElement('canvas');
+                                const context = canvas.getContext('2d');
+                                const viewport = page.getViewport({scale: 1.0});
+                                
+                                canvas.width = viewport.width;
+                                canvas.height = viewport.height;
+                                
+                                const renderContext = {
+                                  canvasContext: context,
+                                  viewport: viewport
+                                };
+                                
+                                document.getElementById('viewer').appendChild(canvas);
+                                page.render(renderContext);
+                              });
+                            });
+                          </script>
+                        </body>
+                      </html>
+                    `
+                  }}
+                  style={styles.preview}
+                  originWhitelist={['*']}
+                  scalesPageToFit={true}
+                  javaScriptEnabled={true}
                 />
-                <View style={styles.fileInfo}>
-                  <Text style={styles.fileName} numberOfLines={1}>
-                    {message.fileName}
-                  </Text>
-                  <Text style={styles.fileSize}>
-                    Image • {message.fileSize}
-                  </Text>
+                <View style={styles.fileHeader}>
+                  <Ionicons name="document-outline" size={25} color={COLORS.white} />
+                  <View style={styles.fileInfo}>
+                    <Text style={styles.fileName} numberOfLines={1}>
+                      {message.fileName}
+                    </Text>
+                    <Text style={styles.fileSize}>
+                      PDF • {message.fileSize}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          )}
-        </TouchableOpacity>
+            )}
+
+            {isImage && message.base64 && (
+              <View style={styles.previewContainer}>
+                <Image 
+                  source={{ uri: `data:${message.fileType};base64,${message.base64}` }}
+                  style={styles.preview}
+                  resizeMode="cover"
+                />
+                <View style={styles.fileHeader}>
+                  <Ionicons 
+                    name="image-outline" 
+                    size={25} 
+                    color={COLORS.white} 
+                  />
+                  <View style={styles.fileInfo}>
+                    <Text style={styles.fileName} numberOfLines={1}>
+                      {message.fileName}
+                    </Text>
+                    <Text style={styles.fileSize}>
+                      Image • {message.fileSize}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }

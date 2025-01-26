@@ -67,10 +67,17 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                         width: 100%;
                         height: 100%;
                         background-color: white;
+                        border-radius: 8px;
+                        overflow: hidden;
                       }
                       #viewer {
                         width: 100%;
                         height: 100%;
+                        border-radius: 8px;
+                        overflow: hidden;
+                      }
+                      canvas {
+                        border-radius: 8px;
                       }
                     </style>
                   </head>
@@ -193,6 +200,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 15,
     backgroundColor: 'transparent',
+    borderRadius: SIZES.borderRadius.medium,
+    overflow: 'hidden',
   },
   previewContent: {
     flex: 1,
@@ -220,17 +229,16 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.textSmartphone,
   },
   fileSize: {
-    color: COLORS.gray400,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.textTablet,
     marginTop: 2,
   },
   fileSizeSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
+    fontSize: SIZES.fonts.textSmartphone
   },
   buttonContainer: {
     width: '100%',
     alignItems: 'center',
-    marginTop: 20,
-    paddingHorizontal: 20,
+    marginTop: 10
   },
 });

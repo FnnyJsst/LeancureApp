@@ -22,27 +22,28 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    // Réinitialiser les messages si channelMessages est null
+    // If channelMessages is null, we set the messages to an empty array to avoid errors
     if (!channelMessages) {
       setMessages([]);
       return;
     }
 
-    console.log('🔄 Messages mis à jour:', channelMessages?.length);
+    // console.log('🔄 Updating messages:', channelMessages?.length);
     const validMessages = channelMessages.filter(msg => {
       if (!msg.savedTimestamp || msg.savedTimestamp === 'undefined') {
-        console.log('❌ Message sans timestamp ignoré:', msg);
+        // console.log('❌ Message without timestamp ignored:', msg);
         return false;
       }
       
       if (!msg.message && !msg.title) {
-        console.log('❌ Message sans contenu ignoré:', msg);
+        // console.log('❌ Message without content ignored:', msg);
         return false;
       }
       
       return true;
     });
     
+    // Format the messages to be used in the UI
     const formattedMessages = validMessages.map(msg => ({
       ...msg,
       username: msg.login || 'Anonymous',
@@ -53,7 +54,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       })
     }));
     
-    console.log('✅ Messages formatés:', formattedMessages.length);
+    // console.log('✅ Messages formatted:', formattedMessages.length);
     setMessages(formattedMessages);
   }, [channelMessages]);
 
@@ -79,25 +80,27 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       // Add a log to see when sendMessage is called
       console.log('📩 Attempt to send message:', messageData);
       
-      // Strict check for empty message
+      // Strict check for empty message so we don't send empty messages in the chat
       if (!messageData || 
           (typeof messageData === 'string' && !messageData.trim()) || 
           messageData === undefined) {
-        console.log('❌ Empty message ignored');
+        // console.log('❌ Empty message ignored');
         return;
       }
 
+      // Get the user credentials
       const credentialsStr = await AsyncStorage.getItem('userCredentials');
       if (!credentialsStr) {
-        console.error('❌ No credentials found');
+        // console.error('❌ No credentials found');
         return;
       }
       
       const credentials = JSON.parse(credentialsStr);
-      console.log('📤 Envoi message:', { messageData, channelId: channel.id });
+      // console.log('📤 Sending message:', { messageData, channelId: channel.id });
       
       const response = await sendMessageApi(channel.id, messageData, credentials);
       
+      // If the message is sent successfully, we add it to the messages array
       if (response.status === 'ok') {
         const currentTimestamp = Date.now();
         const newMessage = {
@@ -129,7 +132,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }, 100);
       }
     } catch (error) {
-      console.error('🔴 Error sending message:', error);
+      // console.error('🔴 Error sending message:', error);
     }
   };
 
@@ -182,10 +185,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           >
             {(() => {
               let hasShownUnreadBanner = false;
-              console.log('🎯 Rendu des messages - total:', messages.length);
+              // console.log('🎯 Rendering messages - total:', messages.length);
               
               return messages.reduce((acc, message, index) => {
-                console.log(`🔄 Message ${index} - isUnread: ${message.isUnread}, isOwnMessage: ${message.isOwnMessage}`);
+                // console.log(`🔄 Message ${index} - isUnread: ${message.isUnread}, isOwnMessage: ${message.isOwnMessage}`);
                 
                 const currentDate = formatDate(message.savedTimestamp);
                 const prevMessage = messages[index - 1];
