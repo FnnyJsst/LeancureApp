@@ -25,22 +25,22 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     console.log('🔄 Messages mis à jour:', channelMessages?.length);
     if (channelMessages) {
       const validMessages = channelMessages.filter(msg => {
-        // Vérifier uniquement le timestamp et le contenu du message
+        // Check only the timestamp and the message content
         if (!msg.savedTimestamp || msg.savedTimestamp === 'undefined') {
-          console.log('❌ Message sans timestamp ignoré:', msg);
+          console.log('❌ Message without timestamp ignored:', msg);
           return false;
         }
         
-        // Vérifier que le message a un contenu (message ou title)
+        // Check if the message has content (message or title)
         if (!msg.message && !msg.title) {
-          console.log('❌ Message sans contenu ignoré:', msg);
+          console.log('❌ Message without content ignored:', msg);
           return false;
         }
         
         return true;
       });
       
-      // Formater les messages valides
+      // Format the messages to be used in the UI
       const formattedMessages = validMessages.map(msg => ({
         ...msg,
         username: msg.login || 'Anonymous',
@@ -51,7 +51,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         })
       }));
       
-      console.log('✅ Messages formatés:', formattedMessages.length);
+      console.log('✅ Messages formatted:', formattedMessages.length);
       setMessages(formattedMessages);
     }
   }, [channelMessages]);
@@ -75,14 +75,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   // Function to send a message
   const sendMessage = async (messageData) => {
     try {
-      // Ajouter un log pour voir quand sendMessage est appelé
-      console.log('📩 Tentative d\'envoi de message:', messageData);
+      // Add a log to see when sendMessage is called
+      console.log('📩 Attempt to send message:', messageData);
       
-      // Vérification stricte du message vide
+      // Strict check for empty message
       if (!messageData || 
           (typeof messageData === 'string' && !messageData.trim()) || 
           messageData === undefined) {
-        console.log('❌ Message vide ignoré');
+        console.log('❌ Empty message ignored');
         return;
       }
 

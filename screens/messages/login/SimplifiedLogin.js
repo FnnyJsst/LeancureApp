@@ -35,7 +35,7 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
 
         <View style={styles.buttonContainer}>
           <Button 
-            title="Login"
+            title={isLoading ? "Connecting..." : "Login"}
             variant="large"
             onPress={handleLogin}
             backgroundColor={COLORS.orange}

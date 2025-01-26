@@ -91,36 +91,44 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
       
       const credentials = JSON.parse(credentialsStr);
       const hasInteracted = await AsyncStorage.getItem(`channel_${selectedChannel.id}_interacted`);
-      console.log(`🔍 Canal ${selectedChannel.id} - hasInteracted:`, hasInteracted, 'user login:', credentials.login);
+      console.log(`🔍 Canal ${selectedChannel.id} - hasInteracted:`, hasInteracted);
       
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
       
       const updatedMessages = messages.map(msg => {
-        const messageLogin = msg.author || msg.sender;
-        const isOwnMessage = messageLogin === credentials.login;
-        const isUnread = !isOwnMessage && hasInteracted !== 'true';
+        // Vérifier si le message est de nous
+        const isOwnMessage = msg.login === credentials.login;
+        
+        // Un message est non lu si:
+        // 1. Ce n'est pas notre message
+        // 2. Le canal n'a pas encore eu d'interaction
+        // 3. Le message a un contenu
+        const isUnread = !isOwnMessage && 
+                        hasInteracted !== 'true' && 
+                        (msg.message || msg.title);
         
         return {
           ...msg,
-          login: messageLogin,
           isOwnMessage,
           isUnread
         };
       });
 
-      // Vérifier s'il y a des messages non lus dans ce canal
-      const hasUnreadMessages = updatedMessages.some(msg => msg.isUnread);
+      // Mettre à jour l'état des canaux non lus uniquement si on a des messages valides
+      const hasUnreadMessages = updatedMessages.some(msg => 
+        msg.isUnread && (msg.message || msg.title)
+      );
       
-      // Mettre à jour l'état des canaux non lus
+      console.log('État du canal:', {
+        channelId: selectedChannel.id,
+        hasUnread: hasUnreadMessages,
+        messageCount: updatedMessages.length
+      });
+      
       setUnreadChannels(prev => ({
         ...prev,
         [selectedChannel.id]: hasUnreadMessages
       }));
-      
-      console.log('État des canaux non lus:', {
-        channelId: selectedChannel.id,
-        hasUnread: hasUnreadMessages
-      });
       
       setChannelMessages(updatedMessages);
     } catch (error) {
