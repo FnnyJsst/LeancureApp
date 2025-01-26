@@ -4,26 +4,14 @@ import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SCREENS } from '../../constants/screens';
 import AppMenuCard from '../../components/cards/AppMenuCard';
-import { fetchUserChannels } from '../../services/messageApi';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import GradientBackground from '../../components/backgrounds/GradientBackground';
 
 export default function AppMenu({ onNavigate }) {
   const { isLandscape, isSmartphone, isSmartphoneLandscape } = useDeviceType();
 
   return (
-    <LinearGradient
-      colors={[
-        '#2a1c15',  // Very dark brown (almost black)
-        '#1a1614',  // Very subtle transition
-        '#121212',  // Very dark gray
-        '#121212', 
-      ]}
-      locations={[0, 0.1, 0.2, 1]}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
-      style={styles.container}
-    >
+    <GradientBackground>
       <Text style={[
         styles.title,
         isSmartphone && styles.titleSmartphone
@@ -41,7 +29,7 @@ export default function AppMenu({ onNavigate }) {
           onPress={() => onNavigate(SCREENS.WEBVIEW)}
         />
       </View>
-    </LinearGradient>
+    </GradientBackground>
   );
 }
 

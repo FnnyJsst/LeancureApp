@@ -1,22 +1,21 @@
 import { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Image, StyleSheet, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Button from '../../../components/buttons/Button';
 import InputLogin from '../../../components/InputLogin';
 import CheckBox from '../../../components/inputs/CheckBox';
 import SimplifiedLogin from './SimplifiedLogin';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SCREENS } from '../../../constants/screens';
-import { Ionicons } from '@expo/vector-icons';
 import { loginApi, fetchUserChannels } from '../../../services/messageApi';
 import LoginTitle from '../../../components/text/LoginTitle';
-import { LinearGradient } from 'expo-linear-gradient';
+import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
+import GradientBackground from '../../../components/backgrounds/GradientBackground';
 
 export default function Login({ onNavigate }) {
 
     // Customized hook to determine the device type and orientation
-    const { isSmartphone, isTablet, isTabletPortrait, isSmartphoneLandscape, isTabletLandscape, isLandscape } = useDeviceType();
+    const { isSmartphone, isTablet, isSmartphoneLandscape, isLandscape } = useDeviceType();
     
     // States related to the login form
     const [contractNumber, setContractNumber] = useState('');
@@ -155,18 +154,7 @@ export default function Login({ onNavigate }) {
                 barStyle="light-content"
                 translucent={true}
             />
-            <LinearGradient
-                colors={[
-                    '#2a1c15',  // Very dark brown (almost black)
-                    '#1a1614',  // Very subtle transition
-                    '#121212',  // Very dark gray
-                    '#121212', 
-                ]}
-                locations={[0, 0.15, 0.3, 1]}
-                start={{ x: 0.5, y: 0 }}
-                end={{ x: 0.5, y: 1 }}  // Étendu sur toute la hauteur
-                style={[styles.container, { paddingTop: StatusBar.currentHeight }]}
-            >
+            <GradientBackground>
                 <View style={[styles.pageContainer, isTablet && styles.pageContainerTablet]}>
                     <ScrollView>
                         <View style={styles.contentContainer}>
@@ -256,10 +244,10 @@ export default function Login({ onNavigate }) {
                                                 </View>
 
                                                 <View style={styles.buttonContainer}>
-                                                    <Button 
+                                                    <ButtonWithSpinner 
                                                         variant="large"
-                                                        // If the login is in progress, we show "Connecting..."
-                                                        title={isLoading ? "Connecting..." : "Login"}
+                                                        title="Login"
+                                                        isLoading={isLoading}
                                                         onPress={handleLogin}
                                                         width="100%"
                                                     />
@@ -280,7 +268,7 @@ export default function Login({ onNavigate }) {
                         </View>
                     </ScrollView>
                 </View>
-            </LinearGradient>
+            </GradientBackground>
         </>
     );
 }

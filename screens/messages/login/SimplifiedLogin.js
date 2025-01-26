@@ -1,11 +1,11 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Button from '../../../components/buttons/Button';
 import InputLogin from '../../../components/InputLogin';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
+import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 
 // Simplified login screen is used when the user has already logged in and checked "Stay connected" on the login screen
-export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handleLogin }) {
+export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handleLogin, isLoading }) {
   const { isSmartphone, isLandscape } = useDeviceType();
   
   return (
@@ -34,11 +34,12 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
         </View>
 
         <View style={styles.buttonContainer}>
-          <Button 
-            title={isLoading ? "Connecting..." : "Login"}
+          <ButtonWithSpinner 
             variant="large"
+            title="Login"
+            isLoading={isLoading}
             onPress={handleLogin}
-            backgroundColor={COLORS.orange}
+            width="100%"
           />
         </View>
       </View>
