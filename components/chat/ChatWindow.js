@@ -22,25 +22,37 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    if (channelMessages && Array.isArray(channelMessages)) {
-      const formattedMessages = channelMessages.map(msg => ({
+    console.log('🔄 Messages mis à jour:', channelMessages?.length);
+    if (channelMessages) {
+      const validMessages = channelMessages.filter(msg => {
+        // Vérifier uniquement le timestamp et le contenu du message
+        if (!msg.savedTimestamp || msg.savedTimestamp === 'undefined') {
+          console.log('❌ Message sans timestamp ignoré:', msg);
+          return false;
+        }
+        
+        // Vérifier que le message a un contenu (message ou title)
+        if (!msg.message && !msg.title) {
+          console.log('❌ Message sans contenu ignoré:', msg);
+          return false;
+        }
+        
+        return true;
+      });
+      
+      // Formater les messages valides
+      const formattedMessages = validMessages.map(msg => ({
         ...msg,
-        id: msg.id,
-        username: msg.isOwnMessage ? "Me" : "User",
-        text: msg.message,
-        title: msg.title,
-        timestamp: new Date(parseInt(msg.savedTimestamp || Date.now())).toLocaleTimeString([], { 
+        username: msg.login || 'Anonymous',
+        text: msg.message || msg.title || '',
+        timestamp: new Date(parseInt(msg.savedTimestamp)).toLocaleTimeString([], { 
           hour: '2-digit', 
           minute: '2-digit' 
-        }),
-        isOwnMessage: msg.isOwnMessage || false,
-        isUnread: msg.isUnread || false,
-        savedTimestamp: msg.savedTimestamp || Date.now().toString(),
+        })
       }));
-
+      
+      console.log('✅ Messages formatés:', formattedMessages.length);
       setMessages(formattedMessages);
-    } else {
-      setMessages([]);
     }
   }, [channelMessages]);
 
@@ -63,7 +75,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   // Function to send a message
   const sendMessage = async (messageData) => {
     try {
-      if (typeof messageData === 'string' && !messageData.trim()) {
+      // Ajouter un log pour voir quand sendMessage est appelé
+      console.log('📩 Tentative d\'envoi de message:', messageData);
+      
+      // Vérification stricte du message vide
+      if (!messageData || 
+          (typeof messageData === 'string' && !messageData.trim()) || 
+          messageData === undefined) {
+        console.log('❌ Message vide ignoré');
         return;
       }
 
@@ -74,6 +93,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       }
       
       const credentials = JSON.parse(credentialsStr);
+      console.log('📤 Envoi message:', { messageData, channelId: channel.id });
       
       const response = await sendMessageApi(channel.id, messageData, credentials);
       
@@ -89,15 +109,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           }),
           savedTimestamp: currentTimestamp.toString(),
           isOwnMessage: true,
-          type: messageData.type,
-          fileName: messageData.fileName,
-          fileSize: messageData.fileSize,
-          fileType: messageData.fileType,
-          uri: messageData.uri,
-          base64: messageData.base64
+          ...(typeof messageData === 'object' && {
+            type: messageData.type,
+            fileName: messageData.fileName,
+            fileSize: messageData.fileSize,
+            fileType: messageData.fileType,
+            uri: messageData.uri,
+            base64: messageData.base64
+          })
         };
         
-        setMessages([...messages, newMessage]);
+        setMessages(prev => [...prev, newMessage]);
 
         setTimeout(() => {
           if (scrollViewRef.current) {

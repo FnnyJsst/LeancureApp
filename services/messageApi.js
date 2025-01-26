@@ -121,7 +121,7 @@ const formatMessages = (messages) => {
   return Object.entries(messages).map(([id, msg]) => ({
     id,
     title: msg.title,
-    message: msg.message,
+    message: msg.details,
     savedTimestamp: msg.savedts,
     endTimestamp: msg.enddatets,
     fileType: msg.filetype,

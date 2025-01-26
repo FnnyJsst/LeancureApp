@@ -39,6 +39,12 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
       if (!credentialsStr || !selectedChannel) return;
       // Parse the credentials
       const credentials = JSON.parse(credentialsStr);
+
+      // Check if the message is empty. If it is, we don't do anything
+      if (!message || (typeof message === 'string' && !message.trim())) {
+        console.log('❌ Message vide ignoré');
+        return;
+      }
       
       // Add the new message with isOwnMessage to true if it comes from us
       const newMessage = {
@@ -125,14 +131,12 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
   useEffect(() => {
     let interval;
     
-    // If the channel is selected, we fetch the messages and set an interval to fetch the messages every 2 seconds
     if (selectedChannel) {
       fetchMessages();
-      interval = setInterval(fetchMessages, 2000);
+      interval = setInterval(fetchMessages, 5000);
     }
 
     return () => {
-      // Clear the interval when the component unmounts
       if (interval) clearInterval(interval);
     };
   }, [selectedChannel]);
