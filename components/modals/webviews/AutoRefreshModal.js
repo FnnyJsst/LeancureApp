@@ -119,10 +119,9 @@ const styles = StyleSheet.create({
     width: "55%",
     padding: 20,
     backgroundColor: COLORS.gray850,
-    padding: 30,
     borderRadius: SIZES.borderRadius.xxLarge,
     borderWidth: 1,
-    borderColor: '#403430',
+    borderColor: COLORS.borderColor,
   },
   modalContentSmartphone: {
     width: '90%',

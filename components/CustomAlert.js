@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,
     borderWidth: 1,
-    borderColor: "#403430"
+    borderColor: COLORS.borderColor
   },
   modalContentSmartphoneLandscape: {
     width: '40%',

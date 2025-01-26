@@ -58,10 +58,17 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                               width: 100%;
                               height: 100%;
                               background-color: white;
+                              border-radius: 4px;
+                              overflow: hidden;
                             }
                             #viewer {
                               width: 100%;
                               height: 100%;
+                              border-radius: 4px;
+                              overflow: hidden;
+                            }
+                            canvas {
+                              border-radius: 4px;
                             }
                           </style>
                         </head>
@@ -248,6 +255,8 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderBottomLeftRadius: SIZES.borderRadius.medium,
+    borderBottomRightRadius: SIZES.borderRadius.medium,
   },
   fileInfo: {
     flex: 1,
@@ -264,12 +273,13 @@ const styles = StyleSheet.create({
   previewContainer: {
     width: '93%',
     height: 150,
-    borderRadius: SIZES.borderRadius.small,
+    borderRadius: SIZES.borderRadius.medium,
     overflow: 'hidden',
     backgroundColor: COLORS.overlayLight,
   },
   preview: {
     width: '100%',
-    height: '100%'
+    height: '100%',
+    borderRadius: SIZES.borderRadius.medium,
   }
 });

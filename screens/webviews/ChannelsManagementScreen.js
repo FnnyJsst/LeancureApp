@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     width: '95%',
     borderRadius: SIZES.borderRadius.xLarge,
     borderWidth: 1,
-    borderColor: "#403430",
+    borderColor: COLORS.borderColor
   },
   channelContainerSmartphone: {
     width: '100%',

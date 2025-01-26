@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderTopWidth: 0.5,
-    borderTopColor: "#403430",
+    borderTopColor: COLORS.borderColor
   },
   profileInfo: {
     flexDirection: 'row',

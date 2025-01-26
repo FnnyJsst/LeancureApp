@@ -57,13 +57,15 @@ export const COLORS = {
   white: '#ffffff',       
   overlay: 'rgba(0,0,0,0.8)',
   overlayLight: 'rgba(0, 0, 0, 0.1)',
+
+  // Border colors
+  borderColor: '#403430',
   
   // Status colors
   success: '#24c12f',
   error: '#ff4444',
   
-  // Message colors
-  messageOut: 'rgba(255, 128, 82, 0.3)',     
+    
   
   // Background colors
   backgroundModal: 'rgba(0, 0, 0, 0.8)',
@@ -81,7 +83,6 @@ export const MODAL_STYLES = {
     width: '40%',
     padding: 20,
     backgroundColor: COLORS.gray850,
-    padding: 30,
     borderRadius: SIZES.borderRadius.xxLarge,
     borderWidth: 1,
     borderColor: '#403430',

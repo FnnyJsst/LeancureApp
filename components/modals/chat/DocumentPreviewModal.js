@@ -67,17 +67,12 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                         width: 100%;
                         height: 100%;
                         background-color: white;
-                        border-radius: 8px;
                         overflow: hidden;
                       }
                       #viewer {
                         width: 100%;
                         height: 100%;
-                        border-radius: 8px;
                         overflow: hidden;
-                      }
-                      canvas {
-                        border-radius: 8px;
                       }
                     </style>
                   </head>
@@ -85,7 +80,6 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                     <div id="viewer"></div>
                     <script>
                       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
-                      
                       const loadingTask = pdfjsLib.getDocument({data: atob('${base64}')});
                       loadingTask.promise.then(function(pdf) {
                         pdf.getPage(1).then(function(page) {
@@ -110,7 +104,6 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                 </html>
               `
             }}
-            style={styles.previewContent}
             originWhitelist={['*']}
             scalesPageToFit={true}
             javaScriptEnabled={true}
@@ -119,7 +112,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       );
     } else if (fileType?.includes('image')) {
       return (
-        <View style={styles.previewContainer}>
+        <View style={styles.imageWrapper}>
           <Image
             source={{ uri: `data:${fileType};base64,${base64}` }}
             style={styles.image}
@@ -161,9 +154,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
               </Text>
             </View>
           </View>
-          <View style={styles.previewContainer}>
-            {renderPreview()}
-          </View>
+          {renderPreview()}
           <View style={styles.buttonContainer}> 
             <Button 
               title="Download" 
@@ -184,9 +175,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray850,
     borderWidth: 1,
     borderColor: '#403430',
+    borderRadius: SIZES.borderRadius.xxLarge,
     marginTop: '10%',
     padding: 20,
-    borderRadius: SIZES.borderRadius.xxLarge,
     width: '100%',
     height: '100%',
   },
@@ -199,18 +190,18 @@ const styles = StyleSheet.create({
   previewContainer: {
     flex: 1,
     marginTop: 15,
-    backgroundColor: 'transparent',
-    borderRadius: SIZES.borderRadius.medium,
+    backgroundColor: COLORS.gray850,
     overflow: 'hidden',
   },
-  previewContent: {
+  imageWrapper: {
     flex: 1,
-    backgroundColor: 'white',
+    borderRadius: SIZES.borderRadius.medium,
+    overflow: 'hidden',
+    backgroundColor: COLORS.gray850,
   },
   image: {
     width: '100%',
     height: '100%',
-    backgroundColor: 'transparent',
   },
   fileHeader: {
     flexDirection: 'row',
