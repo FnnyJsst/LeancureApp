@@ -10,7 +10,7 @@ import { sendMessageApi } from '../../services/messageApi';
 import DateBanner from './DateBanner';
 
 export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange }) {
-  const { isSmartphone, isTablet } = useDeviceType();
+  const { isSmartphone } = useDeviceType();
   const scrollViewRef = useRef();
 
   const [isDocumentPreviewModalVisible, setIsDocumentPreviewModalVisible] = useState(false);
@@ -24,6 +24,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   useEffect(() => {
     if (channelMessages && Array.isArray(channelMessages)) {
       const formattedMessages = channelMessages.map(msg => ({
+        ...msg,
         id: msg.id,
         username: msg.isOwnMessage ? "Me" : "User",
         text: msg.message,
@@ -34,21 +35,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }),
         isOwnMessage: msg.isOwnMessage || false,
         isUnread: msg.isUnread || false,
-        fileType: msg.fileType,
-        fileName: msg.fileName,
-        fileSize: msg.fileSize,
-        uri: msg.uri,
-        base64: msg.base64,
         savedTimestamp: msg.savedTimestamp || Date.now().toString(),
       }));
+
       setMessages(formattedMessages);
-      
-      // Scroll to the bottom of the chat to display the new message
-      setTimeout(() => {
-        if (scrollViewRef.current) {
-          scrollViewRef.current.scrollToEnd({ animated: true });
-        }
-      }, 100);
     } else {
       setMessages([]);
     }
@@ -79,7 +69,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       const credentialsStr = await AsyncStorage.getItem('userCredentials');
       if (!credentialsStr) {
-        console.error('❌ Pas de credentials trouvées');
+        console.error('❌ No credentials found');
         return;
       }
       
@@ -116,34 +106,41 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }, 100);
       }
     } catch (error) {
-      console.error('🔴 Erreur envoi message:', error);
+      console.error('🔴 Error sending message:', error);
     }
   };
 
+  // Function to format the date of a message
   const formatDate = (timestamp) => {
+    // If the timestamp is missing, we return today
     if (!timestamp) {
       console.warn('Missing timestamp for message');
-      return 'Today'; // Valeur par défaut
+      return 'Today'; // Default value
     }
 
+    // If the timestamp is a string, we convert it to an integer
     const parsedTimestamp = typeof timestamp === 'string' ? parseInt(timestamp) : timestamp;
     
+    // If the timestamp is not a number, we return today
     if (isNaN(parsedTimestamp)) {
       console.warn('Invalid timestamp format:', timestamp);
-      return 'Today'; // Valeur par défaut
+      return 'Today'; // Default value
     }
 
     const date = new Date(parsedTimestamp);
     const today = new Date();
+    // We create a date object for yesterday
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
+    // If the date is today, we return "Today"
     if (date.toDateString() === today.toDateString()) {
       return "Today";
     } else if (date.toDateString() === yesterday.toDateString()) {
       return "Yesterday";
     }
     
+    // If the date is not today or yesterday, we return the date in the format "day month year"
     return date.toLocaleDateString('en-US', { 
       day: 'numeric', 
       month: 'long', 
@@ -160,34 +157,54 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             style={styles.messagesContainer}
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
           >
-            {messages.reduce((acc, message, index) => {
-              const currentDate = formatDate(message.savedTimestamp);
-              const prevMessage = messages[index - 1];
-              const prevDate = prevMessage ? formatDate(prevMessage.savedTimestamp) : null;
+            {(() => {
+              let hasShownUnreadBanner = false;
+              console.log('🎯 Rendu des messages - total:', messages.length);
+              
+              return messages.reduce((acc, message, index) => {
+                console.log(`🔄 Message ${index} - isUnread: ${message.isUnread}, isOwnMessage: ${message.isOwnMessage}`);
+                
+                const currentDate = formatDate(message.savedTimestamp);
+                const prevMessage = messages[index - 1];
+                const prevDate = prevMessage ? formatDate(prevMessage.savedTimestamp) : null;
 
-              if (currentDate !== prevDate) {
+                if (currentDate !== prevDate) {
+                  acc.push(
+                    <DateBanner 
+                      key={`date-${message.savedTimestamp}`} 
+                      date={currentDate} 
+                    />
+                  );
+                }
+
+                // Afficher la bannière uniquement pour le premier message non lu
+                // if (!hasShownUnreadBanner && !message.isOwnMessage && message.isUnread) {
+                //   hasShownUnreadBanner = true;
+                //   console.log(`🚩 Affichage bannière pour message ${index}`);
+                //   acc.push(
+                //     <View style={styles.unreadBanner} key={`unread-${message.id}`}>
+                //       <View style={styles.separatorBanner} />
+                //       <Text style={styles.unreadText}>New messages</Text>
+                //       <View style={styles.separatorBanner} />
+                //     </View>
+                //   );
+                // }
+
                 acc.push(
-                  <DateBanner 
-                    key={`date-${message.savedTimestamp}`} 
-                    date={currentDate} 
+                  <ChatMessage
+                    key={message.id || index}
+                    message={{
+                      ...message,
+                      isUnread: message.isUnread || false
+                    }}
+                    isOwnMessage={message.isOwnMessage}
+                    onFileClick={openDocumentPreviewModal}
                   />
                 );
-              }
 
-              acc.push(
-                <ChatMessage
-                  key={message.id || index}
-                  message={{
-                    ...message,
-                    isUnread: message.isUnread || false
-                  }}
-                  isOwnMessage={message.isOwnMessage}
-                  onFileClick={openDocumentPreviewModal}
-                />
-              );
-
-              return acc;
-            }, [])}
+                return acc;
+              }, []);
+            })()}
           </ScrollView>
 
           <InputChatWindow 
@@ -253,4 +270,24 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
   },
+  // unreadBanner: {
+  //   width: '100%',
+  //   flexDirection: 'row',
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  //   gap: 10,
+  //   marginVertical: 15,
+  //   paddingHorizontal: 20,
+  // },
+  // separatorBanner: {
+  //   height: 1,
+  //   backgroundColor: COLORS.orange,
+  //   flex: 1,
+  // },
+  // unreadText: {
+  //   color: COLORS.orange,
+  //   fontWeight: SIZES.fontWeight.medium,
+  //   fontSize: SIZES.fonts.textSmartphone,
+  //   paddingHorizontal: 10,
+  // },
 });

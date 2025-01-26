@@ -10,7 +10,7 @@ import AccountImage from '../../components/AccountImage';
 
 
 // Sidebar menu component
-export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu, onNavigate, currentSection }) {
+export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu, onNavigate, currentSection, unreadChannels }) {
   const [channels, setChannels] = useState([]);
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +59,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         const { contractNumber, login, password } = JSON.parse(credentials);
         // Fetch the user channels
         const response = await fetchUserChannels(contractNumber, login, password);
-        console.log('📊 Données chargées:', response);
+        // console.log('📊 Données chargées:', response);
         // Set the channels and groups
         setChannels(response.publicChannels || []);
         setGroups(response.privateGroups || []);
@@ -190,29 +190,32 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                   </TouchableOpacity>
 
                   {/* List of channels if the group is selected */}
-                  {selectedGroup?.id === group.id && group.channels && group.channels.map((channel) => (
-                    <TouchableOpacity
-                      key={channel.id}
-                      style={styles.channelItem}
-                      onPress={() => onChannelSelect(channel)}
-                    >
-                      <View style={styles.channelContent}>
-                        <Text style={[
-                          styles.channelIcon,
-                          styles.hashIcon
-                        ]}>#</Text>
-                        <Text style={[
-                          styles.channelName,
-                          isSmartphone && styles.channelNameSmartphone
-                        ]}>{channel.title}</Text>
-                      </View>
-                      {channel.unreadCount > 0 && (
-                        <View style={styles.unreadBadge}>
-                          <Text style={styles.unreadCount}>{channel.unreadCount}</Text>
+                  {selectedGroup?.id === group.id && group.channels && group.channels.map((channel) => {
+                    console.log(`Canal ${channel.id} - unread:`, unreadChannels[channel.id]);
+                    return (
+                      <TouchableOpacity
+                        key={channel.id}
+                        style={styles.channelItem}
+                        onPress={() => onChannelSelect(channel)}
+                      >
+                        <View style={styles.channelContent}>
+                          <Text style={[
+                            styles.channelIcon,
+                            styles.hashIcon
+                          ]}>#</Text>
+                          <Text style={[
+                            styles.channelName,
+                            isSmartphone && styles.channelNameSmartphone
+                          ]}>{channel.title}</Text>
                         </View>
-                      )}
-                    </TouchableOpacity>
-                  ))}
+                        {unreadChannels[channel.id] && (
+                          <View style={styles.unreadBadge}>
+                            <View style={styles.unreadDot} />
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               ))}
             </View>
@@ -449,18 +452,13 @@ const styles = StyleSheet.create({
   searchInputSmartphone: {
     fontSize: 14,
   },
-  unreadBadge: {
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: COLORS.orange,
-    borderRadius: 12,
-    minWidth: 24,
-    height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
   },
-  unreadCount: {
-    color: COLORS.white,
-    fontSize: 12,
-    fontWeight: SIZES.fontWeight.bold,
+  unreadBadge: {
+    padding: 4,
   },
 });

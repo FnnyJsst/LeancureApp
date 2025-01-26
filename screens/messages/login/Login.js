@@ -157,10 +157,10 @@ export default function Login({ onNavigate }) {
             />
             <LinearGradient
                 colors={[
-                    '#452616',  // Orange marron clair
-                    '#2a1c15',  // Transition
-                    '#121212',  // Gris très foncé
-                    '#121212',  // Gris très foncé
+                    '#2a1c15',  // Very dark brown (almost black)
+                    '#1a1614',  // Very subtle transition
+                    '#121212',  // Very dark gray
+                    '#121212', 
                 ]}
                 locations={[0, 0.15, 0.3, 1]}
                 start={{ x: 0.5, y: 0 }}

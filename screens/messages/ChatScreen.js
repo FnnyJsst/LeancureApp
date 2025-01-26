@@ -3,8 +3,6 @@ import { View, StyleSheet } from 'react-native';
 import Sidebar from '../../components/navigation/Sidebar';
 import ChatWindow from '../../components/chat/ChatWindow';
 import Header from '../../components/Header';
-import { COLORS } from '../../constants/style';
-import { SCREENS } from '../../constants/screens';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchChannelMessages } from '../../services/messageApi';
 
@@ -15,8 +13,8 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [currentSection, setCurrentSection] = useState('chat');
   const [isInputFocused, setIsInputFocused] = useState(false);
-  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [channelMessages, setChannelMessages] = useState([]);
+  const [unreadChannels, setUnreadChannels] = useState({});
 
   // Toggle the menu
   const toggleMenu = () => {
@@ -57,11 +55,17 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
 
       //Force the fetch of the messages
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
-      const updatedMessages = messages.map(msg => ({
-        ...msg,
-        isOwnMessage: msg.login === credentials.login,
-        isUnread: !msg.isOwnMessage && msg.status === 'unread'
-      }));
+      const updatedMessages = messages.map(msg => {
+        const isOwnMessage = msg.login === credentials.login;
+        return {
+          ...msg,
+          isOwnMessage,
+          // A message is unread if:
+          // - it's not our message
+          // - the message has the status 'unread' in the API
+          isUnread: !isOwnMessage && msg.status === 'unread'
+        };
+      });
       setChannelMessages(updatedMessages);
       
     } catch (error) {
@@ -70,13 +74,8 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
   };
 
   // Handle the input focus change, so we can mark all the messages as read as soon as we use the chat input
-  const handleInputFocusChange = (isFocused) => {
+  const handleInputFocusChange = async (isFocused) => {
     setIsInputFocused(isFocused);
-    if (isFocused) {
-      setHasUserInteracted(true);
-      // Force the fetch of the messages
-      fetchMessages();
-    }
   };
 
   const fetchMessages = async () => {
@@ -85,23 +84,36 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
       if (!credentialsStr || !selectedChannel) return;
       
       const credentials = JSON.parse(credentialsStr);
+      const hasInteracted = await AsyncStorage.getItem(`channel_${selectedChannel.id}_interacted`);
+      console.log(`🔍 Canal ${selectedChannel.id} - hasInteracted:`, hasInteracted, 'user login:', credentials.login);
+      
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
       
       const updatedMessages = messages.map(msg => {
-        const existingMessage = channelMessages.find(m => m.id === msg.id);
-        const isOwnMessage = msg.login === credentials.login;
+        const messageLogin = msg.author || msg.sender;
+        const isOwnMessage = messageLogin === credentials.login;
+        const isUnread = !isOwnMessage && hasInteracted !== 'true';
         
         return {
           ...msg,
+          login: messageLogin,
           isOwnMessage,
-          // Un message est non lu seulement si:
-          // - ce n'est pas notre message ET
-          // - l'utilisateur n'a pas interagi ET
-          // - soit c'est un nouveau message, soit il était déjà non lu
-          isUnread: !isOwnMessage && !hasUserInteracted && (
-            !existingMessage || existingMessage.isUnread
-          )
+          isUnread
         };
+      });
+
+      // Vérifier s'il y a des messages non lus dans ce canal
+      const hasUnreadMessages = updatedMessages.some(msg => msg.isUnread);
+      
+      // Mettre à jour l'état des canaux non lus
+      setUnreadChannels(prev => ({
+        ...prev,
+        [selectedChannel.id]: hasUnreadMessages
+      }));
+      
+      console.log('État des canaux non lus:', {
+        channelId: selectedChannel.id,
+        hasUnread: hasUnreadMessages
       });
       
       setChannelMessages(updatedMessages);
@@ -109,11 +121,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
       console.error('Error fetching messages:', error);
     }
   };
-
-  // Réinitialiser hasUserInteracted quand on change de canal
-  useEffect(() => {
-    setHasUserInteracted(false);
-  }, [selectedChannel]);
 
   useEffect(() => {
     let interval;
@@ -125,6 +132,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
     }
 
     return () => {
+      // Clear the interval when the component unmounts
       if (interval) clearInterval(interval);
     };
   }, [selectedChannel]);
@@ -150,6 +158,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
         toggleMenu={toggleMenu}
         onNavigate={onNavigate}
         currentSection={currentSection}
+        unreadChannels={unreadChannels}
       />
       <View style={styles.mainContent}>
         <ChatWindow 

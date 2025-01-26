@@ -9,29 +9,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function AppMenu({ onNavigate }) {
-  // const [unreadMessages, setUnreadMessages] = useState(0);
   const { isLandscape, isSmartphone, isSmartphoneLandscape } = useDeviceType();
-
-  // useEffect(() => {
-  //   const loadUnreadCount = async () => {
-  //     try {
-  //       const data = await fetchUserChannels();
-  //       setUnreadMessages(data.unreadCount);
-  //     } catch (error) {
-  //       console.error("Erreur lors du chargement des messages non lus:", error);
-  //     }
-  //   };
-    
-  //   loadUnreadCount();
-  // }, []);
 
   return (
     <LinearGradient
       colors={[
-        '#2a1c15',  // Marron très foncé (presque noir)
-        '#1a1614',  // Transition très subtile
-        '#121212',  // Gris très foncé
-        '#121212',  // Gris très foncé
+        '#2a1c15',  // Very dark brown (almost black)
+        '#1a1614',  // Very subtle transition
+        '#121212',  // Very dark gray
+        '#121212', 
       ]}
       locations={[0, 0.1, 0.2, 1]}
       start={{ x: 0.5, y: 0 }}

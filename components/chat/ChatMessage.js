@@ -1,12 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Platform } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { COLORS, SIZES } from "../../constants/style";
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
 import { useDeviceType } from '../../hooks/useDeviceType';
-
-// Définir isEmulator comme une constante
-const isEmulator = Platform.OS === 'android' && !Platform.isTV;
 
 // ChatMessage is used in the ChatScreen to display the messages
 export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
@@ -26,7 +23,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
         message.isUnread && styles.unreadMessage
       ]}>
         <TouchableOpacity onPress={() => {
-          console.log('File clicked:', message.fileName);
           onFileClick(message);
         }} style={styles.fileContainer}>
           {isPDF && message.base64 && (
@@ -38,8 +34,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                     <html>
                       <head>
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <!-- script used to render the pdf -->
                         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
                         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js"></script>
+                        <!-- styles for the pdf viewer -->
                         <style>
                           body, html {
                             margin: 0;
@@ -56,6 +54,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                       </head>
                       <body>
                         <div id="viewer"></div>
+                        <!-- script used to render the pdf -->
                         <script>
                           pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
                           
@@ -156,11 +155,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
           styles.messageText,
           isSmartphone && styles.messageTextSmartphone
         ]}>{message.text}</Text>
-        {message.isUnread && !isOwnMessage && (
-          <View style={styles.unreadIndicator}>
-            <View style={styles.unreadDot} />
-          </View>
-        )}
       </View>
     </View>
   );
@@ -198,25 +192,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: SIZES.fontWeight.light,
   },
-  unreadMessage: {
-    backgroundColor: COLORS.darkGray,
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.orange,
-  },
-  unreadIndicator: {
-    position: 'absolute',
-    right: -8,
-    top: '50%',
-    transform: [{ translateY: -4 }],
-  },
-  unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.orange,
-  },
   messageContainer: {
-    maxWidth: '100%',
+    width: '100%',
     minWidth: 50,
     marginBottom: 10,
     marginTop: 4,
@@ -279,6 +256,6 @@ const styles = StyleSheet.create({
   },
   preview: {
     width: '100%',
-    height: '100%',
+    height: '100%'
   }
 });
