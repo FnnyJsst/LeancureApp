@@ -22,38 +22,39 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    console.log('🔄 Messages mis à jour:', channelMessages?.length);
-    if (channelMessages) {
-      const validMessages = channelMessages.filter(msg => {
-        // Check only the timestamp and the message content
-        if (!msg.savedTimestamp || msg.savedTimestamp === 'undefined') {
-          console.log('❌ Message without timestamp ignored:', msg);
-          return false;
-        }
-        
-        // Check if the message has content (message or title)
-        if (!msg.message && !msg.title) {
-          console.log('❌ Message without content ignored:', msg);
-          return false;
-        }
-        
-        return true;
-      });
-      
-      // Format the messages to be used in the UI
-      const formattedMessages = validMessages.map(msg => ({
-        ...msg,
-        username: msg.login || 'Anonymous',
-        text: msg.message || msg.title || '',
-        timestamp: new Date(parseInt(msg.savedTimestamp)).toLocaleTimeString([], { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        })
-      }));
-      
-      console.log('✅ Messages formatted:', formattedMessages.length);
-      setMessages(formattedMessages);
+    // Réinitialiser les messages si channelMessages est null
+    if (!channelMessages) {
+      setMessages([]);
+      return;
     }
+
+    console.log('🔄 Messages mis à jour:', channelMessages?.length);
+    const validMessages = channelMessages.filter(msg => {
+      if (!msg.savedTimestamp || msg.savedTimestamp === 'undefined') {
+        console.log('❌ Message sans timestamp ignoré:', msg);
+        return false;
+      }
+      
+      if (!msg.message && !msg.title) {
+        console.log('❌ Message sans contenu ignoré:', msg);
+        return false;
+      }
+      
+      return true;
+    });
+    
+    const formattedMessages = validMessages.map(msg => ({
+      ...msg,
+      username: msg.login || 'Anonymous',
+      text: msg.message || msg.details || '',
+      timestamp: new Date(parseInt(msg.savedTimestamp)).toLocaleTimeString([], { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      })
+    }));
+    
+    console.log('✅ Messages formatés:', formattedMessages.length);
+    setMessages(formattedMessages);
   }, [channelMessages]);
 
   // Function to open the document preview modal

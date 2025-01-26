@@ -120,8 +120,8 @@ const formatMessages = (messages) => {
   // Return the formatted messages
   return Object.entries(messages).map(([id, msg]) => ({
     id,
-    title: msg.title,
-    message: msg.details,
+    title: msg.details || '',
+    message: msg.details || '',
     savedTimestamp: msg.savedts,
     endTimestamp: msg.enddatets,
     fileType: msg.filetype,
@@ -230,7 +230,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
                 "msg-msgapikey": "12d0fd-e0bd67-4933ec-5ed14a-6f767b",
                 "msg-contract-number": "202501121",
                 "channelid": parseInt(channelId),
-                "title": isFile ? messageContent.name : "Nouveau message",
+                "title": isFile ? messageContent.name : messageContent.substring(0, 50),
                 "details": isFile ? "" : messageContent,
                 "enddatets": timestamp + 99999,
                 ...(isFile && {

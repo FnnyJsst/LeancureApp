@@ -23,8 +23,9 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
 
   // Handle the channel selection
   const handleChannelSelect = (channel) => {
+    // Réinitialiser les messages avant de changer de canal
+    setChannelMessages([]);
     setSelectedChannel(channel);
-    setChannelMessages(channel.messages || []);
     if (isExpanded) {
       toggleMenu();
     }
@@ -140,12 +141,22 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
     let interval;
     
     if (selectedChannel) {
+      // Nettoyer les messages existants
+      setChannelMessages([]);
+      
+      // Premier chargement
       fetchMessages();
-      interval = setInterval(fetchMessages, 5000);
+      
+      // Mettre en place l'intervalle avec un délai plus long
+      interval = setInterval(fetchMessages, 5000); // 5 secondes au lieu de 1
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (interval) {
+        clearInterval(interval);
+      }
+      // Nettoyer les messages lors du démontage
+      setChannelMessages([]);
     };
   }, [selectedChannel]);
 
