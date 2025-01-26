@@ -17,6 +17,8 @@ import AccountScreen from './screens/messages/AccountScreen';
 import { SCREENS } from './constants/screens';
 import { COLORS } from './constants/style';
 import { useNavigation } from './hooks/useNavigation';
+import { registerForPushNotificationsAsync } from './utils/notifications';
+import * as Notifications from 'expo-notifications';
 
 export default function App() {
 
@@ -249,18 +251,42 @@ export default function App() {
   useEffect(() => {
     if (refreshInterval) {
       const interval = setInterval(() => {
-        console.log('Rafraîchissement des WebViews à', new Date().toLocaleTimeString());
+        // console.log('Refresh interval:', new Date().toLocaleTimeString());
       }, refreshInterval);
       return () => clearInterval(interval);
     }
   }, [refreshInterval]);
 
   const handleImportChannels = (selectedChannels) => {
-    console.log('Channels to import:', selectedChannels); // Debug
+    // console.log('Channels to import:', selectedChannels);
     if (selectedChannels && selectedChannels.length > 0) {
       handleSelectChannels(selectedChannels);
     }
   };
+
+  useEffect(() => {
+    // Register the app for notifications
+    registerForPushNotificationsAsync();
+
+    // Handle the notification when the app is in the foreground
+    const foregroundSubscription = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notification received in the foreground:', notification);
+    });
+
+    // Handle the notification click
+    const backgroundSubscription = Notifications.addNotificationResponseReceivedListener(response => {
+      const channelId = response.notification.request.content.data.channelId;
+      // Navigation to the corresponding channel
+      if (channelId) {
+        navigate(SCREENS.CHAT);
+      }
+    });
+
+    return () => {
+      foregroundSubscription.remove();
+      backgroundSubscription.remove();
+    };
+  }, []);
 
   // If the app is loading, show the loading screen
   if (isLoading) {

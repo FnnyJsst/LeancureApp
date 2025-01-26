@@ -5,6 +5,7 @@ import ChatWindow from '../../components/chat/ChatWindow';
 import Header from '../../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchChannelMessages } from '../../services/messageApi';
+// import { sendNotification } from '../../services/notificationApi';
 
 export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
 
@@ -91,36 +92,45 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
       if (!credentialsStr || !selectedChannel) return;
       
       const credentials = JSON.parse(credentialsStr);
-      const hasInteracted = await AsyncStorage.getItem(`channel_${selectedChannel.id}_interacted`);
-      console.log(`🔍 Canal ${selectedChannel.id} - hasInteracted:`, hasInteracted);
-      
+      const previousMessages = channelMessages;
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
       
+      // Check if there are new messages
+      const newMessages = messages.filter(newMsg => {
+        return !previousMessages.some(prevMsg => prevMsg.id === newMsg.id);
+      });
+
+      // If there are new messages and they are not from us
+      const newUnreadMessages = newMessages.filter(msg => 
+        msg.login !== credentials.login && 
+        (msg.message || msg.title)
+      );
+
+      if (newUnreadMessages.length > 0) {
+        // Send the notification
+        await sendNotification({
+          title: selectedChannel.title,
+          body: `${newUnreadMessages.length} nouveau(x) message(s)`,
+          data: { channelId: selectedChannel.id }
+        });
+      }
+
+      // Continue with the normal message processing...
       const updatedMessages = messages.map(msg => {
-        // Vérifier si le message est de nous
         const isOwnMessage = msg.login === credentials.login;
-        
-        // Un message est non lu si:
-        // 1. Ce n'est pas notre message
-        // 2. Le canal n'a pas encore eu d'interaction
-        // 3. Le message a un contenu
-        const isUnread = !isOwnMessage && 
-                        hasInteracted !== 'true' && 
-                        (msg.message || msg.title);
-        
         return {
           ...msg,
           isOwnMessage,
-          isUnread
+          isUnread: !isOwnMessage && (msg.message || msg.title)
         };
       });
 
-      // Mettre à jour l'état des canaux non lus uniquement si on a des messages valides
+      // Update the unread channels state only if there are valid messages
       const hasUnreadMessages = updatedMessages.some(msg => 
         msg.isUnread && (msg.message || msg.title)
       );
       
-      console.log('État du canal:', {
+      console.log('Channel state:', {
         channelId: selectedChannel.id,
         hasUnread: hasUnreadMessages,
         messageCount: updatedMessages.length
@@ -141,21 +151,21 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
     let interval;
     
     if (selectedChannel) {
-      // Nettoyer les messages existants
+      // Clean the existing messages
       setChannelMessages([]);
-      
-      // Premier chargement
+  
+      // First loading
       fetchMessages();
       
-      // Mettre en place l'intervalle avec un délai plus long
-      interval = setInterval(fetchMessages, 5000); // 5 secondes au lieu de 1
+      // Set the interval with a longer delay
+      interval = setInterval(fetchMessages, 5000); // 5 seconds instead of 1
     }
 
     return () => {
       if (interval) {
         clearInterval(interval);
       }
-      // Nettoyer les messages lors du démontage
+      // Clean the messages when unmounting
       setChannelMessages([]);
     };
   }, [selectedChannel]);
