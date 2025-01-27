@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
@@ -36,11 +36,9 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     marginBottom: 8,
     letterSpacing: 0.5,
-    // Effet de dégradé subtil
     textShadowColor: COLORS.orange + '20',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
-    // Effet de dégradé sur le texte
     opacity: 0.95,
   },
   welcomeTitleSmartphone: {

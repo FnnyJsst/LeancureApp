@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
@@ -11,25 +11,29 @@ export default function AppMenu({ onNavigate }) {
   const { isLandscape, isSmartphone, isSmartphoneLandscape } = useDeviceType();
 
   return (
-    <GradientBackground>
-      <Text style={[
-        styles.title,
-        isSmartphone && styles.titleSmartphone
-      ]}>Welcome</Text>
-      <View style={[styles.cardsContainer, isSmartphoneLandscape && styles.cardsContainerSmartphoneLandscape]}>
-        <AppMenuCard
-          title="Messages"
-          icon={<Ionicons name="mail-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
-          onPress={() => onNavigate(SCREENS.LOGIN)}
-          // unreadCount={unreadMessages}
-        />
-        <AppMenuCard
-          title="WebViews"
-          icon={<Ionicons name="tv-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
-          onPress={() => onNavigate(SCREENS.WEBVIEW)}
-        />
-      </View>
-    </GradientBackground>
+    <>    
+      <GradientBackground>
+        <View style={styles.container}>
+          <Text style={[
+            styles.title,
+            isSmartphone && styles.titleSmartphone
+          ]}>Welcome</Text>
+          <View style={[styles.cardsContainer, isSmartphoneLandscape && styles.cardsContainerSmartphoneLandscape]}>
+            <AppMenuCard
+              title="Messages"
+              icon={<Ionicons name="mail-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
+              onPress={() => onNavigate(SCREENS.LOGIN)}
+              // unreadCount={unreadMessages}
+            />
+            <AppMenuCard
+              title="WebViews"
+              icon={<Ionicons name="tv-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
+              onPress={() => onNavigate(SCREENS.WEBVIEW)}
+              />
+          </View>
+        </View>
+      </GradientBackground>
+    </>
   );
 }
 
