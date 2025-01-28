@@ -1,7 +1,8 @@
 import CryptoJS from 'crypto-js';
+import * as SecureStore from 'expo-secure-store';
 
 /**
- * Transform a password into a SHA-256 hash
+ * Hash a password using SHA-256
  * @param {string} password - The password to hash
  * @returns {string} - The SHA-256 hash of the password
  */
@@ -17,7 +18,7 @@ export const hashPassword = (password) => {
 };
 
 /**
-  * Verify if a password matches a hash
+ * Verify if a password matches a hash
  * @param {string} password - The password to verify
  * @param {string} hashedPassword - The stored hash
  * @returns {boolean} - True if the password matches
@@ -29,5 +30,33 @@ export const verifyPassword = (password, hashedPassword) => {
     } catch (error) {
         console.error('Error verifying the password:', error);
         throw new Error('Failed to verify the password');
+    }
+};
+
+/**
+ * Secure storage for credentials
+ * @param {object} credentials - The credentials to store
+ */
+export const secureStore = {
+    async saveCredentials(credentials) {
+        await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+    },
+
+    async getCredentials() {
+        try {
+            const credentials = await SecureStore.getItemAsync('userCredentials');
+            return credentials ? JSON.parse(credentials) : null;
+        } catch (error) {
+            console.error('Error retrieving credentials:', error);
+            return null;
+        }
+    },
+
+    async deleteCredentials() {
+        try {
+            await SecureStore.deleteItemAsync('userCredentials');
+        } catch (error) {
+            console.error('Error deleting credentials:', error);
+        }
     }
 };

@@ -19,6 +19,8 @@ import { COLORS } from './constants/style';
 import { useNavigation } from './hooks/useNavigation';
 import { registerForPushNotificationsAsync } from './utils/notifications';
 import * as Notifications from 'expo-notifications';
+import SecureStore from 'expo-secure-store';
+import Sidebar from './components/navigation/Sidebar';
 
 export default function App() {
 
@@ -414,6 +416,16 @@ export default function App() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+        await SecureStore.deleteItemAsync('savedLoginInfo');
+        // Rediriger vers login
+        navigate(SCREENS.LOGIN);
+    } catch (error) {
+        console.error('Erreur lors de la déconnexion:', error);
+    }
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: "#111111" }}>
       {renderScreen()}
@@ -429,6 +441,11 @@ export default function App() {
         visible={passwordCheckModalVisible}
         onClose={() => setPasswordCheckModalVisible(false)}
         onSubmit={handlePasswordCheck}
+      />
+
+      <Sidebar 
+        onLogout={handleLogout}
+        // ... autres props
       />
     </View>
   );

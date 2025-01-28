@@ -7,10 +7,10 @@ import { fetchUserChannels } from '../../services/messageApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SCREENS } from '../../constants/screens';
 import AccountImage from '../../components/AccountImage';
-
+import { secureStore } from '../../utils/encryption';
 
 // Sidebar menu component
-export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu, onNavigate, currentSection, unreadChannels }) {
+export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu, onNavigate, currentSection, unreadChannels, onLogout }) {
   const [channels, setChannels] = useState([]);
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -252,7 +252,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
             </View>
           </View>
           <TouchableOpacity 
-            onPress={() => onNavigate(SCREENS.LOGIN)}
+            onPress={onLogout}
             style={styles.settingsButton}
           >
             <Ionicons name="power-outline" size={20} color={COLORS.gray300} />
@@ -457,8 +457,11 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: COLORS.orange,
+    marginLeft: 8,
   },
   unreadBadge: {
     padding: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

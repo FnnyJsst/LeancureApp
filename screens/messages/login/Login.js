@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Image, StyleSheet, StatusBar } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import InputLogin from '../../../components/InputLogin';
 import CheckBox from '../../../components/inputs/CheckBox';
 import SimplifiedLogin from './SimplifiedLogin';
@@ -12,6 +12,7 @@ import LoginTitle from '../../../components/text/LoginTitle';
 import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 import GradientBackground from '../../../components/backgrounds/GradientBackground';
 import { hashPassword } from '../../../utils/encryption';
+import { secureStore } from '../../../utils/encryption';
 
 export default function Login({ onNavigate }) {
 
@@ -31,7 +32,7 @@ export default function Login({ onNavigate }) {
     // Déplacer loadLoginInfo ici, avant useEffect
     const loadLoginInfo = async () => {
         try {
-            const savedInfo = await AsyncStorage.getItem('savedLoginInfo');
+            const savedInfo = await SecureStore.getItemAsync('savedLoginInfo');
             if (savedInfo) {
                 const { 
                     contractNumber: savedContract, 
@@ -39,7 +40,8 @@ export default function Login({ onNavigate }) {
                     password: savedPassword,
                     wasChecked
                 } = JSON.parse(savedInfo);
-                
+                // If the "Stay connected" checkbox is checked, we load the login info from Secure store
+
                 if (wasChecked === true) {
                     setContractNumber(savedContract);
                     setLogin(savedLogin);
@@ -47,12 +49,13 @@ export default function Login({ onNavigate }) {
                     setIsChecked(true);
                     setIsSimplifiedLogin(true);
                 } else {
+                    // If the "Stay connected" checkbox is not checked, we remove the login info from Secure store
                     setContractNumber('');
                     setLogin('');
                     setPassword('');
                     setIsChecked(false);
                     setIsSimplifiedLogin(false);
-                    await AsyncStorage.removeItem('savedLoginInfo');
+                    await SecureStore.deleteItemAsync('savedLoginInfo');
                 }
             }
         } catch (error) {
@@ -60,7 +63,7 @@ export default function Login({ onNavigate }) {
         }
     };
 
-    // UseEffect to load the login info from AsyncStorage when the component is mounted
+    // UseEffect to load the login info from Secure store when the component is mounted
     useEffect(() => {
         const init = async () => {
             try {
@@ -81,33 +84,34 @@ export default function Login({ onNavigate }) {
 
     // Function to handle the login process
     const handleLogin = async () => {
-        if (!contractNumber || !login || !password) {
-            setError('Please fill in all fields');
+        const validationError = validateInputs();
+        if (validationError) {
+            setError(validationError);
             return;
         }
-        
+
         setIsLoading(true);
         setError('');
 
         try {
-            console.log('🔄 Tentative de connexion...');
+            console.log('🔄 Trying to login...');
             const loginResponse = await loginApi(contractNumber, login, password);
 
             if (loginResponse && loginResponse.status === 'ok') {
-                // If the "Stay connected" checkbox is not checked, we remove the login info from AsyncStorage
+                // If the "Stay connected" checkbox is not checked, we remove the login info from Secure store
                 if (!isChecked) {
-                    await AsyncStorage.removeItem('savedLoginInfo');
+                    await SecureStore.deleteItemAsync('savedLoginInfo');
                     setIsSimplifiedLogin(false);
                 } else {
                     await saveLoginInfo();
                 }
 
                 // Save the credentials for the current session
-                await AsyncStorage.setItem('userCredentials', JSON.stringify({
+                await secureStore.saveCredentials({
                     contractNumber,
                     login,
                     password: hashPassword(password)
-                }));
+                });
 
                 // Load the channels immediately after login
                 const channelsResponse = await fetchUserChannels(contractNumber, login, password);
@@ -133,19 +137,40 @@ export default function Login({ onNavigate }) {
     const saveLoginInfo = async () => {
         try {
             if (isChecked) {
-                await AsyncStorage.setItem('savedLoginInfo', JSON.stringify({
+                await SecureStore.setItemAsync('savedLoginInfo', JSON.stringify({
                     contractNumber,
                     login,
                     password,
                     wasChecked: true
                 }));
             } else {
-                await AsyncStorage.removeItem('savedLoginInfo');
+                await SecureStore.deleteItemAsync('savedLoginInfo');
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
             console.error('Error saving login info:', error);
         }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await secureStore.deleteCredentials();
+            // Nettoyer les états
+            setPassword('');
+            setLogin('');
+            setContractNumber('');
+            // Rediriger vers login
+            onNavigate(SCREENS.LOGIN);
+        } catch (error) {
+            console.error('Erreur lors de la déconnexion:', error);
+        }
+    };
+
+    const validateInputs = () => {
+        if (!contractNumber.trim()) return 'Contract number required';
+        if (!login.trim()) return 'Login required';
+        if (password.length < 8) return 'Password must be at least 8 characters';
+        return null;
     };
 
     return (
