@@ -159,7 +159,6 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
               onPress={handleClose}
               backgroundColor={"#111111"}
               textColor={"#808080"}
-              
               width="22%"
             />
             <Button 

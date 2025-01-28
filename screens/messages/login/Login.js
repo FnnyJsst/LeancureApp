@@ -11,6 +11,7 @@ import { loginApi, fetchUserChannels } from '../../../services/messageApi';
 import LoginTitle from '../../../components/text/LoginTitle';
 import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 import GradientBackground from '../../../components/backgrounds/GradientBackground';
+import { hashPassword } from '../../../utils/encryption';
 
 export default function Login({ onNavigate }) {
 
@@ -105,7 +106,7 @@ export default function Login({ onNavigate }) {
                 await AsyncStorage.setItem('userCredentials', JSON.stringify({
                     contractNumber,
                     login,
-                    password
+                    password: hashPassword(password)
                 }));
 
                 // Load the channels immediately after login
