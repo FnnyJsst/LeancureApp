@@ -5,7 +5,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
-// ChatMessage is used in the ChatScreen to display the messages
+/**
+ * @component ChatMessage
+ * @description A component that renders a message in the chat screen
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {Object} props.message - The message to display
+ * @param {boolean} props.isOwnMessage - Whether the message is own
+ * @param {Function} props.onFileClick - The function to call when the file is clicked
+ * 
+ * @example
+ * <ChatMessage message={message} isOwnMessage={isOwnMessage} onFileClick={() => console.log('File clicked')} />
+ */
+
 export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
 
   // Customized hook to determine the device type and orientation

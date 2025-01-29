@@ -2,6 +2,17 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 
+/**
+ * @component DateBanner
+ * @description A component that renders a date banner in the chat screen
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {string} props.date - The date to display
+ * 
+ * @example
+ * <DateBanner date="2024-01-01" />
+ */
+
 export default function DateBanner({ date }) {
   return (
     <View style={styles.container}>

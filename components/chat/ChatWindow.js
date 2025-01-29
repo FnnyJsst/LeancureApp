@@ -9,6 +9,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendMessageApi } from '../../services/messageApi';
 import DateBanner from './DateBanner';
 
+/**
+ * @component ChatWindow
+ * @description A component that renders the chat window in the chat screen
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {Object} props.channel - The channel to display
+ * 
+ * @example
+ * <ChatWindow channel={channel} messages={channelMessages} onInputFocusChange={() => console.log('Input focused')} />
+ */
 export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange }) {
   const { isSmartphone } = useDeviceType();
   const scrollViewRef = useRef();
