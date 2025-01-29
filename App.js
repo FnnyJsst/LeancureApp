@@ -21,7 +21,11 @@ import * as Notifications from 'expo-notifications';
 import SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
 
-
+/**
+ * @component App
+ * @description The main component of the app
+ * @returns {JSX.Element} - The main component
+ */
 export default function App() {
 
   //States related to the webviews
@@ -42,13 +46,24 @@ export default function App() {
   //States related to the chat
   const [isExpanded, setIsExpanded] = useState(false);
   
+  /**
+   * @function toggleReadOnly
+   * @description Toggles the read-only mode
+   * @param {boolean} value - The value to set
+   * @returns {void}
+   */
   const toggleReadOnly = (value) => {
     setIsReadOnly(value !== undefined ? value : !isReadOnly);
   };
   
 
   /////FUNCTIONS RELATED TO CHANNELS MANAGEMENT/////
-  // Handle the selection of channels
+  /**
+   * @function handleSelectChannels
+   * @description Handles the selection of channels
+   * @param {Array} selected - The selected channels
+   * @returns {void}
+   */
   const handleSelectChannels = (selected) => {
     const updatedChannels = [...selectedChannels];
     
@@ -67,7 +82,12 @@ export default function App() {
     navigate('CHANNELS_MANAGEMENT');
   };
 
-  // Save changes made in the ChannelsManagementScreen in AsyncStorage
+  /**
+   * @function saveSelectedChannels
+   * @description Saves the selected channels in AsyncStorage
+   * @param {Array} channels - The channels to save
+   * @returns {void}
+   */
   const saveSelectedChannels = async (channels) => {
     try {
       await AsyncStorage.setItem('selectedChannels', JSON.stringify(channels));
@@ -76,7 +96,11 @@ export default function App() {
     }
   };
 
-  // Load the channels saved in AsyncStorage
+  /**
+   * @function loadSelectedChannels
+   * @description Loads the selected channels from AsyncStorage
+   * @returns {void}
+   */
   const loadSelectedChannels = async () => {
     try {
       const storedChannels = await AsyncStorage.getItem('selectedChannels');
@@ -94,7 +118,12 @@ export default function App() {
   };
 
   /////FUNCTIONS RELATED TO REFRESH INTERVAL/////
-  // Get the interval in milliseconds
+  /**
+   * @function getIntervalInMilliseconds
+   * @description Gets the interval in milliseconds
+   * @param {string} value - The value to get
+   * @returns {number} - The interval in milliseconds
+   */
   const getIntervalInMilliseconds = (value) => {
     switch (value) {
       case 'every minute': return 60000;
@@ -111,7 +140,12 @@ export default function App() {
     }
   };
 
-  // Save the refresh option in AsyncStorage
+  /**
+   * @function saveRefreshOption
+   * @description Saves the refresh option in AsyncStorage
+   * @param {string} option - The option to save
+   * @returns {void}
+   */
   const saveRefreshOption = async (option) => {
     try {
       await AsyncStorage.setItem('refreshOption', option);
@@ -120,7 +154,11 @@ export default function App() {
     }
   };
 
-  // Load the refresh option from AsyncStorage
+  /**
+   * @function loadRefreshOption
+   * @description Loads the refresh option from AsyncStorage
+   * @returns {void}
+   */
   const loadRefreshOption = async () => {
     try {
       const storedOption = await AsyncStorage.getItem('refreshOption');
@@ -133,6 +171,12 @@ export default function App() {
     }
   };
 
+  /**
+   * @function handleSelectOption
+   * @description Handles the selection of the refresh option
+   * @param {string} option - The option to select
+   * @returns {void}
+   */
   const handleSelectOption = (option) => {
     console.log('handleSelectOption appelé avec:', option);
     setRefreshOption(option);
@@ -141,7 +185,11 @@ export default function App() {
   };
 
   /////FUNCTIONS RELATED TO PASSWORD/////
-  // Check if the password is required to access the settings
+  /**
+   * @function handleSettingsAccess
+   * @description Handles the access to the settings
+   * @returns {void}
+   */
   const handleSettingsAccess = () => {
     console.log('handleSettingsAccess called');
     if (isPasswordRequired) {
@@ -153,7 +201,12 @@ export default function App() {
     }
   };
 
-  // Handle the submission of the password
+  /**
+   * @function handlePasswordSubmit
+   * @description Handles the submission of the password
+   * @param {string} enteredPassword - The password to submit
+   * @returns {void}
+   */
   const handlePasswordSubmit = (enteredPassword) => {
     setPassword(enteredPassword);
     setIsPasswordRequired(true);
@@ -164,7 +217,12 @@ export default function App() {
     closePasswordModal();
   };
 
-  // Save the password in AsyncStorage
+  /**
+   * @function savePassword
+   * @description Saves the password in AsyncStorage
+   * @param {Object} passwordData - The password data
+   * @returns {void}
+   */
   const savePassword = async (passwordData) => {
     try {
       if (passwordData.password === null) {
@@ -179,6 +237,11 @@ export default function App() {
     }
   };
   
+  /**
+   * @function loadPassword
+   * @description Loads the password from AsyncStorage
+   * @returns {void}
+   */
   const loadPassword = async () => {
     try {
       const storedPassword = await AsyncStorage.getItem('password');
@@ -195,7 +258,12 @@ export default function App() {
     }
   };
   
-  // Check if the password is correct
+  /**
+   * @function handlePasswordCheck
+   * @description Checks if the password is correct
+   * @param {string} enteredPassword - The password to check
+   * @returns {void}
+   */
   const handlePasswordCheck = (enteredPassword) => {
     if (enteredPassword === password) {
       setPasswordCheckModalVisible(false);
@@ -205,7 +273,11 @@ export default function App() {
     }
   };
 
-  // Disable the password
+  /**
+   * @function disablePassword
+   * @description Disables the password
+   * @returns {void}
+   */
   const disablePassword = () => {
     setPassword(null);
     setIsPasswordRequired(false);
@@ -215,25 +287,49 @@ export default function App() {
     });
   };
 
-  // Open the password modal
+  /**
+   * @function openPasswordModal
+   * @description Opens the password modal
+   * @returns {void}
+   */
   const openPasswordModal = () => setPasswordModalVisible(true);
-  // Close the password modal
+  
+  /**
+   * @function closePasswordModal
+   * @description Closes the password modal
+   * @returns {void}
+   */
   const closePasswordModal = () => setPasswordModalVisible(false);
 
   /////FUNCTIONS RELATED TO NAVIGATION/////
-  // Navigate to the channels list screen
+  /**
+   * @function navigateToChannelsList
+   * @description Navigates to the channels list screen
+   * @param {Array} extractedChannels - The extracted channels
+   * @returns {void}
+   */
   const navigateToChannelsList = (extractedChannels) => {
     setChannels(extractedChannels);
     navigate(SCREENS.CHANNELS_LIST);
   };
 
-  // Navigate to the web view screen
+  /**
+   * @function navigateToWebView
+   * @description Navigates to the web view screen
+   * @param {string} url - The URL to navigate to
+   * @returns {void}
+   */
   const navigateToWebView = (url) => {
     setWebViewUrl(url);
     navigate('WEBVIEW');
   };
 
   ///// USE EFFECTS/////
+  /**
+   * @function useEffect
+   * @description Handles the loading of the app
+   * @returns {void}
+   */
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -242,14 +338,22 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Load the selected channels, the password and the refresh option from AsyncStorage
+  /**
+   * @function useEffect
+   * @description Loads the selected channels, the password and the refresh option from AsyncStorage
+   * @returns {void}
+   */
   useEffect(() => {
     loadSelectedChannels();
     loadPassword();
     loadRefreshOption();
   }, []);
 
-  // Set the interval to refresh the WebViews
+  /**
+   * @function useEffect
+   * @description Sets the interval to refresh the WebViews
+   * @returns {void}
+   */
   useEffect(() => {
     if (refreshInterval) {
       const interval = setInterval(() => {
@@ -259,6 +363,12 @@ export default function App() {
     }
   }, [refreshInterval]);
 
+  /**
+   * @function handleImportChannels
+   * @description Handles the import of channels
+   * @param {Array} selectedChannels - The selected channels
+   * @returns {void}
+   */
   const handleImportChannels = (selectedChannels) => {
     // console.log('Channels to import:', selectedChannels);
     if (selectedChannels && selectedChannels.length > 0) {
@@ -266,16 +376,29 @@ export default function App() {
     }
   };
 
+  /**
+   * @function useEffect
+   * @description Registers the app for notifications
+   * @returns {void}
+   */
   useEffect(() => {
     // Register the app for notifications
     registerForPushNotificationsAsync();
 
-    // Handle the notification when the app is in the foreground
+    /**
+     * @function useEffect
+     * @description Handles the notification when the app is in the foreground
+     * @returns {void}
+     */
     const foregroundSubscription = Notifications.addNotificationReceivedListener(notification => {
       console.log('Notification received in the foreground:', notification);
     });
 
-    // Handle the notification click
+    /**
+     * @function useEffect
+     * @description Handles the notification click
+     * @returns {void}
+     */
     const backgroundSubscription = Notifications.addNotificationResponseReceivedListener(response => {
       const channelId = response.notification.request.content.data.channelId;
       // Navigation to the corresponding channel
@@ -295,6 +418,11 @@ export default function App() {
     return <ScreenSaver />;
   }
 
+  /**
+   * @function renderScreen
+   * @description Renders the screen
+   * @returns {JSX.Element} - The screen
+   */
   const renderScreen = () => {
     switch (currentScreen) {
       case SCREENS.APP_MENU:
