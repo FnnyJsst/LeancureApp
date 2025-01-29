@@ -9,7 +9,21 @@ import Button from '../../../components/buttons/Button';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
-/** Component for previewing a document sent in a chat **/
+/**
+ * @component DocumentPreviewModal
+ * @description A component that renders a document preview in the chat
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {boolean} props.visible - Whether the modal is visible
+ * @param {Function} props.onClose - The function to call when the modal is closed
+ * @param {string} props.fileName - The name of the file
+ * @param {string} props.fileSize - The size of the file
+ * @param {string} props.fileType - The type of the file
+ * @param {string} props.base64 - The base64 of the file
+ * 
+ * @example
+ * <DocumentPreviewModal visible={visible} onClose={() => console.log('Modal closed')} fileName="File.pdf" fileSize="100" fileType="application/pdf" base64="base64" />
+ */
 export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64 }) {
   const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
 
@@ -19,7 +33,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       if (visible) {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
       } else {
-        // Rétablir l'orientation automatique à la fermeture
+        // Unlock the orientation when the modal is closed
         await ScreenOrientation.unlockAsync();
       }
     };
@@ -32,10 +46,14 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
     };
   }, [visible]);
 
-  // Function to handle file download
+  /**
+   * @function handleDownload
+   * @description A function to handle the file download
+   */
   const handleDownload = async () => {
     try {
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+
       await FileSystem.writeAsStringAsync(fileUri, base64, {
         encoding: FileSystem.EncodingType.Base64,
       });
@@ -46,10 +64,14 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
     }
   };
 
-  // Function to render the preview
+  /**
+   * @function renderPreview
+   * @description A function to render the preview
+   */
   const renderPreview = () => {
     if (fileType?.includes('pdf')) {
       return (
+
         <View style={styles.previewContainer}>
           <WebView
             source={{

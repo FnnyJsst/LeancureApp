@@ -6,6 +6,19 @@ import InputModal from '../../inputs/InputModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
+
+/**
+ * @component ImportChannelDialog
+ * @description A component that renders a modal for importing channels
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {boolean} props.visible - Whether the modal is visible
+ * @param {Function} props.onClose - The function to call when the modal is closed
+ * @param {Function} props.onImport - The function to call when the channels are imported
+ * 
+ * @example
+ * <ImportChannelDialog visible={visible} onClose={() => console.log('Modal closed')} onImport={() => console.log('Channels imported')} />
+ */
 const ImportChannelDialog = ({ visible, onClose, onImport }) => {
   
   // State management for the URL, error and channels
@@ -17,9 +30,12 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
 
-
-
-  // URL validation using regex
+  /**
+   * @function validateUrl
+   * @description A function to validate the URL
+   * @param {string} url - The URL to validate
+   * @returns {boolean} - Whether the URL is valid
+   */
   const validateUrl = (url) => {
     const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
       '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name
@@ -30,13 +46,22 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
     return !!pattern.test(url);
   };
 
-  // Handle URL input change
+  /**
+   * @function handleUrlChange
+   * @description A function to handle the URL input change
+   * @param {string} newUrl - The new URL
+   */
   const handleUrlChange = (newUrl) => {
     setUrl(newUrl);
     setError(''); // Reset error when user types
   };
 
-  // Parse HTML to extract channels links and titles
+  /**
+   * @function parseHtml
+   * @description A function to parse the HTML to extract channels links and titles
+   * @param {string} html - The HTML to parse
+   * @returns {Array} - The links and titles
+   */
   const parseHtml = (html) => {
     const regex = /<a[^>]+class="view"[^>]+href="([^"]+)"[^>]*>([^<]+)<\/a>/gi;
     let match;
@@ -51,7 +76,10 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
     return links;
   };
 
-  // Handle download of channels from URL
+  /**
+   * @function handleDownload
+   * @description A function to handle the download of channels from URL
+   */
   const handleDownload = () => {
     if (!url) {
       setError('Please enter an URL');
@@ -103,7 +131,10 @@ const ImportChannelDialog = ({ visible, onClose, onImport }) => {
       });
   };
 
-  // Handle modal close
+  /**
+   * @function handleClose
+   * @description A function to handle the modal close
+   */
   const handleClose = () => {
     setUrl('');
     setError('');

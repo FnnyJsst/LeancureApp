@@ -6,10 +6,25 @@ import InputModal from '../../inputs/InputModal';
 import { useDeviceType } from '../../../hooks/useDeviceType'; 
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style'; 
 import { Ionicons } from '@expo/vector-icons';
+
+/**
+ * @component EditChannel
+ * @description A component that renders a modal for editing a channel
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {boolean} props.visible - Whether the modal is visible
+ * @param {Function} props.onClose - The function to call when the modal is closed
+ * @param {Function} props.onSave - The function to call when the channel is saved
+ * @param {string} props.initialUrl - The initial URL of the channel
+ * @param {string} props.initialTitle - The initial title of the channel
+ * 
+ * @example
+ * <EditChannel visible={visible} onClose={() => console.log('Modal closed')} onSave={() => console.log('Channel saved')} initialUrl="https://www.google.com" initialTitle="Google" />
+ */
 export default function EditChannel({ visible, onClose, onSave, initialUrl, initialTitle }) {
 
   // We create a hook to determine the device type and orientation
-  const { isTablet, isSmartphone, isTabletLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType(); 
+  const { isSmartphone, isTabletLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType(); 
 
   // State management for form inputs
   const [url, setUrl] = useState(initialUrl || '');
@@ -17,7 +32,10 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
   const [isTitleFocused, setIsTitleFocused] = useState(false);
   const [isUrlFocused, setIsUrlFocused] = useState(false);
 
-  // Reset form 
+  /**
+   * @function useEffect
+   * @description A function to reset the form inputs when the modal is opened
+   */
   useEffect(() => {
     if (visible) {
       setUrl(initialUrl || '');
@@ -25,7 +43,10 @@ export default function EditChannel({ visible, onClose, onSave, initialUrl, init
     }
   }, [initialUrl, initialTitle, visible]);
 
-  // Handle form submission
+  /**
+   * @function handleOk
+   * @description A function to handle the form submission
+   */
   const handleOk = () => {
     // We send the URL and title to the parent component
     onSave(url, title);

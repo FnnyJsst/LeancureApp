@@ -8,6 +8,19 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 
+/**
+ * @component PasswordModal
+ * @description A component that renders a modal for setting a password
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {boolean} props.visible - Whether the modal is visible
+ * @param {Function} props.onClose - The function to call when the modal is closed
+ * @param {Function} props.onSubmitPassword - The function to call when the password is submitted
+ * @param {Function} props.onDisablePassword - The function to call when the password is disabled
+ * 
+ * @example
+ * <PasswordModal visible={visible} onClose={() => console.log('Modal closed')} onSubmitPassword={() => console.log('Password submitted')} onDisablePassword={() => console.log('Password disabled')} />
+ */
 export default function PasswordModal({ visible, onClose, onSubmitPassword, onDisablePassword }) {
 
   // Customized hook to determine the device type and orientation
@@ -24,13 +37,22 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
   });
   const [isFocused, setIsFocused] = useState(false);
 
-  // Show custom alert
+  /**
+   * @function showAlert
+   * @description A function to show the custom alert
+   * @param {string} title - The title of the alert
+   * @param {string} message - The message of the alert
+   * @param {string} type - The type of the alert
+   */
   const showAlert = (title, message, type = 'error') => {
     setAlertConfig({ title, message, type });
     setAlertVisible(true);
   };
 
-  // Handle password validation and submission
+  /**
+   * @function handleOkPress
+   * @description A function to handle the password validation and submission
+   */
   const handleOkPress = () => {
     //Check if password is at least 6 characters
     if (password.length < 6) {
@@ -46,7 +68,10 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
     }
   };
 
-  // Handle alert confirmation
+  /**
+   * @function handleAlertConfirm
+   * @description A function to handle the alert confirmation
+   */
   const handleAlertConfirm = () => {
     if (alertConfig.type === 'success') {
       onSubmitPassword(password);
@@ -57,7 +82,10 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
     setAlertVisible(false);
   };
 
-  // Handle modal close, reset the password
+  /**
+   * @function handleClose
+   * @description A function to handle the modal close, reset the password
+   */
   const handleClose = () => {
     onClose();
     setPassword('');

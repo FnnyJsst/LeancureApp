@@ -4,6 +4,18 @@ import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES, SIZES } from '../../../constants/style';
 
+/**
+ * @component DeleteChannel
+ * @description A component that renders a modal for deleting a channel
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {boolean} props.visible - Whether the modal is visible
+ * @param {Function} props.onClose - The function to call when the modal is closed
+ * @param {Function} props.handleDelete - The function to call when the channel is deleted
+ * 
+ * @example
+ * <DeleteChannel visible={visible} onClose={() => console.log('Modal closed')} handleDelete={() => console.log('Channel deleted')} />
+ */
 export default function DeleteChannel({ visible, onClose, handleDelete }) {
 
   // We create a hook to determine the device type and orientation

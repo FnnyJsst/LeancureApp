@@ -6,6 +6,18 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 
+/**
+ * @component AutoRefreshModal
+ * @description A component that renders a modal for auto-refresh options
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {boolean} props.visible - Whether the modal is visible
+ * @param {Function} props.onClose - The function to call when the modal is closed
+ * @param {Function} props.onSelectOption - The function to call when the option is selected
+ * 
+ * @example
+ * <AutoRefreshModal visible={visible} onClose={() => console.log('Modal closed')} onSelectOption={() => console.log('Option selected')} />
+ */
 const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
 
   // We create a hook to determine the device type and orientation

@@ -4,18 +4,36 @@ import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../../constants/style';
 
+/**
+ * @component ReadOnly
+ * @description A component that renders a modal for setting the read-only mode
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {boolean} props.visible - Whether the modal is visible
+ * @param {Function} props.onClose - The function to call when the modal is closed
+ * @param {Function} props.onToggleReadOnly - The function to call when the read-only mode is toggled
+ * 
+ * @example
+ * <ReadOnly visible={visible} onClose={() => console.log('Modal closed')} onToggleReadOnly={() => console.log('Read-only mode toggled')} />
+ */
 export default function ReadOnly({ visible, onClose, onToggleReadOnly }) {
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
 
-  // When the user clicks on the "Yes" button, we toggle the read-only mode and close the modal
+  /**
+   * @function handleYes
+   * @description A function to handle the "Yes" button to set the read-only mode
+   */
   const handleYes = () => {
     onToggleReadOnly(true); 
     onClose();
   };
 
-  // When the user clicks on the "No" button, we close the modal
+  /**
+   * @function handleNo
+   * @description A function to handle the "No" button to set the read-only mode
+   */
   const handleNo = () => {
     onToggleReadOnly(false);  
     onClose();

@@ -7,6 +7,20 @@ import CustomAlert from '../../CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
+
+/**
+ * @component PasswordCheckModal
+ * @description A component that renders a modal for checking the password
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {boolean} props.visible - Whether the modal is visible
+ * @param {Function} props.onClose - The function to call when the modal is closed
+ * @param {Function} props.onSubmit - The function to call when the password is submitted
+ * @param {boolean} props.isFocused - Whether the input is focused
+ * 
+ * @example
+ * <PasswordCheckModal visible={visible} onClose={() => console.log('Modal closed')} onSubmit={() => console.log('Password submitted')} isFocused={true} />
+ */
 export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocused }) {
 
   // Customized hook to determine the device type and orientation
@@ -21,7 +35,10 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
     type: 'error'
   });
 
-  // Handle the submit button
+  /**
+   * @function handleSubmit
+   * @description A function to handle the submit button
+   */
   const handleSubmit = () => {
     // If the password is empty, we show an error message
     if (!password) {
@@ -36,7 +53,10 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
     onSubmit(password);
   };
 
-  // Function to close the modal, reset the password and call the onClose function
+  /**
+   * @function handleClose
+   * @description A function to handle the close button
+   */
   const handleClose = () => {
     setPassword('');
     onClose();
