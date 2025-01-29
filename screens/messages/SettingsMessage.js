@@ -5,14 +5,27 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import Header from '../../components/Header';
 import SettingsCard from '../../components/cards/SettingsCard';
 import { Ionicons } from '@expo/vector-icons';
-import { SCREENS } from '../../constants/screens';
 import Sidebar from '../../components/navigation/Sidebar';
 
-//This screen displays the settings related to the messages
+/**
+ * @component SettingsMessage
+ * @description This screen displays the settings related to the messages
+ * @param {Function} onNavigate - A function to navigate to a screen
+ * @param {boolean} isExpanded - A boolean to indicate if the menu is expanded
+ * @param {Function} setIsExpanded - A function to set the isExpanded state
+ * @returns {JSX.Element} - A JSX element
+ * 
+ * @example
+ * <SettingsMessage onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
+ */
 export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded }) {
   const { isSmartphone, isLandscape } = useDeviceType();
   const [currentSection, setCurrentSection] = useState('settings');
 
+  /**
+   * @function toggleMenu
+   * @description Toggles the menu
+   */
   const toggleMenu = () => {
     setIsExpanded(!isExpanded);
   };

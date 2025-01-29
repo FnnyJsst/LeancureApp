@@ -8,10 +8,24 @@ import PasswordModal from '../../components/modals/webviews/PasswordModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
+
 /**
- * Settings Screen Component
- * Displays the settings for the webviews
- **/
+ * @component SettingsScreen
+ * @description Displays the settings for the webviews
+ * @param {Function} onNavigate - A function to navigate to a screen
+ * @param {Function} onSettingsAccess - A function to handle the settings access
+ * @param {Array} selectedChannels - The list of selected channels
+ * @param {string} refreshOption - The refresh option
+ * @param {Function} handlePasswordSubmit - A function to handle the password submit
+ * @param {boolean} isPasswordRequired - A boolean to indicate if the password is required
+ * @param {Function} disablePassword - A function to disable the password
+ * @param {boolean} isReadOnly - A boolean to indicate if the user is read only
+ * @param {Function} toggleReadOnly - A function to toggle the read only mode
+ * @param {Function} handleSelectOption - A function to handle the select option
+ * @returns {JSX.Element} - A JSX element
+ * @example
+ * <SettingsScreen onNavigate={(screen) => navigate(screen)} onSettingsAccess={onSettingsAccess} selectedChannels={selectedChannels} refreshOption={refreshOption} handlePasswordSubmit={handlePasswordSubmit} isPasswordRequired={isPasswordRequired} disablePassword={disablePassword} isReadOnly={isReadOnly} toggleReadOnly={toggleReadOnly} handleSelectOption={handleSelectOption} />
+ */
 export default function SettingsScreen({ 
   onNavigate, 
   onSettingsAccess, 
@@ -26,26 +40,55 @@ export default function SettingsScreen({
 }) {
 
   // Device type variables
-  const { isTablet, isSmartphone, isLandscape, isSmartphoneLandscape, isSmartphonePortrait } = useDeviceType();
+  const { isTablet, isSmartphone, isLandscape, isSmartphonePortrait } = useDeviceType();
   
   // State management
   const [modalVisible, setModalVisible] = useState(false);
   const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
   const [isReadOnlyModalVisible, setReadOnlyModalVisible] = useState(false);
 
-  // Handle quit app
+  /**
+   * @function handleQuitApp
+   * @description Handles the quit app action
+   */
   const handleQuitApp = () => {
     BackHandler.exitApp();
   };
 
-  // Handlers to open and close modals
+  /**
+   * @function openModal
+   * @description Opens the modal
+   */
   const openModal = () => setModalVisible(true);
+
+  /**
+   * @function openPasswordModal
+   * @description Opens the password modal
+   */
   const openPasswordModal = () => setPasswordModalVisible(true);
+
+  /**
+   * @function closePasswordModal
+   * @description Closes the password modal
+   */
   const closePasswordModal = () => setPasswordModalVisible(false);
+
+  /**
+   * @function openReadOnlyModal
+   * @description Opens the read only modal
+   */
   const openReadOnlyModal = () => setReadOnlyModalVisible(true);
+
+  /**
+   * @function closeReadOnlyModal
+   * @description Closes the read only modal
+   */
   const closeReadOnlyModal = () => setReadOnlyModalVisible(false);
 
-  // Function to handle the arrow back button
+  /**
+   * @function handleBackPress
+   * @description Handles the arrow back button
+   */
   const handleBackPress = () => {
     if (selectedChannels && selectedChannels.length > 0) {
       onNavigate(SCREENS.WEBVIEW);
@@ -54,12 +97,20 @@ export default function SettingsScreen({
     }
   };
 
-  // Function to access the messages section
+  /**
+   * @function accessMessages
+   * @description Accesses the messages section
+   */
   const accessMessages = () => {
     onNavigate(SCREENS.LOGIN);
   };
 
-  // Function to format the refresh option and display it in a readable format
+  /**
+   * @function formatRefreshOption
+   * @description Formats the refresh option and displays it in a readable format
+   * @param {string} option - The refresh option
+   * @returns {string} - The formatted refresh option
+   */
   const formatRefreshOption = (option) => {
     // Check if the option is not null and is not 'never' 
     if (!option || option === 'never') return 'never';

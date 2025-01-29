@@ -39,7 +39,10 @@ import { secureStore } from '../../../utils/encryption';
     const [isSimplifiedLogin, setIsSimplifiedLogin] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-    // Function to load the login info from Secure store
+    /**
+     * @function loadLoginInfo
+     * @description Loads the login info from Secure store
+     */
     const loadLoginInfo = async () => {
         try {
             const savedInfo = await SecureStore.getItemAsync('savedLoginInfo');
@@ -73,7 +76,10 @@ import { secureStore } from '../../../utils/encryption';
         }
     };
 
-    // UseEffect to load the login info from Secure store when the component is mounted
+    /**
+     * @function loadLoginInfo
+     * @description Loads the login info from Secure store when the component is mounted
+     */
     useEffect(() => {
         const init = async () => {
             try {
@@ -92,7 +98,10 @@ import { secureStore } from '../../../utils/encryption';
         return null;
     }
 
-    // Function to handle the login process
+    /**
+     * @function handleLogin
+     * @description Handles the login process
+     */
     const handleLogin = async () => {
         // We validate the inputs
         const validationError = validateInputs();
@@ -106,7 +115,7 @@ import { secureStore } from '../../../utils/encryption';
         setError('');
 
         try {
-            console.log('🔄 Trying to login...');
+            // console.log('🔄 Trying to login...');
             const loginResponse = await loginApi(contractNumber, login, password);
 
             if (loginResponse && loginResponse.status === 'ok') {
@@ -128,7 +137,7 @@ import { secureStore } from '../../../utils/encryption';
 
                 // Load the channels immediately after login
                 const channelsResponse = await fetchUserChannels(contractNumber, login, password);
-                console.log('📊 Loading channels...');
+                // console.log('📊 Loading channels...');
 
                 if (channelsResponse.status === 'ok') {
                     onNavigate(SCREENS.CHAT);
@@ -139,14 +148,17 @@ import { secureStore } from '../../../utils/encryption';
                 setError(loginResponse.error || 'Invalid credentials');
             }
         } catch (error) {
-            console.error('🔴 Connection error:', error);
+            // console.error('🔴 Connection error:', error);
             setError('Connection error to the server');
         } finally {
             setIsLoading(false);
         }
     };
     
-    // Save login info in AsyncStorage to keep the user logged in when the app is closed
+    /**
+     * @function saveLoginInfo
+     * @description Saves the login info in Secure store
+     */
     const saveLoginInfo = async () => {
         try {
             if (isChecked) {
@@ -165,7 +177,11 @@ import { secureStore } from '../../../utils/encryption';
         }
     };
 
-    // Function to validate the inputs
+    /**
+     * @function validateInputs
+     * @description Validates the inputs
+     * @returns {string | null} - The error message or null if the inputs are valid
+     */
     const validateInputs = () => {
         //If the contract number is not filled, we return an error
         if (!contractNumber.trim()) return 'Contract number required';

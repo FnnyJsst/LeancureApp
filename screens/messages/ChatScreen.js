@@ -7,6 +7,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchChannelMessages } from '../../services/messageApi';
 // import { sendNotification } from '../../services/notificationApi';
 
+/**
+ * @component ChatScreen
+ * @description Displays the chat screen
+ * @param {Function} onNavigate - A function to navigate to a screen
+ * @param {boolean} isExpanded - A boolean to indicate if the menu is expanded
+ * @param {Function} setIsExpanded - A function to set the isExpanded state
+ * @returns {JSX.Element} - A JSX element
+ * 
+ * @example
+ * <ChatScreen onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
+ */
 export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
 
   // States related to the chat
@@ -17,12 +28,19 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
   const [channelMessages, setChannelMessages] = useState([]);
   const [unreadChannels, setUnreadChannels] = useState({});
 
-  // Toggle the menu
+  /**
+   * @function toggleMenu
+   * @description Toggles the menu
+   */
   const toggleMenu = () => {
     setIsExpanded(!isExpanded);
   };
 
-  // Handle the channel selection
+  /**
+   * @function handleChannelSelect
+   * @description Handles the channel selection
+   * @param {Object} channel - The channel to select
+   */
   const handleChannelSelect = (channel) => {
     // Réinitialiser les messages avant de changer de canal
     setChannelMessages([]);
@@ -32,7 +50,11 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
     }
   };
 
-  // Handle the new message
+  /**
+   * @function handleNewMessage
+   * @description Handles the new message sent by the user
+   * @param {string} message - The message to handle
+   */
   const handleNewMessage = async (message) => {
     try {
       // Get the credentials from the async storage
@@ -81,11 +103,20 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
     }
   };
 
-  // Handle the input focus change, so we can mark all the messages as read as soon as we use the chat input
+  /**
+   * @function handleInputFocusChange
+   * @description Handles the input focus change, so we can mark all the messages as read as soon as we use the chat input
+   * @param {boolean} isFocused - A boolean to indicate if the input is focused
+   */
   const handleInputFocusChange = async (isFocused) => {
     setIsInputFocused(isFocused);
   };
 
+  /**
+   * @function fetchMessages
+   * @description Fetches the messages from the API
+   * @returns {Promise<Array>} - The messages
+   */
   const fetchMessages = async () => {
     try {
       const credentialsStr = await AsyncStorage.getItem('userCredentials');

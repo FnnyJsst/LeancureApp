@@ -7,8 +7,18 @@ import AppMenuCard from '../../components/cards/AppMenuCard';
 import { Ionicons } from '@expo/vector-icons';
 import GradientBackground from '../../components/backgrounds/GradientBackground';
 
+/**
+ * AppMenu Component
+ * Displays the app menu
+ * 
+ * @param {Function} onNavigate - A function to navigate to a screen
+ * @returns {JSX.Element} - A JSX element
+ * 
+ * @example
+ * <AppMenu onNavigate={(screen) => navigate(screen)} />
+ */
 export default function AppMenu({ onNavigate }) {
-  const { isLandscape, isSmartphone, isSmartphoneLandscape } = useDeviceType();
+  const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
 
   return (
     <>    

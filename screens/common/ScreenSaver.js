@@ -3,8 +3,14 @@ import { View, Image, StyleSheet, StatusBar } from 'react-native';
 import { COLORS } from '../../constants/style';  
 
 /**
- * Screen displayed when the app is launched
- **/
+ * @component ScreenSaver
+ * @description Displays the screen saver
+ * 
+ * @returns {JSX.Element} - A JSX element
+ * 
+ * @example
+ * <ScreenSaver />
+ */
 export default function ScreenSaver() {
   return (
     <View style={styles.splashContainer}>

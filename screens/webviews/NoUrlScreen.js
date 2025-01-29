@@ -1,14 +1,19 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import ParameterButton from '../../components/buttons/ParameterButton';
 import { Ionicons } from '@expo/vector-icons';
-import Header from '../../components/Header';
 import { SIZES, COLORS } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SCREENS } from '../../constants/screens';
 
 /**
- * Screen displayed when the user hasn't imported any channels
- **/
+ * @component NoUrlScreen
+ * @description Screen displayed when the user hasn't imported any channels
+ * @param {Function} onNavigate - A function to navigate to a screen
+ * @param {Function} handleSettingsAccess - A function to handle the settings access
+ * @returns {JSX.Element} - A JSX element
+ * @example
+ * <NoUrlScreen onNavigate={(screen) => navigate(screen)} handleSettingsAccess={handleSettingsAccess} />
+ */
 export default function NoUrlScreen({ 
   onNavigate, 
   handleSettingsAccess
@@ -17,7 +22,10 @@ export default function NoUrlScreen({
   // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
 
-  // Function to handle the back button press
+  /**
+   * @function handleBackPress
+   * @description Handles the back button press
+   */
   const handleBackPress = () => {
     onNavigate(SCREENS.APP_MENU);
   };

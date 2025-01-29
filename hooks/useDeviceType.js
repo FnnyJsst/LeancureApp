@@ -1,5 +1,12 @@
 import { useWindowDimensions, PixelRatio } from 'react-native';
 
+/**
+ * Custom hook to determine the device type and orientation
+ * @returns {Object} - An object containing the device type and orientation
+ * 
+ * @example
+ * const { isTablet, isSmartphone, isLandscape, isSmartphoneLandscape, isSmartphonePortrait } = useDeviceType();
+ */
 export const useDeviceType = () => {
   const { width, height } = useWindowDimensions();
   const pixelDensity = PixelRatio.get();

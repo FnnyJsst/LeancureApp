@@ -4,7 +4,19 @@ import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 
-// Simplified login screen is used when the user has already logged in and checked "Stay connected" on the login screen
+/**
+ * @component SimplifiedLogin
+ * @description Simplified login screen is used when the user has already logged in and checked "Stay connected" on the login screen
+ * 
+ * @param {string} contractNumber - The contract number of the user
+ * @param {Function} onSwitchAccount - A function to switch to another account
+ * @param {Function} handleLogin - A function to handle the login process
+ * @param {boolean} isLoading - A boolean to indicate if the login process is loading
+ * @returns {JSX.Element} - A JSX element
+ * 
+ * @example
+ * <SimplifiedLogin contractNumber={contractNumber} onSwitchAccount={onSwitchAccount} handleLogin={handleLogin} isLoading={isLoading} />
+ */
 export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handleLogin, isLoading }) {
   const { isSmartphone, isLandscape } = useDeviceType();
   

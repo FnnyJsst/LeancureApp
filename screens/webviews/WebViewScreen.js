@@ -2,16 +2,21 @@ import React, { useEffect } from 'react';
 import { View, StyleSheet, Platform, TouchableOpacity, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
-import Header from '../../components/Header';
 import { SCREENS } from '../../constants/screens';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
 
 /**
- * WebView Screen Component
- * Displays a web page when the user has imported a channel
- **/
+ * @component WebViewScreen
+ * @description Displays a web page when the user has imported a channel
+ * @param {string} url - The url of the web page
+ * @param {Function} onNavigate - A function to navigate to a screen
+ * @param {Function} onSettingsAccess - A function to handle the settings access
+ * @returns {JSX.Element} - A JSX element
+ * @example
+ * <WebViewScreen url={url} onNavigate={(screen) => navigate(screen)} onSettingsAccess={onSettingsAccess} />
+ */
 const WebViewScreen = ({ url, onNavigate, onSettingsAccess }) => {
   useEffect(() => {
     // Lock orientation to landscape when entering WebViewScreen

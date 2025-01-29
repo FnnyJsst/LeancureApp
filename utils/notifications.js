@@ -1,7 +1,11 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 
-// Configure notifications
+/**
+ * @function setNotificationHandler
+ * @description Sets the notification handler
+ * @returns {void}
+ */
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -10,7 +14,11 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// Request permissions
+/**
+ * @function registerForPushNotificationsAsync
+ * @description Registers for push notifications
+ * @returns {Promise<string>} - The token
+ */
 export async function registerForPushNotificationsAsync() {
   let token;
 
@@ -38,7 +46,12 @@ export async function registerForPushNotificationsAsync() {
   return token;
 }
 
-// Send a local notification
+  /**
+ * @function sendNotification
+ * @description Sends a local notification
+ * @param {Object} props - The properties of the notification
+ * @returns {void}
+ */
 export async function sendNotification({ title, body, data = {} }) {
   await Notifications.scheduleNotificationAsync({
     content: {

@@ -8,6 +8,15 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 
+/**
+ * @component AccountScreen
+ * @description Displays the account screen
+ * @param {Function} onNavigate - A function to navigate to a screen
+ * @returns {JSX.Element} - A JSX element
+ * 
+ * @example
+ * <AccountScreen onNavigate={(screen) => navigate(screen)} />
+ */
 export default function AccountScreen({ onNavigate }) {
   
   // Customized hook to determine the device type and orientation

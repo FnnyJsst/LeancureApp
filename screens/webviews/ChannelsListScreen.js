@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import Header from '../../components/Header';
 import { useDeviceType } from '../../hooks/useDeviceType'; 
 import { COLORS, SIZES } from '../../constants/style';
 import Button from '../../components/buttons/Button';
 import CheckBox from '../../components/inputs/CheckBox';
 import { Ionicons } from '@expo/vector-icons';
 
-// This screen displays the list of channels available for the user to import
+/**
+ * @component ChannelsListScreen
+ * @description This screen displays the list of channels available for the user to import
+ * @param {Array} channels - The list of channels
+ * @param {Array} selectedChannels - The list of selected channels
+ * @param {Function} onBack - A function to navigate to a screen
+ * @param {Function} onBackPress - A function to navigate to a screen
+ * @returns {JSX.Element} - A JSX element
+ * 
+ * @example
+ * <ChannelsListScreen channels={channels} selectedChannels={selectedChannels} onBack={onBack} onBackPress={onBackPress} />
+ */
 export default function ChannelsListScreen({ channels, selectedChannels, onBack, onBackPress }) {
 
   // Customized hook to determine the device type and orientation
@@ -17,7 +27,10 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
   const [localSelectedChannels, setLocalSelectedChannels] = useState([]);
   const [availableChannels, setAvailableChannels] = useState([]);
 
-  //useEffect to filter the channels that are not already selected to display them in the list
+  /**
+   * @function useEffect
+   * @description Filters the channels that are not already selected to display them in the list
+   */
   useEffect(() => {
     // Filter the channels that are not already selected
     const filteredChannels = channels.filter(newChannel => 
@@ -32,7 +45,11 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
     setAvailableChannels(filteredChannels);
   }, [channels, selectedChannels]);
 
-  // Function to toggle the channel selection
+  /**
+   * @function toggleChannelSelection
+   * @description Toggles the channel selection
+   * @param {Object} channel - The channel to toggle
+   */
   const toggleChannelSelection = (channel) => {
     // Set the local selected channels
     setLocalSelectedChannels(prevSelected => {
@@ -47,7 +64,10 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
     });
   };
 
-  // Function to handle the import of the channels
+  /**
+   * @function handleImportChannels
+   * @description Handles the import of the channels
+   */
   const handleImportChannels = () => {
     // Check if the local selected channels are not empty
     if (localSelectedChannels.length > 0) {

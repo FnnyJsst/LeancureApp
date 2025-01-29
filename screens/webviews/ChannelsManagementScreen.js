@@ -13,10 +13,21 @@ import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import Entypo from '@expo/vector-icons/Entypo';
 
-/**
- * Channel Management Screen Component
- * Allows displaying, editing, deleting and reordering channels
- **/
+/** 
+ * @component ChannelsManagementScreen
+ * @description Allows displaying, editing, deleting and reordering channels
+ * @param {Function} onNavigate - A function to navigate to a screen
+ * @param {Array} selectedChannels - The list of selected channels
+ * @param {Function} setSelectedChannels - A function to set the selected channels
+ * @param {Function} saveSelectedChannels - A function to save the selected channels
+ * @param {boolean} isReadOnly - A boolean to indicate if the user is read only
+ * @param {Function} onNavigateToWebView - A function to navigate to a webview
+ * @param {Function} onImport - A function to import channels
+ * @returns {JSX.Element} - A JSX element
+ * 
+ * @example
+ * <ChannelsManagementScreen onNavigate={(screen) => navigate(screen)} selectedChannels={selectedChannels} setSelectedChannels={setSelectedChannels} saveSelectedChannels={saveSelectedChannels} isReadOnly={isReadOnly} onNavigateToWebView={onNavigateToWebView} onImport={onImport} />
+ */
 export default function ChannelsManagementScreen({ 
   onNavigate,
   selectedChannels, 
@@ -46,29 +57,59 @@ export default function ChannelsManagementScreen({
   
 
   /////MODAL HANDLERS/////
-  // Open and close the import modal    
+  /**
+   * @function openImportModal
+   * @description Opens the import modal
+   */
   const openImportModal = () => setImportModalVisible(true);
+
+  /**
+   * @function closeImportModal
+   * @description Closes the import modal
+   */
   const closeImportModal = () => setImportModalVisible(false);
 
-  // Open and close the edit modal
+  /**
+   * @function openEditModal
+   * @description Opens the edit modal
+   * @param {Object} channel - The channel to edit
+   */
   const openEditModal = (channel) => {
     setChannelToEdit(channel);
     setEditModalVisible(true);
   };
+
+  /**
+   * @function closeEditModal
+   * @description Closes the edit modal
+   */
   const closeEditModal = () => {
     setEditModalVisible(false);
     setChannelToEdit(null);
   };
 
-  // Open and close the delete modal
+  /**
+   * @function openDeleteModal
+   * @description Opens the delete modal
+   * @param {Object} channel - The channel to delete
+   */
   const openDeleteModal = (channel) => {
     setChannelToDelete(channel);
     setDeleteModalVisible(true);
   };
+
+  /**
+   * @function closeDeleteModal
+   * @description Closes the delete modal
+   */
   const closeDeleteModal = () => setDeleteModalVisible(false);
 
   /////CHANNEL OPERATIONS/////
-  // Delete a channel from the list
+  /**
+   * @function handleDeleteChannel
+   * @description Deletes a channel from the list
+   * @param {Object} channelToDelete - The channel to delete
+   */
   const handleDeleteChannel = (channelToDelete) => {
     // Check if the channel to delete is not null
     if (channelToDelete) {
@@ -92,7 +133,11 @@ export default function ChannelsManagementScreen({
     }
   };
 
-  // Move a channel up
+  /**
+   * @function moveChannelUp
+   * @description Moves a channel up
+   * @param {number} index - The index of the channel to move up
+   */
   const moveChannelUp = (index) => {
     // Check if we are not at the first channel
     if (index > 0) {
@@ -108,7 +153,11 @@ export default function ChannelsManagementScreen({
     }
   };
 
-  // Move a channel down
+  /**
+   * @function moveChannelDown
+   * @description Moves a channel down
+   * @param {number} index - The index of the channel to move down
+   */
   const moveChannelDown = (index) => {
     // Check if we are not at the last channel
     if (index < selectedChannels.length - 1) {
@@ -125,7 +174,13 @@ export default function ChannelsManagementScreen({
     }
   };
 
-  // Edit a channel
+  /**
+   * @function handleEditChannel
+   * @description Edits a channel
+   * @param {Object} oldChannel - The old channel
+   * @param {string} newUrl - The new url
+   * @param {string} newTitle - The new title
+   */
   const handleEditChannel = async (oldChannel, newUrl, newTitle) => {
     // Create a copy of the selected channels
     const updatedChannels = selectedChannels.map(channel => {

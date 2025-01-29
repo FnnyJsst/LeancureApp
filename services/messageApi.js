@@ -2,7 +2,17 @@ import axios from 'axios';
 
 const API_URL = 'http://192.168.1.67/ic.php';
 
-//This API is used to fetch the user's channels
+/**
+ * @function fetchUserChannels
+ * @description Fetches the user's channels
+ * @param {string} contractNumber - The contract number
+ * @param {string} login - The login
+ * @param {string} password - The password
+ * @param {string} email - The email
+ * @param {string} nom - The nom
+ * @param {string} prenom - The prenom
+ * @returns {Promise<Object>} - The user's channels
+ */
 export const fetchUserChannels = async (contractNumber, login, password, email, nom, prenom) => {
   const timestamp = Date.now();
   
@@ -89,7 +99,7 @@ export const fetchUserChannels = async (contractNumber, login, password, email, 
         }))
       }));
 
-      console.log('✅ Formatted data:', { publicChannels, privateGroups });
+      // console.log('✅ Formatted data:', { publicChannels, privateGroups });
       // Return the formatted data
       return {
         status: 'ok',
@@ -98,14 +108,14 @@ export const fetchUserChannels = async (contractNumber, login, password, email, 
       };
       // If status is not ok, return an error
     } else {
-      console.error('❌ Error in the response:', cleanData);
+      // console.error('❌ Error in the response:', cleanData);
       return {
         status: 'error',
         error: cleanData.error || 'Error while fetching data'
       };
     }
   } catch (error) {
-    console.error("API error:", error);
+    // console.error("API error:", error);
     return {
       status: 'error',
       error: error.message || 'Error while fetching data'
@@ -113,7 +123,12 @@ export const fetchUserChannels = async (contractNumber, login, password, email, 
   }
 };
 
-//Format the messages data to be used in the UI
+/**
+ * @function formatMessages
+ * @description Formats the messages data to be used in the UI
+ * @param {Object} messages - The messages
+ * @returns {Array} - The formatted messages
+ */
 const formatMessages = (messages) => {
   // If messages is not found, return an empty array
   if (!messages) return [];
@@ -129,11 +144,18 @@ const formatMessages = (messages) => {
   }));
 };
 
-//Function used to login to the API
+/**
+ * @function loginApi
+ * @description Logs in to the API
+ * @param {string} contractNumber - The contract number
+ * @param {string} login - The login
+ * @param {string} password - The password
+ * @returns {Promise<Object>} - The login data
+ */
 export const loginApi = async (contractNumber, login, password) => {
   try {
     const timestamp = Date.now();
-    console.log('🔄 Start of loginApi...', { contractNumber, login });
+    // console.log('🔄 Start of loginApi...', { contractNumber, login });
     
     const body = {
       "api-version": "2",
@@ -155,16 +177,16 @@ export const loginApi = async (contractNumber, login, password) => {
       }]
     };
     // Log the request body
-    console.log('📤 Sending login request with:', JSON.stringify(body, null, 2));
+    // console.log('📤 Sending login request with:', JSON.stringify(body, null, 2));
     // Send the request
     const response = await axios.post(API_URL, body);
     // Log the response
-    console.log('📥 Raw response:', {
-      data: response.data,
-      status: response.status,
-      headers: response.headers,
-      type: typeof response.data
-    });
+    // console.log('📥 Raw response:', {
+    //   data: response.data,
+    //   status: response.status,
+    //   headers: response.headers,
+    //   type: typeof response.data
+    // });
 
     // If the response is a string
     let cleanData = response.data;
@@ -175,12 +197,12 @@ export const loginApi = async (contractNumber, login, password) => {
         try {
           // Extract the JSON part after the SQL request
           const jsonStr = response.data.substring(sqlEnd);
-          console.log('📝 Extracted JSON:', jsonStr);
+          // console.log('📝 Extracted JSON:', jsonStr);
           // Parse the JSON
           cleanData = JSON.parse(jsonStr);
-          console.log('✨ Parsed JSON:', cleanData);
+          // console.log('✨ Parsed JSON:', cleanData);
         } catch (e) {
-          console.error('❌ Error parsing JSON:', e);
+          // console.error('❌ Error parsing JSON:', e);
           throw e;
         }
       }
@@ -188,25 +210,32 @@ export const loginApi = async (contractNumber, login, password) => {
 
     // Check the status
     if (cleanData.status === 'error') {
-      console.error('❌ Login error:', cleanData.error);
+      // console.error('❌ Login error:', cleanData.error);
       throw new Error(cleanData.error || 'Login failed');
     }
 
-    console.log('✅ Login successful:', cleanData);
+    // console.log('✅ Login successful:', cleanData);
     // Return the login data
     return cleanData;
   } catch (error) {
-    console.error('🔴 Login error:', error);
+    // console.error('🔴 Login error:', error);
     throw error;
   }
 };
 
-//Function used to send a message to the API
+/**
+ * @function sendMessageApi
+ * @description Sends a message to the API
+ * @param {string} channelId - The channel ID
+ * @param {string} messageContent - The message content
+ * @param {Object} userCredentials - The user credentials
+ * @returns {Promise<Object>} - The message data
+ */
 export const sendMessageApi = async (channelId, messageContent, userCredentials) => {
   try {
     const timestamp = Date.now();
     
-    // Vérifier si messageContent est un objet fichier ou un texte simple
+    // Check if messageContent is a file or a simple text
     const isFile = typeof messageContent === 'object' && messageContent.base64;
     
     const data = {
@@ -264,11 +293,18 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     };
 
   } catch (error) {
-    console.error('🔴 Error sending message:', error);
+    // console.error('🔴 Error sending message:', error);
     throw error;
   }
 };
 
+/**
+ * @function fetchChannelMessages
+ * @description Fetches the messages of a channel
+ * @param {string} channelId - The channel ID
+ * @param {Object} userCredentials - The user credentials
+ * @returns {Promise<Array>} - The messages
+ */
 export const fetchChannelMessages = async (channelId, userCredentials) => {
   try {
     const timestamp = Date.now();
@@ -357,7 +393,7 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
     return channelMessages;
 
   } catch (error) {
-    console.error('🔴 Detailed error:', error);
+    // console.error('🔴 Detailed error:', error);
     return [];
   }
 };
