@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Platform, Text } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 
-// FilePreview is used to display the file information in the input of the chat
+/**
+ * @component FilePreview
+ * @description A component that renders the file information in the input of the chat
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {Object} props.file - The file to display
+ * @param {Function} props.onRemove - The function to call when the file is removed
+ * 
+ * @example
+ * <FilePreview file={file} onRemove={() => console.log('File removed')} />
+ */
+
 const  FilePreview = ({ file, onRemove }) => {
   return (
     <View style={styles.previewContainer}>
@@ -36,7 +47,17 @@ const  FilePreview = ({ file, onRemove }) => {
   );
 };
 
-// InputChatWindow is used to send a message in the chat
+/**
+ * @component InputChatWindow 
+ * @description A component that renders the input of the chat
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {Function} props.onSendMessage - The function to call when the message is sent
+ * @param {Function} props.onFocusChange - The function to call when the input is focused
+ * 
+ * @example
+ * <InputChatWindow onSendMessage={() => console.log('Message sent')} onFocusChange={() => console.log('Input focused')} />
+ */
 export default function InputChatWindow({ onSendMessage, onFocusChange }) {
 
   // State to store the message

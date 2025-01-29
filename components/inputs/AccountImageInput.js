@@ -5,6 +5,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
+/**
+ * @component AccountImageInput
+ * @description A component that renders an image input for the account screen
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {Function} props.onImageSelected - The function to call when the image is selected
+ * 
+ * @example
+ * <AccountImageInput onImageSelected={() => console.log('Image selected')} />
+ */
+
 export default function AccountImageInput({ onImageSelected }) {
   const [image, setImage] = useState(null);
 
