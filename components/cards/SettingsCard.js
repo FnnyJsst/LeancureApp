@@ -2,7 +2,19 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 
-// SettingsCard is used in the different settings screens
+/**
+ * @component SettingsCard
+ * @description A component that renders the cards used in the settings screen
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {ReactNode} props.icon - The icon of the card
+ * @param {string} props.title - The title of the card
+ * @param {string} props.description - The description of the card
+ * @param {Function} props.onPress - The function to call when the card is pressed
+ * 
+ * @example
+ * <SettingsCard icon={<Ionicons name="home" size={24} color="white" />} title="Home" description="Home description" onPress={() => console.log('Card pressed')} />
+ */
 export default function SettingsCard({ icon, title, description, onPress }) {
 
   // Customized hook to determine the device type and orientation
