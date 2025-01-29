@@ -1,7 +1,21 @@
 import { StyleSheet, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-// Gradient background for the app
+/**
+ *@component GradientBackground
+ *@description A component that renders a gradient background for the app
+ *
+ *@param {ReactNode} props.children - The children to render inside the gradient background
+ *@param {boolean} [props.withStatusBar = false] - Whether to include a status bar in the background
+ *@param {StyleSheet.NamedStyles<any>} [props.style] - The style to apply to the gradient background
+ *@param {Object} [props.style] - Additional styles to apply to the gradient background
+ *
+ *@example
+ *<GradientBackground>
+ *  <Text>Welcome to the app</Text>
+ *</GradientBackground>
+ */
+
 export default function GradientBackground({ children, withStatusBar = false, style }) {
   return (
     <LinearGradient

@@ -14,7 +14,17 @@ import GradientBackground from '../../../components/backgrounds/GradientBackgrou
 import { hashPassword } from '../../../utils/encryption';
 import { secureStore } from '../../../utils/encryption';
 
-export default function Login({ onNavigate }) {
+/**
+ * @component Login
+ * @description Component to handle the login process and the persistence of the login data 
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {Function} props.onNavigate - Function to navigate between screens
+ * 
+ * @example
+ * <Login onNavigate={(screen) => navigate(screen)} />
+ */
+    export default function Login({ onNavigate }) {
 
     // Customized hook to determine the device type and orientation
     const { isSmartphone, isTablet, isSmartphoneLandscape, isLandscape } = useDeviceType();
@@ -29,7 +39,7 @@ export default function Login({ onNavigate }) {
     const [isSimplifiedLogin, setIsSimplifiedLogin] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-    // Déplacer loadLoginInfo ici, avant useEffect
+    // Function to load the login info from Secure store
     const loadLoginInfo = async () => {
         try {
             const savedInfo = await SecureStore.getItemAsync('savedLoginInfo');
@@ -84,12 +94,14 @@ export default function Login({ onNavigate }) {
 
     // Function to handle the login process
     const handleLogin = async () => {
+        // We validate the inputs
         const validationError = validateInputs();
         if (validationError) {
             setError(validationError);
             return;
         }
 
+        // We set the loading state to true
         setIsLoading(true);
         setError('');
 
@@ -102,6 +114,7 @@ export default function Login({ onNavigate }) {
                 if (!isChecked) {
                     await SecureStore.deleteItemAsync('savedLoginInfo');
                     setIsSimplifiedLogin(false);
+                // If the "Stay connected" checkbox is checked, we save the login info in Secure store
                 } else {
                     await saveLoginInfo();
                 }
@@ -115,19 +128,19 @@ export default function Login({ onNavigate }) {
 
                 // Load the channels immediately after login
                 const channelsResponse = await fetchUserChannels(contractNumber, login, password);
-                console.log('📊 Canaux chargés:', channelsResponse);
+                console.log('📊 Loading channels...');
 
                 if (channelsResponse.status === 'ok') {
                     onNavigate(SCREENS.CHAT);
                 } else {
-                    setError('Erreur lors du chargement des canaux');
+                    setError('Error loading channels');
                 }
             } else {
-                setError(loginResponse.error || 'Identifiants incorrects');
+                setError(loginResponse.error || 'Invalid credentials');
             }
         } catch (error) {
-            console.error('🔴 Erreur de connexion:', error);
-            setError('Erreur de connexion au serveur');
+            console.error('🔴 Connection error:', error);
+            setError('Connection error to the server');
         } finally {
             setIsLoading(false);
         }
@@ -152,23 +165,13 @@ export default function Login({ onNavigate }) {
         }
     };
 
-    const handleLogout = async () => {
-        try {
-            await secureStore.deleteCredentials();
-            // Nettoyer les états
-            setPassword('');
-            setLogin('');
-            setContractNumber('');
-            // Rediriger vers login
-            onNavigate(SCREENS.LOGIN);
-        } catch (error) {
-            console.error('Erreur lors de la déconnexion:', error);
-        }
-    };
-
+    // Function to validate the inputs
     const validateInputs = () => {
+        //If the contract number is not filled, we return an error
         if (!contractNumber.trim()) return 'Contract number required';
+        //If the login is not filled, we return an error
         if (!login.trim()) return 'Login required';
+        //If the password is less than 8 characters, we return an error
         if (password.length < 8) return 'Password must be at least 8 characters';
         return null;
     };

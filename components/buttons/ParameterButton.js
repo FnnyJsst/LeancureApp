@@ -4,6 +4,16 @@ import { useState } from 'react';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS } from '../../constants/style';
 
+/**
+ * @component ParameterButton
+ * @description A component that renders a button used to access the parameters screen
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {Function} props.onPress - The function to call when the button is pressed
+ * 
+ * @example
+ * <ParameterButton onPress={() => console.log('Button pressed')} />
+ */
 export default function ParameterButton({ onPress }) {
 
   // Customized hook to determine the device type and orientation

@@ -15,12 +15,12 @@ import ChatScreen from './screens/messages/ChatScreen';
 import SettingsMessage from './screens/messages/SettingsMessage';
 import AccountScreen from './screens/messages/AccountScreen';
 import { SCREENS } from './constants/screens';
-import { COLORS } from './constants/style';
 import { useNavigation } from './hooks/useNavigation';
 import { registerForPushNotificationsAsync } from './utils/notifications';
 import * as Notifications from 'expo-notifications';
 import SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
+
 
 export default function App() {
 
