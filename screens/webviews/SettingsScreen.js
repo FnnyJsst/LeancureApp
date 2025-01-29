@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Header from '../../components/Header';
-import TitleSettings from '../../components/text/TitleSettings';
 import SettingsCard from '../../components/cards/SettingsCard';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnly from '../../components/modals/webviews/ReadOnly';

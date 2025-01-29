@@ -7,9 +7,25 @@ import { fetchUserChannels } from '../../services/messageApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SCREENS } from '../../constants/screens';
 import AccountImage from '../../components/AccountImage';
-import { secureStore } from '../../utils/encryption';
 
-// Sidebar menu component
+/**
+ * @component Sidebar
+ * @description A component that renders the sidebar menu
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {Function} props.onChannelSelect - The function to call when a channel is selected
+ * @param {Object} props.selectedGroup - The selected group
+ * @param {Function} props.onGroupSelect - The function to call when a group is selected
+ * @param {boolean} props.isExpanded - Whether the sidebar is expanded
+ * @param {Function} props.toggleMenu - The function to call when the menu is toggled
+ * @param {Function} props.onNavigate - The function to call when the user navigates
+ * @param {string} props.currentSection - The current section
+ * @param {Object} props.unreadChannels - The unread channels
+ * @param {Function} props.onLogout - The function to call when the user logs out
+ * 
+ * @example
+ * <Sidebar onChannelSelect={() => console.log('Channel selected')} selectedGroup={selectedGroup} onGroupSelect={() => console.log('Group selected')} isExpanded={isExpanded} toggleMenu={() => console.log('Menu toggled')} onNavigate={() => console.log('Navigated')} currentSection="settings" unreadChannels={unreadChannels} onLogout={() => console.log('Logged out')} />
+ */
 export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu, onNavigate, currentSection, unreadChannels, onLogout }) {
   const [channels, setChannels] = useState([]);
   const [groups, setGroups] = useState([]);
@@ -20,15 +36,24 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
   // Get the device type
   const { isSmartphone } = useDeviceType();
   
-  // Animation for the sidebar
+  /**
+   * @function slideAnim
+   * @description A function to animate the sidebar
+   */
   const slideAnim = useRef(new Animated.Value(
     isSmartphone ? -500 : -300
   )).current;
 
-  // Animation for the overlay
+  /**
+   * @function fadeAnim
+   * @description A function to animate the overlay
+   */
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  // Animation for the sidebar
+  /**
+   * @function useEffect
+   * @description A function to animate the sidebar and the overlay
+   */
   useEffect(() => {
     Animated.parallel([
       Animated.timing(slideAnim, {
@@ -44,7 +69,10 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     ]).start();
   }, [isExpanded, isSmartphone]);
 
-  // Load the channels and groups
+  /**
+   * @function useEffect
+   * @description A function to load the channels and groups
+   */
   useEffect(() => {
     const loadChannels = async () => {
       try {
@@ -74,7 +102,10 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     loadChannels();
   }, []);
 
-  // Filtrer les channels en fonction de la recherche
+  /**
+   * @function filteredGroups
+   * @description A function to filter the groups
+   */
   const filteredGroups = groups.map(group => ({
     ...group,
     channels: group.channels?.filter(channel => 
@@ -82,7 +113,10 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     )
   })).filter(group => group.channels?.length > 0);
 
-  // Function to handle the click on the Groups button
+  /**
+   * @function handleGroupsClick
+   * @description A function to handle the click on the Groups button
+   */
   const handleGroupsClick = () => {
     if (currentSection === 'settings') {
       onNavigate(SCREENS.CHAT); // Go back to chat
@@ -92,7 +126,10 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     setShowGroups(!showGroups);
   };
 
-  // Function to handle the click on Settings
+  /**
+   * @function handleSettingsClick
+   * @description A function to handle the click on Settings
+   */
   const handleSettingsClick = () => {
     if (showGroups) {
       setShowGroups(false); // Close groups if open

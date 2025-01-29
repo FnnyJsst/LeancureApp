@@ -2,6 +2,13 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 
+/**
+ * @component TitleModal
+ * @description A component that renders a title for a modal
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {string} props.title - The title of the modal
+ */
 export default function TitleModal({ title }) {
 
   // Get device type

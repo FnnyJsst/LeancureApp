@@ -42,9 +42,14 @@ export const secureStore = {
         await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
     },
 
+    /**
+     * Get credentials from secure storage
+     * @returns {object} - The credentials
+     */
     async getCredentials() {
         try {
             const credentials = await SecureStore.getItemAsync('userCredentials');
+
             return credentials ? JSON.parse(credentials) : null;
         } catch (error) {
             console.error('Error retrieving credentials:', error);
@@ -52,9 +57,13 @@ export const secureStore = {
         }
     },
 
+    /**
+     * Delete credentials from secure storage
+     */
     async deleteCredentials() {
         try {
             await SecureStore.deleteItemAsync('userCredentials');
+
         } catch (error) {
             console.error('Error deleting credentials:', error);
         }
