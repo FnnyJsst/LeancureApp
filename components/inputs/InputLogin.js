@@ -4,6 +4,21 @@ import { COLORS, SIZES } from '../constants/style';
 import { Ionicons, FontAwesome, MaterialIcons, Feather } from '@expo/vector-icons';
 import { useDeviceType } from '../hooks/useDeviceType';
 
+/**
+ * @component InputLogin
+ * @description A component that renders an input for the login screen
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {string} props.placeholder - The placeholder of the input
+ * @param {string} props.value - The value of the input
+ * @param {Function} props.onChangeText - The function to call when the input changes
+ * @param {boolean} props.secureTextEntry - Whether the input is secure
+ * @param {string} props.iconName - The name of the icon to display in the input
+ * @param {string} props.iconLibrary - The library to use for the icon
+ * 
+ * @example
+ * <InputLogin placeholder="Placeholder" value="Value" onChangeText={() => console.log('Input changed')} secureTextEntry={true} iconName="iconName" iconLibrary="Ionicons" />
+ */
 export default function InputLogin({ 
     placeholder, 
     value, 
@@ -12,10 +27,19 @@ export default function InputLogin({
     iconName,
     iconLibrary = 'Ionicons' 
 }) {
+
+    // Get device type
     const { isSmartphone } = useDeviceType();
+
+    // State management
     const [showPassword, setShowPassword] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
 
+    /**
+     * @function renderIcon
+     * @description A function to render the icon
+     * @returns {React.ReactNode} The icon
+     */
     const renderIcon = () => {
         const iconProps = {
             name: iconName,

@@ -2,20 +2,37 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons, Entypo } from '@expo/vector-icons';
 import { useDeviceType } from '../hooks/useDeviceType';
 import { COLORS, SIZES } from '../constants/style';
-import AccountImage from './AccountImage';
 
+/**
+ * @component Header
+ * @description A component that renders a header
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {string} props.title - The title of the header
+ * @param {Function} props.onBackPress - The function to call when the back button is pressed
+ * @param {string} props.rightIcon - The icon to display on the right side of the header
+ * @param {Function} props.onRightIconPress - The function to call when the right icon is pressed
+ * @param {boolean} props.showIcons - Whether to show the icons
+ * @param {boolean} props.showMenuIcon - Whether to show the menu icon
+ * @param {boolean} props.showBackButton - Whether to show the back button
+ * @param {Function} props.toggleMenu - The function to call when the menu is toggled
+ * @param {boolean} props.transparent - Whether to make the header transparent
+ * @param {string} props.currentSection - The current section of the app
+ * @param {boolean} props.showBell - Whether to show the bell icon
+ * @param {Function} props.onBellPress - The function to call when the bell icon is pressed
+ * 
+ * @example
+ * <Header title="Title" onBackPress={() => console.log('Back button pressed')} rightIcon="bell" onRightIconPress={() => console.log('Right icon pressed')} showIcons={true} showMenuIcon={true} showBackButton={true} toggleMenu={() => console.log('Menu toggled')} transparent={false} currentSection="chat" showBell={false} onBellPress={() => console.log('Bell pressed')} />
+ */
 export default function Header({ 
   title, 
   onBackPress, 
   rightIcon,
   onRightIconPress,
-  showAccountImage,
-  onNavigate,
   showIcons = true,
   showMenuIcon,
   showBackButton = true,
   toggleMenu,
-  noBorder,
   transparent,
   currentSection,
   showBell = false,

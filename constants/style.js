@@ -1,6 +1,7 @@
 /**
- * Constants for the font sizes, border radius, colors  and heights
- **/
+ * @constant SIZES
+ * @description A constant that contains the sizes of the app
+ */
 export const SIZES = {
   fonts: {
     errorText: 12,

@@ -5,6 +5,21 @@ import TitleModal from './text/TitleModal';
 import { useDeviceType } from '../hooks/useDeviceType';
 import { SIZES,COLORS } from '../constants/style';
 
+/**
+ * @component CustomAlert
+ * @description A component that renders a custom alert
+ * 
+ * @param {Object} props - The properties of the component
+ * @param {boolean} props.visible - Whether the alert is visible
+ * @param {string} props.title - The title of the alert
+ * @param {string} props.message - The message of the alert
+ * @param {Function} props.onClose - The function to call when the alert is closed
+ * @param {Function} props.onConfirm - The function to call when the alert is confirmed
+ * @param {string} props.type - The type of the alert
+ * 
+ * @example
+ * <CustomAlert visible={true} title="Alert" message="This is an alert" onClose={() => console.log('Alert closed')} onConfirm={() => console.log('Alert confirmed')} type="error" />  
+ */
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error' }) {
   const { isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
 
