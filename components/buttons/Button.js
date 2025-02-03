@@ -36,7 +36,8 @@ export default function Button({
       style={[
         styles.button,
         // If the button is large, we use the buttonLarge style
-        variant === 'large' && styles.buttonLarge,
+        variant === 'large' && styles.buttonLarge, 
+        variant === 'largeTablet' && styles.buttonLargeTablet,
         { backgroundColor, width },
         isSmartphone && styles.buttonSmartphone,
         isSmartphoneLandscape && styles.buttonSmartphoneLandscape,
@@ -69,12 +70,16 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.medium,
   },
   buttonLarge: {
-    height: 45,
+    height: 60,
     paddingVertical: 15,
     paddingHorizontal: 24,
     marginVertical: 10,
     backgroundColor: 'transparent',
     borderRadius: SIZES.borderRadius.xLarge,
+  },
+  buttonLargeTablet: {
+    height: 60,
+    paddingVertical: 12,
   },
   buttonSmartphone: {
     marginTop: 10,

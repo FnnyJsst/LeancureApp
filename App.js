@@ -41,7 +41,8 @@ export default function App() {
   const [passwordCheckModalVisible, setPasswordCheckModalVisible] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [currentScreen, setCurrentScreen] = useState(SCREENS.APP_MENU);
-  const { navigate, goBack } = useNavigation(setCurrentScreen);
+
+  const { navigate } = useNavigation(setCurrentScreen);
   
   //States related to the chat
   const [isExpanded, setIsExpanded] = useState(false);
@@ -56,8 +57,6 @@ export default function App() {
     setIsReadOnly(value !== undefined ? value : !isReadOnly);
   };
   
-
-  /////FUNCTIONS RELATED TO CHANNELS MANAGEMENT/////
   /**
    * @function handleSelectChannels
    * @description Handles the selection of channels
@@ -117,7 +116,6 @@ export default function App() {
     }
   };
 
-  /////FUNCTIONS RELATED TO REFRESH INTERVAL/////
   /**
    * @function getIntervalInMilliseconds
    * @description Gets the interval in milliseconds
@@ -178,25 +176,20 @@ export default function App() {
    * @returns {void}
    */
   const handleSelectOption = (option) => {
-    console.log('handleSelectOption appelé avec:', option);
     setRefreshOption(option);
     setRefreshInterval(getIntervalInMilliseconds(option));
     saveRefreshOption(option);
   };
 
-  /////FUNCTIONS RELATED TO PASSWORD/////
   /**
    * @function handleSettingsAccess
    * @description Handles the access to the settings
    * @returns {void}
    */
   const handleSettingsAccess = () => {
-    console.log('handleSettingsAccess called');
     if (isPasswordRequired) {
-      console.log('Password is required');
       setPasswordCheckModalVisible(true);
     } else {
-      console.log('Navigating to settings');
       navigate(SCREENS.SETTINGS);
     }
   };
@@ -301,7 +294,6 @@ export default function App() {
    */
   const closePasswordModal = () => setPasswordModalVisible(false);
 
-  /////FUNCTIONS RELATED TO NAVIGATION/////
   /**
    * @function navigateToChannelsList
    * @description Navigates to the channels list screen
@@ -324,7 +316,6 @@ export default function App() {
     navigate('WEBVIEW');
   };
 
-  ///// USE EFFECTS/////
   /**
    * @function useEffect
    * @description Handles the loading of the app
@@ -385,11 +376,7 @@ export default function App() {
     // Register the app for notifications
     registerForPushNotificationsAsync();
 
-    /**
-     * @function useEffect
-     * @description Handles the notification when the app is in the foreground
-     * @returns {void}
-     */
+
     const foregroundSubscription = Notifications.addNotificationReceivedListener(notification => {
       console.log('Notification received in the foreground:', notification);
     });
@@ -471,7 +458,7 @@ export default function App() {
             isReadOnly={isReadOnly}
             toggleReadOnly={toggleReadOnly}
             onNavigate={navigate}
-            onSettingsAccess={handleSettingsAccess}
+            // onSettingsAccess={handleSettingsAccess}
           />
         );
 
@@ -544,13 +531,17 @@ export default function App() {
     }
   };
 
+  /**
+   * @function handleLogout
+   * @description Handles the logout process
+   * @returns {void}
+   */
   const handleLogout = async () => {
     try {
         await SecureStore.deleteItemAsync('savedLoginInfo');
-        // Rediriger vers login
         navigate(SCREENS.LOGIN);
     } catch (error) {
-        console.error('Erreur lors de la déconnexion:', error);
+        throw new Error('Error during logout:', error);
     }
   };
 
@@ -573,7 +564,6 @@ export default function App() {
 
       <Sidebar 
         onLogout={handleLogout}
-        // ... autres props
       />
     </View>
   );

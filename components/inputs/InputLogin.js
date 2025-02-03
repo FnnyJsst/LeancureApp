@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS, SIZES } from '../constants/style';
+import { COLORS, SIZES } from '../../constants/style';
 import { Ionicons, FontAwesome, MaterialIcons, Feather } from '@expo/vector-icons';
-import { useDeviceType } from '../hooks/useDeviceType';
+import { useDeviceType } from '../../hooks/useDeviceType';
 
 /**
  * @component InputLogin

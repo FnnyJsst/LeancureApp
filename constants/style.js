@@ -39,6 +39,9 @@ export const SIZES = {
 export const COLORS = {
   // Brand color
   orange: '#FF6600',
+
+  // Color of the login forms and modals
+  charcoal: '#271E1E',
   
   // Dark grays (from darkest to lightest)
   gray900: '#1a1a1a',      // ancien darkGray - fond principal

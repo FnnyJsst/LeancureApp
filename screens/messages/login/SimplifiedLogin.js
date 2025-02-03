@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import InputLogin from '../../../components/InputLogin';
+import InputLogin from '../../../components/inputs/InputLogin';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';

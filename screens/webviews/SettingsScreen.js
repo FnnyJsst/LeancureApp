@@ -28,7 +28,7 @@ import { SCREENS } from '../../constants/screens';
  */
 export default function SettingsScreen({ 
   onNavigate, 
-  onSettingsAccess, 
+  // onSettingsAccess, 
   selectedChannels, 
   refreshOption,
   handlePasswordSubmit,  
