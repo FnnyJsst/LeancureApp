@@ -202,7 +202,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         >
           <Ionicons 
             name="send-outline" 
-            size={isSmartphone ? 18 : 25} 
+            size={isSmartphone ? 18 : 22} 
             color={(message.trim() || selectedFile) ? COLORS.orange : COLORS.white}
             style={styles.sendIcon}
           />
@@ -223,6 +223,7 @@ const styles = StyleSheet.create({
     borderRadius: 0,
     borderTopWidth: 0.5,
     borderTopColor: '#403430',
+    height: 70,
   },
   smartphoneContainer: {
     height: 60,
@@ -250,7 +251,7 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.small,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    height: 36,
+    height: 40,
     borderWidth: 0.5,
     borderColor: '#403430',
   },
@@ -263,10 +264,11 @@ const styles = StyleSheet.create({
   },
   smartphoneInput: {
     fontSize: SIZES.fonts.textSmartphone,
+    height: 36,
   },
   sendButton: {
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
     backgroundColor: COLORS.gray900,
     borderRadius: SIZES.borderRadius.small,
     alignItems: 'center',

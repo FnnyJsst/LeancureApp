@@ -131,20 +131,20 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
         return !previousMessages.some(prevMsg => prevMsg.id === newMsg.id);
       });
 
-      // If there are new messages and they are not from us
+      // If there are new messages and they are not from us we send a notification
       const newUnreadMessages = newMessages.filter(msg => 
         msg.login !== credentials.login && 
         (msg.message || msg.title)
       );
 
-      if (newUnreadMessages.length > 0) {
-        // Send the notification
-        await sendNotification({
-          title: selectedChannel.title,
-          body: `${newUnreadMessages.length} nouveau(x) message(s)`,
-          data: { channelId: selectedChannel.id }
-        });
-      }
+      // if (newUnreadMessages.length > 0) {
+      //   // Send the notification
+      //   await sendNotification({
+      //     title: selectedChannel.title,
+      //     body: `${newUnreadMessages.length} nouveau(x) message(s)`,
+      //     data: { channelId: selectedChannel.id }
+      //   });
+      // }
 
       // Continue with the normal message processing...
       const updatedMessages = messages.map(msg => {
@@ -161,11 +161,11 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
         msg.isUnread && (msg.message || msg.title)
       );
       
-      console.log('Channel state:', {
-        channelId: selectedChannel.id,
-        hasUnread: hasUnreadMessages,
-        messageCount: updatedMessages.length
-      });
+      // console.log('Channel state:', {
+      //   channelId: selectedChannel.id,
+      //   hasUnread: hasUnreadMessages,
+      //   messageCount: updatedMessages.length
+      // });
       
       setUnreadChannels(prev => ({
         ...prev,
@@ -189,7 +189,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
       fetchMessages();
       
       // Set the interval with a longer delay
-      interval = setInterval(fetchMessages, 5000); // 5 seconds instead of 1
+      interval = setInterval(fetchMessages, 5000); 
     }
 
     return () => {
