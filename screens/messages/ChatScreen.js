@@ -13,12 +13,13 @@ import { sendNotification } from '../../services/notificationApi';
  * @param {Function} onNavigate - A function to navigate to a screen
  * @param {boolean} isExpanded - A boolean to indicate if the menu is expanded
  * @param {Function} setIsExpanded - A function to set the isExpanded state
+ * @param {Function} handleLogout - A function to handle logout
  * @returns {JSX.Element} - A JSX element
  * 
  * @example
- * <ChatScreen onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
+ * <ChatScreen onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} handleLogout={handleLogout} />
  */
-export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
+export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, handleLogout }) {
 
   // States related to the chat
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -223,6 +224,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
         onNavigate={onNavigate}
         currentSection={currentSection}
         unreadChannels={unreadChannels}
+        onLogout={handleLogout}
       />
       <View style={styles.mainContent}>
         <ChatWindow 

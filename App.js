@@ -513,6 +513,7 @@ export default function App() {
             onNavigate={navigate}
             isExpanded={isExpanded}
             setIsExpanded={setIsExpanded}
+            handleLogout={handleLogout}
           />
         );
 
@@ -522,6 +523,7 @@ export default function App() {
             onNavigate={navigate}
             isExpanded={isExpanded}
             setIsExpanded={setIsExpanded}
+            handleLogout={handleLogout}
           />
         );
 

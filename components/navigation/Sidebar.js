@@ -21,7 +21,7 @@ import AccountImage from '../../components/AccountImage';
  * @param {Function} props.onNavigate - The function to call when the user navigates
  * @param {string} props.currentSection - The current section
  * @param {Object} props.unreadChannels - The unread channels
- * @param {Function} props.onLogout - The function to call when the user logs out
+ * @param {Function} props. - The function to call when the user logs out
  * 
  * @example
  * <Sidebar onChannelSelect={() => console.log('Channel selected')} selectedGroup={selectedGroup} onGroupSelect={() => console.log('Group selected')} isExpanded={isExpanded} toggleMenu={() => console.log('Menu toggled')} onNavigate={() => console.log('Navigated')} currentSection="settings" unreadChannels={unreadChannels} onLogout={() => console.log('Logged out')} />

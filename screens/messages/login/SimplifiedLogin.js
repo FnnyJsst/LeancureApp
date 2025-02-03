@@ -60,7 +60,7 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
         style={styles.switchAccountLink}
         onPress={onSwitchAccount}
       >
-        <Text style={styles.switchAccountText}>
+        <Text style={[styles.switchAccountText, isSmartphone && styles.switchAccountTextSmartphone]}>
           Switch account
         </Text>
       </TouchableOpacity>
@@ -112,7 +112,10 @@ const styles = StyleSheet.create({
   },
   switchAccountText: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.textSmartphone,
+    fontSize: SIZES.fonts.textTablet,
     textDecorationLine: 'underline',
+  },
+  switchAccountTextSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
   },
 });

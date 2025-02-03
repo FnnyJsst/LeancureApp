@@ -213,6 +213,7 @@ import { secureStore } from '../../../utils/encryption';
                                     login={login}
                                     onSwitchAccount={() => setIsSimplifiedLogin(false)}
                                     handleLogin={handleLogin}
+                                    isLoading={isLoading}
                                 />
                             ) : (
                                 <>
