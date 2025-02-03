@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
+import { useDeviceType } from '../../hooks/useDeviceType';
 
 /**
  * @component DateBanner
@@ -12,11 +13,15 @@ import { COLORS, SIZES } from '../../constants/style';
  * @example
  * <DateBanner date="2024-01-01" />
  */
-
 export default function DateBanner({ date }) {
+
+  // Hook to determine the device type
+  const { isSmartphone } = useDeviceType();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{date}</Text>
+    <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
+
+      <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>{date}</Text>
     </View>
   );
 }
@@ -30,9 +35,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginVertical: 10,
   },
+  smartphoneContainer: {
+    marginVertical: 5,
+  },
   text: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.errorText,
+    fontSize: SIZES.fonts.errorTextTablet,
     fontWeight: SIZES.fontWeight.medium,
+  },
+  textSmartphone: {
+    fontSize: SIZES.fonts.errorTextSmartphone,
   }
+
 }); 

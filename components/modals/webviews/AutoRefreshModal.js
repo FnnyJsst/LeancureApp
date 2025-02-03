@@ -91,13 +91,13 @@ const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
                 title="Close" 
                 backgroundColor={"#111111"}
                 textColor={COLORS.gray300} 
-                width="22%"
+                width={isSmartphone ? '22%' : '25%'}
                 onPress={onClose} />
               <Button 
                 title="Set" 
                 backgroundColor={COLORS.orange}
                 color={COLORS.white} 
-                width="22%"
+                width={isSmartphone ? '22%' : '25%'}
                 onPress={() => {
                   // We send the selected option to the parent component
                   onSelectOption(selectedOption);

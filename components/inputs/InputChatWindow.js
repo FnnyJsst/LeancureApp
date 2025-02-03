@@ -17,7 +17,6 @@ import * as FileSystem from 'expo-file-system';
  * @example
  * <FilePreview file={file} onRemove={() => console.log('File removed')} />
  */
-
 const  FilePreview = ({ file, onRemove }) => {
   return (
     <View style={styles.previewContainer}>
@@ -52,7 +51,6 @@ const  FilePreview = ({ file, onRemove }) => {
  * @description A component that renders the input of the chat
  * 
  * @param {Object} props - The properties of the component
- * @param {Function} props.onSendMessage - The function to call when the message is sent
  * @param {Function} props.onFocusChange - The function to call when the input is focused
  * 
  * @example
@@ -60,24 +58,31 @@ const  FilePreview = ({ file, onRemove }) => {
  */
 export default function InputChatWindow({ onSendMessage, onFocusChange }) {
 
-  // State to store the message
   const [message, setMessage] = useState('');
-  // State to store the selected file
   const [selectedFile, setSelectedFile] = useState(null);
-  // Hook to determine the device type
   const { isSmartphone } = useDeviceType();
   const [isFocused, setIsFocused] = useState(false);
 
-  // Function to format the file size
+
+  /**
+   * @function formatFileSize
+   * @description A function to format the file size
+   * @param {number} bytes - The size of the file in bytes
+   * @returns {string} The size of the file in a readable format
+   */
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 B';
+
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Function to pick a document
+  /**
+   * @function pickDocument
+   * @description A function to pick a document
+   */
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -122,10 +127,14 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
     onFocusChange(false);
   };
 
-  // Function to handle the send of the message
+  /**
+   * @function handleSend
+   * @description A function to handle the send of the message
+   */
   const handleSend = () => {
     // Si on a un fichier sélectionné, on l'envoie même si le message est vide
     if (selectedFile) {
+
       onSendMessage(selectedFile);
       setSelectedFile(null);
       return;
@@ -140,10 +149,14 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
     setMessage('');
   };
 
-  // Function to handle the removal of the file
+  /**
+   * @function handleRemoveFile
+   * @description A function to handle the removal of the file from the input
+   */
   const handleRemoveFile = () => {
     setSelectedFile(null);
   };
+
 
   return (
     <>
@@ -188,7 +201,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
             textAlignVertical="center"
             allowFontScaling={false}
             maxFontSizeMultiplier={1}
-            keyboardType="default"
           />
         )}
 
@@ -227,7 +239,6 @@ const styles = StyleSheet.create({
   },
   smartphoneContainer: {
     height: 60,
-    padding: 10,
   },
   attachButton: {
     backgroundColor: '#111111',

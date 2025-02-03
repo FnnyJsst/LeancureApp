@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import Sidebar from '../../components/navigation/Sidebar';
 import ChatWindow from '../../components/chat/ChatWindow';
 import Header from '../../components/Header';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../../services/messageApi';
 import { sendNotification } from '../../services/notificationApi';
 
@@ -58,7 +58,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
   const handleNewMessage = async (message) => {
     try {
       // Get the credentials from the async storage
-      const credentialsStr = await AsyncStorage.getItem('userCredentials');
+      const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       // If the credentials are not found or the selected channel is not found, we don't do anything
       if (!credentialsStr || !selectedChannel) return;
       // Parse the credentials
@@ -119,7 +119,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded }) {
    */
   const fetchMessages = async () => {
     try {
-      const credentialsStr = await AsyncStorage.getItem('userCredentials');
+      const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       if (!credentialsStr || !selectedChannel) return;
       
       const credentials = JSON.parse(credentialsStr);

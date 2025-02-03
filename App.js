@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsScreen from './screens/webviews/SettingsScreen';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
@@ -18,7 +17,7 @@ import { SCREENS } from './constants/screens';
 import { useNavigation } from './hooks/useNavigation';
 import { registerForPushNotificationsAsync } from './utils/notifications';
 import * as Notifications from 'expo-notifications';
-import SecureStore from 'expo-secure-store';
+import * as SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
 
 /**
@@ -89,7 +88,7 @@ export default function App() {
    */
   const saveSelectedChannels = async (channels) => {
     try {
-      await AsyncStorage.setItem('selectedChannels', JSON.stringify(channels));
+      await SecureStore.setItemAsync('selectedChannels', JSON.stringify(channels));
     } catch (error) {
       console.error('Failed to save channels', error);
     }
@@ -102,7 +101,7 @@ export default function App() {
    */
   const loadSelectedChannels = async () => {
     try {
-      const storedChannels = await AsyncStorage.getItem('selectedChannels');
+      const storedChannels = await SecureStore.getItemAsync('selectedChannels');
       if (storedChannels) {
         const parsedChannels = JSON.parse(storedChannels);
         setSelectedChannels(parsedChannels);
@@ -146,7 +145,7 @@ export default function App() {
    */
   const saveRefreshOption = async (option) => {
     try {
-      await AsyncStorage.setItem('refreshOption', option);
+      await SecureStore.setItemAsync('refreshOption', option);
     } catch (error) {
       console.error('Failed to save refresh option', error);
     }
@@ -159,7 +158,7 @@ export default function App() {
    */
   const loadRefreshOption = async () => {
     try {
-      const storedOption = await AsyncStorage.getItem('refreshOption');
+      const storedOption = await SecureStore.getItemAsync('refreshOption');
       if (storedOption) {
         setRefreshOption(storedOption); 
         setRefreshInterval(getIntervalInMilliseconds(storedOption));
@@ -219,11 +218,11 @@ export default function App() {
   const savePassword = async (passwordData) => {
     try {
       if (passwordData.password === null) {
-        await AsyncStorage.removeItem('password');
-        await AsyncStorage.setItem('isPasswordRequired', 'false');
+        await SecureStore.deleteItemAsync('password');
+        await SecureStore.setItemAsync('isPasswordRequired', 'false');
       } else {
-        await AsyncStorage.setItem('password', passwordData.password);
-        await AsyncStorage.setItem('isPasswordRequired', JSON.stringify(passwordData.isRequired));
+        await SecureStore.setItemAsync('password', passwordData.password);
+        await SecureStore.setItemAsync('isPasswordRequired', JSON.stringify(passwordData.isRequired));
       }
     } catch (error) {
       console.error('Failed to save password', error);
@@ -237,8 +236,8 @@ export default function App() {
    */
   const loadPassword = async () => {
     try {
-      const storedPassword = await AsyncStorage.getItem('password');
-      const storedIsRequired = await AsyncStorage.getItem('isPasswordRequired');
+      const storedPassword = await SecureStore.getItemAsync('password');
+      const storedIsRequired = await SecureStore.getItemAsync('isPasswordRequired');
       
       if (storedPassword) {
         setPassword(storedPassword);

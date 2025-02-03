@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import Header from '../../components/Header';
 import ImportChannelDialog from '../../components/modals/webviews/ImportChannelDialog';
 import EditChannel from '../../components/modals/webviews/EditChannel'; 
 import DeleteChannel from '../../components/modals/webviews/DeleteChannel';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
@@ -110,23 +109,19 @@ export default function ChannelsManagementScreen({
    * @description Deletes a channel from the list
    * @param {Object} channelToDelete - The channel to delete
    */
-  const handleDeleteChannel = (channelToDelete) => {
-    // Check if the channel to delete is not null
+  const handleDeleteChannel = async (channelToDelete) => {
     if (channelToDelete) {
       // Filter the channels to remove the one to delete
       const updatedChannels = selectedChannels.filter(
         channel => channel.href !== channelToDelete.href
       );
-      // Set the updated channels
       setSelectedChannels(updatedChannels);
-      // Save the updated channels
       saveSelectedChannels(updatedChannels);
-      // Close the delete modal
       closeDeleteModal();
 
-      // Save the updated channels in AsyncStorage
+      // Save the updated channels in SecureStore
       try {
-        AsyncStorage.setItem('selectedChannels', JSON.stringify(updatedChannels));
+        await SecureStore.setItemAsync('selectedChannels', JSON.stringify(updatedChannels));
       } catch (error) {
         console.error('Failed to save channels after deletion', error);
       }

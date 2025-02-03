@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginHorizontal: 15,
     alignSelf: 'center',
-    marginVertical: 8,
+    marginVertical: 12,
     borderWidth: 1,
     borderColor: COLORS.gray650,
   },
@@ -347,6 +347,7 @@ const styles = StyleSheet.create({
   configContainerSmartphone: {
     // minHeight: 45,
     width: '95%',
+    marginVertical: 8,
   },
   configContainerLandscape: {
     marginHorizontal: 50,

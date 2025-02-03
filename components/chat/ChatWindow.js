@@ -5,7 +5,7 @@ import InputChatWindow from '../inputs/InputChatWindow';
 import ChatMessage from './ChatMessage';
 import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { sendMessageApi } from '../../services/messageApi';
 import DateBanner from './DateBanner';
 
@@ -87,21 +87,18 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   // Function to send a message
   const sendMessage = async (messageData) => {
     try {
-      // Add a log to see when sendMessage is called
       console.log('📩 Attempt to send message:', messageData);
       
       // Strict check for empty message so we don't send empty messages in the chat
       if (!messageData || 
           (typeof messageData === 'string' && !messageData.trim()) || 
           messageData === undefined) {
-        // console.log('❌ Empty message ignored');
         return;
       }
 
-      // Get the user credentials
-      const credentialsStr = await AsyncStorage.getItem('userCredentials');
+      // Remplacer AsyncStorage par SecureStore
+      const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       if (!credentialsStr) {
-        // console.error('❌ No credentials found');
         return;
       }
       
@@ -142,7 +139,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }, 100);
       }
     } catch (error) {
-      // console.error('🔴 Error sending message:', error);
+      console.error('🔴 Error sending message:', error);
     }
   };
 
