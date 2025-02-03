@@ -158,7 +158,7 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
                   onDisablePassword(); 
                   handleClose(); 
                 }}
-                width="28%"
+                width={isSmartphone ? '28%' : '32%'}
               />
               <Button
                 title="Ok"
@@ -166,7 +166,7 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
                 color={COLORS.white}
                 // We submit the password and close the modal
                 onPress={handleOkPress}
-                width="20%"
+                width={isSmartphone ? '20%' : '22%'}
               />
               <Button
                 title="Close"
@@ -174,7 +174,7 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
                 color={COLORS.white}
                 // We close the modal
                 onPress={handleClose}
-                width="20%"
+                width={isSmartphone ? '20%' : '22%'}
               />
             </View>
           </View>

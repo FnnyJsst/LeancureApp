@@ -16,10 +16,8 @@ import { COLORS } from '../../constants/style';
  */
 export default function ParameterButton({ onPress }) {
 
-  // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType(); 
 
-  // State to handle the icon color and border color
   const [iconColor, setIconColor] = useState(COLORS.white);  
 
   // When we press the button, we change the icon color to orange
@@ -35,7 +33,7 @@ export default function ParameterButton({ onPress }) {
   return (
     <View style={styles.container}>
       <TouchableOpacity 
-        style={styles.buttonContainer}
+        style={[styles.buttonContainer, isSmartphone && styles.buttonContainerSmartphone]}
         onPress={onPress}
         onPressIn={handlePressIn}   
         onPressOut={handlePressOut}  
@@ -58,12 +56,16 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   buttonContainer: {
-    backgroundColor: '#271E1E',
-    width: 45,
-    height: 45,
+    backgroundColor: COLORS.charcoal,
+    width: 50,
+    height: 50,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  buttonContainerSmartphone: {
+    width: 45,
+    height: 45,
   },
   iconContainer: {
     justifyContent: 'center',

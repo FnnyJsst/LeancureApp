@@ -53,7 +53,7 @@ export default function InputModal({
           placeholderTextColor={"#808080"}
           value={value}
           onChangeText={onChangeText}
-          style={styles.input}
+          style={[styles.input, isSmartphone && styles.inputSmartphone]}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />
@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: COLORS.white,
+    fontSize: SIZES.fonts.messageTextTablet,
     marginLeft: 10,
   },
   icon: {
