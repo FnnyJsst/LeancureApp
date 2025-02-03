@@ -5,7 +5,7 @@ import ChatWindow from '../../components/chat/ChatWindow';
 import Header from '../../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchChannelMessages } from '../../services/messageApi';
-// import { sendNotification } from '../../services/notificationApi';
+import { sendNotification } from '../../services/notificationApi';
 
 /**
  * @component ChatScreen
