@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { fetchUserChannels } from '../../services/messageApi';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { SCREENS } from '../../constants/screens';
 import AccountImage from '../../components/AccountImage';
 
@@ -79,7 +79,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         // Set the loading state to true
         setLoading(true);
         // Get the credentials from the async storage
-        const credentials = await AsyncStorage.getItem('userCredentials');
+        const credentials = await SecureStore.getItemAsync('userCredentials');
         if (!credentials) {
           throw new Error('No credentials found');
         }
@@ -155,7 +155,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
       ]}>
         {/* Close button */}
         <TouchableOpacity onPress={toggleMenu} style={styles.closeButton}>
-          <Ionicons name="close" size={isSmartphone ? 30 : 40} color={COLORS.gray300} />
+          <Ionicons name="close" size={30} color={COLORS.gray300} />
         </TouchableOpacity>
 
         {/* Menu list */}
@@ -228,7 +228,6 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
 
                   {/* List of channels if the group is selected */}
                   {selectedGroup?.id === group.id && group.channels && group.channels.map((channel) => {
-                    console.log(`Canal ${channel.id} - unread:`, unreadChannels[channel.id]);
                     return (
                       <TouchableOpacity
                         key={channel.id}
@@ -237,8 +236,8 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                       >
                         <View style={styles.channelContent}>
                           <Text style={[
-                            styles.channelIcon,
-                            styles.hashIcon
+                            styles.hashIcon,
+                            isSmartphone && styles.hashIconSmartphone
                           ]}>#</Text>
                           <Text style={[
                             styles.channelName,
@@ -290,7 +289,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           </View>
           <TouchableOpacity 
             onPress={onLogout}
-            style={styles.settingsButton}
+            style={styles.logoutButton}
           >
             <Ionicons name="power-outline" size={20} color={COLORS.gray300} />
           </TouchableOpacity>
@@ -348,7 +347,7 @@ const styles = StyleSheet.create({
     marginBottom: 15
   },
   selectedItem: {
-    backgroundColor: "#271E1E",
+    backgroundColor: COLORS.charcoal,
     borderRadius: SIZES.borderRadius.large,
     padding: 8,
   },
@@ -363,7 +362,7 @@ const styles = StyleSheet.create({
   },
   groupName: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.subtitleTablet,
+    fontSize: SIZES.fonts.textTablet,
     marginLeft: 10
   },
   groupNameSmartphone: {
@@ -381,17 +380,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  channelIcon: {
-    marginRight: 8,
-  },
   hashIcon: {
     color: COLORS.gray300,
-    fontSize: 14,
+    marginRight: 8,
+    fontSize: 18,
     fontWeight: SIZES.fontWeight.medium,
+  },
+  hashIconSmartphone: {
+    fontSize: 14,
   },
   channelName: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.sideBarTextTablet,
+    fontSize: SIZES.fonts.textTablet,
   },
   channelNameSmartphone: {
     fontSize: 14,
@@ -411,11 +411,6 @@ const styles = StyleSheet.create({
   menuTextSmartphone: {
     fontSize: 15,
     fontWeight: SIZES.fontWeight.medium,
-  },
-  logoutButton: {
-    marginTop: 'auto',
-    borderTopWidth: 1,
-    borderTopColor: COLORS.gray800,
   },
   groupsList: {
     marginLeft: 20,
@@ -452,13 +447,13 @@ const styles = StyleSheet.create({
   },
   userRole: {
     color: COLORS.orange,
-    fontSize: SIZES.fonts.textTablet,
+    fontSize: 16,
     fontWeight: SIZES.fontWeight.regular,
   },
   userRoleSmartphone: {
     fontSize: 12,
   },
-  settingsButton: {
+  logoutButton: {
     backgroundColor: "#271E1E",
     borderRadius: SIZES.borderRadius.medium,
     borderWidth: 0.5,
@@ -478,7 +473,7 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.large,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    marginBottom: 20,
+    marginBottom: 50,
   },
   searchInput: {
     flex: 1,

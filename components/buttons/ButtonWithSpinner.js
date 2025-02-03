@@ -1,6 +1,8 @@
-import { ActivityIndicator, View, Text } from 'react-native';
+import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
 import Button from './Button';
-import { COLORS } from '../../constants/style';
+import { COLORS, SIZES } from '../../constants/style';
+import { useDeviceType } from '../../hooks/useDeviceType';
+
 
 /**
  * @component ButtonWithSpinner
@@ -15,14 +17,17 @@ import { COLORS } from '../../constants/style';
  */
 
 export default function ButtonWithSpinner({ isLoading, title, ...props }) {
+  const { isSmartphone } = useDeviceType();
+
   return (
     <Button
       {...props}
+
       title={
         isLoading ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <ActivityIndicator size="small" color={COLORS.white} />
-            <Text style={{ color: COLORS.white }}>Connecting...</Text>
+            <Text style={[styles.buttonText, isSmartphone && styles.buttonTextSmartphone]}>Connecting...</Text>
           </View>
         ) : (
           title
@@ -32,3 +37,19 @@ export default function ButtonWithSpinner({ isLoading, title, ...props }) {
     />
   );
 } 
+
+const styles = StyleSheet.create({
+  button: {
+    height: 60,
+  },
+  buttonText: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.textTablet,
+  },
+  buttonTextSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
+  },
+});
+
+
+
