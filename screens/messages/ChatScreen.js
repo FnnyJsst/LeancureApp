@@ -4,8 +4,8 @@ import Sidebar from '../../components/navigation/Sidebar';
 import ChatWindow from '../../components/chat/ChatWindow';
 import Header from '../../components/Header';
 import * as SecureStore from 'expo-secure-store';
-import { fetchChannelMessages } from '../../services/messageApi';
-import { sendNotification } from '../../services/notificationApi';
+import { fetchChannelMessages } from '../../services/api/messageApi';
+import { sendNotification } from '../../services/notificationService';
 
 /**
  * @component ChatScreen

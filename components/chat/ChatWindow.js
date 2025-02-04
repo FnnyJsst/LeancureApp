@@ -6,7 +6,7 @@ import ChatMessage from './ChatMessage';
 import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as SecureStore from 'expo-secure-store';
-import { sendMessageApi } from '../../services/messageApi';
+import { sendMessageApi } from '../../services/api/messageApi';
 import DateBanner from './DateBanner';
 
 /**

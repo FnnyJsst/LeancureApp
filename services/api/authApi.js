@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ENV } from '../../config/env';
+import { createApiRequest, cleanApiResponse } from './baseApi';
 
 /**
  * @function loginApi
@@ -13,37 +14,32 @@ export const loginApi = async (contractNumber, login, password) => {
   try {
     const timestamp = Date.now();
     
-    const body = {
-      "api-version": "2",
-      "api-contract-number": contractNumber,
-      "api-signature": "msgApiKey",
-      "api-signature-hash": "sha256",
-      "api-signature-timestamp": timestamp,
-      "cmd": [{
+    const body = createApiRequest({
         "accounts": {
           "loginmsg": {
             "get": {
               "contractnumber": contractNumber,
               "login": login,
               "password": password,
-              "msg-msgapikey": "12d0fd-e0bd67-4933ec-5ed14a-6f767b"
+              "msg-msgapikey": ENV.MSG_API_KEY
             }
           }
         }
-      }]
-    };
+    });
 
     const response = await axios.post(ENV.API_URL, body);
-    let cleanData = response.data;
+    // let cleanData = response.data;
+    const cleanData = cleanApiResponse(response); 
 
 
-    if (typeof response.data === 'string') {
-      const sqlEnd = response.data.indexOf('{');
-      if (sqlEnd !== -1) {
-        const jsonStr = response.data.substring(sqlEnd);
-        cleanData = JSON.parse(jsonStr);
-      }
-    }
+
+    // if (typeof response.data === 'string') {
+    //   const sqlEnd = response.data.indexOf('{');
+    //   if (sqlEnd !== -1) {
+    //     const jsonStr = response.data.substring(sqlEnd);
+    //     cleanData = JSON.parse(jsonStr);
+    //   }
+    // }
 
     if (cleanData.status === 'error') {
       throw new Error(cleanData.error || 'Login failed');

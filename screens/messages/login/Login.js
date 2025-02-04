@@ -7,12 +7,14 @@ import SimplifiedLogin from './SimplifiedLogin';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SCREENS } from '../../../constants/screens';
-import { loginApi, fetchUserChannels } from '../../../services/messageApi';
-import * as authAPI from '../../../services/authAPI';
+// import { loginApi, fetchUserChannels } from '../../../services/api/messageApi';
+import { loginApi } from '../../../services/api/authApi';
+import { fetchUserChannels } from '../../../services/api/messageApi';
 import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 import GradientBackground from '../../../components/backgrounds/GradientBackground';
 import { hashPassword } from '../../../utils/encryption';
 import { secureStore } from '../../../utils/encryption';
+
 
 /**
  * @component Login
