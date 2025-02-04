@@ -1,6 +1,3 @@
-import axios from 'axios';
-import { ENV } from '../../config/env';
-
 /**
  * Create an API request object
  * @param {Object} cmd - The command object
@@ -17,10 +14,12 @@ export const createApiRequest = (cmd, contractNumber) => ({
 });
 
 /**
- * Clean an API response
+ * @function cleanApiResponse
+ * @description Clean an API response
  * @param {Object} response - The API response object
  * @returns {Object} - The cleaned API response object
  */
+
 export const cleanApiResponse = (response) => {
   let cleanData = response.data;
   if (typeof response.data === 'string') {
@@ -36,38 +35,3 @@ export const cleanApiResponse = (response) => {
   }
   return cleanData;
 };
-
-// export const apiClient = axios.create({
-//   baseURL: ENV.API_URL,
-//   headers: {
-
-//     'Content-Type': 'application/json'
-//   },
-//   timeout: 10000 
-// });
-
-// // Intercepteur pour logger les requêtes
-// apiClient.interceptors.request.use(request => {
-//   console.log('🌐 Starting Request:', {
-//     url: request.url,
-//     method: request.method,
-//     data: request.data
-//   });
-//   return request;
-// });
-
-// // Intercepteur pour logger les réponses
-// apiClient.interceptors.response.use(
-//   response => {
-//     console.log('✅ Response:', response.data);
-//     return response;
-//   },
-//   error => {
-//     console.error('🔴 API Error:', {
-//       message: error.message,
-//       config: error.config,
-//       response: error.response?.data
-//     });
-//     throw error;
-//   }
-// ); 

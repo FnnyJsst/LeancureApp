@@ -44,6 +44,7 @@ export const COLORS = {
   charcoal: '#271E1E',
   
   // Dark grays (from darkest to lightest)
+  gray950: '#111111',
   gray900: '#1a1a1a',      // ancien darkGray - fond principal
   gray850: '#1e1e1e',      // ancien black
   gray800: '#232424',      // fond des cards/containers

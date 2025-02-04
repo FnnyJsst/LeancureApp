@@ -8,7 +8,6 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import * as SecureStore from 'expo-secure-store';
 import { sendMessageApi } from '../../services/api/messageApi';
 import DateBanner from './DateBanner';
-import { getSocket } from '../../services/websocket/socketService';
 
 /**
  * @component ChatWindow
@@ -21,6 +20,7 @@ import { getSocket } from '../../services/websocket/socketService';
  * <ChatWindow channel={channel} messages={channelMessages} onInputFocusChange={() => console.log('Input focused')} />
  */
 export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange, onMessageSent }) {
+  
   const { isSmartphone } = useDeviceType();
   const scrollViewRef = useRef();
 
@@ -32,31 +32,32 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [selectedBase64, setSelectedBase64] = useState(null);
   const [messages, setMessages] = useState([]);
 
+  /**
+   * @function useEffect
+   * @description We use the useEffect hook to update the messages when the channel messages change
+   */
   useEffect(() => {
-    console.log('🔄 useEffect triggered with channelMessages:', channelMessages?.length);
+    // If there are no messages, we set the messages to an empty array
     if (!channelMessages) {
-      console.log('❌ No channelMessages, setting empty array');
       setMessages([]);
       return;
     }
 
+    // We filter the messages to be used in the UI
     const validMessages = channelMessages.filter(msg => {
-      if (!msg.savedTimestamp || msg.savedTimestamp === 'undefined') {
-        console.log('❌ Message without timestamp ignored:', msg);
+      // If the message has no timestamp, title or message, we ignore it
+      if (!msg.savedTimestamp || msg.savedTimestamp === 'undefined' ) {
         return false;
       }
       
       if (!msg.message && !msg.title) {
-        console.log('❌ Message without content ignored:', msg);
         return false;
       }
       
       return true;
     });
     
-    console.log('✅ Valid messages count:', validMessages.length);
-    
-    // Format the messages to be used in the UI
+    // We format the messages to be used in the UI
     const formattedMessages = validMessages.map(msg => ({
       ...msg,
       username: msg.login || 'Anonymous',
@@ -67,7 +68,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       })
     }));
     
-    // console.log('✅ Messages formatted:', formattedMessages.length);
+    // We update the messages
     setMessages(formattedMessages);
   }, [channelMessages]);
 
@@ -87,15 +88,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     setSelectedFileUrl(null);
   };
 
-  // Function to send a message
+  /**
+   * @function sendMessage
+   * @description We send a message to the channel
+   * @param {Object} messageData - The message data
+   */
   const sendMessage = async (messageData) => {
     try {
-      console.log('🚀 sendMessage called with:', messageData);
-      
+      // If we don't have any message data or any credentials, we return nothing
       if (!messageData || 
           (typeof messageData === 'string' && !messageData.trim()) || 
           messageData === undefined) {
-        console.log('❌ Invalid message data');
         return;
       }
 
@@ -105,14 +108,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         return;
       }
       
+      // We parse the credentials
       const credentials = JSON.parse(credentialsStr);
-      console.log('👤 User credentials found:', credentials.login);
-      
+      // We send the message to the API
       const response = await sendMessageApi(channel.id, messageData, credentials);
-      console.log('📨 API Response:', response);
-      
+      // If the message is sent successfully, we create a new message object
       if (response.status === 'ok') {
-        console.log('✅ Message sent successfully');
         const currentTimestamp = Date.now();
         const newMessage = {
           id: currentTimestamp,
@@ -129,25 +130,28 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             uri: messageData.uri
           })
         };
-        console.log('📝 New message object created:', newMessage);
 
+        // If the onMessageSent function is defined, we call it to inform the parent component that a message has been sent
         if (typeof onMessageSent === 'function') {
-          console.log('📤 Calling onMessageSent');
           onMessageSent(newMessage);
-        } else {
-          console.log('❌ onMessageSent is not a function');
-        }
+        } 
       }
     } catch (error) {
       console.error('🔴 Error sending message:', error);
     }
   };
 
-  // Function to format the date of a message
 
+  /**
+   * @function formatDate
+   * @description We format the date of a message
+   * @param {Object} timestamp - The timestamp of the message
+   * @returns {String} The formatted date
+   */
   const formatDate = (timestamp) => {
     // If the timestamp is missing, we return today
     if (!timestamp) {
+
       console.warn('Missing timestamp for message');
       return 'Today'; // Default value
     }
@@ -192,11 +196,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
           >
             {(() => {
-              let hasShownUnreadBanner = false;
-              // console.log('🎯 Rendering messages - total:', messages.length);
               
               return messages.reduce((acc, message, index) => {
-                // console.log(`🔄 Message ${index} - isUnread: ${message.isUnread}, isOwnMessage: ${message.isOwnMessage}`);
                 
                 const currentDate = formatDate(message.savedTimestamp);
                 const prevMessage = messages[index - 1];
@@ -260,15 +261,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111111"
-  },
-  chatContainer: {
-    flex: 1,
-    padding: 10,
-    marginBottom: 10,
-  },
-  chatContainerTablet: {
-    padding: 20,
+    backgroundColor: COLORS.gray950
   },
   noChannelContainer: {
     alignItems: 'center',

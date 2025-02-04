@@ -37,6 +37,7 @@ export const fetchUserChannels = async (contractNumber, login, password, email, 
       }
     }, contractNumber);
 
+    // We send the request to the API and clean the response. If the response is ok, we return the data.
     const response = await axios.post(API_URL, body);
     const cleanData = cleanApiResponse(response);
 
@@ -49,9 +50,10 @@ export const fetchUserChannels = async (contractNumber, login, password, email, 
         };
       }
 
+      // We format the data to be used in the UI
       const publicChannels = Object.entries(data.public || {}).map(([id, channel]) => ({
         id,
-        title: channel.identifier || 'Canal sans titre',
+        title: channel.identifier || 'Channel without title',
         description: channel.description || '',
         messages: formatMessages(channel.messages)
       }));
@@ -162,7 +164,6 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       headers: {
         'Content-Type': 'application/json'
       }
-
     });
 
     return {
@@ -172,7 +173,6 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     };
 
   } catch (error) {
-    // console.error('🔴 Error sending message:', error);
     throw error;
   }
 };
@@ -185,8 +185,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
  * @returns {Promise<Array>} - The messages
  */
 export const fetchChannelMessages = async (channelId, userCredentials) => {
-  try {
-    console.log('📥 Fetching messages for channel:', channelId);
+  try {;
     const data = createApiRequest({
       "msg_srv": {
         "client": {
@@ -217,20 +216,20 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
     const allData = response.data?.cmd?.[0]?.msg_srv?.client?.get_account_links?.data;
     let channelMessages = [];
 
-    // Chercher dans les groupes privés
+    // We search for the messages in the private groups
     if (allData?.private?.groups) {
-      console.log('🔍 Searching in private groups:', Object.keys(allData.private.groups).length, 'groups');
       Object.values(allData.private.groups).forEach(group => {
-        console.log('📂 Checking group channels:', Object.keys(group.channels || {}).length);
+        // We search for the messages in the channels of the group  
         Object.entries(group.channels || {}).forEach(([chId, channel]) => {
+          // If the channel ID is the same as the channel ID we are looking for and the channel has messages, we format the messages
           if (chId === channelId && channel.messages && typeof channel.messages === 'object') {
-            console.log('📝 Found messages in channel:', chId);
             channelMessages = Object.entries(channel.messages)
+              // We format the messages
               .map(([id, msg]) => {
                 if (!msg || !msg.savedts) {
-                  console.log('❌ Invalid message skipped:', msg);
                   return null;
                 }
+                // We return the formatted messages
                 return {
                   id,
                   title: msg.title || '',
@@ -249,11 +248,9 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
       });
     }
 
-    console.log('✅ Found messages:', channelMessages.length);
     return channelMessages;
 
   } catch (error) {
-    console.error('🔴 Error fetching messages:', error);
     return [];
   }
 };

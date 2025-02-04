@@ -28,18 +28,8 @@ export const loginApi = async (contractNumber, login, password) => {
     });
 
     const response = await axios.post(ENV.API_URL, body);
-    // let cleanData = response.data;
+    // We clean the response
     const cleanData = cleanApiResponse(response); 
-
-
-
-    // if (typeof response.data === 'string') {
-    //   const sqlEnd = response.data.indexOf('{');
-    //   if (sqlEnd !== -1) {
-    //     const jsonStr = response.data.substring(sqlEnd);
-    //     cleanData = JSON.parse(jsonStr);
-    //   }
-    // }
 
     if (cleanData.status === 'error') {
       throw new Error(cleanData.error || 'Login failed');

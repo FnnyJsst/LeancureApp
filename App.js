@@ -15,8 +15,6 @@ import SettingsMessage from './screens/messages/SettingsMessage';
 import AccountScreen from './screens/messages/AccountScreen';
 import { SCREENS } from './constants/screens';
 import { useNavigation } from './hooks/useNavigation';
-import { registerForPushNotificationsAsync } from './utils/notifications';
-import * as Notifications from 'expo-notifications';
 import * as SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
 
@@ -40,6 +38,7 @@ export default function App() {
   const [passwordCheckModalVisible, setPasswordCheckModalVisible] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [currentScreen, setCurrentScreen] = useState(SCREENS.APP_MENU);
+  const [globalMessages, setGlobalMessages] = useState([]);
 
   const { navigate } = useNavigation(setCurrentScreen);
   
@@ -366,39 +365,6 @@ export default function App() {
     }
   };
 
-  /**
-   * @function useEffect
-   * @description Registers the app for notifications
-   * @returns {void}
-   */
-  useEffect(() => {
-    // Register the app for notifications
-    registerForPushNotificationsAsync();
-
-
-    const foregroundSubscription = Notifications.addNotificationReceivedListener(notification => {
-      console.log('Notification received in the foreground:', notification);
-    });
-
-    /**
-     * @function useEffect
-     * @description Handles the notification click
-     * @returns {void}
-     */
-    const backgroundSubscription = Notifications.addNotificationResponseReceivedListener(response => {
-      const channelId = response.notification.request.content.data.channelId;
-      // Navigation to the corresponding channel
-      if (channelId) {
-        navigate(SCREENS.CHAT);
-      }
-    });
-
-    return () => {
-      foregroundSubscription.remove();
-      backgroundSubscription.remove();
-    };
-  }, []);
-
   // If the app is loading, show the loading screen
   if (isLoading) {
     return <ScreenSaver />;
@@ -514,6 +480,7 @@ export default function App() {
             isExpanded={isExpanded}
             setIsExpanded={setIsExpanded}
             handleLogout={handleLogout}
+            globalMessages={globalMessages}
           />
         );
 

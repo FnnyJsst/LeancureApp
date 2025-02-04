@@ -5,9 +5,8 @@ import ChatWindow from '../../components/chat/ChatWindow';
 import Header from '../../components/Header';
 import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../../services/api/messageApi';
-import { sendNotification } from '../../services/notificationService';
-import { initSocket, getSocket, disconnectSocket } from '../../services/websocket/socketService';
-
+import { initSocket, disconnectSocket } from '../../services/websocket/socketService';
+import { COLORS } from '../../constants/style';
 /**
  * @component ChatScreen
  * @description Displays the chat screen
@@ -28,17 +27,20 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const [currentSection, setCurrentSection] = useState('chat');
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [channelMessages, setChannelMessages] = useState([]);
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [unreadChannels, setUnreadChannels] = useState({});
 
-  //////////////////TESTS SOCKET//////////////////
   useEffect(() => {
     let socket;
     let isMounted = true;
     let refreshInterval;
-    console.log('🔄 Channel changed, initializing...', selectedChannel?.id);
 
+    /**
+     * @function initializeSocket
+     * @description Creates a socket when a channel is selected
+     * @returns {Promise<void>} - A promise
+     */
     const initializeSocket = async () => {
+      // We get the user credentials and parse them
       try {
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         if (!credentialsStr || !isMounted) return;
@@ -46,34 +48,35 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         const credentials = JSON.parse(credentialsStr);
         socket = initSocket(credentials);
 
+        // We check if the socket is initialized and if the channel is selected
         if (socket && selectedChannel) {
-          console.log('🔌 Socket initialized for channel:', selectedChannel.id);
-          
+          // We listen for new messages
           socket.on('new_message', async (message) => {
-            if (isMounted && selectedChannel && message.channelId === selectedChannel.id) {
-              console.log('📩 New message received, reloading messages');
-              await fetchMessages();
+            if (!isMounted || !selectedChannel || message.channelId !== selectedChannel.id) {
+              return;
             }
-          });
 
+            await fetchMessages();
+          });
+          // We tell the socket we want to enter a specific channel
           socket.emit('join_channel', selectedChannel.id);
           
-          // Chargement initial des messages
+          // We fetch the messages of the channel
           await fetchMessages();
 
-          // Rafraîchissement périodique
+          // We refresh the messages every 5 seconds
           refreshInterval = setInterval(async () => {
             if (isMounted) {
-              console.log('🔄 Refreshing messages...');
               await fetchMessages();
             }
-          }, 5000); // Toutes les 5 secondes
+          }, 5000);
         }
       } catch (error) {
-        console.error('Erreur initialisation socket:', error);
+        console.error('Error initializing socket:', error);
       }
     };
 
+    // We initialize the socket when we select a channel
     if (selectedChannel) {
       initializeSocket();
     }
@@ -84,19 +87,19 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         clearInterval(refreshInterval);
       }
       if (socket) {
-        console.log('🔌 Cleaning up socket for channel:', selectedChannel?.id);
         if (selectedChannel) {
+          // We tell the socket we want to leave a specific channel
           socket.emit('leave_channel', selectedChannel.id);
         }
+        // We disconnect the socket
         disconnectSocket();
       }
     };
   }, [selectedChannel]);
-  ///////////////////////////////////////////////
 
   /**
    * @function toggleMenu
-   * @description Toggles the menu
+   * @description Toggles the sidebar menu
    */
   const toggleMenu = () => {
     setIsExpanded(!isExpanded);
@@ -108,11 +111,10 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    * @param {Object} channel - The channel to select
    */
   const handleChannelSelect = (channel) => {
-    console.log('📱 Channel selection:', channel?.id);
     if (isExpanded) {
       toggleMenu();
     }
-    // On met à jour le canal sélectionné en dernier
+    
     setSelectedChannel(channel);
   };
 
@@ -123,7 +125,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    */
   const handleNewMessage = async (message) => {
     try {
-      console.log('🎯 handleNewMessage called with:', message);
+      // We get the user credentials and parse them
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       if (!credentialsStr || !selectedChannel) {
         console.log('❌ Missing credentials or selectedChannel');
@@ -131,14 +133,13 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       }
       
       const credentials = JSON.parse(credentialsStr);
-      console.log('👤 User credentials:', credentials.login);
 
       if (!message || (typeof message === 'string' && !message.trim())) {
-        console.log('❌ Message vide ignoré');
+        console.log('❌ Empty message');
         return;
       }
 
-      // Créer l'objet message
+      // We create the message object
       const newMessage = {
         id: Date.now().toString(),
         message: typeof message === 'string' ? message : message.message,
@@ -148,15 +149,13 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         isUnread: false,
         login: typeof message === 'object' ? message.login : credentials.login
       };
-      console.log('📝 New message created:', newMessage);
 
-      // Mettre à jour l'interface une seule fois
+      // Update the interface once the message is sent
       setChannelMessages(prev => {
-        console.log('📊 Previous messages count:', prev.length);
         return [...prev, newMessage];
       });
 
-      // Mettre à jour les messages non lus si nécessaire
+      // Update the unread channels if necessary
       if (!newMessage.isOwnMessage) {
         setUnreadChannels(prev => ({
           ...prev,
@@ -184,24 +183,23 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    */
   const fetchMessages = async () => {
     try {
+      // We get the user credentials and parse them
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       if (!credentialsStr || !selectedChannel) {
-        console.log('❌ Missing credentials or channel');
         return;
       }
       
       const credentials = JSON.parse(credentialsStr);
-      console.log('🔄 Fetching messages for channel:', selectedChannel.id);
       
+      // We fetch the messages of the channel
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
       
       if (!messages || messages.length === 0) {
-        console.log('❌ No messages received');
         setChannelMessages([]);
         return;
       }
 
-      console.log('✅ Messages received:', messages.length);
+      // We update the messages of the channel
       setChannelMessages(messages);
     } catch (error) {
       console.error('🔴 Error fetching messages:', error);
@@ -211,7 +209,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
   return (
     <View style={styles.container}>
-      {/* We show the header with the menu icon, the account image and the back button */}
       <Header 
         showMenuIcon={true}
         showBackButton={false}
@@ -249,7 +246,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#111111',
+    backgroundColor: COLORS.gray950,
   },
   mainContent: {
     flex: 1,
