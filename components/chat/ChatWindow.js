@@ -8,6 +8,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import * as SecureStore from 'expo-secure-store';
 import { sendMessageApi } from '../../services/api/messageApi';
 import DateBanner from './DateBanner';
+import { getSocket } from '../../services/websocket/socketService';
 
 /**
  * @component ChatWindow
@@ -19,7 +20,7 @@ import DateBanner from './DateBanner';
  * @example
  * <ChatWindow channel={channel} messages={channelMessages} onInputFocusChange={() => console.log('Input focused')} />
  */
-export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange }) {
+export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange, onMessageSent }) {
   const { isSmartphone } = useDeviceType();
   const scrollViewRef = useRef();
 
@@ -32,26 +33,28 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    // If channelMessages is null, we set the messages to an empty array to avoid errors
+    console.log('🔄 useEffect triggered with channelMessages:', channelMessages?.length);
     if (!channelMessages) {
+      console.log('❌ No channelMessages, setting empty array');
       setMessages([]);
       return;
     }
 
-    // console.log('🔄 Updating messages:', channelMessages?.length);
     const validMessages = channelMessages.filter(msg => {
       if (!msg.savedTimestamp || msg.savedTimestamp === 'undefined') {
-        // console.log('❌ Message without timestamp ignored:', msg);
+        console.log('❌ Message without timestamp ignored:', msg);
         return false;
       }
       
       if (!msg.message && !msg.title) {
-        // console.log('❌ Message without content ignored:', msg);
+        console.log('❌ Message without content ignored:', msg);
         return false;
       }
       
       return true;
     });
+    
+    console.log('✅ Valid messages count:', validMessages.length);
     
     // Format the messages to be used in the UI
     const formattedMessages = validMessages.map(msg => ({
@@ -87,56 +90,53 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   // Function to send a message
   const sendMessage = async (messageData) => {
     try {
-      console.log('📩 Attempt to send message:', messageData);
+      console.log('🚀 sendMessage called with:', messageData);
       
-      // Strict check for empty message so we don't send empty messages in the chat
       if (!messageData || 
           (typeof messageData === 'string' && !messageData.trim()) || 
           messageData === undefined) {
+        console.log('❌ Invalid message data');
         return;
       }
 
-      // Remplacer AsyncStorage par SecureStore
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       if (!credentialsStr) {
+        console.log('❌ No credentials found');
         return;
       }
       
       const credentials = JSON.parse(credentialsStr);
-      // console.log('📤 Sending message:', { messageData, channelId: channel.id });
+      console.log('👤 User credentials found:', credentials.login);
       
       const response = await sendMessageApi(channel.id, messageData, credentials);
+      console.log('📨 API Response:', response);
       
-      // If the message is sent successfully, we add it to the messages array
       if (response.status === 'ok') {
+        console.log('✅ Message sent successfully');
         const currentTimestamp = Date.now();
         const newMessage = {
           id: currentTimestamp,
-          username: "Moi",
-          text: typeof messageData === 'string' ? messageData : '',
-          timestamp: new Date().toLocaleTimeString([], { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          }),
+          message: typeof messageData === 'string' ? messageData : messageData.fileName,
+          channelId: channel.id,
           savedTimestamp: currentTimestamp.toString(),
           isOwnMessage: true,
+          login: credentials.login,
           ...(typeof messageData === 'object' && {
-            type: messageData.type,
+            type: 'file',
             fileName: messageData.fileName,
             fileSize: messageData.fileSize,
             fileType: messageData.fileType,
-            uri: messageData.uri,
-            base64: messageData.base64
+            uri: messageData.uri
           })
         };
-        
-        setMessages(prev => [...prev, newMessage]);
+        console.log('📝 New message object created:', newMessage);
 
-        setTimeout(() => {
-          if (scrollViewRef.current) {
-            scrollViewRef.current.scrollToEnd({ animated: true });
-          }
-        }, 100);
+        if (typeof onMessageSent === 'function') {
+          console.log('📤 Calling onMessageSent');
+          onMessageSent(newMessage);
+        } else {
+          console.log('❌ onMessageSent is not a function');
+        }
       }
     } catch (error) {
       console.error('🔴 Error sending message:', error);
@@ -144,6 +144,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   };
 
   // Function to format the date of a message
+
   const formatDate = (timestamp) => {
     // If the timestamp is missing, we return today
     if (!timestamp) {
@@ -204,28 +205,15 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 if (currentDate !== prevDate) {
                   acc.push(
                     <DateBanner 
-                      key={`date-${message.savedTimestamp}`} 
+                      key={`date-${currentDate}-${index}`}
                       date={currentDate} 
                     />
                   );
                 }
 
-                // Afficher la bannière uniquement pour le premier message non lu
-                // if (!hasShownUnreadBanner && !message.isOwnMessage && message.isUnread) {
-                //   hasShownUnreadBanner = true;
-                //   console.log(`🚩 Affichage bannière pour message ${index}`);
-                //   acc.push(
-                //     <View style={styles.unreadBanner} key={`unread-${message.id}`}>
-                //       <View style={styles.separatorBanner} />
-                //       <Text style={styles.unreadText}>New messages</Text>
-                //       <View style={styles.separatorBanner} />
-                //     </View>
-                //   );
-                // }
-
                 acc.push(
                   <ChatMessage
-                    key={message.id || index}
+                    key={`msg-${message.id || index}`}
                     message={{
                       ...message,
                       isUnread: message.isUnread || false
@@ -303,24 +291,4 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
   },
-  // unreadBanner: {
-  //   width: '100%',
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  //   gap: 10,
-  //   marginVertical: 15,
-  //   paddingHorizontal: 20,
-  // },
-  // separatorBanner: {
-  //   height: 1,
-  //   backgroundColor: COLORS.orange,
-  //   flex: 1,
-  // },
-  // unreadText: {
-  //   color: COLORS.orange,
-  //   fontWeight: SIZES.fontWeight.medium,
-  //   fontSize: SIZES.fonts.textSmartphone,
-  //   paddingHorizontal: 10,
-  // },
 });

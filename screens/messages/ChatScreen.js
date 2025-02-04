@@ -6,6 +6,7 @@ import Header from '../../components/Header';
 import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../../services/api/messageApi';
 import { sendNotification } from '../../services/notificationService';
+import { initSocket, getSocket, disconnectSocket } from '../../services/websocket/socketService';
 
 /**
  * @component ChatScreen
@@ -27,7 +28,71 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const [currentSection, setCurrentSection] = useState('chat');
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [channelMessages, setChannelMessages] = useState([]);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [unreadChannels, setUnreadChannels] = useState({});
+
+  //////////////////TESTS SOCKET//////////////////
+  useEffect(() => {
+    let socket;
+    let isMounted = true;
+    let refreshInterval;
+    console.log('🔄 Channel changed, initializing...', selectedChannel?.id);
+
+    const initializeSocket = async () => {
+      try {
+        const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+        if (!credentialsStr || !isMounted) return;
+        
+        const credentials = JSON.parse(credentialsStr);
+        socket = initSocket(credentials);
+
+        if (socket && selectedChannel) {
+          console.log('🔌 Socket initialized for channel:', selectedChannel.id);
+          
+          socket.on('new_message', async (message) => {
+            if (isMounted && selectedChannel && message.channelId === selectedChannel.id) {
+              console.log('📩 New message received, reloading messages');
+              await fetchMessages();
+            }
+          });
+
+          socket.emit('join_channel', selectedChannel.id);
+          
+          // Chargement initial des messages
+          await fetchMessages();
+
+          // Rafraîchissement périodique
+          refreshInterval = setInterval(async () => {
+            if (isMounted) {
+              console.log('🔄 Refreshing messages...');
+              await fetchMessages();
+            }
+          }, 5000); // Toutes les 5 secondes
+        }
+      } catch (error) {
+        console.error('Erreur initialisation socket:', error);
+      }
+    };
+
+    if (selectedChannel) {
+      initializeSocket();
+    }
+
+    return () => {
+      isMounted = false;
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+      }
+      if (socket) {
+        console.log('🔌 Cleaning up socket for channel:', selectedChannel?.id);
+        if (selectedChannel) {
+          socket.emit('leave_channel', selectedChannel.id);
+        }
+        disconnectSocket();
+      }
+    };
+  }, [selectedChannel]);
+  ///////////////////////////////////////////////
 
   /**
    * @function toggleMenu
@@ -43,12 +108,12 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    * @param {Object} channel - The channel to select
    */
   const handleChannelSelect = (channel) => {
-    // Réinitialiser les messages avant de changer de canal
-    setChannelMessages([]);
-    setSelectedChannel(channel);
+    console.log('📱 Channel selection:', channel?.id);
     if (isExpanded) {
       toggleMenu();
     }
+    // On met à jour le canal sélectionné en dernier
+    setSelectedChannel(channel);
   };
 
   /**
@@ -58,49 +123,48 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    */
   const handleNewMessage = async (message) => {
     try {
-      // Get the credentials from the async storage
+      console.log('🎯 handleNewMessage called with:', message);
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-      // If the credentials are not found or the selected channel is not found, we don't do anything
-      if (!credentialsStr || !selectedChannel) return;
-      // Parse the credentials
+      if (!credentialsStr || !selectedChannel) {
+        console.log('❌ Missing credentials or selectedChannel');
+        return;
+      }
+      
       const credentials = JSON.parse(credentialsStr);
+      console.log('👤 User credentials:', credentials.login);
 
-      // Check if the message is empty. If it is, we don't do anything
       if (!message || (typeof message === 'string' && !message.trim())) {
         console.log('❌ Message vide ignoré');
         return;
       }
-      
-      // Add the new message with isOwnMessage to true if it comes from us
+
+      // Créer l'objet message
       const newMessage = {
         id: Date.now().toString(),
-        message: message,
+        message: typeof message === 'string' ? message : message.message,
+        channelId: selectedChannel.id,
         savedTimestamp: Date.now().toString(),
-        isOwnMessage: true,
+        isOwnMessage: typeof message === 'object' ? message.login === credentials.login : true,
         isUnread: false,
-        login: credentials.login
+        login: typeof message === 'object' ? message.login : credentials.login
       };
-      
-      // Add the new message to the channel messages
-      setChannelMessages(prev => [...prev, newMessage]);
+      console.log('📝 New message created:', newMessage);
 
-      //Force the fetch of the messages
-      const messages = await fetchChannelMessages(selectedChannel.id, credentials);
-      const updatedMessages = messages.map(msg => {
-        const isOwnMessage = msg.login === credentials.login;
-        return {
-          ...msg,
-          isOwnMessage,
-          // A message is unread if:
-          // - it's not our message
-          // - the message has the status 'unread' in the API
-          isUnread: !isOwnMessage && msg.status === 'unread'
-        };
+      // Mettre à jour l'interface une seule fois
+      setChannelMessages(prev => {
+        console.log('📊 Previous messages count:', prev.length);
+        return [...prev, newMessage];
       });
-      setChannelMessages(updatedMessages);
-      
+
+      // Mettre à jour les messages non lus si nécessaire
+      if (!newMessage.isOwnMessage) {
+        setUnreadChannels(prev => ({
+          ...prev,
+          [selectedChannel.id]: true
+        }));
+      }
     } catch (error) {
-      console.error('Error updating messages:', error);
+      console.error('Error handling message:', error);
     }
   };
 
@@ -121,86 +185,29 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const fetchMessages = async () => {
     try {
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-      if (!credentialsStr || !selectedChannel) return;
+      if (!credentialsStr || !selectedChannel) {
+        console.log('❌ Missing credentials or channel');
+        return;
+      }
       
       const credentials = JSON.parse(credentialsStr);
-      const previousMessages = channelMessages;
+      console.log('🔄 Fetching messages for channel:', selectedChannel.id);
+      
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
       
-      // Check if there are new messages
-      const newMessages = messages.filter(newMsg => {
-        return !previousMessages.some(prevMsg => prevMsg.id === newMsg.id);
-      });
+      if (!messages || messages.length === 0) {
+        console.log('❌ No messages received');
+        setChannelMessages([]);
+        return;
+      }
 
-      // If there are new messages and they are not from us we send a notification
-      const newUnreadMessages = newMessages.filter(msg => 
-        msg.login !== credentials.login && 
-        (msg.message || msg.title)
-      );
-
-      // if (newUnreadMessages.length > 0) {
-      //   // Send the notification
-      //   await sendNotification({
-      //     title: selectedChannel.title,
-      //     body: `${newUnreadMessages.length} nouveau(x) message(s)`,
-      //     data: { channelId: selectedChannel.id }
-      //   });
-      // }
-
-      // Continue with the normal message processing...
-      const updatedMessages = messages.map(msg => {
-        const isOwnMessage = msg.login === credentials.login;
-        return {
-          ...msg,
-          isOwnMessage,
-          isUnread: !isOwnMessage && (msg.message || msg.title)
-        };
-      });
-
-      // Update the unread channels state only if there are valid messages
-      const hasUnreadMessages = updatedMessages.some(msg => 
-        msg.isUnread && (msg.message || msg.title)
-      );
-      
-      // console.log('Channel state:', {
-      //   channelId: selectedChannel.id,
-      //   hasUnread: hasUnreadMessages,
-      //   messageCount: updatedMessages.length
-      // });
-      
-      setUnreadChannels(prev => ({
-        ...prev,
-        [selectedChannel.id]: hasUnreadMessages
-      }));
-      
-      setChannelMessages(updatedMessages);
+      console.log('✅ Messages received:', messages.length);
+      setChannelMessages(messages);
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error('🔴 Error fetching messages:', error);
+      setChannelMessages([]);
     }
   };
-
-  useEffect(() => {
-    let interval;
-    
-    if (selectedChannel) {
-      // Clean the existing messages
-      setChannelMessages([]);
-  
-      // First loading
-      fetchMessages();
-      
-      // Set the interval with a longer delay
-      interval = setInterval(fetchMessages, 5000); 
-    }
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-      // Clean the messages when unmounting
-      setChannelMessages([]);
-    };
-  }, [selectedChannel]);
 
   return (
     <View style={styles.container}>

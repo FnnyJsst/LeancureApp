@@ -13,7 +13,6 @@ export const createApiRequest = (cmd, contractNumber) => ({
   "api-signature": "msgApiKey",
   "api-signature-hash": "sha256",
   "api-signature-timestamp": Date.now(),
-
   cmd: [cmd]
 });
 

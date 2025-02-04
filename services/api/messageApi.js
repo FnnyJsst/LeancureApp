@@ -186,8 +186,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
  */
 export const fetchChannelMessages = async (channelId, userCredentials) => {
   try {
-    const timestamp = Date.now();
-    
+    console.log('📥 Fetching messages for channel:', channelId);
     const data = createApiRequest({
       "msg_srv": {
         "client": {
@@ -215,55 +214,46 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
       }
     });
 
-    // Extract the data from the response
     const allData = response.data?.cmd?.[0]?.msg_srv?.client?.get_account_links?.data;
     let channelMessages = [];
 
-    // Search in public channels
-    if (allData?.public?.[channelId]?.messages) {
-      const messages = allData.public[channelId].messages;
-      channelMessages = Object.entries(messages).map(([id, msg]) => ({
-        id,
-        title: msg.title,
-        message: msg.message,
-        savedTimestamp: msg.savedts,
-        endTimestamp: msg.enddatets,
-        fileType: msg.filetype || 'none',
-        login: msg.login,
-        // Check if the message is from the user
-        isOwnMessage: msg.login === userCredentials.login,
-        // Check if the message is unread
-        isUnread: msg.status === 'unread'
-      }));
-    }
-
-    // Search in private groups
+    // Chercher dans les groupes privés
     if (allData?.private?.groups) {
+      console.log('🔍 Searching in private groups:', Object.keys(allData.private.groups).length, 'groups');
       Object.values(allData.private.groups).forEach(group => {
-        if (group.channels?.[channelId]?.messages) {
-          const messages = group.channels[channelId].messages;
-          channelMessages = Object.entries(messages).map(([id, msg]) => ({
-            id,
-            title: msg.title,
-            message: msg.message,
-            savedTimestamp: msg.savedts,
-            endTimestamp: msg.enddatets,
-            fileType: msg.filetype || 'none',
-            login: msg.login,
-            // Check if the message is from the user
-            isOwnMessage: msg.login === userCredentials.login,
-            // Check if the message is unread
-            isUnread: msg.status === 'unread'
-          }));
-        }
+        console.log('📂 Checking group channels:', Object.keys(group.channels || {}).length);
+        Object.entries(group.channels || {}).forEach(([chId, channel]) => {
+          if (chId === channelId && channel.messages && typeof channel.messages === 'object') {
+            console.log('📝 Found messages in channel:', chId);
+            channelMessages = Object.entries(channel.messages)
+              .map(([id, msg]) => {
+                if (!msg || !msg.savedts) {
+                  console.log('❌ Invalid message skipped:', msg);
+                  return null;
+                }
+                return {
+                  id,
+                  title: msg.title || '',
+                  message: msg.message || msg.title || '',
+                  savedTimestamp: msg.savedts,
+                  endTimestamp: msg.enddatets,
+                  fileType: msg.filetype || 'none',
+                  login: msg.login || userCredentials.login,
+                  isOwnMessage: msg.login === userCredentials.login,
+                  isUnread: msg.status === 'unread'
+                };
+              })
+              .filter(msg => msg !== null);
+          }
+        });
       });
     }
 
-    // console.log(`📨 Messages found for channel ${channelId}:`, channelMessages.length);
+    console.log('✅ Found messages:', channelMessages.length);
     return channelMessages;
 
   } catch (error) {
-    // console.error('🔴 Detailed error:', error);
+    console.error('🔴 Error fetching messages:', error);
     return [];
   }
 };
