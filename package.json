@@ -41,6 +41,7 @@
     "react": "18.2.0",
     "react-native": "^0.74.5",
     "react-native-blob-util": "^0.21.2",
+    "react-native-dotenv": "^3.4.11",
     "react-native-emoji-selector": "^0.2.0",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-html-parser": "^0.1.0",
