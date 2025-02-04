@@ -12,4 +12,4 @@ if (!MSG_API_KEY) {
 export const ENV = {
     API_URL,
     MSG_API_KEY
-};
+}; 

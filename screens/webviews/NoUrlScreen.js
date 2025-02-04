@@ -19,7 +19,6 @@ export default function NoUrlScreen({
   handleSettingsAccess
 }) {
 
-  // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
 
   /**
@@ -34,7 +33,7 @@ export default function NoUrlScreen({
     <View style={styles.pageContainer}>
       <View style={styles.customHeaderContainer}>
         <TouchableOpacity 
-          style={styles.backButton}
+          style={[styles.backButton, isSmartphone && styles.backButtonSmartphone]}
           onPress={handleBackPress}
         >
           <Ionicons 
@@ -70,13 +69,17 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   backButton: {
-    backgroundColor: '#271E1E',
-    width: 40,
-    height: 40,
+    backgroundColor: COLORS.charcoal,
+    width: 45,
+    height: 45,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
+  },
+  backButtonSmartphone: {
+    width: 40,
+    height: 40,
   },
   headerTitle: {
     color: COLORS.white,

@@ -195,7 +195,7 @@ export default function ChannelsManagementScreen({
     <View style={styles.pageContainer}>
       <View style={styles.customHeaderContainer}>
         <TouchableOpacity 
-          style={styles.iconBackground}
+          style={[styles.iconBackground, isSmartphone && styles.iconBackgroundSmartphone]}
           onPress={() => onNavigate(SCREENS.SETTINGS)}
         >
           <Ionicons 
@@ -206,7 +206,7 @@ export default function ChannelsManagementScreen({
         </TouchableOpacity>
         {!isReadOnly && (
           <TouchableOpacity 
-            style={styles.iconBackground}
+            style={[styles.iconBackground, isSmartphone && styles.iconBackgroundSmartphone]}
             onPress={openImportModal}
           >
             <Entypo 
@@ -439,9 +439,13 @@ const styles = StyleSheet.create({
   iconsContainer: {
     flexDirection: 'row',
     marginRight: 10,
+    height: 45,
+    width: 45,
   },
   iconsContainerSmartphone: {
     marginRight: 0,
+    height: 40,
+    width: 40,
   },
   iconButton: {
     padding: 5,

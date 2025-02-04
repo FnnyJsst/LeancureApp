@@ -64,19 +64,20 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly }) {
           </View>
           <View style={[
             styles.buttonContainer,
+            isSmartphone && styles.buttonContainerSmartphone,
           ]}>
             <Button 
               title="Yes" 
               backgroundColor={"#111111"}
               textColor={COLORS.gray300} 
-              width="20%"
+              width={isSmartphone ? '20%' : '22%'}
               onPress={handleYes} 
             />
             <Button 
               title="No" 
               backgroundColor={COLORS.orange}
               color={COLORS.white} 
-              width="20%"
+              width={isSmartphone ? '20%' : '22%'}
               onPress={handleNo} 
             />
           </View>
@@ -132,7 +133,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: 10,
+    gap: 20,
     width: '100%',
+  },
+  buttonContainerSmartphone: {
+    gap: 10
   },
 });
