@@ -5,7 +5,6 @@ import ChatWindow from '../../components/chat/ChatWindow';
 import Header from '../../components/Header';
 import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../../services/api/messageApi';
-import { initSocket, disconnectSocket } from '../../services/websocket/socketService';
 import { COLORS } from '../../constants/style';
 /**
  * @component ChatScreen
@@ -30,69 +29,25 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const [unreadChannels, setUnreadChannels] = useState({});
 
   useEffect(() => {
-    let socket;
     let isMounted = true;
     let refreshInterval;
 
-    /**
-     * @function initializeSocket
-     * @description Creates a socket when a channel is selected
-     * @returns {Promise<void>} - A promise
-     */
-    const initializeSocket = async () => {
-      // We get the user credentials and parse them
+    const fetchChannelData = async () => {
       try {
-        const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-        if (!credentialsStr || !isMounted) return;
-        
-        const credentials = JSON.parse(credentialsStr);
-        socket = initSocket(credentials);
-
-        // We check if the socket is initialized and if the channel is selected
-        if (socket && selectedChannel) {
-          // We listen for new messages
-          socket.on('new_message', async (message) => {
-            if (!isMounted || !selectedChannel || message.channelId !== selectedChannel.id) {
-              return;
-            }
-
-            await fetchMessages();
-          });
-          // We tell the socket we want to enter a specific channel
-          socket.emit('join_channel', selectedChannel.id);
-          
-          // We fetch the messages of the channel
-          await fetchMessages();
-
-          // We refresh the messages every 5 seconds
-          refreshInterval = setInterval(async () => {
-            if (isMounted) {
-              await fetchMessages();
-            }
-          }, 5000);
-        }
+        if (!isMounted || !selectedChannel) return;
+        await fetchMessages();
       } catch (error) {
-        console.error('Error initializing socket:', error);
+        console.error('🔴 Erreur lors du rafraîchissement des messages:', error);
       }
     };
 
-    // We initialize the socket when we select a channel
-    if (selectedChannel) {
-      initializeSocket();
-    }
+    fetchChannelData();
+    refreshInterval = setInterval(fetchChannelData, 5000);
 
     return () => {
       isMounted = false;
       if (refreshInterval) {
         clearInterval(refreshInterval);
-      }
-      if (socket) {
-        if (selectedChannel) {
-          // We tell the socket we want to leave a specific channel
-          socket.emit('leave_channel', selectedChannel.id);
-        }
-        // We disconnect the socket
-        disconnectSocket();
       }
     };
   }, [selectedChannel]);
