@@ -1,7 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
-apply plugin: "com.google.gms.google-services"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
@@ -10,19 +9,19 @@ static def versionToNumber(major, minor, patch) {
 }
 
 def getRNVersion() {
-def version = providers.exec {
-workingDir(projectDir)
-commandLine("node", "-e", "console.log(require('react-native/package.json').version);")
-}.standardOutput.asText.get().trim()
+  def version = providers.exec {
+    workingDir(projectDir)
+    commandLine("node", "-e", "console.log(require('react-native/package.json').version);")
+  }.standardOutput.asText.get().trim()
 
-def coreVersion = version.split("-")[0]
-def (major, minor, patch) = coreVersion.tokenize('.').collect { it.toInteger() }
+  def coreVersion = version.split("-")[0]
+  def (major, minor, patch) = coreVersion.tokenize('.').collect { it.toInteger() }
 
-return versionToNumber(
-major,
-minor,
-patch
-)
+  return versionToNumber(
+      major,
+      minor,
+      patch
+  )
 }
 def rnVersion = getRNVersion()
 
@@ -168,8 +167,6 @@ android {
 }
 
 dependencies {
-    implementation platform('com.google.firebase:firebase-bom:33.8.0')
-    implementation 'com.google.firebase:firebase-messaging'
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
