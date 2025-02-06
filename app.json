@@ -15,9 +15,12 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
+          "icon": "./assets/images/logo.png",
           "color": "#ffffff",
-          "sounds": ["./assets/notification-sound.wav"]
+          "mode": "production",
+          "firebaseCloudMessaging": {
+            "enabled": true
+          }
         }
       ],
       [
@@ -45,7 +48,8 @@
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE"
       ],
-      "package": "com.fnnyjsst.react_native"
+      "package": "com.fnnyjsst.react_native",
+      "useNextNotificationsApi": true
     },
     "web": {
       "favicon": "./assets/favicon.png"

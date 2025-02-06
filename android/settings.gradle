@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'reactnative'
+rootProject.name = 'react_native'
 
 dependencyResolutionManagement {
   versionCatalogs {

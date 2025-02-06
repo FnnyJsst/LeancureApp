@@ -17,6 +17,7 @@ import { SCREENS } from './constants/screens';
 import { useNavigation } from './hooks/useNavigation';
 import * as SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
+import usePushNotifications from './services/notifications/notificationService';
 
 /**
  * @component App
@@ -41,6 +42,13 @@ export default function App() {
   const [globalMessages, setGlobalMessages] = useState([]);
 
   const { navigate } = useNavigation(setCurrentScreen);
+  const expoPushToken = usePushNotifications();
+
+useEffect(() => {
+  if (expoPushToken) {
+    console.log('📲 Token dans App:', expoPushToken);
+  }
+}, [expoPushToken]);
   
   //States related to the chat
   const [isExpanded, setIsExpanded] = useState(false);
