@@ -17,7 +17,7 @@
         {
           "icon": "./assets/images/logo.png",
           "color": "#ffffff",
-          "mode": "production",
+          "mode": "default",
           "firebaseCloudMessaging": {
             "enabled": true
           }
@@ -48,7 +48,6 @@
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE"
       ],
-      "package": "com.fnnyjsst.react_native",
       "useNextNotificationsApi": true
     },
     "web": {

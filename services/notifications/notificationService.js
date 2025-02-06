@@ -32,13 +32,13 @@ export default function usePushNotifications() {
         }
         
         if (finalStatus !== 'granted') {
-          console.log('❌ Permission refusée');
+          // console.log('❌ Permission refusée');
           return;
         }
 
         try {
           const projectId = Constants.expoConfig.extra.eas.projectId;
-          console.log('🔑 ProjectId:', projectId);
+          // console.log('🔑 ProjectId:', projectId);
           
           const token = await Notifications.getExpoPushTokenAsync({
             projectId: projectId
@@ -47,11 +47,11 @@ export default function usePushNotifications() {
           console.log('✅ Token obtenu:', token);
           setExpoPushToken(token.data);
         } catch (tokenError) {
-          console.error('🔴 Erreur token spécifique:', tokenError);
+          // console.error('🔴 Erreur token spécifique:', tokenError);
         }
 
       } catch (error) {
-        console.error('🔴 Erreur globale:', error);
+        // console.error('🔴 Erreur globale:', error);
       }
     }
 
