@@ -8,7 +8,7 @@ import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 
 /**
- * @component EditChannel
+ * @component EditWebviewModal
  * @description A component that renders a modal for editing a channel
  * 
  * @param {Object} props - The properties of the component
@@ -19,9 +19,9 @@ import { Ionicons } from '@expo/vector-icons';
  * @param {string} props.initialTitle - The initial title of the channel
  * 
  * @example
- * <EditChannel visible={visible} onClose={() => console.log('Modal closed')} onSave={() => console.log('Channel saved')} initialUrl="https://www.google.com" initialTitle="Google" />
+ * <EditWebviewModal visible={visible} onClose={() => console.log('Modal closed')} onSave={() => console.log('Channel saved')} initialUrl="https://www.google.com" initialTitle="Google" />
  */
-export default function EditChannel({ visible, onClose, onSave, initialUrl, initialTitle }) {
+export default function EditWebviewModal({ visible, onClose, onSave, initialUrl, initialTitle }) {
 
   // We create a hook to determine the device type and orientation
   const { isSmartphone, isTabletLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType(); 

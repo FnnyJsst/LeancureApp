@@ -1,37 +1,40 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import ImportChannelDialog from '../../components/modals/webviews/ImportChannelDialog';
-import EditChannel from '../../components/modals/webviews/EditChannel'; 
-import DeleteChannel from '../../components/modals/webviews/DeleteChannel';
+import ImportWebviewModal from '../../components/modals/webviews/ImportWebviewModal';
+import EditWebviewModal from '../../components/modals/webviews/EditWebviewModal'; 
+import DeleteWebviewModal from '../../components/modals/webviews/DeleteWebviewModal';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as SecureStore from 'expo-secure-store';
+
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import Entypo from '@expo/vector-icons/Entypo';
 
 /** 
- * @component ChannelsManagementScreen
- * @description Allows displaying, editing, deleting and reordering channels
+ * @component WebviewsManagementScreen
+ * @description Allows displaying, editing, deleting and reordering webviews
  * @param {Function} onNavigate - A function to navigate to a screen
- * @param {Array} selectedChannels - The list of selected channels
- * @param {Function} setSelectedChannels - A function to set the selected channels
- * @param {Function} saveSelectedChannels - A function to save the selected channels
+ * @param {Array} selectedWebviews - The list of selected channels
+ * @param {Function} setSelectedWebviews - A function to set the selected channels
+ * @param {Function} saveSelectedWebviews - A function to save the selected channels
  * @param {boolean} isReadOnly - A boolean to indicate if the user is read only
+
  * @param {Function} onNavigateToWebView - A function to navigate to a webview
  * @param {Function} onImport - A function to import channels
  * @returns {JSX.Element} - A JSX element
  * 
  * @example
- * <ChannelsManagementScreen onNavigate={(screen) => navigate(screen)} selectedChannels={selectedChannels} setSelectedChannels={setSelectedChannels} saveSelectedChannels={saveSelectedChannels} isReadOnly={isReadOnly} onNavigateToWebView={onNavigateToWebView} onImport={onImport} />
+ * <WebviewsManagementScreen onNavigate={(screen) => navigate(screen)} selectedWebviews={selectedWebviews} setSelectedWebviews={setSelectedWebviews} saveSelectedWebviews={saveSelectedWebviews} isReadOnly={isReadOnly} onNavigateToWebView={onNavigateToWebView} onImport={onImport} />
  */
-export default function ChannelsManagementScreen({ 
+
+export default function WebviewsManagementScreen({ 
   onNavigate,
-  selectedChannels, 
-  setSelectedChannels, 
-  saveSelectedChannels,
+  selectedWebviews, 
+  setSelectedWebviews, 
+  saveSelectedWebviews,
   isReadOnly,
   onNavigateToWebView,
   onImport
@@ -44,8 +47,8 @@ export default function ChannelsManagementScreen({
   const [isImportModalVisible, setImportModalVisible] = useState(false);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [channelToEdit, setChannelToEdit] = useState(null);
-  const [channelToDelete, setChannelToDelete] = useState(null);
+  const [webviewToEdit, setWebviewToEdit] = useState(null);
+  const [webviewToDelete, setWebviewToDelete] = useState(null);
 
   // States for the colors of the interractions
   const [selectedTitleId, setSelectedTitleId] = useState(null);
@@ -54,8 +57,6 @@ export default function ChannelsManagementScreen({
   const [selectedUpIndex, setSelectedUpIndex] = useState(null);
   const [selectedDownIndex, setSelectedDownIndex] = useState(null);
   
-
-  /////MODAL HANDLERS/////
   /**
    * @function openImportModal
    * @description Opens the import modal
@@ -74,7 +75,7 @@ export default function ChannelsManagementScreen({
    * @param {Object} channel - The channel to edit
    */
   const openEditModal = (channel) => {
-    setChannelToEdit(channel);
+    setWebviewToEdit(channel);
     setEditModalVisible(true);
   };
 
@@ -84,7 +85,7 @@ export default function ChannelsManagementScreen({
    */
   const closeEditModal = () => {
     setEditModalVisible(false);
-    setChannelToEdit(null);
+    setWebviewToEdit(null);
   };
 
   /**
@@ -93,7 +94,7 @@ export default function ChannelsManagementScreen({
    * @param {Object} channel - The channel to delete
    */
   const openDeleteModal = (channel) => {
-    setChannelToDelete(channel);
+    setWebviewToDelete(channel);
     setDeleteModalVisible(true);
   };
 
@@ -105,23 +106,23 @@ export default function ChannelsManagementScreen({
 
   /////CHANNEL OPERATIONS/////
   /**
-   * @function handleDeleteChannel
+   * @function handleDeleteWebview
    * @description Deletes a channel from the list
-   * @param {Object} channelToDelete - The channel to delete
+   * @param {Object} webviewToDelete - The channel to delete
    */
-  const handleDeleteChannel = async (channelToDelete) => {
-    if (channelToDelete) {
+  const handleDeleteWebview = async (webviewToDelete) => {
+    if (webviewToDelete) {
       // Filter the channels to remove the one to delete
-      const updatedChannels = selectedChannels.filter(
-        channel => channel.href !== channelToDelete.href
+      const updatedWebviews = selectedWebviews.filter(
+        channel => channel.href !== webviewToDelete.href
       );
-      setSelectedChannels(updatedChannels);
-      saveSelectedChannels(updatedChannels);
+      setSelectedWebviews(updatedWebviews);
+      saveSelectedWebviews(updatedWebviews);
       closeDeleteModal();
 
       // Save the updated channels in SecureStore
       try {
-        await SecureStore.setItemAsync('selectedChannels', JSON.stringify(updatedChannels));
+        await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(updatedWebviews));
       } catch (error) {
         console.error('Failed to save channels after deletion', error);
       }
@@ -129,66 +130,65 @@ export default function ChannelsManagementScreen({
   };
 
   /**
-   * @function moveChannelUp
+   * @function moveWebviewUp
    * @description Moves a channel up
    * @param {number} index - The index of the channel to move up
    */
-  const moveChannelUp = (index) => {
+  const moveWebviewUp = (index) => {
     // Check if we are not at the first channel
     if (index > 0) {
       // Create a copy of the selected channels
-      const updatedChannels = [...selectedChannels];
+      const updatedWebviews = [...selectedWebviews];
       // Swap the channel with the one above
-      const temp = updatedChannels[index - 1];
-      updatedChannels[index - 1] = updatedChannels[index];
-      updatedChannels[index] = temp;
+      const temp = updatedWebviews[index - 1];
+      updatedWebviews[index - 1] = updatedWebviews[index];
+      updatedWebviews[index] = temp;
       // Set the updated channels
-      setSelectedChannels(updatedChannels);
-      saveSelectedChannels(updatedChannels);
+      setSelectedWebviews(updatedWebviews);
+      saveSelectedWebviews(updatedWebviews);
     }
   };
 
   /**
-   * @function moveChannelDown
+   * @function moveWebviewDown
    * @description Moves a channel down
    * @param {number} index - The index of the channel to move down
    */
-  const moveChannelDown = (index) => {
+  const moveWebviewDown = (index) => {
     // Check if we are not at the last channel
-    if (index < selectedChannels.length - 1) {
+    if (index < selectedWebviews.length - 1) {
       // Create a copy of the selected channels
-      const updatedChannels = [...selectedChannels];
+      const updatedWebviews = [...selectedWebviews];
       // Swap the channel with the one below
-      const temp = updatedChannels[index + 1];
-      updatedChannels[index + 1] = updatedChannels[index];
-      updatedChannels[index] = temp;
+      const temp = updatedWebviews[index + 1];
+      updatedWebviews[index + 1] = updatedWebviews[index];
+      updatedWebviews[index] = temp;
       // Set the updated channels
-      setSelectedChannels(updatedChannels);
+      setSelectedWebviews(updatedWebviews);
       // Save the updated channels
-      saveSelectedChannels(updatedChannels);
+      saveSelectedWebviews(updatedWebviews);
     }
   };
 
   /**
-   * @function handleEditChannel
+   * @function handleEditWebviewModal
    * @description Edits a channel
    * @param {Object} oldChannel - The old channel
    * @param {string} newUrl - The new url
    * @param {string} newTitle - The new title
    */
-  const handleEditChannel = async (oldChannel, newUrl, newTitle) => {
+  const handleEditWebviewModal = async (oldChannel, newUrl, newTitle) => {
     // Create a copy of the selected channels
-    const updatedChannels = selectedChannels.map(channel => {
+    const updatedWebviews = selectedWebviews.map(channel => {
       // Check if the channel href is the same as the old channel href
       if (channel.href === oldChannel.href) {
         return { ...channel, href: newUrl, title: newTitle };
       }
       return channel;
     });
-    // Set the updated channels
-    setSelectedChannels(updatedChannels);
-    // Save the updated channels
-    await saveSelectedChannels(updatedChannels);
+    // Set and save the updated channels
+    setSelectedWebviews(updatedWebviews);
+    await saveSelectedWebviews(updatedWebviews);
   };
 
   return (
@@ -218,7 +218,7 @@ export default function ChannelsManagementScreen({
         )}
       </View>
       
-      {selectedChannels.length === 0 && (
+      {selectedWebviews.length === 0 && (
         <Text style={[
           styles.addChannelText, 
           isSmartphone && styles.addChannelTextSmartphone
@@ -228,29 +228,29 @@ export default function ChannelsManagementScreen({
       )}
 
       {/* Modal to import channels */}
-      <ImportChannelDialog
+      <ImportWebviewModal
         visible={isImportModalVisible}
         onClose={closeImportModal}
         onImport={onImport}
       />
       {/* Modal to edit a channel */}
-      <EditChannel
+      <EditWebviewModal
         visible={isEditModalVisible}
         onClose={closeEditModal}
-        initialUrl={channelToEdit?.href}
-        initialTitle={channelToEdit?.title}
-        onSave={(newUrl, newTitle) => handleEditChannel(channelToEdit, newUrl, newTitle)}
+        initialUrl={webviewToEdit?.href}
+        initialTitle={webviewToEdit?.title}
+        onSave={(newUrl, newTitle) => handleEditWebviewModal(webviewToEdit, newUrl, newTitle)}
       />
-      {/* Modal to delete a channel */}
-      <DeleteChannel
+      {/* Modal to delete a webview */}
+      <DeleteWebviewModal
         visible={isDeleteModalVisible}
         onClose={closeDeleteModal}
-        handleDelete={() => handleDeleteChannel(channelToDelete)}
+        handleDelete={() => handleDeleteWebview(webviewToDelete)}
       />
       {/* List of channels */}
       <ScrollView>
         <View style={styles.channelsContainer}>
-          {selectedChannels && selectedChannels.map((channel, index) => (
+          {selectedWebviews && selectedWebviews.map((channel, index) => (
             <View 
               style={[
                 styles.channelContainer,
@@ -295,7 +295,7 @@ export default function ChannelsManagementScreen({
                     isSmartphone && styles.arrowContainerSmartphone
                   ]}>
                   <TouchableOpacity
-                  onPress={() => moveChannelUp(index)}
+                  onPress={() => moveWebviewUp(index)}
                   onPressIn={() => setSelectedUpIndex(index)}
                   onPressOut={() => setSelectedUpIndex(null)}
                   style={styles.arrowButton}
@@ -310,7 +310,7 @@ export default function ChannelsManagementScreen({
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => moveChannelDown(index)}
+                  onPress={() => moveWebviewDown(index)}
                   onPressIn={() => setSelectedDownIndex(index)}
                   onPressOut={() => setSelectedDownIndex(null)}
                   style={styles.arrowButton}

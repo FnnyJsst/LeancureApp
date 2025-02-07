@@ -7,18 +7,18 @@ import CheckBox from '../../components/inputs/CheckBox';
 import { Ionicons } from '@expo/vector-icons';
 
 /**
- * @component ChannelsListScreen
+ * @component WebviewsListScreen
  * @description This screen displays the list of channels available for the user to import
  * @param {Array} channels - The list of channels
- * @param {Array} selectedChannels - The list of selected channels
+ * @param {Array} selectedWebviews - The list of selected channels
  * @param {Function} onBack - A function to navigate to a screen
  * @param {Function} onBackPress - A function to navigate to a screen
  * @returns {JSX.Element} - A JSX element
  * 
  * @example
- * <ChannelsListScreen channels={channels} selectedChannels={selectedChannels} onBack={onBack} onBackPress={onBackPress} />
+ * <WebviewsListScreen channels={channels} selectedWebviews={selectedWebviews} onBack={onBack} onBackPress={onBackPress} />
  */
-export default function ChannelsListScreen({ channels, selectedChannels, onBack, onBackPress }) {
+export default function WebviewsListScreen({ channels, selectedWebviews, onBack, onBackPress }) {
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
@@ -35,7 +35,7 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
     // Filter the channels that are not already selected
     const filteredChannels = channels.filter(newChannel => 
       // Check if the channel is not already selected
-      !selectedChannels?.some(existingChannel => 
+      !selectedWebviews?.some(existingChannel => 
         // Check if the channel href is the same as the existing channel href
         existingChannel.href === newChannel.href
       )
@@ -43,7 +43,7 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
 
     // Set the available channels
     setAvailableChannels(filteredChannels);
-  }, [channels, selectedChannels]);
+  }, [channels, selectedWebviews]);
 
   /**
    * @function toggleChannelSelection
@@ -65,10 +65,10 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
   };
 
   /**
-   * @function handleImportChannels
+   * @function handleImportWebviews
    * @description Handles the import of the channels
    */
-  const handleImportChannels = () => {
+  const handleImportWebviews = () => {
     // Check if the local selected channels are not empty
     if (localSelectedChannels.length > 0) {
       // Call the onBack function with the local selected channels
@@ -119,7 +119,7 @@ export default function ChannelsListScreen({ channels, selectedChannels, onBack,
           variant="large"
           backgroundColor={COLORS.orange}
           color={COLORS.white}
-          onPress={handleImportChannels}
+          onPress={handleImportWebviews}
           width="90%"
         />
       </View>

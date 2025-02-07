@@ -2,9 +2,9 @@ import React from 'react';
 import { SCREENS } from '../../constants/screens';
 import AppMenu from '../../screens/common/AppMenu';
 import NoUrlScreen from '../../screens/webviews/NoUrlScreen';
-import SettingsScreen from '../../screens/webviews/SettingsScreen';
+import SettingsWebviews from '../../screens/webviews/SettingsWebviews';
 import ChannelsManagementScreen from '../../screens/webviews/ChannelsManagementScreen';
-import ChannelsListScreen from '../../screens/webviews/ChannelsListScreen';
+import WebviewsListScreen from '../../screens/webviews/WebviewsListScreen';
 import WebViewScreen from '../../screens/webviews/WebViewScreen';
 import Login from '../../screens/messages/login/Login';
 import AccountScreen from '../../screens/messages/AccountScreen';
@@ -12,7 +12,7 @@ import ChatScreen from '../../screens/messages/ChatScreen';
 import SettingsMessage from '../../screens/messages/SettingsMessage';
 
 /**
- * @function renderScreen
+ * @function renderWebviewScreen
  * @description Renders the screen
  * @returns {JSX.Element} - The screen
  */
@@ -20,21 +20,21 @@ import SettingsMessage from '../../screens/messages/SettingsMessage';
 export const AppNavigator = ({ 
   currentScreen,
   navigate,
-  selectedChannels,
+  selectedWebviews,
   handleSettingsAccess,
   channelProps,
   settingsProps,
   chatProps,
   webViewProps
 }) => {
-  const renderScreen = () => {
+  const renderWebviewScreen = () => {
     switch (currentScreen) {
       case SCREENS.APP_MENU:
         return (
           <AppMenu 
             onNavigate={(screen) => {
               if (screen === SCREENS.WEBVIEW) {
-                navigate(selectedChannels?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+                navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
               } else if (screen === SCREENS.SETTINGS) {
                 handleSettingsAccess();
               } else {
@@ -54,13 +54,13 @@ export const AppNavigator = ({
 
       case SCREENS.SETTINGS:
         return (
-          <SettingsScreen
+          <SettingsWebviews
             onNavigate={navigate}
             {...settingsProps}
           />
         );
 
-      case SCREENS.CHANNELS_MANAGEMENT:
+      case SCREENS.WEBWIEWS_MANAGEMENT:
         return (
           <ChannelsManagementScreen
             onNavigate={navigate}
@@ -68,9 +68,9 @@ export const AppNavigator = ({
           />
         );
 
-      case SCREENS.CHANNELS_LIST:
+      case SCREENS.WEVIEWS_LIST:
         return (
-          <ChannelsListScreen
+          <WebviewsListScreen
             onNavigate={navigate}
             {...channelProps}
           />
@@ -111,5 +111,5 @@ export const AppNavigator = ({
     }
   };
 
-  return renderScreen();
+  return renderWebviewScreen();
 };

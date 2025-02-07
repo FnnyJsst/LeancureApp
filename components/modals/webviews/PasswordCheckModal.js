@@ -3,7 +3,7 @@ import { Modal, View, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import InputModal from '../../inputs/InputModal';
 import TitleModal from '../../text/TitleModal';
-import CustomAlert from '../../CustomAlert';
+import CustomAlert from './CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
@@ -83,7 +83,6 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
               placeholder="Enter your password"
               value={password}
               onChangeText={setPassword}
-              // We need to secure the password
               secureTextEntry={true}
               icon={
                 <Ionicons 
@@ -99,7 +98,6 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
                 title="Cancel"
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
-                // We close the modal
                 onPress={handleClose}
                 width="22%"
               />
@@ -107,7 +105,6 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
                 title="Ok"
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
-                // We send the password to the parent component
                 onPress={handleSubmit}
                 width="22%"
               />
@@ -136,6 +133,6 @@ const styles = StyleSheet.create({
     width: '45%',
   },
   modalContentTabletPortrait: {
-    width: '60%',
+    width: '65%',
   },
 });

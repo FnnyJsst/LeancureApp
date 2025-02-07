@@ -13,43 +13,44 @@ export function useWebViewsPassword(navigate) {
 
   const [password, setPassword] = useState(null);
   const [isPasswordRequired, setIsPasswordRequired] = useState(false);
-  const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
+  const [isPasswordDefineModalVisible, setPasswordDefineModalVisible] = useState(false);
   const [passwordCheckModalVisible, setPasswordCheckModalVisible] = useState(false);
 
     /**
-   * @function openPasswordModal 
-   * @description Opens the password modal
+   * @function openPasswordDefineModal 
+   * @description Opens the modals used to set the password 
    */
-  const openPasswordModal = () => setPasswordModalVisible(true);
+  const openPasswordDefineModal = () => setPasswordDefineModalVisible(true);
   
   /**
-   * @function closePasswordModal
-   * @description Closes the password modal
+   * @function closePasswordDefineModal
+   * @description Closes the modals used to set the password 
    */
-  const closePasswordModal = () => setPasswordModalVisible(false);
+  const closePasswordDefineModal = () => setPasswordDefineModalVisible(false);
+
 
   /**
    * @function handlePasswordSubmit
-   * @description Handles the submission of the password
+   * @description Handles the submission of the password in the modals used to set the password 
    * @param {string} enteredPassword - The password entered by the user
    */
   const handlePasswordSubmit = (enteredPassword) => {
     setPassword(enteredPassword);
     setIsPasswordRequired(true);
-    savePassword({
+    savePasswordInSecureStore({
 
       password: enteredPassword,
       isRequired: true
     });
-    closePasswordModal();
+    closePasswordDefineModal();
   };
 
   /**
-   * @function savePassword
-   * @description Saves the password in the SecureStore
+   * @function savePasswordInSecureStore
+   * @description Saves the password chosen by the user in the SecureStore
    * @param {object} passwordData - The password data to save
    */
-  const savePassword = async (passwordData) => {
+  const savePasswordInSecureStore = async (passwordData) => {
     try {
       if (passwordData.password === null) {
 
@@ -65,10 +66,10 @@ export function useWebViewsPassword(navigate) {
   };
 
   /**
-   * @function loadPassword
+   * @function loadPasswordFromSecureStore
    * @description Loads the password from the SecureStore
    */
-  const loadPassword = async () => {
+  const loadPasswordFromSecureStore = async () => {
     try {
       const storedPassword = await SecureStore.getItemAsync('password');
 
@@ -87,7 +88,7 @@ export function useWebViewsPassword(navigate) {
 
   /**
    * @function handlePasswordCheck
-   * @description Handles the check of the password
+   * @description Handles the check of the password when the user wants to access the settings
    * @param {string} enteredPassword - The password entered by the user
    */
   const handlePasswordCheck = (enteredPassword) => {
@@ -101,12 +102,12 @@ export function useWebViewsPassword(navigate) {
 
   /**
    * @function disablePassword
-   * @description Disables the password
+   * @description Disables the password when the user does not want to use it anymore
    */
   const disablePassword = () => {
     setPassword(null);
     setIsPasswordRequired(false);
-    savePassword({
+    savePasswordInSecureStore({
 
       password: null,
       isRequired: false
@@ -118,24 +119,24 @@ export function useWebViewsPassword(navigate) {
    * @description Loads the password from the SecureStore when the component is mounted
    */
   useEffect(() => {
-    loadPassword();
+    loadPasswordFromSecureStore();
   }, []);
 
 
   return {
-    openPasswordModal,
-    closePasswordModal,
+    openPasswordDefineModal,
+    closePasswordDefineModal,
     password,
     setPassword,
     isPasswordRequired,
     setIsPasswordRequired,
-    isPasswordModalVisible,
-    setPasswordModalVisible,
+    isPasswordDefineModalVisible,
+    setPasswordDefineModalVisible,
     passwordCheckModalVisible,
     setPasswordCheckModalVisible,
     handlePasswordSubmit,
     handlePasswordCheck,
     disablePassword,
-    loadPassword
+    loadPasswordFromSecureStore
   };
 }

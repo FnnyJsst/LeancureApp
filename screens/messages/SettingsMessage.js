@@ -13,13 +13,13 @@ import Sidebar from '../../components/navigation/Sidebar';
  * @param {Function} onNavigate - A function to navigate to a screen
  * @param {boolean} isExpanded - A boolean to indicate if the menu is expanded
  * @param {Function} setIsExpanded - A function to set the isExpanded state
- * @param {Function} handleLogout - A function to handle logout
+ * @param {Function} handleChatLogout - A function to handle logout
  * @returns {JSX.Element} - A JSX element
  * 
  * @example
- * <SettingsMessage onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} handleLogout={handleLogout} />
+ * <SettingsMessage onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} handleChatLogout={handleChatLogout} />
  */
-export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded, handleLogout }) {
+export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded, handleChatLogout }) {
   const { isSmartphone, isLandscape } = useDeviceType();
   const [currentSection, setCurrentSection] = useState('settings');
 
@@ -47,7 +47,7 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
         toggleMenu={toggleMenu}
         onNavigate={onNavigate}
         currentSection={currentSection}
-        onLogout={handleLogout}
+        onLogout={handleChatLogout}
       />
       <View style={styles.pageContainer}>
         <View style={styles.headerContainer}>

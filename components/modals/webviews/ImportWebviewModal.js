@@ -8,7 +8,7 @@ import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 
 /**
- * @component ImportChannelDialog
+ * @component ImportWebviewModal
  * @description A component that renders a modal for importing channels
  * 
  * @param {Object} props - The properties of the component
@@ -17,9 +17,9 @@ import { Ionicons } from '@expo/vector-icons';
  * @param {Function} props.onImport - The function to call when the channels are imported
  * 
  * @example
- * <ImportChannelDialog visible={visible} onClose={() => console.log('Modal closed')} onImport={() => console.log('Channels imported')} />
+ * <ImportWebviewModal visible={visible} onClose={() => console.log('Modal closed')} onImport={() => console.log('Channels imported')} />
  */
-const ImportChannelDialog = ({ visible, onClose, onImport }) => {
+const ImportWebviewModal = ({ visible, onClose, onImport }) => {
   
   // State management for the URL, error and channels
   const [url, setUrl] = useState('');
@@ -234,4 +234,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ImportChannelDialog;
+export default ImportWebviewModal;

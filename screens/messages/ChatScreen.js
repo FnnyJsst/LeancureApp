@@ -12,12 +12,12 @@ import { COLORS } from '../../constants/style';
  * @param {Function} onNavigate - A function to navigate to a screen
  * @param {boolean} isExpanded - A boolean to indicate if the menu is expanded
  * @param {Function} setIsExpanded - A function to set the isExpanded state
- * @param {Function} handleLogout - A function to handle logout
+ * @param {Function} handleChatLogout - A function to handle logout
  * 
  * @example
- * <ChatScreen onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} handleLogout={handleLogout} />
+ * <ChatScreen onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} handleChatLogout={handleChatLogout} />
  */
-export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, handleLogout }) {
+export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, handleChatLogout }) {
 
   // States related to the chat
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -188,7 +188,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         onNavigate={onNavigate}
         currentSection={currentSection}
         unreadChannels={unreadChannels}
-        onLogout={handleLogout}
+        onLogout={handleChatLogout}
       />
       <View style={styles.mainContent}>
         <ChatWindow 

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet } from 'react-native';
-import Button from './buttons/Button';
-import TitleModal from './text/TitleModal';
-import { useDeviceType } from '../hooks/useDeviceType';
-import { SIZES,COLORS } from '../constants/style';
+import Button from '../../../components/buttons/Button';
+import TitleModal from '../../../components/text/TitleModal';
+import { useDeviceType } from '../../../hooks/useDeviceType';
+import { SIZES,COLORS } from '../../../constants/style';
 
 /**
  * @component CustomAlert
@@ -21,7 +21,7 @@ import { SIZES,COLORS } from '../constants/style';
  * <CustomAlert visible={true} title="Alert" message="This is an alert" onClose={() => console.log('Alert closed')} onConfirm={() => console.log('Alert confirmed')} type="error" />  
  */
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error' }) {
-  const { isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait, isTabletLandscape } = useDeviceType();
 
   return (
     <Modal
@@ -38,14 +38,14 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
           isTabletPortrait && styles.modalContentTabletPortrait
         ]}>
           <TitleModal title={title} />
-          <Text style={styles.message}>{message}</Text>
+          <Text style={[styles.message, isSmartphone && styles.messageSmartphone]}>{message}</Text>
           <View style={styles.buttonContainer}>
             {type === 'success' ? (
               <Button
                 title="OK"
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
-                width="20%"
+                width="22%"
                 onPress={onConfirm}
               />
             ) : (
@@ -53,7 +53,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
                 title="Close"
                 backgroundColor={COLORS.buttonGray}
                 color={COLORS.white}
-                width="20%"
+                width="22%"
                 onPress={onClose}
               />
             )}
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 1)',
   },
   modalContent: {
-    width: '30%',
+    width: '60%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,
@@ -85,13 +85,16 @@ const styles = StyleSheet.create({
   modalContentSmartphonePortrait: {
     width: '80%',
   },
-  modalContentTabletPortrait: {
-    width: '50%',
+  modalContentTabletLandscape: {
+    width: '70%',
   },
   message: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.small,
+    fontSize: SIZES.fonts.textTablet,
     textAlign: 'center',
+  },
+  messageSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
   },
   buttonContainer: {
     flexDirection: 'row',

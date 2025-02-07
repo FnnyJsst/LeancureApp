@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { View, Alert } from 'react-native';
+import { View } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
-import SettingsScreen from './screens/webviews/SettingsScreen';
+import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
-import ChannelsManagementScreen from './screens/webviews/ChannelsManagementScreen';
-import ChannelsListScreen from './screens/webviews/ChannelsListScreen';
+import WebviewsManagementScreen from './screens/webviews/WebviewsManagementScreen';
+import WebviewsListScreen from './screens/webviews/WebviewsListScreen';
 import WebViewScreen from './screens/webviews/WebViewScreen';
 import Login from './screens/messages/login/Login';
-import PasswordModal from './components/modals/webviews/PasswordModal';
+import PasswordDefineModal from './components/modals/webviews/PasswordDefineModal';
 import PasswordCheckModal from './components/modals/webviews/PasswordCheckModal';
 import AppMenu from './screens/common/AppMenu';
 import ChatScreen from './screens/messages/ChatScreen';
 import SettingsMessage from './screens/messages/SettingsMessage';
 import AccountScreen from './screens/messages/AccountScreen';
 import { SCREENS } from './constants/screens';
+import { COLORS } from './constants/style';
 import { useNavigation } from './hooks/useNavigation';
 import * as SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
@@ -24,7 +25,6 @@ import { useWebViewsPassword } from './hooks/useWebViewsPassword';
 /**
  * @component App
  * @description The main component of the app
- * @returns {JSX.Element} - The main component
  */
 export default function App() {
 
@@ -41,8 +41,8 @@ export default function App() {
   const {     
     channels,
     setChannels,
-    selectedChannels,
-    setSelectedChannels,
+    selectedWebviews,
+    setSelectedWebviews,
     webViewUrl,
     setWebViewUrl,
     refreshInterval,
@@ -52,7 +52,7 @@ export default function App() {
     isReadOnly,
     toggleReadOnly,
     handleSelectChannels,
-    saveSelectedChannels,
+    saveSelectedWebviews,
     loadSelectedChannels,
     getIntervalInMilliseconds,
     saveRefreshOption,
@@ -67,22 +67,21 @@ export default function App() {
       setPassword,
       isPasswordRequired,
       setIsPasswordRequired,
-      isPasswordModalVisible,
-      setPasswordModalVisible,
+      isPasswordDefineModalVisible,
+      setPasswordDefineModalVisible,
       passwordCheckModalVisible,
       setPasswordCheckModalVisible,
       handlePasswordSubmit,
       handlePasswordCheck,
       disablePassword,
-      openPasswordModal,
-      closePasswordModal,
+      openPasswordDefineModal,
+      closePasswordDefineModal,
     } = useWebViewsPassword(navigate);
 
 
   /**
    * @function useEffect
    * @description Allows to display the push token in the console, used for notifications
-   * @returns {void}
    */
   useEffect(() => {
     if (expoPushToken) {
@@ -94,7 +93,6 @@ export default function App() {
   /**
    * @function handleSettingsAccess
    * @description Handles the access to the settings screen in the webviews with or without password
-   * @returns {void}
    */
   const handleSettingsAccess = () => {
     if (isPasswordRequired) {
@@ -108,7 +106,7 @@ export default function App() {
 
   /**
    * @function useEffect
-   * @description Handles the loading of the app
+   * @description Handles the loading of the app to display the loading screen for 3 seconds
    * @returns {void}
    */
   useEffect(() => {
@@ -118,17 +116,6 @@ export default function App() {
     }, 3000);
     return () => clearTimeout(timer);
   }, []);
-
-  // /**
-  //  * @function useEffect
-  //  * @description Loads the selected channels, the password and the refresh option from AsyncStorage
-  //  * @returns {void}
-  //  */
-  // useEffect(() => {
-  //   loadSelectedChannels();
-  //   loadPassword();
-  //   loadRefreshOption();
-  // }, []);
 
   /**
    * @function useEffect
@@ -145,15 +132,15 @@ export default function App() {
   }, [refreshInterval]);
 
   /**
-   * @function handleImportChannels
+   * @function handleImportWebviews
    * @description Handles the import of channels
-   * @param {Array} selectedChannels - The selected channels
+   * @param {Array} selectedWebviews - The selected channels
    * @returns {void}
    */
-  const handleImportChannels = (selectedChannels) => {
-    // console.log('Channels to import:', selectedChannels);
-    if (selectedChannels && selectedChannels.length > 0) {
-      handleSelectChannels(selectedChannels);
+  const handleImportWebviews = (selectedWebviews) => {
+    // console.log('Channels to import:', selectedWebviews);
+    if (selectedWebviews && selectedWebviews.length > 0) {
+      handleSelectChannels(selectedWebviews);
     }
   };
 
@@ -163,18 +150,18 @@ export default function App() {
   }
 
   /**
-   * @function renderScreen
-   * @description Renders the screen
+   * @function renderWebviewScreen
+   * @description Renders the screens in the webviews section
    * @returns {JSX.Element} - The screen
    */
-  const renderScreen = () => {
+  const renderWebviewScreen = () => {
     switch (currentScreen) {
       case SCREENS.APP_MENU:
         return (
           <AppMenu 
             onNavigate={(screen) => {
               if (screen === SCREENS.WEBVIEW) {
-                navigate(selectedChannels?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+                navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
               } else if (screen === SCREENS.SETTINGS) {
                 handleSettingsAccess();
               } else {
@@ -197,8 +184,8 @@ export default function App() {
 
       case SCREENS.SETTINGS:
         return (
-          <SettingsScreen
-            selectedChannels={selectedChannels}
+          <SettingsWebviews
+            selectedWebviews={selectedWebviews}
             setRefreshInterval={setRefreshInterval}
             getIntervalInMilliseconds={getIntervalInMilliseconds}
             saveRefreshOption={saveRefreshOption}
@@ -209,38 +196,35 @@ export default function App() {
             handlePasswordCheck={handlePasswordCheck}
             handlePasswordSubmit={handlePasswordSubmit}
             disablePassword={disablePassword}
-            openPasswordModal={openPasswordModal}
-            closePasswordModal={closePasswordModal}
-            isPasswordModalVisible={isPasswordModalVisible}
+            openPasswordDefineModal={openPasswordDefineModal}
+            closePasswordDefineModal={closePasswordDefineModal}
+            isPasswordDefineModalVisible={isPasswordDefineModalVisible}
             isReadOnly={isReadOnly}
             toggleReadOnly={toggleReadOnly}
             onNavigate={navigate}
-            
-
-            // onSettingsAccess={handleSettingsAccess}
           />
         );
 
-      case SCREENS.CHANNELS_MANAGEMENT:
+      case SCREENS.WEBWIEWS_MANAGEMENT:
         return (
-          <ChannelsManagementScreen
+          <WebviewsManagementScreen
             onImport={navigateToChannelsList}
-            selectedChannels={selectedChannels}
-            setSelectedChannels={setSelectedChannels}
-            saveSelectedChannels={saveSelectedChannels}
+            selectedWebviews={selectedWebviews}
+            setSelectedWebviews={setSelectedWebviews}
+            saveSelectedWebviews={saveSelectedWebviews}
             onNavigate={navigate}
             onNavigateToWebView={navigateToWebView}
             isReadOnly={isReadOnly}
           />
         );
 
-      case SCREENS.CHANNELS_LIST:
+      case SCREENS.WEVIEWS_LIST:
         return (
-          <ChannelsListScreen
+          <WebviewsListScreen
             channels={channels}
-            selectedChannels={selectedChannels}
-            onBack={handleImportChannels}
-            onBackPress={() => navigate(SCREENS.CHANNELS_MANAGEMENT)}
+            selectedWebviews={selectedWebviews}
+            onBack={handleImportWebviews}
+            onBackPress={() => navigate(SCREENS.WEBWIEWS_MANAGEMENT)}
           />
         );
 
@@ -273,7 +257,7 @@ export default function App() {
             onNavigate={navigate}
             isExpanded={isExpanded}
             setIsExpanded={setIsExpanded}
-            handleLogout={handleLogout}
+            handleChatLogout={handleChatLogout}
             globalMessages={globalMessages}
           />
         );
@@ -284,7 +268,7 @@ export default function App() {
             onNavigate={navigate}
             isExpanded={isExpanded}
             setIsExpanded={setIsExpanded}
-            handleLogout={handleLogout}
+            handleChatLogout={handleChatLogout}
           />
         );
 
@@ -294,11 +278,11 @@ export default function App() {
   };
 
   /**
-   * @function handleLogout
-   * @description Handles the logout process
+   * @function handleChatLogout
+   * @description Handles the logout process inthe chat section
    * @returns {void}
    */
-  const handleLogout = async () => {
+  const handleChatLogout = async () => {
     try {
         await SecureStore.deleteItemAsync('savedLoginInfo');
         navigate(SCREENS.LOGIN);
@@ -308,12 +292,12 @@ export default function App() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#111111" }}>
-      {renderScreen()}
+    <View style={{ flex: 1, backgroundColor: COLORS.gray950 }}>
+      {renderWebviewScreen()}
       
-      <PasswordModal
-        visible={isPasswordModalVisible}
-        onClose={closePasswordModal}
+      <PasswordDefineModal
+        visible={isPasswordDefineModalVisible}
+        onClose={closePasswordDefineModal}
         onSubmitPassword={handlePasswordSubmit}
         onDisablePassword={disablePassword}
       />
@@ -325,7 +309,7 @@ export default function App() {
       />
 
       <Sidebar 
-        onLogout={handleLogout}
+        onLogout={handleChatLogout}
       />
     </View>
   );

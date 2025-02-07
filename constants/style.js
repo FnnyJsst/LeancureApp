@@ -70,8 +70,6 @@ export const COLORS = {
   success: '#24c12f',
   error: '#ff4444',
   
-    
-  
   // Background colors
   backgroundModal: 'rgba(0, 0, 0, 0.8)',
 };

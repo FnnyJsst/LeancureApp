@@ -3,13 +3,13 @@ import { Modal, View, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
-import CustomAlert from '../../CustomAlert';
+import CustomAlert from './CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType'; 
 import { COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 
 /**
- * @component PasswordModal
+ * @component PasswordDefineModal
  * @description A component that renders a modal for setting a password
  * 
  * @param {Object} props - The properties of the component
@@ -19,9 +19,9 @@ import { Ionicons } from '@expo/vector-icons';
  * @param {Function} props.onDisablePassword - The function to call when the password is disabled
  * 
  * @example
- * <PasswordModal visible={visible} onClose={() => console.log('Modal closed')} onSubmitPassword={() => console.log('Password submitted')} onDisablePassword={() => console.log('Password disabled')} />
+ * <PasswordDefineModal visible={visible} onClose={() => console.log('Modal closed')} onSubmitPassword={() => console.log('Password submitted')} onDisablePassword={() => console.log('Password disabled')} />
  */
-export default function PasswordModal({ visible, onClose, onSubmitPassword, onDisablePassword }) {
+export default function PasswordDefineModal({ visible, onClose, onSubmitPassword, onDisablePassword }) {
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
@@ -153,7 +153,6 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
                 title="Do not use"
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
-                // We disable the password and close the modal
                 onPress={() => { 
                   onDisablePassword(); 
                   handleClose(); 
@@ -164,7 +163,6 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
                 title="Ok"
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
-                // We submit the password and close the modal
                 onPress={handleOkPress}
                 width={isSmartphone ? '20%' : '22%'}
               />
@@ -172,7 +170,6 @@ export default function PasswordModal({ visible, onClose, onSubmitPassword, onDi
                 title="Close"
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
-                // We close the modal
                 onPress={handleClose}
                 width={isSmartphone ? '20%' : '22%'}
               />

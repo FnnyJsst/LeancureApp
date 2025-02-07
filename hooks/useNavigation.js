@@ -20,8 +20,8 @@ export const useNavigation = (setCurrentScreen) => {
 
   const goBack = useCallback((defaultScreen = SCREENS.APP_MENU) => {
     const screenHierarchy = {
-      [SCREENS.CHANNELS_MANAGEMENT]: SCREENS.SETTINGS,
-      [SCREENS.CHANNELS_LIST]: SCREENS.NO_URL,
+      [SCREENS.WEBWIEWS_MANAGEMENT]: SCREENS.SETTINGS,
+      [SCREENS.WEVIEWS_LIST]: SCREENS.NO_URL,
       [SCREENS.ACCOUNT]: SCREENS.CHAT,
       [SCREENS.SETTINGS_MESSAGE]: SCREENS.CHAT,
       [SCREENS.CHAT]: SCREENS.APP_MENU,

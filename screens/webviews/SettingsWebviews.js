@@ -4,17 +4,17 @@ import { Ionicons } from '@expo/vector-icons';
 import SettingsCard from '../../components/cards/SettingsCard';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnly from '../../components/modals/webviews/ReadOnly';
-import PasswordModal from '../../components/modals/webviews/PasswordModal';
+import PasswordDefineModal from '../../components/modals/webviews/PasswordDefineModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 
 /**
- * @component SettingsScreen
+ * @component SettingsWebviews
  * @description Displays the settings for the webviews
  * @param {Function} onNavigate - A function to navigate to a screen
  * @param {Function} onSettingsAccess - A function to handle the settings access
- * @param {Array} selectedChannels - The list of selected channels
+ * @param {Array} selectedWebviews - The list of selected channels
  * @param {string} refreshOption - The refresh option
  * @param {Function} handlePasswordSubmit - A function to handle the password submit
  * @param {boolean} isPasswordRequired - A boolean to indicate if the password is required
@@ -22,14 +22,12 @@ import { SCREENS } from '../../constants/screens';
  * @param {boolean} isReadOnly - A boolean to indicate if the user is read only
  * @param {Function} toggleReadOnly - A function to toggle the read only mode
  * @param {Function} handleSelectOption - A function to handle the select option
- * @returns {JSX.Element} - A JSX element
  * @example
- * <SettingsScreen onNavigate={(screen) => navigate(screen)} onSettingsAccess={onSettingsAccess} selectedChannels={selectedChannels} refreshOption={refreshOption} handlePasswordSubmit={handlePasswordSubmit} isPasswordRequired={isPasswordRequired} disablePassword={disablePassword} isReadOnly={isReadOnly} toggleReadOnly={toggleReadOnly} handleSelectOption={handleSelectOption} />
+ * <SettingsWebviews onNavigate={(screen) => navigate(screen)} onSettingsAccess={onSettingsAccess} selectedWebviews={selectedWebviews} refreshOption={refreshOption} handlePasswordSubmit={handlePasswordSubmit} isPasswordRequired={isPasswordRequired} disablePassword={disablePassword} isReadOnly={isReadOnly} toggleReadOnly={toggleReadOnly} handleSelectOption={handleSelectOption} />
  */
-export default function SettingsScreen({ 
-  onNavigate, 
-  // onSettingsAccess, 
-  selectedChannels, 
+export default function SettingsWebviews({ 
+  onNavigate,  
+  selectedWebviews, 
   refreshOption,
   handlePasswordSubmit,  
   isPasswordRequired, 
@@ -44,7 +42,7 @@ export default function SettingsScreen({
   
   // State management
   const [modalVisible, setModalVisible] = useState(false);
-  const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
+  const [isPasswordDefineModalVisible, setPasswordDefineModalVisible] = useState(false);
   const [isReadOnlyModalVisible, setReadOnlyModalVisible] = useState(false);
 
   /**
@@ -56,33 +54,17 @@ export default function SettingsScreen({
   };
 
   /**
-   * @function openModal
-   * @description Opens the modal
+   * @functions 
+   * @description Open and close the different modals
    */
   const openModal = () => setModalVisible(true);
 
-  /**
-   * @function openPasswordModal
-   * @description Opens the password modal
-   */
-  const openPasswordModal = () => setPasswordModalVisible(true);
+  const openPasswordDefineModal = () => setPasswordDefineModalVisible(true);
 
-  /**
-   * @function closePasswordModal
-   * @description Closes the password modal
-   */
-  const closePasswordModal = () => setPasswordModalVisible(false);
+  const closePasswordDefineModal = () => setPasswordDefineModalVisible(false);
 
-  /**
-   * @function openReadOnlyModal
-   * @description Opens the read only modal
-   */
   const openReadOnlyModal = () => setReadOnlyModalVisible(true);
 
-  /**
-   * @function closeReadOnlyModal
-   * @description Closes the read only modal
-   */
   const closeReadOnlyModal = () => setReadOnlyModalVisible(false);
 
   /**
@@ -90,7 +72,7 @@ export default function SettingsScreen({
    * @description Handles the arrow back button
    */
   const handleBackPress = () => {
-    if (selectedChannels && selectedChannels.length > 0) {
+    if (selectedWebviews && selectedWebviews.length > 0) {
       onNavigate(SCREENS.WEBVIEW);
     } else {
       onNavigate(SCREENS.NO_URL);
@@ -187,7 +169,7 @@ export default function SettingsScreen({
               title="Channels Management"
               description="Access to imported webviews"
               icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
-              onPress={() => onNavigate(SCREENS.CHANNELS_MANAGEMENT)}
+              onPress={() => onNavigate(SCREENS.WEBWIEWS_MANAGEMENT)}
             />
           </View>
           <View style={[
@@ -213,7 +195,6 @@ export default function SettingsScreen({
                   styles.text,
                   isSmartphone && styles.textSmartphone 
                 ]}>
-                  {/* Display the formatted refresh option */}
                   {formatRefreshOption(refreshOption)}
                 </Text>
               </TouchableOpacity>
@@ -231,20 +212,17 @@ export default function SettingsScreen({
                   title="Read-only access"
                   description="Access to webviews without the ability to modify them"
                   icon={<Ionicons name="eye-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
-                  //
                   onPress={openReadOnlyModal}
                 />
               </View>
               <TouchableOpacity 
                 style={styles.baseToggle} 
-                // Open the read only modal
                 onPress={openReadOnlyModal}
               >
                   <Text style={[
                     styles.text,
                     isSmartphone && styles.textSmartphone 
                   ]}>
-                  {/* Display if the user is read only mode is active or not */}
                   {isReadOnly ? 'Yes' : 'No'}
                 </Text>
               </TouchableOpacity>
@@ -261,12 +239,12 @@ export default function SettingsScreen({
                   title="Password"
                   description="Define a password to access the settings"
                   icon={<Ionicons name="lock-closed-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
-                  onPress={openPasswordModal}
+                  onPress={openPasswordDefineModal}
                 />
               </View>
               <TouchableOpacity 
                 style={styles.baseToggle} 
-                onPress={openPasswordModal}
+                onPress={openPasswordDefineModal}
               >
                 <Text style={[
                   styles.text,
@@ -303,9 +281,9 @@ export default function SettingsScreen({
         onClose={closeReadOnlyModal}
         onToggleReadOnly={toggleReadOnly}
       />
-      <PasswordModal 
-        visible={isPasswordModalVisible}
-        onClose={closePasswordModal} 
+      <PasswordDefineModal 
+        visible={isPasswordDefineModalVisible}
+        onClose={closePasswordDefineModal} 
         onSubmitPassword={handlePasswordSubmit}
         onDisablePassword={disablePassword}
       />
@@ -315,7 +293,6 @@ export default function SettingsScreen({
 
 const styles = StyleSheet.create({
 
-  //MAIN CONTAINER
   pageContainer: {
     flex: 1,
     paddingHorizontal: 15,
@@ -327,8 +304,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: '3%',
   },
-
-  // CONFIG CONTAINER
   configContainer: {
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,
@@ -341,19 +316,15 @@ const styles = StyleSheet.create({
     borderColor: COLORS.gray650,
   },
   configContainerTablet: {
-    // minHeight: 58,
     width: '95%',
   },
   configContainerSmartphone: {
-    // minHeight: 45,
     width: '95%',
     marginVertical: 8,
   },
   configContainerLandscape: {
     marginHorizontal: 50,
   },
-
-  // ROW CONTAINER
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -361,8 +332,6 @@ const styles = StyleSheet.create({
   leftContent: {
     flex: 1,
   },
-
-  // TEXT
   text: {
     color: COLORS.gray600,
     fontSize: SIZES.fonts.textTablet,
@@ -371,8 +340,6 @@ const styles = StyleSheet.create({
   textSmartphone: {
     fontSize: SIZES.fonts.textSmartphone, 
   },
-
-  // TOGGLE BUTTON
   baseToggle: {
     backgroundColor: COLORS.gray650,
     borderRadius: SIZES.borderRadius.small,
@@ -380,7 +347,6 @@ const styles = StyleSheet.create({
     minWidth: 40,
     alignItems: 'center',
   },
-
   customHeaderContainer: {
     flexDirection: 'row',
     alignItems: 'center',

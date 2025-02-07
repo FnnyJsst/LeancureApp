@@ -11,7 +11,7 @@ import { useWebViewsPassword } from './useWebViewsPassword';
 export function useWebViews() {
   const [channels, setChannels] = useState([]);
 
-  const [selectedChannels, setSelectedChannels] = useState([]);
+  const [selectedWebviews, setSelectedWebviews] = useState([]);
   const [webViewUrl, setWebViewUrl] = useState('');
   const [refreshInterval, setRefreshInterval] = useState(null);
   const [refreshOption, setRefreshOption] = useState('never');
@@ -23,17 +23,17 @@ export function useWebViews() {
     setPassword,
     isPasswordRequired,
     setIsPasswordRequired,
-    isPasswordModalVisible,
-    setPasswordModalVisible,
+    isPasswordDefineModalVisible,
+    setPasswordDefineModalVisible,
     passwordCheckModalVisible,
     setPasswordCheckModalVisible,
     handlePasswordSubmit,
     handlePasswordCheck,
     disablePassword,
-    loadPassword,
-    savePassword,
-    openPasswordModal,
-    closePasswordModal
+    loadPasswordFromSecureStore,
+    savePasswordInSecureStore,
+    openPasswordDefineModal,
+    closePasswordDefineModal
   } = useWebViewsPassword(navigate);
 
   
@@ -94,33 +94,33 @@ export function useWebViews() {
    * @returns {void}
    */
   const handleSelectChannels = (selected) => {
-    const updatedChannels = [...selectedChannels];
+    const updatedWebviews = [...selectedWebviews];
     //For each new channel, check if it is already in the list
     selected.forEach(newChannel => {
-      const isDuplicate = selectedChannels.some(
+      const isDuplicate = selectedWebviews.some(
         existingChannel => existingChannel.href === newChannel.href
       );
       //If the channel is not already in the list, add it
       if (!isDuplicate) {
-        updatedChannels.push(newChannel);
+        updatedWebviews.push(newChannel);
       }
     });
   
-    setSelectedChannels(updatedChannels);
-    saveSelectedChannels(updatedChannels);
-    navigate('CHANNELS_MANAGEMENT');
+    setSelectedWebviews(updatedWebviews);
+    saveSelectedWebviews(updatedWebviews);
+    navigate('WEBWIEWS_MANAGEMENT');
   };
 
     /**
-   * @function saveSelectedChannels
+   * @function saveSelectedWebviews
    * @description Saves the channels selected by the user in AsyncStorage
    * @param {Array} channels - The channels to save
    * @returns {void}
    */
-  const saveSelectedChannels = async (channels) => {
+  const saveSelectedWebviews = async (channels) => {
     try {
       //Save the channels in AsyncStorage
-      await SecureStore.setItemAsync('selectedChannels', JSON.stringify(channels));
+      await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(channels));
     } catch (error) {
       console.error('Failed to save channels', error);
     }
@@ -133,11 +133,11 @@ export function useWebViews() {
    */
   const loadSelectedChannels = async () => {
     try {
-      const storedChannels = await SecureStore.getItemAsync('selectedChannels');
+      const storedChannels = await SecureStore.getItemAsync('selectedWebviews');
 
       if (storedChannels) {
         const parsedChannels = JSON.parse(storedChannels);
-        setSelectedChannels(parsedChannels);
+        setSelectedWebviews(parsedChannels);
         //If there are channels, set the first one as the current channel
         if (parsedChannels.length > 0) {
           setWebViewUrl(parsedChannels[0].href);
@@ -167,7 +167,7 @@ export function useWebViews() {
    */
   useEffect(() => {
     loadSelectedChannels();
-    loadPassword();
+    loadPasswordFromSecureStore();
     loadRefreshOption();
   }, []);
 
@@ -188,70 +188,6 @@ export function useWebViews() {
     }
   };
 
-  //  /**
-  //  * @function loadPassword
-  //  * @description Loads the password from AsyncStorage
-  //  * @returns {void}
-  //  */
-  //  const loadPassword = async () => {
-  //   try {
-  //     const storedPassword = await SecureStore.getItemAsync('password');
-  //     const storedIsRequired = await SecureStore.getItemAsync('isPasswordRequired');
-      
-  //     if (storedPassword) {
-  //       setPassword(storedPassword);
-  //     }
-  //     if (storedIsRequired !== null) {  
-  //       setIsPasswordRequired(JSON.parse(storedIsRequired));
-  //     }
-  //   } catch (error) {
-  //     console.error('Failed to load password', error);
-  //   }
-  // };
-  
-  // /**
-  //  * @function handlePasswordCheck
-  //  * @description Checks if the password is correct
-  //  * @param {string} enteredPassword - The password to check
-  //  * @returns {void}
-  //  */
-  // const handlePasswordCheck = (enteredPassword) => {
-  //   if (enteredPassword === password) {
-  //     setPasswordCheckModalVisible(false);
-  //     navigate(SCREENS.SETTINGS);
-  //   } else {
-  //     Alert.alert('Incorrect password');
-  //   }
-  // };
-
-  // /**
-  //  * @function disablePassword
-  //  * @description Disables the password
-  //  * @returns {void}
-  //  */
-  // const disablePassword = () => {
-  //   setPassword(null);
-  //   setIsPasswordRequired(false);
-  //   savePassword({
-  //     password: null,
-  //     isRequired: false
-  //   });
-  // };
-
-  // /**
-  //  * @function openPasswordModal
-  //  * @description Opens the password modal
-  //  * @returns {void}
-  //  */
-  // const openPasswordModal = () => setPasswordModalVisible(true);
-  
-  // /**
-  //  * @function closePasswordModal
-  //  * @description Closes the password modal
-  //  * @returns {void}
-  //  */
-  // const closePasswordModal = () => setPasswordModalVisible(false);
-
   /**
    * @function navigateToChannelsList
    * @description Navigates to the channels list screen
@@ -260,7 +196,7 @@ export function useWebViews() {
    */
   const navigateToChannelsList = (extractedChannels) => {
     setChannels(extractedChannels);
-    navigate(SCREENS.CHANNELS_LIST);
+    navigate(SCREENS.WEVIEWS_LIST);
   };
 
   /**
@@ -301,8 +237,8 @@ export function useWebViews() {
   return {
     channels,
     setChannels,
-    selectedChannels,
-    setSelectedChannels,
+    selectedWebviews,
+    setSelectedWebviews,
     webViewUrl,
     setWebViewUrl,
     refreshInterval,
@@ -312,7 +248,7 @@ export function useWebViews() {
     isReadOnly,
     toggleReadOnly,
     handleSelectChannels,
-    saveSelectedChannels,
+    saveSelectedWebviews,
     loadSelectedChannels, 
     getIntervalInMilliseconds,
     saveRefreshOption,

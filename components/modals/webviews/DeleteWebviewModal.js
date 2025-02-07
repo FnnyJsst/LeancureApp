@@ -5,21 +5,20 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES, SIZES } from '../../../constants/style';
 
 /**
- * @component DeleteChannel
- * @description A component that renders a modal for deleting a channel
+ * @component DeleteWebviewModal
+ * @description A component that renders a modal for deleting a webview
  * 
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
- * @param {Function} props.handleDelete - The function to call when the channel is deleted
- * 
+ * @param {Function} props.handleDelete - The function to call when the webview is deleted
  * @example
- * <DeleteChannel visible={visible} onClose={() => console.log('Modal closed')} handleDelete={() => console.log('Channel deleted')} />
+ * <DeleteWebviewModal visible={visible} onClose={() => console.log('Modal closed')} handleDelete={() => console.log('Webview deleted')} />
  */
-export default function DeleteChannel({ visible, onClose, handleDelete }) {
+export default function DeleteWebviewModal({ visible, onClose, handleDelete }) {
 
-  // We create a hook to determine the device type and orientation
-  const { isTablet, isPortrait, isSmartphonePortrait, isSmartphoneLandscape, isSmartphone } = useDeviceType(); 
+  // Hook to determine the device type and orientation
+  const { isSmartphonePortrait, isSmartphoneLandscape, isSmartphone, isTabletPortrait } = useDeviceType(); 
 
   return (
     <Modal
@@ -34,12 +33,12 @@ export default function DeleteChannel({ visible, onClose, handleDelete }) {
           MODAL_STYLES.content,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-          isTablet && isPortrait && styles.modalContentTabletPortrait
+          isTabletPortrait && styles.modalContentTabletPortrait
         ]}>
           <View style={[
             styles.titleContainer,
-            !isTablet && styles.titleContainerSmartphone,
-            isTablet && isPortrait && styles.titleContainerTabletPortrait
+            isSmartphone && styles.titleContainerSmartphone,
+            isTabletPortrait && styles.titleContainerTabletPortrait
           ]}>
             <Text style={[
               styles.title,
@@ -59,7 +58,6 @@ export default function DeleteChannel({ visible, onClose, handleDelete }) {
               backgroundColor={COLORS.orange}
               color={COLORS.white} 
               width="22%" 
-              // We send the selected option to the parent component
               onPress={() => handleDelete()} 
             />
           </View>
@@ -70,7 +68,6 @@ export default function DeleteChannel({ visible, onClose, handleDelete }) {
 }
 
 const styles = StyleSheet.create({
-  //Content styles
   modalContentSmartphonePortrait: {
     width: '95%',
   },
@@ -80,8 +77,6 @@ const styles = StyleSheet.create({
   modalContentTabletPortrait: {
     width: '60%',
   },
-
-  //Title styles
   titleContainerSmartphone: {
     display: 'flex',
     flexDirection: 'row',
