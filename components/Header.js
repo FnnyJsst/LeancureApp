@@ -31,7 +31,7 @@ export default function Header({
   onRightIconPress,
   showIcons = true,
   showMenuIcon,
-  showBackButton = true,
+  showBackButton = false,
   toggleMenu,
   transparent,
   currentSection,

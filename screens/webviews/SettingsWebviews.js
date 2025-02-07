@@ -141,7 +141,6 @@ export default function SettingsWebviews({
         ]}>
           <View style={[
             styles.configContainer,
-            styles.configContainerTablet,
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape
           ]}>
@@ -162,7 +161,6 @@ export default function SettingsWebviews({
           </View>
           <View style={[
             styles.configContainer,
-            styles.configContainerTablet,
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape
           ]}>
@@ -175,7 +173,6 @@ export default function SettingsWebviews({
           </View>
           <View style={[
             styles.configContainer,
-            styles.configContainerTablet,
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape
           ]}>
@@ -203,7 +200,6 @@ export default function SettingsWebviews({
           </View>
           <View style={[
             styles.configContainer,
-            styles.configContainerTablet,
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape
           ]}>
@@ -230,10 +226,10 @@ export default function SettingsWebviews({
             </View>
           </View>
           <View style={[styles.configContainer,
-            isTablet && styles.configContainerTablet,
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape
           ]}>
+
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
                 <SettingsCard
@@ -258,7 +254,6 @@ export default function SettingsWebviews({
           </View>
           <View style={[
             styles.configContainer,
-            styles.configContainerTablet,
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape
           ]}>
@@ -315,12 +310,9 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     borderWidth: 1,
     borderColor: COLORS.gray650,
-  },
-  configContainerTablet: {
     width: '95%',
   },
   configContainerSmartphone: {
-    width: '95%',
     marginVertical: 8,
   },
   configContainerLandscape: {

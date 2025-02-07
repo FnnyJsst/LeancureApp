@@ -6,6 +6,7 @@ import Header from '../../components/Header';
 import SettingsCard from '../../components/cards/SettingsCard';
 import { Ionicons } from '@expo/vector-icons';
 import Sidebar from '../../components/navigation/Sidebar';
+import TimeOutModal from '../../components/modals/chat/TimeOutModal';
 
 /**
  * @component SettingsMessage
@@ -14,7 +15,6 @@ import Sidebar from '../../components/navigation/Sidebar';
  * @param {boolean} isExpanded - A boolean to indicate if the menu is expanded
  * @param {Function} setIsExpanded - A function to set the isExpanded state
  * @param {Function} handleChatLogout - A function to handle logout
- * @returns {JSX.Element} - A JSX element
  * 
  * @example
  * <SettingsMessage onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} handleChatLogout={handleChatLogout} />
@@ -22,6 +22,7 @@ import Sidebar from '../../components/navigation/Sidebar';
 export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded, handleChatLogout }) {
   const { isSmartphone, isLandscape } = useDeviceType();
   const [currentSection, setCurrentSection] = useState('settings');
+  const [timeOutModal, setTimeOutModal] = useState(false);
 
   /**
    * @function toggleMenu
@@ -31,11 +32,18 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
     setIsExpanded(!isExpanded);
   };
 
+  const openTimeOutModal = () => {
+    setTimeOutModal(true);
+  };
+
+  const closeTimeOutModal = () => {
+    setTimeOutModal(false);
+  };
+
   return (
     <>
       <Header 
         showMenuIcon={true} 
-        // showAccountImage={true} 
         onNavigate={onNavigate} 
         toggleMenu={toggleMenu}
       />
@@ -58,18 +66,29 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
         </View>
         <View style={[
           styles.configContainer,
+          isSmartphone && styles.configContainerSmartphone,
           isLandscape && styles.configContainerLandscape
         ]}>
           <SettingsCard
-            title="Logout"
-            description="Logout and go back to login screen"
-            icon={<Ionicons name="log-out-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
-            onPress={() => {
-              onNavigate('LOGIN');
-            }}
+            title="Session Timeout"
+            icon={
+              <View style={styles.quitIconBackground}>
+                <Ionicons 
+                  name="exit-outline" 
+                  size={isSmartphone ? 22 : 28} 
+                  color={COLORS.red} 
+                />
+              </View>
+            }
+            description="Define the time after which the session will be logged out"
+            onPress={openTimeOutModal}
           />
         </View>
       </View>
+      <TimeOutModal
+        visible={timeOutModal}
+        onClose={closeTimeOutModal}
+      />
     </>
   );
 }
@@ -77,7 +96,6 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
 const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
-    backgroundColor: COLORS.gray900,
     paddingHorizontal: 15,
   },
   headerContainer: {
@@ -96,18 +114,30 @@ const styles = StyleSheet.create({
   headerSmartphone: {
     fontSize: SIZES.fonts.headerSmartphone,
   }, 
-  // CONFIG CONTAINER
   configContainer: {
-    backgroundColor: COLORS.gray800,
-    borderRadius: SIZES.borderRadius.small,
-    paddingVertical: 20,
+    backgroundColor: COLORS.gray850,
+    borderRadius: SIZES.borderRadius.xLarge,
+    paddingVertical: 12,
     paddingHorizontal: 15,
     marginHorizontal: 15,
     alignSelf: 'center',
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: COLORS.gray650,
+    width: '95%',
+  },
+  configContainerSmartphone: {
     marginVertical: 8,
-    width: '95%'
   },
   configContainerLandscape: {
     marginHorizontal: 50,
+  },
+  quitIconBackground: {
+    backgroundColor: '#502e2e',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
