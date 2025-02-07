@@ -18,6 +18,8 @@ import { useNavigation } from './hooks/useNavigation';
 import * as SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
 import usePushNotifications from './services/notifications/notificationService';
+import { useWebViews } from './hooks/useWebviews';
+import { useWebViewsPassword } from './hooks/useWebViewsPassword';
 
 /**
  * @component App
@@ -28,299 +30,81 @@ export default function App() {
 
   //States related to the webviews
   const [isLoading, setIsLoading] = useState(true);
-  const [channels, setChannels] = useState([]);
-  const [selectedChannels, setSelectedChannels] = useState([]);
-  const [webViewUrl, setWebViewUrl] = useState('');
-  const [refreshInterval, setRefreshInterval] = useState(null);
-  const [refreshOption, setRefreshOption] = useState('never');
-  const [password, setPassword] = useState(null);
-  const [isPasswordRequired, setIsPasswordRequired] = useState(false);
-  const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
-  const [passwordCheckModalVisible, setPasswordCheckModalVisible] = useState(false);
-  const [isReadOnly, setIsReadOnly] = useState(false);
   const [currentScreen, setCurrentScreen] = useState(SCREENS.APP_MENU);
   const [globalMessages, setGlobalMessages] = useState([]);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const { navigate } = useNavigation(setCurrentScreen);
   const expoPushToken = usePushNotifications();
 
-useEffect(() => {
-  if (expoPushToken) {
-    console.log('📲 Token dans App:', expoPushToken);
-  }
-}, [expoPushToken]);
-  
-  //States related to the chat
-  const [isExpanded, setIsExpanded] = useState(false);
-  
-  /**
-   * @function toggleReadOnly
-   * @description Toggles the read-only mode
-   * @param {boolean} value - The value to set
-   * @returns {void}
-   */
-  const toggleReadOnly = (value) => {
-    setIsReadOnly(value !== undefined ? value : !isReadOnly);
-  };
-  
-  /**
-   * @function handleSelectChannels
-   * @description Handles the selection of channels
-   * @param {Array} selected - The selected channels
-   * @returns {void}
-   */
-  const handleSelectChannels = (selected) => {
-    const updatedChannels = [...selectedChannels];
-    
-    selected.forEach(newChannel => {
-      const isDuplicate = selectedChannels.some(
-        existingChannel => existingChannel.href === newChannel.href
-      );
-      
-      if (!isDuplicate) {
-        updatedChannels.push(newChannel);
-      }
-    });
-  
-    setSelectedChannels(updatedChannels);
-    saveSelectedChannels(updatedChannels);
-    navigate('CHANNELS_MANAGEMENT');
-  };
+  // Importation of the webviews hooks
+  const {     
+    channels,
+    setChannels,
+    selectedChannels,
+    setSelectedChannels,
+    webViewUrl,
+    setWebViewUrl,
+    refreshInterval,
+    setRefreshInterval,
+    refreshOption,
+    setRefreshOption,
+    isReadOnly,
+    toggleReadOnly,
+    handleSelectChannels,
+    saveSelectedChannels,
+    loadSelectedChannels,
+    getIntervalInMilliseconds,
+    saveRefreshOption,
+    handleSelectOption,
+    navigateToChannelsList,
+    navigateToWebView,
+  } = useWebViews();
+
+  // Importation of the webviews password hooks
+    const {
+      password,
+      setPassword,
+      isPasswordRequired,
+      setIsPasswordRequired,
+      isPasswordModalVisible,
+      setPasswordModalVisible,
+      passwordCheckModalVisible,
+      setPasswordCheckModalVisible,
+      handlePasswordSubmit,
+      handlePasswordCheck,
+      disablePassword,
+      openPasswordModal,
+      closePasswordModal,
+    } = useWebViewsPassword(navigate);
+
 
   /**
-   * @function saveSelectedChannels
-   * @description Saves the selected channels in AsyncStorage
-   * @param {Array} channels - The channels to save
+   * @function useEffect
+   * @description Allows to display the push token in the console, used for notifications
    * @returns {void}
    */
-  const saveSelectedChannels = async (channels) => {
-    try {
-      await SecureStore.setItemAsync('selectedChannels', JSON.stringify(channels));
-    } catch (error) {
-      console.error('Failed to save channels', error);
+  useEffect(() => {
+    if (expoPushToken) {
+      // console.log('📲 Token dans App:', expoPushToken);
     }
-  };
+  }, [expoPushToken]);
 
-  /**
-   * @function loadSelectedChannels
-   * @description Loads the selected channels from AsyncStorage
-   * @returns {void}
-   */
-  const loadSelectedChannels = async () => {
-    try {
-      const storedChannels = await SecureStore.getItemAsync('selectedChannels');
-      if (storedChannels) {
-        const parsedChannels = JSON.parse(storedChannels);
-        setSelectedChannels(parsedChannels);
-        if (parsedChannels.length > 0) {
-          setWebViewUrl(parsedChannels[0].href);
-          navigate('WEBVIEW');
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load channels', error);
-    }
-  };
-
-  /**
-   * @function getIntervalInMilliseconds
-   * @description Gets the interval in milliseconds
-   * @param {string} value - The value to get
-   * @returns {number} - The interval in milliseconds
-   */
-  const getIntervalInMilliseconds = (value) => {
-    switch (value) {
-      case 'every minute': return 60000;
-      case 'every 2 minutes': return 120000;
-      case 'every 5 minutes': return 300000;
-      case 'every 15 minutes': return 900000;
-      case 'every 30 minutes': return 1800000;
-      case 'every hour': return 3600000;
-      case 'every 2 hours': return 7200000;
-      case 'every 3 hours': return 10800000;
-      case 'every 6 hours': return 21600000;
-      case 'every day': return 86400000;
-      default: return null;
-    }
-  };
-
-  /**
-   * @function saveRefreshOption
-   * @description Saves the refresh option in AsyncStorage
-   * @param {string} option - The option to save
-   * @returns {void}
-   */
-  const saveRefreshOption = async (option) => {
-    try {
-      await SecureStore.setItemAsync('refreshOption', option);
-    } catch (error) {
-      console.error('Failed to save refresh option', error);
-    }
-  };
-
-  /**
-   * @function loadRefreshOption
-   * @description Loads the refresh option from AsyncStorage
-   * @returns {void}
-   */
-  const loadRefreshOption = async () => {
-    try {
-      const storedOption = await SecureStore.getItemAsync('refreshOption');
-      if (storedOption) {
-        setRefreshOption(storedOption); 
-        setRefreshInterval(getIntervalInMilliseconds(storedOption));
-      }
-    } catch (error) {
-      console.error('Failed to load refresh option', error);
-    }
-  };
-
-  /**
-   * @function handleSelectOption
-   * @description Handles the selection of the refresh option
-   * @param {string} option - The option to select
-   * @returns {void}
-   */
-  const handleSelectOption = (option) => {
-    setRefreshOption(option);
-    setRefreshInterval(getIntervalInMilliseconds(option));
-    saveRefreshOption(option);
-  };
 
   /**
    * @function handleSettingsAccess
-   * @description Handles the access to the settings
+   * @description Handles the access to the settings screen in the webviews with or without password
    * @returns {void}
    */
   const handleSettingsAccess = () => {
     if (isPasswordRequired) {
       setPasswordCheckModalVisible(true);
+
     } else {
       navigate(SCREENS.SETTINGS);
     }
   };
 
-  /**
-   * @function handlePasswordSubmit
-   * @description Handles the submission of the password
-   * @param {string} enteredPassword - The password to submit
-   * @returns {void}
-   */
-  const handlePasswordSubmit = (enteredPassword) => {
-    setPassword(enteredPassword);
-    setIsPasswordRequired(true);
-    savePassword({
-      password: enteredPassword,
-      isRequired: true
-    });
-    closePasswordModal();
-  };
-
-  /**
-   * @function savePassword
-   * @description Saves the password in AsyncStorage
-   * @param {Object} passwordData - The password data
-   * @returns {void}
-   */
-  const savePassword = async (passwordData) => {
-    try {
-      if (passwordData.password === null) {
-        await SecureStore.deleteItemAsync('password');
-        await SecureStore.setItemAsync('isPasswordRequired', 'false');
-      } else {
-        await SecureStore.setItemAsync('password', passwordData.password);
-        await SecureStore.setItemAsync('isPasswordRequired', JSON.stringify(passwordData.isRequired));
-      }
-    } catch (error) {
-      console.error('Failed to save password', error);
-    }
-  };
-  
-  /**
-   * @function loadPassword
-   * @description Loads the password from AsyncStorage
-   * @returns {void}
-   */
-  const loadPassword = async () => {
-    try {
-      const storedPassword = await SecureStore.getItemAsync('password');
-      const storedIsRequired = await SecureStore.getItemAsync('isPasswordRequired');
-      
-      if (storedPassword) {
-        setPassword(storedPassword);
-      }
-      if (storedIsRequired !== null) {  
-        setIsPasswordRequired(JSON.parse(storedIsRequired));
-      }
-    } catch (error) {
-      console.error('Failed to load password', error);
-    }
-  };
-  
-  /**
-   * @function handlePasswordCheck
-   * @description Checks if the password is correct
-   * @param {string} enteredPassword - The password to check
-   * @returns {void}
-   */
-  const handlePasswordCheck = (enteredPassword) => {
-    if (enteredPassword === password) {
-      setPasswordCheckModalVisible(false);
-      navigate(SCREENS.SETTINGS);
-    } else {
-      Alert.alert('Incorrect password');
-    }
-  };
-
-  /**
-   * @function disablePassword
-   * @description Disables the password
-   * @returns {void}
-   */
-  const disablePassword = () => {
-    setPassword(null);
-    setIsPasswordRequired(false);
-    savePassword({
-      password: null,
-      isRequired: false
-    });
-  };
-
-  /**
-   * @function openPasswordModal
-   * @description Opens the password modal
-   * @returns {void}
-   */
-  const openPasswordModal = () => setPasswordModalVisible(true);
-  
-  /**
-   * @function closePasswordModal
-   * @description Closes the password modal
-   * @returns {void}
-   */
-  const closePasswordModal = () => setPasswordModalVisible(false);
-
-  /**
-   * @function navigateToChannelsList
-   * @description Navigates to the channels list screen
-   * @param {Array} extractedChannels - The extracted channels
-   * @returns {void}
-   */
-  const navigateToChannelsList = (extractedChannels) => {
-    setChannels(extractedChannels);
-    navigate(SCREENS.CHANNELS_LIST);
-  };
-
-  /**
-   * @function navigateToWebView
-   * @description Navigates to the web view screen
-   * @param {string} url - The URL to navigate to
-   * @returns {void}
-   */
-  const navigateToWebView = (url) => {
-    setWebViewUrl(url);
-    navigate('WEBVIEW');
-  };
 
   /**
    * @function useEffect
@@ -335,16 +119,16 @@ useEffect(() => {
     return () => clearTimeout(timer);
   }, []);
 
-  /**
-   * @function useEffect
-   * @description Loads the selected channels, the password and the refresh option from AsyncStorage
-   * @returns {void}
-   */
-  useEffect(() => {
-    loadSelectedChannels();
-    loadPassword();
-    loadRefreshOption();
-  }, []);
+  // /**
+  //  * @function useEffect
+  //  * @description Loads the selected channels, the password and the refresh option from AsyncStorage
+  //  * @returns {void}
+  //  */
+  // useEffect(() => {
+  //   loadSelectedChannels();
+  //   loadPassword();
+  //   loadRefreshOption();
+  // }, []);
 
   /**
    * @function useEffect
@@ -431,6 +215,8 @@ useEffect(() => {
             isReadOnly={isReadOnly}
             toggleReadOnly={toggleReadOnly}
             onNavigate={navigate}
+            
+
             // onSettingsAccess={handleSettingsAccess}
           />
         );

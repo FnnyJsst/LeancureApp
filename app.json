@@ -39,16 +39,18 @@
         "backgroundColor": "#e5e5e5e5e5e5"
       },
       "permissions": [
-        "INTERNET",
+        "android.permission.INTERNET",
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE",
         "android.permission.ACCESS_WIFI_STATE",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.VIBRATE"
+        "android.permission.VIBRATE",
+        "android.permission.RECORD_AUDIO"
       ],
-      "useNextNotificationsApi": true
+      "useNextNotificationsApi": true,
+      "package": "com.fnnyjsst.react_native"
     },
     "web": {
       "favicon": "./assets/favicon.png"

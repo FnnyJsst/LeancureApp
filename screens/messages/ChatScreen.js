@@ -13,7 +13,6 @@ import { COLORS } from '../../constants/style';
  * @param {boolean} isExpanded - A boolean to indicate if the menu is expanded
  * @param {Function} setIsExpanded - A function to set the isExpanded state
  * @param {Function} handleLogout - A function to handle logout
- * @returns {JSX.Element} - A JSX element
  * 
  * @example
  * <ChatScreen onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} handleLogout={handleLogout} />
@@ -28,9 +27,14 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const [channelMessages, setChannelMessages] = useState([]);
   const [unreadChannels, setUnreadChannels] = useState({});
 
+  /**
+   * @function useEffect
+   * @description Fetches the channel data and refreshes it every 5 seconds
+   */
   useEffect(() => {
     let isMounted = true;
     let refreshInterval;
+
 
     const fetchChannelData = async () => {
       try {
@@ -44,6 +48,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     fetchChannelData();
     refreshInterval = setInterval(fetchChannelData, 5000);
 
+    // When the component is unmounted, we clear the interval
     return () => {
       isMounted = false;
       if (refreshInterval) {
@@ -54,7 +59,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
   /**
    * @function toggleMenu
-   * @description Toggles the sidebar menu
+   * @description Opens or closes the sidebar menu
    */
   const toggleMenu = () => {
     setIsExpanded(!isExpanded);
@@ -133,7 +138,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
   /**
    * @function fetchMessages
-   * @description Fetches the messages from the API
+   * @description Fetches the user messages from the API
    * @returns {Promise<Array>} - The messages
    */
   const fetchMessages = async () => {
