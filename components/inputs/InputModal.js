@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: COLORS.white,
-    fontSize: SIZES.fonts.messageTextTablet,
+    fontSize: SIZES.fonts.biggerTextTablet,
     marginLeft: 10,
   },
   icon: {

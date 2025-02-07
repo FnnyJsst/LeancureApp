@@ -4,12 +4,12 @@
  */
 export const SIZES = {
   fonts: {
-    errorTextSmartphone: 12,
-    errorTextTablet: 14,
+    smallTextSmartphone: 12,
+    smallTextTablet: 17,
     textSmartphone: 14,
-    messageTextSmartphone: 16,
-    messageTextTablet: 18,
     textTablet: 20,
+    biggerTextSmartphone: 16,
+    biggerTextTablet: 18,
     sideBarTextSmartphone: 17,
     inputTitleSmartphone: 16,
     inputTitleTablet: 20,

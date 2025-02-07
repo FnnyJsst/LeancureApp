@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     color: COLORS.gray300,
   },
   titleTextSmartphone: {
-    fontSize: 16,
+    fontSize: SIZES.fonts.biggerTextSmartphone,
   },
 
   //Button styles

@@ -339,13 +339,17 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     color: COLORS.gray300,
-    fontSize: 16,
+    fontSize: SIZES.fonts.smallTextTablet,
     textAlign: 'center',
     marginTop: 20
+  },
+  loadingTextSmartphone: {
+    fontSize: SIZES.fonts.smallTextSmartphone,
   },
   groupItem: {
     marginBottom: 15
   },
+
   selectedItem: {
     backgroundColor: COLORS.charcoal,
     borderRadius: SIZES.borderRadius.large,
@@ -366,7 +370,7 @@ const styles = StyleSheet.create({
     marginLeft: 10
   },
   groupNameSmartphone: {
-    fontSize: 14,
+    fontSize: SIZES.fonts.textSmartphone,
   },
   channelItem: {
     flexDirection: 'row',
@@ -383,18 +387,18 @@ const styles = StyleSheet.create({
   hashIcon: {
     color: COLORS.gray300,
     marginRight: 8,
-    fontSize: 18,
+    fontSize: SIZES.fonts.biggerTextTablet,
     fontWeight: SIZES.fontWeight.medium,
   },
   hashIconSmartphone: {
-    fontSize: 14,
+    fontSize: SIZES.fonts.textSmartphone,
   },
   channelName: {
     color: COLORS.gray300,
     fontSize: SIZES.fonts.textTablet,
   },
   channelNameSmartphone: {
-    fontSize: 14,
+    fontSize: SIZES.fonts.textSmartphone,
   },
   menuItem: {
     flexDirection: 'row',
@@ -443,15 +447,17 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.medium,
   },
   userNameSmartphone: {
-    fontSize: 14,
+    fontSize: SIZES.fonts.textSmartphone,
   },
   userRole: {
     color: COLORS.orange,
-    fontSize: 16,
+    fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.regular,
   },
+
+
   userRoleSmartphone: {
-    fontSize: 12,
+    fontSize: SIZES.fonts.smallTextSmartphone,
   },
   logoutButton: {
     backgroundColor: COLORS.charcoal,
@@ -483,7 +489,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.textTablet,
   },
   searchInputSmartphone: {
-    fontSize: 14,
+    fontSize: SIZES.fonts.textSmartphone,
   },
   unreadDot: {
     width: 8,

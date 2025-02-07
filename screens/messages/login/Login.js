@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     inputTitleSmartphone: {
-        fontSize: 14,
+        fontSize: SIZES.fonts.textSmartphone,
         fontWeight: SIZES.fontWeight.medium,
     },
     inputTitleSmartphoneLandscape: {

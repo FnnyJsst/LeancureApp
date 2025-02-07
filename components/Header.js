@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.medium,
   },
   headerTextSmartphone: {
-    fontSize: 16,
+    fontSize: SIZES.fonts.biggerTextSmartphone
   },
   iconButton: {
     padding: 5,

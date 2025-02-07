@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   addChannelTextSmartphone: {
-    fontSize: 16,
+    fontSize: SIZES.fonts.biggerTextSmartphone,
   },
   textSelected: {
     color: COLORS.orange,

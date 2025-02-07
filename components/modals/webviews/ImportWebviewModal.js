@@ -177,7 +177,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
             ]}>
               <Text style={[
                 styles.errorText,
-                isSmartphone && styles.errorTextSmartphone
+                isSmartphone && styles.smallTextSmartphone
               ]}>{error}</Text>
             </View>
           ) : null}
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     color: COLORS.red,
     fontSize: SIZES.fonts.errorText,
   },
-  errorTextSmartphone: {
+  smallTextSmartphone: {
     fontSize: SIZES.fonts.errorText,
   },
 });

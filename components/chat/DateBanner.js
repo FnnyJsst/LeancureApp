@@ -40,11 +40,11 @@ const styles = StyleSheet.create({
   },
   text: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.errorTextTablet,
+    fontSize: SIZES.fonts.smallTextTablet,
     fontWeight: SIZES.fontWeight.medium,
   },
   textSmartphone: {
-    fontSize: SIZES.fonts.errorTextSmartphone,
+    fontSize: SIZES.fonts.smallTextSmartphone,
   }
 
 }); 

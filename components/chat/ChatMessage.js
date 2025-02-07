@@ -189,6 +189,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
           isSmartphone && styles.messageTextSmartphone
         ]}>{message.text}</Text>
       </View>
+
     </View>
   );
 }
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
   },
   username: {
     color: COLORS.white,
-    fontSize: SIZES.fonts.messageTextTablet,
+    fontSize: SIZES.fonts.biggerTextTablet,
     fontWeight: SIZES.fontWeight.medium,
   },
   usernameSmartphone: {
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     color: COLORS.gray600,
-    fontSize: 12,
+    fontSize: SIZES.fonts.smallTextSmartphone,
     fontWeight: SIZES.fontWeight.light,
   },
   messageContainer: {
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.light,
   },
   messageTextSmartphone: {
-    fontSize: 16,
+    fontSize: SIZES.fonts.biggerTextSmartphone,
     fontWeight: SIZES.fontWeight.regular,
   },
   fileContainer: {

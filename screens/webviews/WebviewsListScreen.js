@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   channelTitleSmartphone: {
-    fontSize: 16,
+    fontSize: SIZES.fonts.biggerTextSmartphone,
   },
   listContainer: {
     flex: 1,

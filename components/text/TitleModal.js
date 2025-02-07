@@ -36,6 +36,6 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   titleSmartphone: {
-    fontSize: 16,
+    fontSize: SIZES.fonts.biggerTextSmartphone
   },
 });
