@@ -89,7 +89,7 @@ const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
             <View style={MODAL_STYLES.buttonContainer}>
               <Button 
                 title="Close" 
-                backgroundColor={"#111111"}
+                backgroundColor={COLORS.gray950}
                 textColor={COLORS.gray300} 
                 width={isSmartphone ? '22%' : '25%'}
                 onPress={onClose} />

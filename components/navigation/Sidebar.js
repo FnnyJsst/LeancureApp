@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: COLORS.backgroundModal,
     zIndex: 1
   },
   sidebar: {
@@ -315,11 +315,11 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     width: 300,
-    backgroundColor: "#111111",
+    backgroundColor: COLORS.gray950,
     zIndex: 2,
     paddingTop: 20,
     borderRightWidth: 0.5,
-    borderRightColor: '#403430',
+    borderRightColor: COLORS.borderColor,
   },
   sidebarSmartphone: {
     width: '80%',
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 60,
-    backgroundColor: "#111111",
+    backgroundColor: COLORS.gray950,
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
@@ -454,13 +454,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   logoutButton: {
-    backgroundColor: "#271E1E",
+    backgroundColor: COLORS.charcoal,
     borderRadius: SIZES.borderRadius.medium,
     borderWidth: 0.5,
-    borderColor: '#403430',
+    borderColor: COLORS.borderColor,
     width: 50,
     height: 36,
     justifyContent: 'center',
+
     alignItems: 'center',
   },
   chevron: {

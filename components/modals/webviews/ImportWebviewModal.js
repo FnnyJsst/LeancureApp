@@ -186,15 +186,13 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
           ]}>
             <Button 
               title="Cancel" 
-              // We close the modal
               onPress={handleClose}
-              backgroundColor={"#111111"}
-              textColor={"#808080"}
+              backgroundColor={COLORS.gray950}
+              textColor={COLORS.gray300}
               width={isSmartphone ? '22%' : '25%'}
             />
             <Button 
               title="Import" 
-              // We import the channels
               onPress={handleDownload}
               backgroundColor={COLORS.orange}
               width={isSmartphone ? '22%' : '25%'}
@@ -226,7 +224,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   errorText: {
-    color: COLORS.error,
+    color: COLORS.red,
     fontSize: SIZES.fonts.errorText,
   },
   errorTextSmartphone: {

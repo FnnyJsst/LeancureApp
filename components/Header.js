@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 15,
     borderBottomWidth: 0.5,
-    borderBottomColor: '#403430',
+    borderBottomColor: COLORS.borderColor,
   },
   noBorder: {
     borderBottomWidth: 0,
@@ -181,10 +181,10 @@ const styles = StyleSheet.create({
   },
   bellIconButton: {
     padding: 5,
-    backgroundColor: "#271E1E",
+    backgroundColor: COLORS.charcoal,
     borderRadius: SIZES.borderRadius.small,
     borderWidth: 0.5,
-    borderColor: '#403430',
+    borderColor: COLORS.borderColor,
   },
   leftSection: {
     flexDirection: 'row',

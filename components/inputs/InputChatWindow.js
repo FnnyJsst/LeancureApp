@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   sendButtonActive: {
-    backgroundColor: "#271E1E",
+    backgroundColor: COLORS.charcoal,
   },
   smartphoneSendButton: {
     width: 36,

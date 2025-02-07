@@ -50,7 +50,7 @@ export default function InputModal({
         <TextInput 
           placeholder={placeholder}
           secureTextEntry={secureTextEntry && !showPassword}
-          placeholderTextColor={"#808080"}
+          placeholderTextColor={COLORS.gray600}
           value={value}
           onChangeText={onChangeText}
           style={[styles.input, isSmartphone && styles.inputSmartphone]}
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     padding: 10,
     width: '100%',
-    backgroundColor: "#111111",
+    backgroundColor: COLORS.gray950,
     borderRadius: SIZES.borderRadius.medium,
     flexDirection: 'row',
     alignItems: 'center',

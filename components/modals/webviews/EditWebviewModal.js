@@ -128,10 +128,9 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
           <View style={MODAL_STYLES.buttonContainer}>
             <Button 
               title="Cancel" 
-              backgroundColor={COLORS.gray650} 
-              color={COLORS.white} 
+              backgroundColor={COLORS.gray950} 
+              color={COLORS.gray300} 
               width="22%"
-              // We close the modal
               onPress={onClose} 
             />
             <Button 
@@ -139,7 +138,6 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               backgroundColor={COLORS.orange} 
               color={COLORS.white} 
               width="22%"
-              // We send the URL and title to the parent component
               onPress={handleOk} 
             />
           </View>

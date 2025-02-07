@@ -197,7 +197,6 @@ import { secureStore } from '../../../utils/encryption';
     return (
         <>
             <StatusBar 
-                backgroundColor="#121212"
                 barStyle="light-content"
                 translucent={true}
             />
@@ -403,7 +402,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     errorText: {
-        color: COLORS.error,
+        color: COLORS.red,
         fontSize: SIZES.fonts.errorText,
         textAlign: 'center',
         marginTop: 10,

@@ -70,13 +70,13 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
 
 const styles = StyleSheet.create({
   loginContainer: {
-    backgroundColor: "#271E1E",
+    backgroundColor: COLORS.charcoal,
     padding: 25,
     borderRadius: SIZES.borderRadius.xxLarge,
     alignSelf: 'center',
     width: '70%',
     borderWidth: 1,
-    borderColor: '#403430',
+    borderColor: COLORS.borderColor,
     marginTop: 20,
   },
   loginContainerSmartphone: {

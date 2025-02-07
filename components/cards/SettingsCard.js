@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: SIZES.borderRadius.small,
-    backgroundColor: '#403430',
+    backgroundColor: COLORS.borderColor,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: SIZES.fonts.subtitleTablet,
-    color: "#d1d1d1",
+    color: COLORS.gray300,
     fontWeight: SIZES.fontWeight.regular
   },
   titleSmartphone: {

@@ -151,7 +151,7 @@ export default function SettingsWebviews({
                   <Ionicons 
                     name="exit-outline" 
                     size={isSmartphone ? 22 : 28} 
-                    color="#e74242" 
+                    color={COLORS.red} 
                   />
                 </View>
               }

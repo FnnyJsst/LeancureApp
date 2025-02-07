@@ -46,7 +46,7 @@ const AppMenuCard = ({ title, icon, onPress, unreadCount }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#271E1E",
+    backgroundColor: COLORS.charcoal,
     borderRadius: SIZES.borderRadius.large,
     padding: 20,
     alignItems: 'center',

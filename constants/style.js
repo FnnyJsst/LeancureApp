@@ -45,18 +45,18 @@ export const COLORS = {
   
   // Dark grays (from darkest to lightest)
   gray950: '#111111',
-  gray900: '#1a1a1a',      // ancien darkGray - fond principal
-  gray850: '#1e1e1e',      // ancien black
-  gray800: '#232424',      // fond des cards/containers
-  gray750: '#27272a',      // ancien buttonGray
-  gray700: '#282828',      // ancien gray700
-  gray650: '#313135',      // ancien gray650
+  gray900: '#1a1a1a',      
+  gray850: '#1e1e1e',      
+  gray800: '#232424',      
+  gray750: '#27272a',      
+  gray700: '#282828',      
+  gray650: '#313135',      
   
   // Medium grays
-  gray600: '#646262',      // ancien gray - texte peu contrasté
+  gray600: '#646262',      
   
   // Light grays
-  gray300: '#b2b2b2',      // ancien gray300 - texte secondaire
+  gray300: '#b2b2b2',      
   
   // Base colors
   white: '#ffffff',       
@@ -66,9 +66,7 @@ export const COLORS = {
   // Border colors
   borderColor: '#403430',
   
-  // Status colors
-  success: '#24c12f',
-  error: '#ff4444',
+  red: '#e74242',
   
   // Background colors
   backgroundModal: 'rgba(0, 0, 0, 0.8)',

@@ -77,7 +77,7 @@ export default function InputLogin({
                 value={value} 
                 onChangeText={onChangeText} 
                 secureTextEntry={secureTextEntry && !showPassword} 
-                placeholderTextColor={"#808080"}
+                placeholderTextColor={COLORS.gray600}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
             />
@@ -100,7 +100,7 @@ export default function InputLogin({
 const styles = StyleSheet.create({
     inputContainer: {
         width: '95%',
-        backgroundColor: "#111111",
+        backgroundColor: COLORS.gray950,
         borderRadius: SIZES.borderRadius.medium,
         flexDirection: 'row',
         alignItems: 'center',
