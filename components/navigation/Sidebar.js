@@ -6,7 +6,6 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { fetchUserChannels } from '../../services/api/messageApi';
 import * as SecureStore from 'expo-secure-store';
 import { SCREENS } from '../../constants/screens';
-import AccountImage from '../../components/AccountImage';
 
 /**
  * @component Sidebar
@@ -281,7 +280,6 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         {/* User profile banner */}
         <View style={styles.profileBanner}>
           <View style={styles.profileInfo}>
-            <AccountImage width={40} height={40} />
             <View style={styles.userInfo}>
               <Text style={[styles.userName, isSmartphone && styles.userNameSmartphone]}>John Doe</Text>
               <Text style={[styles.userRole, isSmartphone && styles.userRoleSmartphone]}>Technician</Text>
@@ -349,7 +347,6 @@ const styles = StyleSheet.create({
   groupItem: {
     marginBottom: 15
   },
-
   selectedItem: {
     backgroundColor: COLORS.charcoal,
     borderRadius: SIZES.borderRadius.large,
@@ -440,10 +437,11 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     justifyContent: 'center',
+    marginLeft: 10,
   },
   userName: {
     color: COLORS.white,
-    fontSize: SIZES.fonts.textTablet,
+    fontSize: SIZES.fonts.smallTextTablet,
     fontWeight: SIZES.fontWeight.medium,
   },
   userNameSmartphone: {
@@ -451,9 +449,10 @@ const styles = StyleSheet.create({
   },
   userRole: {
     color: COLORS.orange,
-    fontSize: SIZES.fonts.textTablet,
+    fontSize: SIZES.fonts.smallTextTablet,
     fontWeight: SIZES.fontWeight.regular,
   },
+
 
 
   userRoleSmartphone: {

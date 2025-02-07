@@ -3,11 +3,12 @@ import { ScrollView, View, Text, StyleSheet, BackHandler, TouchableOpacity } fro
 import { Ionicons } from '@expo/vector-icons';
 import SettingsCard from '../../components/cards/SettingsCard';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
-import ReadOnly from '../../components/modals/webviews/ReadOnly';
+import ReadOnlyModal from '../../components/modals/webviews/ReadOnlyModal';
 import PasswordDefineModal from '../../components/modals/webviews/PasswordDefineModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
+
 
 /**
  * @component SettingsWebviews
@@ -270,13 +271,13 @@ export default function SettingsWebviews({
           </View>
         </View>
       </ScrollView>
-  
+      {/* Modals */}
       <AutoRefreshModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onSelectOption={handleSelectOption}
       />
-      <ReadOnly
+      <ReadOnlyModal
         visible={isReadOnlyModalVisible}
         onClose={closeReadOnlyModal}
         onToggleReadOnly={toggleReadOnly}
