@@ -101,7 +101,6 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption }) => {
                 onPress={() => {
                   // We send the selected option to the parent component
                   onSelectOption(selectedOption);
-                  // We close the modal
                   onClose();
                 }}
               />

@@ -59,7 +59,7 @@ export default function App() {
     handleSelectOption,
     navigateToChannelsList,
     navigateToWebView,
-  } = useWebViews();
+  } = useWebViews(setCurrentScreen);
 
   // Importation of the webviews password hooks
     const {
@@ -205,7 +205,7 @@ export default function App() {
           />
         );
 
-      case SCREENS.WEBWIEWS_MANAGEMENT:
+      case SCREENS.WEBVIEWS_MANAGEMENT:
         return (
           <WebviewsManagementScreen
             onImport={navigateToChannelsList}
@@ -218,13 +218,13 @@ export default function App() {
           />
         );
 
-      case SCREENS.WEVIEWS_LIST:
+      case SCREENS.WEBVIEWS_LIST:
         return (
           <WebviewsListScreen
             channels={channels}
             selectedWebviews={selectedWebviews}
             onBack={handleImportWebviews}
-            onBackPress={() => navigate(SCREENS.WEBWIEWS_MANAGEMENT)}
+            onBackPress={() => navigate(SCREENS.WEBVIEWS_MANAGEMENT)}
           />
         );
 

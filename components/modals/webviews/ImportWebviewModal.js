@@ -94,6 +94,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
 
     // Build the full URL
     const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
+    console.log('🔄 URL complète:', fullUrl);
     fetch(fullUrl)
       .then(response => {
         // Get the content type
@@ -111,6 +112,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
       .then(data => {
         // If the data is a string, extract the channels links and titles
         if (typeof data === 'string') {
+          console.log('🔄 Données HTML:', data);
           const extractedChannels = parseHtml(data);
           setChannels(extractedChannels);
           // If no channels are found, set the error message

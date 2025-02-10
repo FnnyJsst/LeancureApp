@@ -2,22 +2,23 @@ import { useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from './useNavigation';
 import { useWebViewsPassword } from './useWebViewsPassword';
+import { SCREENS } from '../constants/screens';
 
 /**
  * @function useWebViews
  * @description This hook is used to manage the webviews
  * @returns {Object} - The webviews state
  */
-export function useWebViews() {
+export function useWebViews(setCurrentScreen) {
   const [channels, setChannels] = useState([]);
-
   const [selectedWebviews, setSelectedWebviews] = useState([]);
   const [webViewUrl, setWebViewUrl] = useState('');
   const [refreshInterval, setRefreshInterval] = useState(null);
   const [refreshOption, setRefreshOption] = useState('never');
   const [isReadOnly, setIsReadOnly] = useState(false);
 
-  const { navigate } = useNavigation();
+  const { navigate } = useNavigation(setCurrentScreen);
+
   const {
     password,
     setPassword,
@@ -108,7 +109,7 @@ export function useWebViews() {
   
     setSelectedWebviews(updatedWebviews);
     saveSelectedWebviews(updatedWebviews);
-    navigate('WEBWIEWS_MANAGEMENT');
+    navigate(SCREENS.WEBVIEWS_MANAGEMENT);
   };
 
     /**
@@ -141,8 +142,9 @@ export function useWebViews() {
         //If there are channels, set the first one as the current channel
         if (parsedChannels.length > 0) {
           setWebViewUrl(parsedChannels[0].href);
-          navigate('WEBVIEW');
+          navigate(SCREENS.WEBVIEW);
         }
+
       }
     } catch (error) {
       console.error('Failed to load channels', error);
@@ -195,8 +197,13 @@ export function useWebViews() {
    * @returns {void}
    */
   const navigateToChannelsList = (extractedChannels) => {
+    console.log('🔄 Navigation vers la liste des canaux');
     setChannels(extractedChannels);
-    navigate(SCREENS.WEVIEWS_LIST);
+    // if (SCREENS.WEBVIEWS_LIST) {
+    navigate(SCREENS.WEBVIEWS_LIST);
+    // } else {
+    //     console.error('❌ Screen WEBVIEWS_LIST non défini');
+    // }
   };
 
   /**
@@ -206,9 +213,15 @@ export function useWebViews() {
    * @returns {void}
    */
   const navigateToWebView = (url) => {
+    console.log('🔄 Navigation vers la webview:', url);
     setWebViewUrl(url);
-    navigate('WEBVIEW');
+    if (SCREENS.WEBVIEW) {
+        navigate(SCREENS.WEBVIEW);
+    } else {
+        console.error('❌ Screen WEBVIEW non défini');
+    }
   };
+
 
 
   /**

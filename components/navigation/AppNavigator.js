@@ -3,10 +3,11 @@ import { SCREENS } from '../../constants/screens';
 import AppMenu from '../../screens/common/AppMenu';
 import NoUrlScreen from '../../screens/webviews/NoUrlScreen';
 import SettingsWebviews from '../../screens/webviews/SettingsWebviews';
-import ChannelsManagementScreen from '../../screens/webviews/ChannelsManagementScreen';
+import WebviewsManagementScreen from '../../screens/webviews/WebviewsManagementScreen';
 import WebviewsListScreen from '../../screens/webviews/WebviewsListScreen';
 import WebViewScreen from '../../screens/webviews/WebViewScreen';
 import Login from '../../screens/messages/login/Login';
+
 import AccountScreen from '../../screens/messages/AccountScreen';
 import ChatScreen from '../../screens/messages/ChatScreen';
 import SettingsMessage from '../../screens/messages/SettingsMessage';
@@ -60,13 +61,14 @@ export const AppNavigator = ({
           />
         );
 
-      case SCREENS.WEBWIEWS_MANAGEMENT:
+      case SCREENS.WEBVIEWS_MANAGEMENT:
         return (
-          <ChannelsManagementScreen
+          <WebviewsManagementScreen
             onNavigate={navigate}
             {...channelProps}
           />
         );
+
 
       case SCREENS.WEVIEWS_LIST:
         return (
