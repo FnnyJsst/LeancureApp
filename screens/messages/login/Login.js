@@ -14,6 +14,8 @@ import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 import GradientBackground from '../../../components/backgrounds/GradientBackground';
 import { hashPassword } from '../../../utils/encryption';
 import { secureStore } from '../../../utils/encryption';
+// import { Network } from '@react-native-community/netinfo';
+import * as Network from 'expo-network';
 
 
 /**
@@ -40,60 +42,58 @@ import { secureStore } from '../../../utils/encryption';
     const [isChecked, setIsChecked] = useState(false);
     const [isSimplifiedLogin, setIsSimplifiedLogin] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [savedLoginInfo, setSavedLoginInfo] = useState(null);
 
-    /**
-     * @function loadLoginInfo
-     * @description Loads the login info from Secure store
-     */
-    const loadLoginInfo = async () => {
+    const handleSimplifiedLogin = async () => {
+        if (!savedLoginInfo) return;
+        
+        setIsLoading(true);
         try {
-            const savedInfo = await SecureStore.getItemAsync('savedLoginInfo');
-            if (savedInfo) {
-                const { 
-                    contractNumber: savedContract, 
-                    login: savedLogin, 
-                    password: savedPassword,
-                    wasChecked
-                } = JSON.parse(savedInfo);
-                // If the "Stay connected" checkbox is checked, we load the login info from Secure store
-
-                if (wasChecked === true) {
-                    setContractNumber(savedContract);
-                    setLogin(savedLogin);
-                    setPassword(savedPassword);
-                    setIsChecked(true);
-                    setIsSimplifiedLogin(true);
-                } else {
-                    // If the "Stay connected" checkbox is not checked, we remove the login info from Secure store
-                    setContractNumber('');
-                    setLogin('');
-                    setPassword('');
-                    setIsChecked(false);
-                    setIsSimplifiedLogin(false);
-                    await SecureStore.deleteItemAsync('savedLoginInfo');
-                }
+            const { contractNumber, login, password } = savedLoginInfo;
+            const loginResponse = await loginApi(contractNumber, login, password);
+            
+            if (loginResponse && loginResponse.status === 'ok') {
+                await secureStore.saveCredentials({
+                    contractNumber,
+                    login,
+                    password: hashPassword(password)
+                });
+                onNavigate(SCREENS.CHAT);
             }
         } catch (error) {
-            console.error('Error loading login info:', error);
+            console.error('Login error:', error);
+            setError('Login failed');
+            setIsSimplifiedLogin(false);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    /**
-     * @function loadLoginInfo
-     * @description Loads the login info from Secure store when the component is mounted
-     */
     useEffect(() => {
-        const init = async () => {
+        const checkSavedLogin = async () => {
             try {
-                await loadLoginInfo();
+                const savedInfo = await SecureStore.getItemAsync('savedLoginInfo');
+                if (savedInfo) {
+                    const parsedInfo = JSON.parse(savedInfo);
+                    setSavedLoginInfo(parsedInfo);
+                    setIsSimplifiedLogin(true);
+                    setContractNumber(parsedInfo.contractNumber);
+                }
             } catch (error) {
-                console.error('Error during initialization:', error);
+                console.error('Error checking saved login:', error);
             } finally {
                 setIsInitialLoading(false);
             }
         };
-        init();
+        
+        checkSavedLogin();
     }, []);
+
+    useEffect(() => {
+        if (isSimplifiedLogin && savedLoginInfo) {
+            handleSimplifiedLogin();
+        }
+    }, [isSimplifiedLogin, savedLoginInfo]);
 
     // If on is in initial loading, we don't render anything
     if (isInitialLoading) {
@@ -105,53 +105,74 @@ import { secureStore } from '../../../utils/encryption';
      * @description Handles the login process 
      */
     const handleLogin = async () => {
-        // We validate the inputs
-        const validationError = validateInputs();
-        if (validationError) {
-            setError(validationError);
-            return;
-        }
-
-        // We set the loading state to true
-        setIsLoading(true);
-        setError('');
-
         try {
-            // console.log('🔄 Trying to login...');
+            // Vérification de la connexion Internet
+            const netInfo = await Network.getNetworkStateAsync();
+            if (!netInfo.isConnected || !netInfo.isInternetReachable) {
+                setError('Pas de connexion Internet');
+                return;
+            }
+
+            // console.log('🌐 État de la connexion:', netInfo);
+            
+            // We validate the inputs
+            const validationError = validateInputs();
+            if (validationError) {
+                setError(validationError);
+                return;
+            }
+
+            // We set the loading state to true
+            setIsLoading(true);
+            setError('');
+
             const loginResponse = await loginApi(contractNumber, login, password);
+            // console.log('✅ Réponse du serveur:', loginResponse);
 
             if (loginResponse && loginResponse.status === 'ok') {
-                // If the "Stay connected" checkbox is not checked, we remove the login info from Secure store
-                if (!isChecked) {
-                    await SecureStore.deleteItemAsync('savedLoginInfo');
-                    setIsSimplifiedLogin(false);
-                // If the "Stay connected" checkbox is checked, we save the login info in Secure store
-                } else {
-                    await saveLoginInfo();
-                }
-
-                // Save the credentials for the current session
+                // console.log('🔑 Sauvegarde des identifiants...');
+                
+                // Sauvegarder d'abord les identifiants
                 await secureStore.saveCredentials({
                     contractNumber,
                     login,
                     password: hashPassword(password)
                 });
+                
+                // console.log('✅ Identifiants sauvegardés');
+
+                // Ensuite sauvegarder les infos de connexion simplifiée si nécessaire
+                if (isChecked) {
+                    await saveLoginInfo();
+                }
 
                 // Load the channels immediately after login
                 const channelsResponse = await fetchUserChannels(contractNumber, login, password);
-                // console.log('📊 Loading channels...');
+                // console.log('📊 Réponse des channels:', channelsResponse);
 
                 if (channelsResponse.status === 'ok') {
                     onNavigate(SCREENS.CHAT);
                 } else {
+                    // console.log('❌ Erreur channels:', channelsResponse);
                     setError('Error loading channels');
                 }
             } else {
+                // console.log('❌ Erreur login:', loginResponse);
                 setError(loginResponse.error || 'Invalid credentials');
             }
         } catch (error) {
-            // console.error('🔴 Connection error:', error);
-            setError('Connection error to the server');
+            // console.log('🔴 Erreur détaillée:', {
+            //     message: error.message,
+            //     config: error.config,
+            //     url: error.config?.url,
+            //     method: error.config?.method,
+            //     headers: error.config?.headers
+            // });
+            if (error.message === 'Network Error') {
+                setError('Impossible de joindre le serveur. Vérifiez votre connexion.');
+            } else {
+                setError('Erreur de connexion au serveur');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -163,6 +184,14 @@ import { secureStore } from '../../../utils/encryption';
      */
     const saveLoginInfo = async () => {
         try {
+            // Sauvegarder les identifiants de connexion
+            await secureStore.saveCredentials({
+                contractNumber,
+                login,
+                password: hashPassword(password)
+            });
+
+            // Sauvegarder les infos de connexion simplifiée si la case est cochée
             if (isChecked) {
                 await SecureStore.setItemAsync('savedLoginInfo', JSON.stringify({
                     contractNumber,
@@ -176,6 +205,7 @@ import { secureStore } from '../../../utils/encryption';
             }
         } catch (error) {
             console.error('Error saving login info:', error);
+            throw error; // Propager l'erreur pour la gérer dans handleLogin
         }
     };
 

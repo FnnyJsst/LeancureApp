@@ -12,30 +12,38 @@ import { createApiRequest, cleanApiResponse } from './baseApi';
  */
 export const loginApi = async (contractNumber, login, password) => {
   try {
-    const timestamp = Date.now();
-    
-    const body = createApiRequest({
-        "accounts": {
-          "loginmsg": {
-            "get": {
-              "contractnumber": contractNumber,
+    const data = createApiRequest({
+      "msg_srv": {
+        "client": {
+          "get_account_links": {
+            "accountinfos": {
               "login": login,
               "password": password,
-              "msg-msgapikey": ENV.MSG_API_KEY
-            }
+              "email": "",
+              "nom": "",
+              "prenom": ""
+            },
+            "msg-msgapikey": ENV.MSG_API_KEY,
+            "msg-contract-number": contractNumber
           }
         }
+      }
+    }, contractNumber);
+
+    console.log('🔗 URL API:', ENV.API_URL);
+    console.log('📦 Données envoyées:', JSON.stringify(data, null, 2));
+
+    const response = await axios({
+      method: 'POST',
+      url: ENV.API_URL,
+      data: data,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      timeout: 10000 // 10 secondes de timeout
     });
 
-    const response = await axios.post(ENV.API_URL, body);
-    // We clean the response
-    const cleanData = cleanApiResponse(response); 
-
-    if (cleanData.status === 'error') {
-      throw new Error(cleanData.error || 'Login failed');
-    }
-
-    return cleanData;
+    return cleanApiResponse(response);
   } catch (error) {
     throw error;
   }
