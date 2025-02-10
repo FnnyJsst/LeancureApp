@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.large,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    marginBottom: 50,
+    marginBottom: 30,
   },
   searchInput: {
     flex: 1,

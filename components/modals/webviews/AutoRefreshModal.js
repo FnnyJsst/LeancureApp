@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
  * @example
  * <AutoRefreshModal visible={visible} onClose={() => console.log('Modal closed')} onSelectOption={() => console.log('Option selected')} />
  */
-const autoRefreshModal = ({ visible, onClose, onSelectOption }) => {
+const AutoRefreshModal = ({ visible, onClose, onSelectOption }) => {
 
   // We create a hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
@@ -179,4 +179,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default autoRefreshModal;
+export default AutoRefreshModal;
