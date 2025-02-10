@@ -33,6 +33,7 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState(SCREENS.APP_MENU);
   const [globalMessages, setGlobalMessages] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [timeoutInterval, setTimeoutInterval] = useState(null);
 
   const { navigate } = useNavigation(setCurrentScreen);
   const expoPushToken = usePushNotifications();
@@ -103,16 +104,15 @@ export default function App() {
     }
   };
 
-
   /**
    * @function useEffect
    * @description Handles the loading of the app to display the loading screen for 3 seconds
-   * @returns {void}
    */
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
       navigate('APP_MENU');
+      loadTimeoutInterval();
     }, 3000);
     return () => clearTimeout(timer);
   }, []);
@@ -131,6 +131,7 @@ export default function App() {
     }
   }, [refreshInterval]);
 
+
   /**
    * @function handleImportWebviews
    * @description Handles the import of channels
@@ -143,6 +144,84 @@ export default function App() {
       handleSelectChannels(selectedWebviews);
     }
   };
+
+
+  ////////////////////TESTS timeoUT////////////////////
+  /**
+   * @function gettimeoutInSeconds
+   * @description Gets the timeout in seconds
+   * @param {string} value - The value to get
+   * @returns {number} - The timeout in seconds
+   */
+  const getTimeoutInSeconds = (value) => {
+    switch (value) {
+      case 'after 2 hours': return 7200;
+      case 'after 6 hours': return 21600;
+      case 'after 12 hours': return 43200;
+      case 'after 24 hours': return 86400;
+      case 'never': return null;
+      default: return null;
+    }
+  }
+
+    /**
+   * @function handleTimeoutSelection 
+   * @description Handles the selection of the timeout
+   * @param {string} value - The value to handle
+   * @returns {void}
+   */
+    const handleTimeoutSelection = (value) => {
+      const timeoutInSeconds = getTimeoutInSeconds(value);
+      
+      if (value === 'never') {
+        setTimeoutInterval(null);
+        try {
+          SecureStore.deleteItemAsync('timeoutInterval');
+        } catch (error) {
+          console.error('Error during the deletion of the timeout:', error);
+        }
+      } else {
+        setTimeoutInterval(timeoutInSeconds * 1000);
+        try {
+          SecureStore.setItemAsync('timeoutInterval', String(timeoutInSeconds));
+        } catch (error) {
+          console.error('Error during the saving of the timeout:', error);
+        }
+      }
+    };
+
+    /**
+     * @function useEffect
+     * @description Handles the timeout in the chat section
+     * @returns {void}
+     */
+    useEffect(() => {
+      let timer;
+
+      if (timeoutInterval && currentScreen !== SCREENS.APP_MENU && currentScreen !== SCREENS.LOGIN) {
+        console.log(`⏰ Disconnection scheduled in ${timeoutInterval/1000} seconds`);
+        
+        timer = setTimeout(() => {
+          console.log('⏰ Automatic disconnection');
+          
+          // Reset the necessary states
+          setCurrentScreen(SCREENS.APP_MENU);
+          setGlobalMessages([]);
+          setIsExpanded(false);
+          
+          if (handleChatLogout) {
+            handleChatLogout();
+          }
+        }, timeoutInterval);
+      }
+    
+      return () => {
+        if (timer) {
+          clearTimeout(timer);
+        }
+      };
+    }, [timeoutInterval, currentScreen]);
+
 
   // If the app is loading, show the loading screen
   if (isLoading) {
@@ -269,6 +348,7 @@ export default function App() {
             isExpanded={isExpanded}
             setIsExpanded={setIsExpanded}
             handleChatLogout={handleChatLogout}
+            onSelectOption={handleTimeoutSelection}
           />
         );
 
@@ -288,6 +368,17 @@ export default function App() {
         navigate(SCREENS.LOGIN);
     } catch (error) {
         throw new Error('Error during logout:', error);
+    }
+  };
+
+  const loadTimeoutInterval = async () => {
+    try {
+      const storedTimeout = await SecureStore.getItemAsync('timeoutInterval');
+      if (storedTimeout) {
+        setTimeoutInterval(Number(storedTimeout) * 1000);
+      }
+    } catch (error) {
+      console.error('Error during the loading of the timeout:', error);
     }
   };
 

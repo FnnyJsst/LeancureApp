@@ -19,7 +19,7 @@ import TimeOutModal from '../../components/modals/chat/TimeOutModal';
  * @example
  * <SettingsMessage onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} handleChatLogout={handleChatLogout} />
  */
-export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded, handleChatLogout }) {
+export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded, handleChatLogout, onSelectOption }) {
   const { isSmartphone, isLandscape } = useDeviceType();
   const [currentSection, setCurrentSection] = useState('settings');
   const [timeOutModal, setTimeOutModal] = useState(false);
@@ -88,6 +88,7 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
       <TimeOutModal
         visible={timeOutModal}
         onClose={closeTimeOutModal}
+        onSelectOption={onSelectOption}
       />
     </>
   );
