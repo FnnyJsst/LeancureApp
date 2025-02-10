@@ -11,7 +11,7 @@ import PasswordDefineModal from './components/modals/webviews/PasswordDefineModa
 import PasswordCheckModal from './components/modals/webviews/PasswordCheckModal';
 import AppMenu from './screens/common/AppMenu';
 import ChatScreen from './screens/messages/ChatScreen';
-import SettingsMessage from './screens/messages/SettingsMessage';
+import SettingsMessage from './components/modals/chat/SettingsMessage';
 import AccountScreen from './screens/messages/AccountScreen';
 import { SCREENS } from './constants/screens';
 import { COLORS } from './constants/style';
@@ -105,6 +105,21 @@ export default function App() {
   };
 
   /**
+   * @function loadTimeoutInterval
+   * @description Loads the timeout interval from secure storage
+   */
+  const loadTimeoutInterval = async () => {
+    try {
+      const storedTimeout = await SecureStore.getItemAsync('timeoutInterval');
+      if (storedTimeout) {
+        setTimeoutInterval(Number(storedTimeout) * 1000);
+      }
+    } catch (error) {
+      console.error('Error during the loading of the timeout:', error);
+    }
+  };
+
+  /**
    * @function useEffect
    * @description Handles the loading of the app to display the loading screen for 3 seconds
    */
@@ -145,8 +160,6 @@ export default function App() {
     }
   };
 
-
-  ////////////////////TESTS timeoUT////////////////////
   /**
    * @function gettimeoutInSeconds
    * @description Gets the timeout in seconds
@@ -368,17 +381,6 @@ export default function App() {
         navigate(SCREENS.LOGIN);
     } catch (error) {
         throw new Error('Error during logout:', error);
-    }
-  };
-
-  const loadTimeoutInterval = async () => {
-    try {
-      const storedTimeout = await SecureStore.getItemAsync('timeoutInterval');
-      if (storedTimeout) {
-        setTimeoutInterval(Number(storedTimeout) * 1000);
-      }
-    } catch (error) {
-      console.error('Error during the loading of the timeout:', error);
     }
   };
 

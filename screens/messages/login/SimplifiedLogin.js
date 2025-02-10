@@ -9,15 +9,22 @@ import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
  * @description Simplified login screen is used when the user has already logged in and checked "Stay connected" on the login screen
  * 
  * @param {string} contractNumber - The contract number of the user
+ * @param {string} savedLoginInfo - The saved login information of the user
  * @param {Function} onSwitchAccount - A function to switch to another account
  * @param {Function} handleLogin - A function to handle the login process
  * @param {boolean} isLoading - A boolean to indicate if the login process is loading
  * @returns {JSX.Element} - A JSX element
  * 
  * @example
- * <SimplifiedLogin contractNumber={contractNumber} onSwitchAccount={onSwitchAccount} handleLogin={handleLogin} isLoading={isLoading} />
+ * <SimplifiedLogin contractNumber={contractNumber} savedLoginInfo={savedLoginInfo} onSwitchAccount={onSwitchAccount} handleLogin={handleLogin} isLoading={isLoading} />
  */
-export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handleLogin, isLoading }) {
+export default function SimplifiedLogin({ 
+    contractNumber, 
+    savedLoginInfo,
+    onSwitchAccount, 
+    handleLogin,
+    isLoading 
+}) {
   const { isSmartphone, isLandscape } = useDeviceType();
   
   return (
@@ -27,7 +34,16 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
         isSmartphone && styles.loginContainerSmartphone, 
         isLandscape && styles.loginContainerLandscape
       ]}>
+        <View style={styles.welcomeContainer}>
+          <Text style={[
+            styles.welcomeText, 
+            isSmartphone && styles.welcomeTextSmartphone]}>
+            Welcome back
+          </Text>
+        </View>
+
         <View style={styles.inputGroup}>
+
           <Text style={[
             styles.inputTitle,
             isSmartphone && styles.inputTitleSmartphone
@@ -69,6 +85,16 @@ export default function SimplifiedLogin({ contractNumber, onSwitchAccount, handl
 }
 
 const styles = StyleSheet.create({
+  welcomeText: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.headerTablet,
+    fontWeight: SIZES.fontWeight.bold,
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  welcomeTextSmartphone: {
+    fontSize: SIZES.fonts.headerSmartphone,
+  },
   loginContainer: {
     backgroundColor: COLORS.charcoal,
     padding: 25,
@@ -77,7 +103,7 @@ const styles = StyleSheet.create({
     width: '70%',
     borderWidth: 1,
     borderColor: COLORS.borderColor,
-    marginTop: 20,
+    marginTop: 50,
   },
   loginContainerSmartphone: {
     width: '95%',
@@ -88,6 +114,7 @@ const styles = StyleSheet.create({
   inputGroup: {
     marginBottom: 10,
   },
+
   inputTitle: {
     color: COLORS.gray300,
     fontSize: SIZES.fonts.subtitleTablet,

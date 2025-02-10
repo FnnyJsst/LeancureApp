@@ -208,7 +208,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
 
 
 const styles = StyleSheet.create({
-  //Content styles
   modalContentSmartphone: {
     width: '95%',
   },
@@ -219,7 +218,6 @@ const styles = StyleSheet.create({
     width: '60%',
   },
 
-  //Error styles
   errorContainer: {
     alignItems: 'flex-start',
     paddingHorizontal: '5%',

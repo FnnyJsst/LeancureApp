@@ -31,7 +31,7 @@ export const SIZES = {
     small: 6,
     medium: 8,
     large: 10,
-    xLarge: 12,
+    xLarge: 16,
     xxLarge: 20,
   },
 };

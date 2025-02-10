@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import { COLORS, SIZES } from '../../constants/style'; 
-import { useDeviceType } from '../../hooks/useDeviceType';
-import Header from '../../components/Header';
-import SettingsCard from '../../components/cards/SettingsCard';
+import { COLORS, SIZES } from '../../../constants/style'; 
+import { useDeviceType } from '../../../hooks/useDeviceType';
+import Header from '../../Header';
+import SettingsCard from '../../cards/SettingsCard';
 import { Ionicons } from '@expo/vector-icons';
-import Sidebar from '../../components/navigation/Sidebar';
-import TimeOutModal from '../../components/modals/chat/TimeOutModal';
-
+import Sidebar from '../../navigation/Sidebar';
+import TimeOutModal from './TimeOutModal';
+import ServerAddressModal from './ServerAddressModal';
 /**
  * @component SettingsMessage
  * @description This screen displays the settings related to the messages
@@ -23,7 +23,7 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
   const { isSmartphone, isLandscape } = useDeviceType();
   const [currentSection, setCurrentSection] = useState('settings');
   const [timeOutModal, setTimeOutModal] = useState(false);
-
+  const [serverAddressModal, setServerAddressModal] = useState(false);
   /**
    * @function toggleMenu
    * @description Toggles the menu
@@ -38,6 +38,14 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
 
   const closeTimeOutModal = () => {
     setTimeOutModal(false);
+  };
+
+  const openServerAddressModal = () => {
+    setServerAddressModal(true);
+  };
+
+  const closeServerAddressModal = () => {
+    setServerAddressModal(false);
   };
 
   return (
@@ -90,7 +98,7 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
           isLandscape && styles.configContainerLandscape
         ]}>
           <SettingsCard
-            title="Message server adress"
+            title="Message server address"
             icon={
               <View>
                 <Ionicons 
@@ -101,7 +109,7 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
               </View>
             }
             description="Define which server URL to use to access messages"
-            onPress={openTimeOutModal}
+            onPress={openServerAddressModal}
           />
         </View>
       </View>
@@ -109,6 +117,10 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
         visible={timeOutModal}
         onClose={closeTimeOutModal}
         onSelectOption={onSelectOption}
+      />
+      <ServerAddressModal
+        visible={serverAddressModal}
+        onClose={closeServerAddressModal}
       />
     </>
   );

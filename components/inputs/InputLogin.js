@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     inputContainer: {
         width: '95%',
         backgroundColor: COLORS.gray950,
-        borderRadius: SIZES.borderRadius.medium,
+        borderRadius: SIZES.borderRadius.large,
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,

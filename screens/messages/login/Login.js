@@ -89,11 +89,11 @@ import * as Network from 'expo-network';
         checkSavedLogin();
     }, []);
 
-    useEffect(() => {
-        if (isSimplifiedLogin && savedLoginInfo) {
-            handleSimplifiedLogin();
-        }
-    }, [isSimplifiedLogin, savedLoginInfo]);
+    // useEffect(() => {
+    //     if (isSimplifiedLogin && savedLoginInfo) {
+    //         handleSimplifiedLogin();
+    //     }
+    // }, [isSimplifiedLogin, savedLoginInfo]);
 
     // If on is in initial loading, we don't render anything
     if (isInitialLoading) {
@@ -233,28 +233,26 @@ import * as Network from 'expo-network';
             <GradientBackground>
                 <ScrollView>
                     <View style={styles.contentContainer}>
-                        <View style={styles.titleContainer}>
-                            <Text style={[styles.title, isSmartphone && styles.titleSmartphone, isLandscape && styles.titleLandscape]}>Welcome</Text>
-                            <Text style={[styles.subtitle, isSmartphone && styles.subtitleSmartphone, isLandscape && styles.subtitleLandscape]}>Sign in to your account</Text>
-                        </View>
                         <View style={[styles.formContainerPortrait, isSmartphone && styles.formContainerSmartphonePortrait]}>
-                            {/* If the user has checked the "Stay connected" checkbox, we show the simplified login screen */}
                             {isSimplifiedLogin ? (
                                 <SimplifiedLogin 
                                     contractNumber={contractNumber}
                                     login={login}
                                     onSwitchAccount={() => setIsSimplifiedLogin(false)}
-                                    handleLogin={handleLogin}
+                                    handleLogin={handleSimplifiedLogin}
                                     isLoading={isLoading}
                                 />
                             ) : (
                                 <>
-                                    {/* If the user has not checked the "Stay connected" checkbox, we show the login form */}
                                     <View style={[
                                         styles.loginContainer,
                                         isSmartphone && styles.loginContainerSmartphone,
                                         isLandscape && styles.loginContainerLandscape
                                     ]}>
+                                        <View style={styles.titleContainer}>
+                                            <Text style={[styles.title, isSmartphone && styles.titleSmartphone, isLandscape && styles.titleLandscape]}>Welcome</Text>
+                                            <Text style={[styles.subtitle, isSmartphone && styles.subtitleSmartphone, isLandscape && styles.subtitleLandscape]}>Sign in to your account</Text>
+                                        </View>
                                         
                                         <View style={styles.inputsContainer}>
                                             <View style={styles.inputGroup}>
@@ -359,7 +357,7 @@ const styles = StyleSheet.create({
     titleContainer: {
         alignItems: 'center',
         width: '100%',
-        paddingVertical: 40,
+        paddingBottom: 30,
     },
     title: {
         color: COLORS.white,
@@ -367,7 +365,6 @@ const styles = StyleSheet.create({
         fontWeight: SIZES.fontWeight.bold,
         textAlign: 'center',
         marginBottom: 10,
-        marginTop: 50
     },
     titleLandscape: {
         marginTop: 0,
@@ -399,7 +396,8 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         width: '70%',
         borderWidth: 1,
-        borderColor: '#403430',
+        borderColor: COLORS.borderColor,
+        marginTop: 50,
     },
     loginContainerSmartphone: {
         width: '95%',
