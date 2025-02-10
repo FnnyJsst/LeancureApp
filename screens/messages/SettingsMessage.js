@@ -84,6 +84,26 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
             onPress={openTimeOutModal}
           />
         </View>
+        <View style={[
+          styles.configContainer,
+          isSmartphone && styles.configContainerSmartphone,
+          isLandscape && styles.configContainerLandscape
+        ]}>
+          <SettingsCard
+            title="Message server adress"
+            icon={
+              <View>
+                <Ionicons 
+                  name="server-outline" 
+                  size={isSmartphone ? 22 : 28} 
+                  color={COLORS.orange} 
+                />
+              </View>
+            }
+            description="Define which server URL to use to access messages"
+            onPress={openTimeOutModal}
+          />
+        </View>
       </View>
       <TimeOutModal
         visible={timeOutModal}
