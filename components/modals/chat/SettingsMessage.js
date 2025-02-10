@@ -7,7 +7,7 @@ import SettingsCard from '../../cards/SettingsCard';
 import { Ionicons } from '@expo/vector-icons';
 import Sidebar from '../../navigation/Sidebar';
 import TimeOutModal from './TimeOutModal';
-import ServerAddressModal from './ServerAddressModal';
+
 /**
  * @component SettingsMessage
  * @description This screen displays the settings related to the messages
@@ -79,14 +79,15 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
         ]}>
           <SettingsCard
             title="Session Timeout"
+            iconBackgroundColor={COLORS.burgundy}
             icon={
-              <View style={styles.quitIconBackground}>
+              // <View style={styles.quitIconBackground}>
                 <Ionicons 
                   name="exit-outline" 
                   size={isSmartphone ? 22 : 28} 
                   color={COLORS.red} 
                 />
-              </View>
+              // </View>
             }
             description="Define the time after which the session will be logged out"
             onPress={openTimeOutModal}
@@ -118,10 +119,10 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
         onClose={closeTimeOutModal}
         onSelectOption={onSelectOption}
       />
-      <ServerAddressModal
+      {/* <ServerAddressModal
         visible={serverAddressModal}
         onClose={closeServerAddressModal}
-      />
+      /> */}
     </>
   );
 }
@@ -164,13 +165,5 @@ const styles = StyleSheet.create({
   },
   configContainerLandscape: {
     marginHorizontal: 50,
-  },
-  quitIconBackground: {
-    backgroundColor: '#502e2e',
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  }
 });

@@ -66,6 +66,7 @@ export const COLORS = {
   // Border colors
   borderColor: '#403430',
   
+  burgundy: '#502e2e',
   red: '#e74242',
   
   // Background colors

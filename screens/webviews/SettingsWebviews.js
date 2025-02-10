@@ -146,14 +146,13 @@ export default function SettingsWebviews({
           ]}>
             <SettingsCard
               title="Quit app"
+              iconBackgroundColor={COLORS.burgundy}
               icon={
-                <View style={styles.quitIconBackground}>
                   <Ionicons 
                     name="exit-outline" 
                     size={isSmartphone ? 22 : 28} 
                     color={COLORS.red} 
                   />
-                </View>
               }
               description="Quit the app and go back to the home screen"
               onPress={handleQuitApp}
@@ -288,7 +287,6 @@ export default function SettingsWebviews({
 }
 
 const styles = StyleSheet.create({
-
   pageContainer: {
     flex: 1,
     paddingHorizontal: 15,
@@ -360,13 +358,5 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: SIZES.fonts.subtitleTablet,
     fontWeight: SIZES.fontWeight.bold,
-  },
-  quitIconBackground: {
-    backgroundColor: '#502e2e',
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  }
 });

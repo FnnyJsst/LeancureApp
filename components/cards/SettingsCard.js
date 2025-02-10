@@ -15,7 +15,7 @@ import { SIZES, COLORS } from '../../constants/style';
  * @example
  * <SettingsCard icon={<Ionicons name="home" size={24} color="white" />} title="Home" description="Home description" onPress={() => console.log('Card pressed')} />
  */
-export default function SettingsCard({ icon, title, description, onPress }) {
+export default function SettingsCard({ icon, title, description, onPress, iconBackgroundColor=COLORS.borderColor }) {
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
@@ -28,7 +28,8 @@ export default function SettingsCard({ icon, title, description, onPress }) {
       <View style={styles.content}>
         <View style={[
           styles.iconContainer,
-          isSmartphone && styles.iconContainerSmartphone
+          isSmartphone && styles.iconContainerSmartphone,
+          iconBackgroundColor && { backgroundColor: iconBackgroundColor }
         ]}>
           {icon}
         </View>
@@ -60,8 +61,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 50,
     height: 50,
-    borderRadius: SIZES.borderRadius.small,
-    backgroundColor: COLORS.borderColor,
+    borderRadius: SIZES.borderRadius.medium,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
