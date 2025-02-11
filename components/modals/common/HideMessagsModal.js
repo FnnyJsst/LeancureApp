@@ -6,37 +6,37 @@ import { SIZES, COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
 
 /**
- * @component ReadOnly
- * @description A component that renders a modal for setting the read-only mode
+ * @component HideMessagesModal
+ * @description A component that renders a modal for hiding the messages section from the app menu
  * 
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
- * @param {Function} props.onToggleReadOnly - The function to call when the read-only mode is toggled
+ * @param {Function} props.onToggleHideMessages - The function to call when the hide messages mode is toggled
  * 
  * @example
- * <ReadOnly visible={visible} onClose={() => console.log('Modal closed')} onToggleReadOnly={() => console.log('Read-only mode toggled')} />
+ * <HideMessagesModal visible={visible} onClose={() => console.log('Modal closed')} onToggleHideMessages={() => console.log('Hide messages mode toggled')} />
  */
-export default function HideMessagesModal({ visible, onClose, onToggleReadOnly }) {
+export default function HideMessagesModal({ visible, onClose, onToggleHideMessages }) {
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
 
   /**
    * @function handleYes
-   * @description A function to handle the "Yes" button to set the read-only mode
+   * @description A function to handle the "Yes" button to hide the messages section from the app menu
    */
   const handleYes = () => {
-    onToggleReadOnly(true); 
+    onToggleHideMessages(true); 
     onClose();
   };
 
   /**
    * @function handleNo
-   * @description A function to handle the "No" button to set the read-only mode
+   * @description A function to handle the "No" button to hide the messages section from the app menu
    */
   const handleNo = () => {
-    onToggleReadOnly(false);  
+    onToggleHideMessages(false);  
     onClose();
   };
   
@@ -61,7 +61,7 @@ export default function HideMessagesModal({ visible, onClose, onToggleReadOnly }
             <Text style={[
               styles.titleText,
               isSmartphone && styles.titleTextSmartphone,
-            ]}>Do you want to set channel management to read-only?</Text>
+            ]}>Do you want to hide the messages section from the app menu?</Text>
           </View>
           <View style={[
             styles.buttonContainer,
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: SIZES.fontWeight.bold,
+    fontWeight: SIZES.fontWeight.semibold,
     marginHorizontal: '2%',
     width: '100%',
     color: COLORS.gray300,

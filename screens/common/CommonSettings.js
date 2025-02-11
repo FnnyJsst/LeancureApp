@@ -93,6 +93,28 @@ const styles = StyleSheet.create({
   configContainerLandscape: {
     marginHorizontal: 50,
   },
+  rowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  leftContent: {
+    flex: 1,
+  },
+  text: {
+    color: COLORS.gray600,
+    fontSize: SIZES.fonts.textTablet,
+    fontWeight: SIZES.fontWeight.regular,
+  },
+  textSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone, 
+  },
+  baseToggle: {
+    backgroundColor: COLORS.gray650,
+    borderRadius: SIZES.borderRadius.small,
+    padding: 8,
+    minWidth: 40,
+    alignItems: 'center',
+  },
 
 });
 
