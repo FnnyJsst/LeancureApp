@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ENV } from '../../config/env';
-import { createApiRequest, cleanApiResponse } from './baseApi';
+import { createApiRequest, createSignature } from './baseApi';
+import { secureStore } from '../../utils/encryption';
 
 const API_URL = ENV.API_URL;
 
@@ -13,18 +14,20 @@ const API_URL = ENV.API_URL;
  * @param {string} accessToken - The access token
  * @returns {Promise<Object>} - The user's channels
  */
-export const fetchUserChannels = async (contractNumber, login, password, accessToken = '') => {
-  console.log('🔢 Contract Number dans fetchUserChannels:', contractNumber);
-  console.log('🔑 Login:', login);
-  console.log('🔒 Password:', password ? '****' : 'empty');
+export const fetchUserChannels = async (contractNumber, login, password, accessToken = '', accountApiKey = '') => {
+  console.log('🔢 Contract Number:', contractNumber);
   
   try {
+    const timestamp = Date.now();
+    const saltPath = `amaiia_msg_srv/client/get_account_links/${timestamp}/`;
+    
     const body = createApiRequest({
-      "accounts": {
-        "loginmsg": {
-          "get": {
-            "login": login,
-            "password": password
+      "amaiia_msg_srv": {
+        "client": {
+          "get_account_links": {
+            "accountinfos": {
+              "accountapikey": accountApiKey
+            }
           }
         }
       }
@@ -35,34 +38,38 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
     const response = await axios.post(API_URL, body);
 
     if (response.status === 200) {
-      const data = response.data?.cmd?.[0]?.accounts?.loginmsg?.get?.data;
+      console.log('🔍 Réponse complète:', JSON.stringify(response.data, null, 2));
+      const data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data;
       if (!data) {
+        console.error('❌ Structure de données invalide:', response.data);
         return {
           status: 'error',
           error: 'Invalid data structure'
         };
       }
 
-      // We format the data to be used in the UI
-      const publicChannels = Object.entries(data.public || {}).map(([id, channel]) => ({
+      const publicChannels = data.public === "No channel" ? [] : Object.entries(data.public || {}).map(([id, channel]) => ({
         id,
         title: channel.identifier || 'Channel without title',
         description: channel.description || '',
-        messages: formatMessages(channel.messages)
+        messages: channel.messages || []
       }));
 
-      const privateGroups = Object.entries(data.private?.groups || {}).map(([id, group]) => ({
+      const privateGroups = data.private?.groups ? Object.entries(data.private.groups).map(([id, group]) => ({
         id,
         title: group.identifier || 'Group without title',
         description: group.description || '',
         rights: group.rights,
-        channels: group.channels === "No channel" ? [] : Object.entries(group.channels || {}).map(([channelId, channel]) => ({
+        channels: group.channels ? Object.entries(group.channels).map(([channelId, channel]) => ({
           id: channelId,
           title: channel.identifier || 'Channel without title',
           description: channel.description || '',
-          messages: formatMessages(channel.messages)
-        }))
-      }));
+          messages: channel.messages || []
+        })) : []
+      })) : [];
+
+      console.log('📊 Données formatées - Public:', publicChannels);
+      console.log('📊 Données formatées - Groups:', privateGroups);
 
       return {
         status: 'ok',
@@ -178,52 +185,35 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
  * @returns {Promise<Array>} - The messages
  */
 export const fetchChannelMessages = async (channelId, userCredentials) => {
-  try {;
-    const data = createApiRequest({
-      "msg_srv": {
+  try {
+    const timestamp = Date.now();
+    const saltPath = `amaiia_msg_srv/client/get_account_links/${timestamp}/`;
+    
+    const body = createApiRequest({
+      "amaiia_msg_srv": {
         "client": {
           "get_account_links": {
             "accountinfos": {
-              "login": userCredentials.login,
-              "password": userCredentials.password,
-              "email": "",
-              "nom": "",
-              "prenom": ""
-            },
-            "msg-msgapikey": ENV.MSG_API_KEY,
-            "msg-contract-number": userCredentials.contractNumber
+              "accountapikey": userCredentials.accountApiKey
+            }
           }
         }
       }
     }, userCredentials.contractNumber);
 
-    const response = await axios({
-      method: 'POST',
-      url: API_URL,
-      data: data,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await axios.post(API_URL, body);
 
-    const allData = response.data?.cmd?.[0]?.msg_srv?.client?.get_account_links?.data;
-    let channelMessages = [];
+    if (response.status === 200) {
+      const data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data;
+      let channelMessages = [];
 
-    // We search for the messages in the private groups
-    if (allData?.private?.groups) {
-      Object.values(allData.private.groups).forEach(group => {
-        // We search for the messages in the channels of the group  
-        Object.entries(group.channels || {}).forEach(([chId, channel]) => {
-          // If the channel ID is the same as the channel ID we are looking for and the channel has messages, we format the messages
-          if (chId === channelId && channel.messages && typeof channel.messages === 'object') {
-            channelMessages = Object.entries(channel.messages)
-              // We format the messages
-              .map(([id, msg]) => {
-                if (!msg || !msg.savedts) {
-                  return null;
-                }
-                // We return the formatted messages
-                return {
+      // Recherche dans les groupes privés
+      if (data?.private?.groups) {
+        Object.values(data.private.groups).forEach(group => {
+          if (group.channels) {
+            Object.entries(group.channels).forEach(([chId, channel]) => {
+              if (chId === channelId && channel.messages) {
+                channelMessages = Object.entries(channel.messages).map(([id, msg]) => ({
                   id,
                   title: msg.title || '',
                   message: msg.message || msg.title || '',
@@ -233,18 +223,22 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
                   login: msg.login || userCredentials.login,
                   isOwnMessage: msg.login === userCredentials.login,
                   isUnread: msg.status === 'unread'
-                };
-              })
-              .filter(msg => msg !== null);
+                }));
+              }
+            });
           }
         });
-      });
+      }
+
+      return channelMessages;
     }
-
-    return channelMessages;
-
+    return [];
   } catch (error) {
+    console.error('🔴 Erreur fetchChannelMessages:', error);
     return [];
   }
 };
+
+// const credentials = await secureStore.getCredentials();
+// const channelsResponse = await fetchUserChannels(contractNumber, login, password, '', credentials.accountApiKey);
 

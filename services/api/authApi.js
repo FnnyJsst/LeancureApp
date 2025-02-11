@@ -13,23 +13,6 @@ import { createApiRequest, cleanApiResponse } from './baseApi';
  */
 export const loginApi = async (contractNumber, login, password, accessToken = '') => {
   try {
-    // const data = createApiRequest({
-    //   "msg_srv": {
-    //     "client": {
-    //       "get_account_links": {
-    //         "accountinfos": {
-    //           "login": login,
-    //           "password": password,
-    //           "email": "",
-    //           "nom": "",
-    //           "prenom": ""
-    //         },
-    //         "msg-msgapikey": ENV.MSG_API_KEY,
-    //         "msg-contract-number": contractNumber
-    //       }
-    //     }
-    //   }
-    // }, contractNumber);
     const data = createApiRequest({
       "accounts": {
         "loginmsg": {
@@ -43,6 +26,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
 
     console.log('🔗 URL API:', ENV.API_URL);
     console.log('📦 Données envoyées:', JSON.stringify(data, null, 2));
+    console.log('🔑 Access Token:', accessToken);
 
     const response = await axios({
       method: 'POST',
@@ -54,23 +38,13 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       timeout: 10000 // 10 secondes de timeout
     });
 
-    // return cleanApiResponse(response);
-    return response;
+    // Récupérer l'accountApiKey de la réponse
+    const accountApiKey = response.data?.cmd?.[0]?.accounts?.loginmsg?.get?.data?.accountapikey;
+    return { ...response, accountApiKey };
   } catch (error) {
     throw error;
   }
 };
-
-
-
-
-
-
-
-
-
-
-
 
 
 /**
@@ -81,12 +55,13 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
  * @param {string} credentials.login - The login
  * @param {string} credentials.password - The hashed password
  */
-export const saveCredentials = async ({ contractNumber, login, password }) => {
+export const saveCredentials = async ({ contractNumber, login, password, accountApiKey }) => {
   try {
     await SecureStore.setItemAsync('userCredentials', JSON.stringify({
       contractNumber,
       login,
-      password
+      password,
+      accountApiKey
     }));
   } catch (error) {
     throw new Error('Failed to save credentials');

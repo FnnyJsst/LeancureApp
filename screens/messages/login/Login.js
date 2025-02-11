@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ScrollView, View, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import InputLogin from '../../../components/inputs/InputLogin';
@@ -27,23 +27,76 @@ import { Text } from '../../../components/text/CustomText';
  * @example
  * <Login onNavigate={(screen) => navigate(screen)} />
  */
-    export default function Login({ onNavigate }) {
-
-    // Customized hook to determine the device type and orientation
-    const { isSmartphone, isSmartphoneLandscape, isLandscape } = useDeviceType();
-    
-    // States related to the login form
+export default function Login({ onNavigate }) {
+    // 1. Tous les useState au début
+    const [isLoading, setIsLoading] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [error, setError] = useState('');
     const [contractNumber, setContractNumber] = useState('');
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
     const [isSimplifiedLogin, setIsSimplifiedLogin] = useState(false);
-    const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [savedLoginInfo, setSavedLoginInfo] = useState(null);
 
-    const handleSimplifiedLogin = async () => {
+    // 2. Hooks personnalisés
+    const { isSmartphone, isSmartphoneLandscape, isLandscape } = useDeviceType();
+
+    // 3. useCallback après les états
+    const validateInputs = useCallback(() => {
+        if (!contractNumber || !login || !password) {
+            return 'All fields are required';
+        }
+        return null;
+    }, [contractNumber, login, password]);
+
+    const handleLogin = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            setError('');
+
+            const validationError = validateInputs();
+            if (validationError) {
+                setError(validationError);
+                return;
+            }
+
+            const loginResponse = await loginApi(contractNumber, login, password);
+            
+            if (loginResponse && loginResponse.status === 200) {
+                await secureStore.saveCredentials({
+                    contractNumber,
+                    login,
+                    password: hashPassword(password),
+                    accountApiKey: loginResponse.accountApiKey
+                });
+
+                if (isChecked) {
+                    await saveLoginInfo();
+                }
+
+                const channelsResponse = await fetchUserChannels(contractNumber, login, password, '', loginResponse.accountApiKey);
+
+                if (channelsResponse.status === 'ok') {
+                    onNavigate(SCREENS.CHAT);
+                } else {
+                    setError('Error loading channels');
+                }
+            } else {
+                setError('Invalid credentials');
+            }
+        } catch (error) {
+            if (error.message === 'Network Error') {
+                setError('Impossible de joindre le serveur. Vérifiez votre connexion.');
+            } else {
+                setError('Erreur de connexion au serveur');
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    }, [contractNumber, login, password, isChecked, onNavigate, validateInputs]);
+
+    const handleSimplifiedLogin = useCallback(async () => {
         if (!savedLoginInfo) return;
         
         setIsLoading(true);
@@ -51,13 +104,26 @@ import { Text } from '../../../components/text/CustomText';
             const { contractNumber, login, password } = savedLoginInfo;
             const loginResponse = await loginApi(contractNumber, login, password);
             
-            if (loginResponse && loginResponse.status === 'ok') {
+            if (loginResponse && loginResponse.status === 200) {
                 await secureStore.saveCredentials({
                     contractNumber,
                     login,
-                    password: hashPassword(password)
+                    password: hashPassword(password),
+                    accountApiKey: loginResponse.accountApiKey
                 });
-                onNavigate(SCREENS.CHAT);
+
+                const channelsResponse = await fetchUserChannels(contractNumber, login, password, '', loginResponse.accountApiKey);
+
+                if (channelsResponse.status === 'ok') {
+                    onNavigate(SCREENS.CHAT);
+                } else {
+                    console.error('Erreur channels:', channelsResponse);
+                    setError('Error loading channels');
+                    setIsSimplifiedLogin(false);
+                }
+            } else {
+                setError('Invalid credentials');
+                setIsSimplifiedLogin(false);
             }
         } catch (error) {
             console.error('Login error:', error);
@@ -66,8 +132,28 @@ import { Text } from '../../../components/text/CustomText';
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [savedLoginInfo, onNavigate]);
 
+    const saveLoginInfo = useCallback(async () => {
+        try {
+            if (isChecked) {
+                await SecureStore.setItemAsync('savedLoginInfo', JSON.stringify({
+                    contractNumber,
+                    login,
+                    password,
+                    wasChecked: true
+                }));
+            } else {
+                await SecureStore.deleteItemAsync('savedLoginInfo');
+                setIsSimplifiedLogin(false);
+            }
+        } catch (error) {
+            console.error('Error saving simplified login info:', error);
+            throw error;
+        }
+    }, [isChecked, contractNumber, login, password]);
+
+    // 4. useEffect en dernier
     useEffect(() => {
         const checkSavedLogin = async () => {
             try {
@@ -91,104 +177,6 @@ import { Text } from '../../../components/text/CustomText';
     if (isInitialLoading) {
         return null;
     }
-
-    /**
-     * @function handleLogin
-     * @description Handles the login process 
-     */
-    const handleLogin = async () => {
-        try {
-            setIsLoading(true);
-            setError('');
-
-            // Validation des inputs
-            const validationError = validateInputs();
-            if (validationError) {
-                setError(validationError);
-                return;
-            }
-
-            // Login
-            const loginResponse = await loginApi(contractNumber, login, password);
-            console.log('🔑 Contract Number utilisé:', contractNumber);
-
-            if (loginResponse && loginResponse.status === 200) {
-                // Sauvegarde des identifiants
-                await secureStore.saveCredentials({
-                    contractNumber,
-                    login,
-                    password: hashPassword(password)
-                });
-
-                // Sauvegarde du login simplifié si nécessaire
-                if (isChecked) {
-                    await saveLoginInfo();
-                }
-
-                // Chargement des channels avec le même numéro de contrat
-                const channelsResponse = await fetchUserChannels(contractNumber, login, password);
-
-                if (channelsResponse.status === 'ok') {
-                    onNavigate(SCREENS.CHAT);
-                } else {
-                    setError('Error loading channels');
-                }
-            } else {
-                setError('Invalid credentials');
-            }
-        } catch (error) {
-            if (error.message === 'Network Error') {
-                setError('Impossible de joindre le serveur. Vérifiez votre connexion.');
-            } else {
-                setError('Erreur de connexion au serveur');
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    
-    /**
-     * @function saveLoginInfo
-     * @description Handles the saving of the login info in Secure store
-     */
-    const saveLoginInfo = async () => {
-        try {
-            if (isChecked) {
-                // Save only the simplified login info
-                await SecureStore.setItemAsync('savedLoginInfo', JSON.stringify({
-                    contractNumber,
-                    login,
-                    password,
-                    wasChecked: true
-
-                }));
-            } else {
-                // If the checkbox is not checked, delete the simplified login info
-                await SecureStore.deleteItemAsync('savedLoginInfo');
-                setIsSimplifiedLogin(false);
-            }
-
-        } catch (error) {
-            console.error('Error saving simplified login info:', error);
-            throw error;
-        }
-    };
-
-
-    /**
-     * @function validateInputs
-     * @description Validates the inputs
-     * @returns {string | null} - The error message or null if the inputs are valid
-     */
-    const validateInputs = () => {
-        //If the contract number is not filled, we return an error
-        if (!contractNumber.trim()) return 'Contract number required';
-        //If the login is not filled, we return an error
-        if (!login.trim()) return 'Login required';
-        //If the password is less than 8 characters, we return an error
-        if (password.length < 8) return 'Password must be at least 8 characters';
-        return null;
-    };
 
     return (
         <>

@@ -84,13 +84,15 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           throw new Error('No credentials found');
         }
         // Parse the credentials
-        const { contractNumber, login, password } = JSON.parse(credentials);
+        const { contractNumber, login, password, accountApiKey } = JSON.parse(credentials);
         // Fetch the user channels
-        const response = await fetchUserChannels(contractNumber, login, password);
+        const response = await fetchUserChannels(contractNumber, login, password, '', accountApiKey);
         // console.log('📊 Données chargées:', response);
         // Set the channels and groups
         setChannels(response.publicChannels || []);
         setGroups(response.privateGroups || []);
+        console.log('📱 Channels dans Sidebar:', channels);
+        console.log('👥 Groupes dans Sidebar:', groups);
         // If there is an error, log it
       } catch (error) {
         console.error('🔴 Erreur dans Sidebar:', error);
@@ -453,9 +455,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.smallTextTablet,
     fontWeight: SIZES.fontWeight.regular,
   },
-
-
-
   userRoleSmartphone: {
     fontSize: SIZES.fonts.smallTextSmartphone,
   },
@@ -467,7 +466,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 36,
     justifyContent: 'center',
-
     alignItems: 'center',
   },
   chevron: {
