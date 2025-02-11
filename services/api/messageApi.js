@@ -33,7 +33,7 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
       }
     }, contractNumber, accessToken);
 
-    console.log('📦 Requête complète:', JSON.stringify(body, null, 2));
+    // console.log('📦 Requête complète:', JSON.stringify(body, null, 2));
 
     const response = await axios.post(API_URL, body);
 
@@ -41,7 +41,7 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
       console.log('🔍 Réponse complète:', JSON.stringify(response.data, null, 2));
       const data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data;
       if (!data) {
-        console.error('❌ Structure de données invalide:', response.data);
+        // console.error('❌ Structure de données invalide:', response.data);
         return {
           status: 'error',
           error: 'Invalid data structure'
@@ -68,8 +68,8 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
         })) : []
       })) : [];
 
-      console.log('📊 Données formatées - Public:', publicChannels);
-      console.log('📊 Données formatées - Groups:', privateGroups);
+      // console.log('📊 Données formatées - Public:', publicChannels);
+      // console.log('📊 Données formatées - Groups:', privateGroups);
 
       return {
         status: 'ok',

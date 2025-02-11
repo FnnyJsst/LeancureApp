@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsWebviews from './screens/webviews/SettingsWebviews';
@@ -18,11 +18,13 @@ import { COLORS } from './constants/style';
 import { useNavigation } from './hooks/useNavigation';
 import * as SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
-// import usePushNotifications from './services/notifications/notificationService';
 import { useWebViews } from './hooks/useWebviews';
 import { useWebViewsPassword } from './hooks/useWebViewsPassword';
 import { LogBox } from 'react-native';
 import { useFonts } from 'expo-font';
+import { useDeviceType } from './hooks/useDeviceType';
+import CommonSettings from './screens/common/CommonSettings';
+// import { usePushNotifications } from './services/notifications/notificationService';
 
 
 LogBox.ignoreLogs(['[expo-notifications]']);
@@ -32,6 +34,7 @@ LogBox.ignoreLogs(['[expo-notifications]']);
  * @description The main component of the app
  */
 export default function App() {
+  // 1. Tous les hooks au début
   const [fontsLoaded] = useFonts({
     'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),         // 100
     'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),       // 300
@@ -42,21 +45,20 @@ export default function App() {
     'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),// 800
   });
 
-  //States related to the webviews
+  // 2. Tous les états
+  const [currentScreen, setCurrentScreen] = useState(SCREENS.LOGIN);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentScreen, setCurrentScreen] = useState(SCREENS.APP_MENU);
+  const [userCredentials, setUserCredentials] = useState(null);
   const [globalMessages, setGlobalMessages] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [timeoutInterval, setTimeoutInterval] = useState(null);
 
-  if (!fontsLoaded) {
-    return null;
-  }
-
+  // 3. Hooks personnalisés
   const { navigate } = useNavigation(setCurrentScreen);
+  const { isSmartphone } = useDeviceType();
   // const expoPushToken = usePushNotifications();
 
-  // Importation of the webviews hooks
+  // 4. Hooks des webviews
   const {     
     channels,
     setChannels,
@@ -80,47 +82,36 @@ export default function App() {
     navigateToWebView,
   } = useWebViews(setCurrentScreen);
 
-  // Importation of the webviews password hooks
-    const {
-      password,
-      setPassword,
-      isPasswordRequired,
-      setIsPasswordRequired,
-      isPasswordDefineModalVisible,
-      setPasswordDefineModalVisible,
-      passwordCheckModalVisible,
-      setPasswordCheckModalVisible,
-      handlePasswordSubmit,
-      handlePasswordCheck,
-      disablePassword,
-      openPasswordDefineModal,
-      closePasswordDefineModal,
-    } = useWebViewsPassword(navigate);
+  // 5. Hooks du mot de passe
+  const {
+    password,
+    setPassword,
+    isPasswordRequired,
+    setIsPasswordRequired,
+    isPasswordDefineModalVisible,
+    setPasswordDefineModalVisible,
+    passwordCheckModalVisible,
+    setPasswordCheckModalVisible,
+    handlePasswordSubmit,
+    handlePasswordCheck,
+    disablePassword,
+    openPasswordDefineModal,
+    closePasswordDefineModal,
+  } = useWebViewsPassword(navigate);
 
-
-  // /**
-  //  * @function useEffect
-  //  * @description Allows to display the push token in the console, used for notifications
-  //  */
-  // useEffect(() => {
-  //   if (expoPushToken) {
-  //     // console.log('📲 Token dans App:', expoPushToken);
-  //   }
-  // }, [expoPushToken]);
-
-
-  /**
-   * @function handleSettingsAccess
-   * @description Handles the access to the settings screen in the webviews with or without password
-   */
-  const handleSettingsAccess = () => {
+  // 6. Fonctions qui utilisent des hooks
+  const handleSettingsAccess = useCallback(() => {
     if (isPasswordRequired) {
       setPasswordCheckModalVisible(true);
-
     } else {
       navigate(SCREENS.SETTINGS);
     }
-  };
+  }, [isPasswordRequired, setPasswordCheckModalVisible, navigate]);
+
+  // 7. Condition de retour
+  if (!fontsLoaded) {
+    return null;
+  }
 
   /**
    * @function loadTimeoutInterval
@@ -380,6 +371,13 @@ export default function App() {
             setIsExpanded={setIsExpanded}
             handleChatLogout={handleChatLogout}
             onSelectOption={handleTimeoutSelection}
+          />
+        );
+      
+      case SCREENS.COMMON_SETTINGS:
+        return (
+          <CommonSettings
+            onNavigate={navigate}
           />
         );
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SCREENS } from '../../constants/screens';
@@ -40,9 +40,9 @@ export default function AppMenu({ onNavigate }) {
               onPress={() => onNavigate(SCREENS.WEBVIEW)}
               />
           </View>
-          <View style={styles.settingsContainer}>
+          <TouchableOpacity style={styles.settingsContainer} onPress={() => onNavigate(SCREENS.COMMON_SETTINGS)}>
             <Ionicons name="settings-outline" size={isSmartphone ? 24 : 40} color={COLORS.borderColor} />
-          </View>
+          </TouchableOpacity>
         </View>
       </GradientBackground>
     </>

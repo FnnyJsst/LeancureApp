@@ -24,7 +24,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       }
     }, contractNumber, accessToken);
 
-    // console.log('🔗 URL API:', ENV.API_URL);
+    console.log('🔗 URL API:', ENV.API_URL);
     // console.log('📦 Données envoyées:', JSON.stringify(data, null, 2));
     // console.log('🔑 Access Token:', accessToken);
 
