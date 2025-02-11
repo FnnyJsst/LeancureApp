@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Modal, View, Text, StyleSheet } from 'react-native';
+import { Modal, View, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
 import { useDeviceType } from '../../../hooks/useDeviceType'; 
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style'; 
 import { Ionicons } from '@expo/vector-icons';
-
+import { Text } from '../../text/CustomText';
 /**
  * @component EditWebviewModal
  * @description A component that renders a modal for editing a channel

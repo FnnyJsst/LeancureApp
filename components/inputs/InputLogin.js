@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS, SIZES } from '../../constants/style';
+import { COLORS, SIZES, FONTS } from '../../constants/style';
 import { Ionicons, FontAwesome, MaterialIcons, Feather } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
@@ -71,7 +71,7 @@ export default function InputLogin({
             <TextInput 
                 style={[
                     styles.input,
-                    isSmartphone ? styles.inputSmartphone : styles.inputTablet
+                    isSmartphone && styles.inputSmartphone
                 ]} 
                 placeholder={placeholder} 
                 value={value} 
@@ -125,13 +125,12 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         color: COLORS.white,
+        fontFamily: FONTS.regular,
         paddingHorizontal: 10,
         paddingVertical: 10,
+        fontSize: SIZES.fonts.textTablet,
     },
     inputSmartphone: {
         fontSize: SIZES.fonts.textSmartphone,
-    },
-    inputTablet: {
-        fontSize: SIZES.fonts.textTablet,
     }
 });

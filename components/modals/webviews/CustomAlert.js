@@ -1,9 +1,10 @@
 import React from 'react';
-import { Modal, View, Text, StyleSheet } from 'react-native';
+import { Modal, View, StyleSheet } from 'react-native';
 import Button from '../../../components/buttons/Button';
 import TitleModal from '../../../components/text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES,COLORS } from '../../../constants/style';
+import { Text } from '../../text/CustomText';
 
 /**
  * @component CustomAlert

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import { useDeviceType } from '../../hooks/useDeviceType'; 
-import { SIZES, COLORS } from '../../constants/style'; 
+import { SIZES, COLORS, FONTS } from '../../constants/style'; 
 import { Ionicons } from '@expo/vector-icons';
 
 /**
@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: COLORS.white,
+    fontFamily: FONTS.regular,
     fontSize: SIZES.fonts.biggerTextTablet,
     marginLeft: 10,
   },

@@ -1,7 +1,14 @@
-/**
- * @constant SIZES
- * @description A constant that contains the sizes of the app
- */
+export const FONTS = {
+  thin: 'Raleway-Thin',        // 100
+  light: 'Raleway-Light',      // 300
+  regular: 'Raleway-Regular',  // 400
+  medium: 'Raleway-Medium',    // 500
+  semiBold: 'Raleway-SemiBold',// 600
+  bold: 'Raleway-Bold',        // 700
+  extraBold: 'Raleway-ExtraBold',// 800
+  black: 'Raleway-Black'       // 900
+};
+
 export const SIZES = {
   fonts: {
     smallTextSmartphone: 12,
@@ -21,11 +28,14 @@ export const SIZES = {
     headerTablet: 30,
   },
   fontWeight: {
+    thin: '100',
     light: '300',
     regular: '400',
     medium: '500',
     semiBold: '600',
     bold: '700',
+    extraBold: '800',
+    black: '900'
   },
   borderRadius: {
     small: 6,

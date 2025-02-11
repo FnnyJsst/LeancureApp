@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
+import { Text } from '../../text/CustomText';
 
 /**
  * @component AutoRefreshModal

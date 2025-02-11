@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SIZES } from '../../constants/style';
+import { COLORS, SIZES, FONTS } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
+import { Text } from '../text/CustomText';
 
 /**
  * @component FilePreview
@@ -255,6 +256,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    fontFamily: FONTS.regular,
     fontSize: SIZES.fonts.textTablet,
     marginRight: 10,
     color: COLORS.gray300,

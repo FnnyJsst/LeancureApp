@@ -1,9 +1,10 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import ParameterButton from '../../components/buttons/ParameterButton';
 import { Ionicons } from '@expo/vector-icons';
 import { SIZES, COLORS } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SCREENS } from '../../constants/screens';
+import { Text } from '../../components/text/CustomText';
 
 /**
  * @component NoUrlScreen

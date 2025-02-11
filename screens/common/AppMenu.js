@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SCREENS } from '../../constants/screens';
 import AppMenuCard from '../../components/cards/AppMenuCard';
 import { Ionicons } from '@expo/vector-icons';
 import GradientBackground from '../../components/backgrounds/GradientBackground';
+import { Text } from '../../components/text/CustomText';
 
 /**
  * @function AppMenu Component

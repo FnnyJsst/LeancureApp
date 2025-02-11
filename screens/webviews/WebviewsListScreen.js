@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType'; 
 import { COLORS, SIZES } from '../../constants/style';
 import Button from '../../components/buttons/Button';
 import CheckBox from '../../components/inputs/CheckBox';
 import { Ionicons } from '@expo/vector-icons';
+import { Text } from '../../components/text/CustomText';
 
 /**
  * @component WebviewsListScreen

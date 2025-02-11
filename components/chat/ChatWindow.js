@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import InputChatWindow from '../inputs/InputChatWindow';
 import ChatMessage from './ChatMessage';
@@ -8,6 +8,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import * as SecureStore from 'expo-secure-store';
 import { sendMessageApi } from '../../services/api/messageApi';
 import DateBanner from './DateBanner';
+import { Text } from '../text/CustomText';
 
 /**
  * @component ChatWindow

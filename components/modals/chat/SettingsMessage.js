@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../../../constants/style'; 
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import Header from '../../Header';
@@ -7,6 +7,7 @@ import SettingsCard from '../../cards/SettingsCard';
 import { Ionicons } from '@expo/vector-icons';
 import Sidebar from '../../navigation/Sidebar';
 import TimeOutModal from './TimeOutModal';
+import { Text } from '../../text/CustomText';
 
 /**
  * @component SettingsMessage

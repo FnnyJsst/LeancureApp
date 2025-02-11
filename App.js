@@ -22,6 +22,8 @@ import Sidebar from './components/navigation/Sidebar';
 import { useWebViews } from './hooks/useWebviews';
 import { useWebViewsPassword } from './hooks/useWebViewsPassword';
 import { LogBox } from 'react-native';
+import { useFonts } from 'expo-font';
+
 
 LogBox.ignoreLogs(['[expo-notifications]']);
 
@@ -30,6 +32,15 @@ LogBox.ignoreLogs(['[expo-notifications]']);
  * @description The main component of the app
  */
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),         // 100
+    'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),       // 300
+    'Raleway-Regular': require('./assets/fonts/raleway.regular.ttf'),   // 400
+    'Raleway-Medium': require('./assets/fonts/raleway.medium.ttf'),     // 500
+    'Raleway-SemiBold': require('./assets/fonts/raleway.semibold.ttf'), // 600
+    'Raleway-Bold': require('./assets/fonts/raleway.bold.ttf'),         // 700
+    'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),// 800
+  });
 
   //States related to the webviews
   const [isLoading, setIsLoading] = useState(true);
@@ -37,6 +48,10 @@ export default function App() {
   const [globalMessages, setGlobalMessages] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [timeoutInterval, setTimeoutInterval] = useState(null);
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   const { navigate } = useNavigation(setCurrentScreen);
   // const expoPushToken = usePushNotifications();

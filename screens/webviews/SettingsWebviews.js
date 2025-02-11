@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
+import { ScrollView, View, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import SettingsCard from '../../components/cards/SettingsCard';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
@@ -8,6 +8,7 @@ import PasswordDefineModal from '../../components/modals/webviews/PasswordDefine
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
+import { Text } from '../../components/text/CustomText';
 
 
 /**

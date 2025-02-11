@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Modal, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { COLORS, SIZES, MODAL_STYLES } from '../../../constants/style';
@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Button from '../../../components/buttons/Button';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import { Text } from '../../text/CustomText';
 
 /**
  * @component DocumentPreviewModal

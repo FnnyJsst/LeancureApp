@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Modal, Text,StyleSheet } from 'react-native';
+import { View, Modal, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES, SIZES } from '../../../constants/style';
+import { Text } from '../../text/CustomText';
 
 /**
  * @component DeleteWebviewModal

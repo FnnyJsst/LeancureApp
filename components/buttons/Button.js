@@ -1,7 +1,7 @@
-import { StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style'; 
-
+import { Text } from '../text/CustomText';
 
 /**
  * @component Button

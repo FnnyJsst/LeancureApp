@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
+import { Text } from '../text/CustomText';
 
 /**
  * @component AppMenuCard
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
     height: 150,
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#403430',
+    borderColor: COLORS.borderColor,
   },
   cardSmartphone: {
     width: 250,
@@ -65,11 +66,11 @@ const styles = StyleSheet.create({
   iconContainer: {
     flexDirection: 'row',
     gap: 30
-
   },
   title: {
     color: COLORS.white,
     fontSize: SIZES.fonts.titleTablet,
+    fontWeight: SIZES.fontWeight.medium,
     textAlign: 'center',
   },
   titleSmartphone: {

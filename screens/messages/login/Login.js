@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { ScrollView, View, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import InputLogin from '../../../components/inputs/InputLogin';
 import CheckBox from '../../../components/inputs/CheckBox';
@@ -14,6 +14,7 @@ import GradientBackground from '../../../components/backgrounds/GradientBackgrou
 import { hashPassword } from '../../../utils/encryption';
 import { secureStore } from '../../../utils/encryption';
 import * as Network from 'expo-network';
+import { Text } from '../../../components/text/CustomText';
 
 
 /**
@@ -351,7 +352,7 @@ const styles = StyleSheet.create({
     title: {
         color: COLORS.white,
         fontSize: SIZES.fonts.headerTablet,
-        fontWeight: SIZES.fontWeight.bold,
+        fontWeight: SIZES.fontWeight.semibold,
         textAlign: 'center',
         marginBottom: 10,
     },

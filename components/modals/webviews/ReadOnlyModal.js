@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, Modal, StyleSheet } from 'react-native';
+import { View, Modal, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../../constants/style';
+import { Text } from '../../text/CustomText';
 
 /**
  * @component ReadOnly

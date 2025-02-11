@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Animated, StyleSheet, TextInput } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Animated, StyleSheet, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { fetchUserChannels } from '../../services/api/messageApi';
 import * as SecureStore from 'expo-secure-store';
 import { SCREENS } from '../../constants/screens';
+import { Text } from '../text/CustomText';
 
 /**
  * @component Sidebar

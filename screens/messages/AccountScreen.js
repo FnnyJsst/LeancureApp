@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet} from 'react-native';
+import { View, StyleSheet} from 'react-native';
 import AccountImage from '../../components/AccountImage';
 import AccountImageInput from '../../components/inputs/AccountImageInput';
 import Button from '../../components/buttons/Button';
@@ -7,7 +7,7 @@ import Header from '../../components/Header';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
-
+import { Text } from '../../components/text/CustomText';
 /**
  * @component AccountScreen
  * @description Displays the account screen

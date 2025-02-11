@@ -1,7 +1,8 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons, Entypo } from '@expo/vector-icons';
 import { useDeviceType } from '../hooks/useDeviceType';
 import { COLORS, SIZES } from '../constants/style';
+import { Text } from './text/CustomText';
 
 /**
  * @component Header
