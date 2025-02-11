@@ -40,7 +40,7 @@ export default function SettingsWebviews({
 }) {
 
   // Device type variables
-  const { isTablet, isSmartphone, isLandscape, isSmartphonePortrait } = useDeviceType();
+  const { isSmartphone, isLandscape, isSmartphonePortrait } = useDeviceType();
   
   // State management
   const [modalVisible, setModalVisible] = useState(false);

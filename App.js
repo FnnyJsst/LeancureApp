@@ -212,6 +212,10 @@ export default function App() {
       }
     };
 
+    function handleHideMessages() {
+      console.log('Hide messages');
+    }
+
     /**
      * @function useEffect
      * @description Handles the timeout in the chat section
@@ -377,7 +381,8 @@ export default function App() {
       case SCREENS.COMMON_SETTINGS:
         return (
           <CommonSettings
-            onNavigate={navigate}
+            onBackPress={() => navigate(SCREENS.APP_MENU)}
+            onHideMessages={handleHideMessages}
           />
         );
 
