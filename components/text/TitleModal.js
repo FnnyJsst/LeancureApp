@@ -30,7 +30,7 @@ export default function TitleModal({ title }) {
 const styles = StyleSheet.create({
   title: {
     fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: SIZES.fontWeight.bold,
+    fontWeight: SIZES.fontWeight.semibold,
     marginBottom: 20,
     marginHorizontal: '2%',
     width: '100%',

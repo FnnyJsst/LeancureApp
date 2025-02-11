@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Modal, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Modal, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../../constants/style';
@@ -38,25 +38,38 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
+      statusBarTranslucent={true} 
     >
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Text style={styles.modalText}>
-            Voulez-vous masquer la section Messages ?
-          </Text>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonNo]}
+      <View style={styles.modalContainer}>
+        <View style={[
+          styles.modalContent,
+          isSmartphonePortrait && styles.modalContentSmartphonePortrait,
+          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+          isTabletPortrait && styles.modalContentTabletPortrait
+        ]}>
+          <View style={[
+            styles.titleContainer,
+          ]}>
+            <Text style={[
+              styles.titleText,
+              isSmartphone && styles.titleTextSmartphone,
+            ]}>Do you want to hide the messages section from the app menu?</Text>
+          </View>
+          <View style={[
+            styles.buttonContainer, 
+            isSmartphone && styles.buttonContainerSmartphone]}>
+            <Button
+              title="No"
+              backgroundColor={COLORS.gray950}
+              width={isSmartphone ? '20%' : '22%'}
               onPress={() => handleResponse(false)}
-            >
-              <Text style={styles.buttonText}>Non</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonYes]}
+            />
+            <Button
+              title="Yes"
+              backgroundColor={COLORS.orange}
+              width={isSmartphone ? '20%' : '22%'}
               onPress={() => handleResponse(true)}
-            >
-              <Text style={styles.buttonText}>Oui</Text>
-            </TouchableOpacity>
+            />
           </View>
         </View>
       </View>
@@ -66,25 +79,43 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
 
 const styles = StyleSheet.create({
   //Container styles
-  centeredView: {
+  modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.backgroundModal,
+    paddingBottom: '20%',
   },
-  modalView: {
-    width: '40%',
+  modalContent: {
+    width: '65%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
   },
-  modalText: {
+    modalContentSmartphonePortrait: {
+    width: '95%',
+  },
+  modalContentSmartphoneLandscape: {
+    width: '50%',
+  },
+  modalContentTabletPortrait: {
+    width: '60%',
+  },
+
+    titleContainer: {
+    marginBottom: 20,
+  },
+  titleText: {
     fontSize: SIZES.fonts.subtitleTablet,
     fontWeight: SIZES.fontWeight.semibold,
-    marginBottom: 20,
+    marginHorizontal: '2%',
+    width: '100%',
     color: COLORS.gray300,
+  },
+  titleTextSmartphone: {
+    fontSize: SIZES.fonts.biggerTextSmartphone,
   },
 
   //Button styles
@@ -93,20 +124,5 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     gap: 20,
     width: '100%',
-  },
-  buttonNo: {
-    backgroundColor: COLORS.gray950,
-    padding: 10,
-    borderRadius: SIZES.borderRadius.small,
-  },
-  buttonYes: {
-    backgroundColor: COLORS.orange,
-    padding: 10,
-    borderRadius: SIZES.borderRadius.small,
-  },
-  buttonText: {
-    fontSize: SIZES.fonts.biggerTextSmartphone,
-    fontWeight: SIZES.fontWeight.semibold,
-    color: COLORS.gray300,
-  },
+  }
 });

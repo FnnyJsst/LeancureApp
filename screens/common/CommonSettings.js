@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text } from '../../components/text/CustomText';
 import { SCREENS } from '../../constants/screens';
 import Header from '../../components/Header';
 import { Ionicons } from '@expo/vector-icons';
@@ -52,12 +53,18 @@ const CommonSettings = ({ onBackPress, onHideMessages }) => {
             showBackButton={true}
             onBackPress={onBackPress}
           />
+          <View style={styles.headerContainer}>
+            <Text style={[
+              styles.header,
+              isSmartphone && styles.headerSmartphone
+            ]}>Settings</Text>
+          </View>
           <View style={[
             styles.configContainer,
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape
           ]}>
-             <View style={styles.rowContainer}>
+            <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
                 <SettingsCard
                     title="Hide messages"
@@ -97,6 +104,22 @@ const CommonSettings = ({ onBackPress, onHideMessages }) => {
 };
 
 const styles = StyleSheet.create({
+  headerContainer: {
+    marginBottom: 0,
+    marginTop: 20,
+    marginLeft: 30,
+    justifyContent: 'flex-start',
+  }, 
+  header: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.headerTablet,
+    fontWeight: SIZES.fontWeight.semibold,
+    marginBottom: 20,
+    alignSelf: 'flex-start',
+  },
+  headerSmartphone: {
+    fontSize: SIZES.fonts.headerSmartphone,
+  },
   configContainer: {
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,

@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   badgeText: {
     color: COLORS.white,
     fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: 'bold'
+    fontWeight: SIZES.fontWeight.semibold,
   }, 
   badgeTextSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone

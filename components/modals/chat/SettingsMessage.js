@@ -24,7 +24,6 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
   const { isSmartphone, isLandscape } = useDeviceType();
   const [currentSection, setCurrentSection] = useState('settings');
   const [timeOutModal, setTimeOutModal] = useState(false);
-  const [serverAddressModal, setServerAddressModal] = useState(false);
   /**
    * @function toggleMenu
    * @description Toggles the menu
@@ -39,14 +38,6 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
 
   const closeTimeOutModal = () => {
     setTimeOutModal(false);
-  };
-
-  const openServerAddressModal = () => {
-    setServerAddressModal(true);
-  };
-
-  const closeServerAddressModal = () => {
-    setServerAddressModal(false);
   };
 
   return (
@@ -82,36 +73,14 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
             title="Session Timeout"
             iconBackgroundColor={COLORS.burgundy}
             icon={
-              // <View style={styles.quitIconBackground}>
-                <Ionicons 
-                  name="exit-outline" 
-                  size={isSmartphone ? 22 : 28} 
-                  color={COLORS.red} 
-                />
-              // </View>
+              <Ionicons 
+                name="exit-outline" 
+                size={isSmartphone ? 22 : 28} 
+                color={COLORS.red} 
+              />
             }
             description="Define the time after which the session will be logged out"
             onPress={openTimeOutModal}
-          />
-        </View>
-        <View style={[
-          styles.configContainer,
-          isSmartphone && styles.configContainerSmartphone,
-          isLandscape && styles.configContainerLandscape
-        ]}>
-          <SettingsCard
-            title="Message server address"
-            icon={
-              <View>
-                <Ionicons 
-                  name="server-outline" 
-                  size={isSmartphone ? 22 : 28} 
-                  color={COLORS.orange} 
-                />
-              </View>
-            }
-            description="Define which server URL to use to access messages"
-            onPress={openServerAddressModal}
           />
         </View>
       </View>
@@ -120,10 +89,6 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
         onClose={closeTimeOutModal}
         onSelectOption={onSelectOption}
       />
-      {/* <ServerAddressModal
-        visible={serverAddressModal}
-        onClose={closeServerAddressModal}
-      /> */}
     </>
   );
 }
@@ -142,7 +107,7 @@ const styles = StyleSheet.create({
   header: {
     color: COLORS.white,
     fontSize: SIZES.fonts.headerTablet,
-    fontWeight: SIZES.fontWeight.bold,
+    fontWeight: SIZES.fontWeight.semibold,
     marginBottom: 20,
     alignSelf: 'flex-start',
   },

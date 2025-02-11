@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   header: {
     color: COLORS.white,
     fontSize: SIZES.fonts.headerTablet,
-    fontWeight: SIZES.fontWeight.bold,
+    fontWeight: SIZES.fontWeight.semibold,
   },
   headerSmartphone: {
     fontSize: SIZES.fonts.headerSmartphone,

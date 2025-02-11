@@ -79,7 +79,6 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly }) {
               color={COLORS.gray300} 
               width={isSmartphone ? '20%' : '22%'}
               onPress={handleNo} 
-
             />
           </View>
         </View>
@@ -121,7 +120,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: SIZES.fontWeight.bold,
+    fontWeight: SIZES.fontWeight.semibold,
     marginHorizontal: '2%',
     width: '100%',
     color: COLORS.gray300,

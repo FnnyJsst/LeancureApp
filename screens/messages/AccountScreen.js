@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   accountName: {
     color: COLORS.white,
     fontSize: SIZES.fonts.titleTablet,
-    fontWeight: SIZES.fontWeight.bold,
+    fontWeight: SIZES.fontWeight.semibold,
   },
   accountNameSmartphone: {
     fontSize: SIZES.fonts.titleSmartphone,

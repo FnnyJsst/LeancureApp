@@ -180,6 +180,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: COLORS.white,
     fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: SIZES.fontWeight.bold,
+    fontWeight: SIZES.fontWeight.semibold,
   },
 });

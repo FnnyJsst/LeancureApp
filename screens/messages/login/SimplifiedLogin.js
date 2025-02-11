@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     color: COLORS.white,
     fontSize: SIZES.fonts.headerTablet,
-    fontWeight: SIZES.fontWeight.bold,
+    fontWeight: SIZES.fontWeight.semibold,
     textAlign: 'center',
     marginBottom: 30,
   },
