@@ -10,39 +10,32 @@ const API_URL = ENV.API_URL;
  * @param {string} contractNumber - The contract number
  * @param {string} login - The login
  * @param {string} password - The password
- * @param {string} email - The email
- * @param {string} nom - The nom
- * @param {string} prenom - The prenom
+ * @param {string} accessToken - The access token
  * @returns {Promise<Object>} - The user's channels
  */
-export const fetchUserChannels = async (contractNumber, login, password, email, nom, prenom) => {
-  const timestamp = Date.now();
+export const fetchUserChannels = async (contractNumber, login, password, accessToken = '') => {
+  console.log('🔢 Contract Number dans fetchUserChannels:', contractNumber);
+  console.log('🔑 Login:', login);
+  console.log('🔒 Password:', password ? '****' : 'empty');
   
   try {
     const body = createApiRequest({
-      "msg_srv": {
-        "client": {
-          "get_account_links": {
-            "accountinfos": {
-              "login": login,
-              "email": email || '',
-              "password": password,
-              "nom": nom || '',
-              "prenom": prenom || ''
-            },
-            "msg-msgapikey": ENV.MSG_API_KEY,
-            "msg-contract-number": contractNumber
+      "accounts": {
+        "loginmsg": {
+          "get": {
+            "login": login,
+            "password": password
           }
         }
       }
-    }, contractNumber);
+    }, contractNumber, accessToken);
 
-    // We send the request to the API and clean the response. If the response is ok, we return the data.
+    console.log('📦 Requête complète:', JSON.stringify(body, null, 2));
+
     const response = await axios.post(API_URL, body);
-    const cleanData = cleanApiResponse(response);
 
-    if (cleanData.status === "ok") {
-      const data = cleanData.cmd?.[0]?.msg_srv?.client?.get_account_links?.data;
+    if (response.status === 200) {
+      const data = response.data?.cmd?.[0]?.accounts?.loginmsg?.get?.data;
       if (!data) {
         return {
           status: 'error',
@@ -79,7 +72,7 @@ export const fetchUserChannels = async (contractNumber, login, password, email, 
     } else {
       return {
         status: 'error',
-        error: cleanData.error || 'Error while fetching data'
+        error: 'Error while fetching data'
       };
     }
   } catch (error) {

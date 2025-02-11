@@ -14,7 +14,7 @@ export const SIZES = {
     smallTextSmartphone: 12,
     smallTextTablet: 17,
     textSmartphone: 14,
-    textTablet: 20,
+    textTablet: 18,
     biggerTextSmartphone: 16,
     biggerTextTablet: 18,
     sideBarTextSmartphone: 17,

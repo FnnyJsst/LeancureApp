@@ -8,27 +8,38 @@ import { createApiRequest, cleanApiResponse } from './baseApi';
  * @param {string} contractNumber - The contract number
  * @param {string} login - The login
  * @param {string} password - The password
+ * @param {string} accessToken - The access token
  * @returns {Promise<Object>} - The login data
  */
-export const loginApi = async (contractNumber, login, password) => {
+export const loginApi = async (contractNumber, login, password, accessToken = '') => {
   try {
+    // const data = createApiRequest({
+    //   "msg_srv": {
+    //     "client": {
+    //       "get_account_links": {
+    //         "accountinfos": {
+    //           "login": login,
+    //           "password": password,
+    //           "email": "",
+    //           "nom": "",
+    //           "prenom": ""
+    //         },
+    //         "msg-msgapikey": ENV.MSG_API_KEY,
+    //         "msg-contract-number": contractNumber
+    //       }
+    //     }
+    //   }
+    // }, contractNumber);
     const data = createApiRequest({
-      "msg_srv": {
-        "client": {
-          "get_account_links": {
-            "accountinfos": {
-              "login": login,
-              "password": password,
-              "email": "",
-              "nom": "",
-              "prenom": ""
-            },
-            "msg-msgapikey": ENV.MSG_API_KEY,
-            "msg-contract-number": contractNumber
+      "accounts": {
+        "loginmsg": {
+          "get": {
+            "login": login,
+            "password": password
           }
         }
       }
-    }, contractNumber);
+    }, contractNumber, accessToken);
 
     console.log('🔗 URL API:', ENV.API_URL);
     console.log('📦 Données envoyées:', JSON.stringify(data, null, 2));
@@ -43,11 +54,24 @@ export const loginApi = async (contractNumber, login, password) => {
       timeout: 10000 // 10 secondes de timeout
     });
 
-    return cleanApiResponse(response);
+    // return cleanApiResponse(response);
+    return response;
   } catch (error) {
     throw error;
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * @function saveCredentials

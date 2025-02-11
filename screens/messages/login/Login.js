@@ -98,69 +98,45 @@ import { Text } from '../../../components/text/CustomText';
      */
     const handleLogin = async () => {
         try {
-            // Check the internet connection
-            const netInfo = await Network.getNetworkStateAsync();
-            if (!netInfo.isConnected || !netInfo.isInternetReachable) {
-                setError('No internet connection');
+            setIsLoading(true);
+            setError('');
 
-                return;
-            }
-
-            // console.log('🌐 État de la connexion:', netInfo);
-            
-            // We validate the inputs
+            // Validation des inputs
             const validationError = validateInputs();
             if (validationError) {
                 setError(validationError);
                 return;
             }
 
-            // We set the loading state to true
-            setIsLoading(true);
-            setError('');
-
+            // Login
             const loginResponse = await loginApi(contractNumber, login, password);
-            // console.log('✅ Réponse du serveur:', loginResponse);
+            console.log('🔑 Contract Number utilisé:', contractNumber);
 
-            if (loginResponse && loginResponse.status === 'ok') {
-                // console.log('🔑 Sauvegarde des identifiants...');
-                
-                // Save the credentials
+            if (loginResponse && loginResponse.status === 200) {
+                // Sauvegarde des identifiants
                 await secureStore.saveCredentials({
                     contractNumber,
                     login,
                     password: hashPassword(password)
                 });
-                
-                // console.log('✅ Identifiants sauvegardés');
 
-                // Then save the simplified login info if necessary
+                // Sauvegarde du login simplifié si nécessaire
                 if (isChecked) {
                     await saveLoginInfo();
                 }
 
-                // Load the channels immediately after login
+                // Chargement des channels avec le même numéro de contrat
                 const channelsResponse = await fetchUserChannels(contractNumber, login, password);
-                // console.log('📊 Réponse des channels:', channelsResponse);
 
                 if (channelsResponse.status === 'ok') {
                     onNavigate(SCREENS.CHAT);
                 } else {
-                    // console.log('❌ Erreur channels:', channelsResponse);
                     setError('Error loading channels');
                 }
             } else {
-                // console.log('❌ Erreur login:', loginResponse);
-                setError(loginResponse.error || 'Invalid credentials');
+                setError('Invalid credentials');
             }
         } catch (error) {
-            // console.log('🔴 Erreur détaillée:', {
-            //     message: error.message,
-            //     config: error.config,
-            //     url: error.config?.url,
-            //     method: error.config?.method,
-            //     headers: error.config?.headers
-            // });
             if (error.message === 'Network Error') {
                 setError('Impossible de joindre le serveur. Vérifiez votre connexion.');
             } else {

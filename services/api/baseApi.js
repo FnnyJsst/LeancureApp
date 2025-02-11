@@ -1,37 +1,61 @@
+import CryptoJS from 'crypto-js';
 /**
  * Create an API request object
  * @param {Object} cmd - The command object
  * @param {string} contractNumber - The contract number
  * @returns {Object} - The API request object
  */
-export const createApiRequest = (cmd, contractNumber) => ({
-  "api-version": "2",
-  "api-contract-number": contractNumber,
-  "api-signature": "msgApiKey",
-  "api-signature-hash": "sha256",
-  "api-signature-timestamp": Date.now(),
-  cmd: [cmd]
-});
+// export const createApiRequest = (cmd, contractNumber) => ({
+//   "api-version": "2",
+//   "api-contract-number": contractNumber,
+//   "api-signature": "msgApiKey",
+//   "api-signature-hash": "sha256",
+//   "api-signature-timestamp": Date.now(),
+//   cmd: [cmd]
+// });
+
+export const createApiRequest = (cmd, contractNumber, accessToken = '') => {
+  const timestamp = Date.now();
+  const saltPath = getSaltPath(cmd, timestamp);
+  const hashHex = generateHash(saltPath, contractNumber);
+
+  return {
+    "api-version": "2",
+    "api-contract-number": contractNumber,
+    "api-signature": hashHex,
+    "api-signature-hash": "sha256",
+    "api-signature-timestamp": timestamp,
+    "client-type": "mobile",
+    "client-login": "admin",
+    "client-token": "",
+    "client-token-validity": "1m",
+    cmd: [cmd]
+  };
+};
 
 /**
- * @function cleanApiResponse
- * @description Clean an API response
- * @param {Object} response - The API response object
- * @returns {Object} - The cleaned API response object
+ * @function getSaltPath
+ * @description Get the salt path
+ * @param {Object} cmd - The command object
+ * @param {number} timestamp - The timestamp
+ * @returns {string} - The salt path
  */
+const getSaltPath = (cmd, timestamp) => {
+  //Get the first key of the command object ex for a command : {"accounts":{"loginmsg":{"get":{...}}}}
+  const firstKey = Object.keys(cmd)[0]; //"accounts"
+  const secondKey = Object.keys(cmd[firstKey])[0]; //"loginmsg"
+  const thirdKey = Object.keys(cmd[firstKey][secondKey])[0]; //"get"
+  //Return the salt path "accounts/loginmsg/get/1713024000000/"
+  return `${firstKey}/${secondKey}/${thirdKey}/${timestamp}/`; 
+};
 
-export const cleanApiResponse = (response) => {
-  let cleanData = response.data;
-  if (typeof response.data === 'string') {
-
-    const jsonStart = response.data.indexOf('{');
-    if (jsonStart !== -1) {
-      try {
-        cleanData = JSON.parse(response.data.substring(jsonStart));
-      } catch (e) {
-        throw new Error('Invalid JSON response');
-      }
-    }
-  }
-  return cleanData;
+/**
+ * @function generateHash
+ * @description Generate the hash
+ * @param {string} saltPath - The salt path
+ * @param {string} contractNumber - The contract number
+ */
+const generateHash = (saltPath, contractNumber) => {
+  const hash = CryptoJS.HmacSHA256(saltPath, contractNumber);
+  return hash.toString(CryptoJS.enc.Hex);
 };

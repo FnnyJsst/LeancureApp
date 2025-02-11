@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   title: {
     color: COLORS.white,
     fontSize: SIZES.fonts.headerTablet,
-    fontWeight: SIZES.fontWeight.bold,
+    fontWeight: SIZES.fontWeight.semibold,
     paddingVertical: 30,
   },
   titleSmartphone: {
