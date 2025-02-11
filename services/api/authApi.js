@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ENV } from '../../config/env';
-import { createApiRequest, cleanApiResponse } from './baseApi';
+import { createApiRequest } from './baseApi';
 
 /**
  * @function loginApi
@@ -24,10 +24,11 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       }
     }, contractNumber, accessToken);
 
-    console.log('🔗 URL API:', ENV.API_URL);
-    console.log('📦 Données envoyées:', JSON.stringify(data, null, 2));
-    console.log('🔑 Access Token:', accessToken);
+    // console.log('🔗 URL API:', ENV.API_URL);
+    // console.log('📦 Données envoyées:', JSON.stringify(data, null, 2));
+    // console.log('🔑 Access Token:', accessToken);
 
+    // Send the request to the API
     const response = await axios({
       method: 'POST',
       url: ENV.API_URL,
@@ -35,10 +36,10 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       headers: {
         'Content-Type': 'application/json'
       },
-      timeout: 10000 // 10 secondes de timeout
+      timeout: 10000 
     });
 
-    // Récupérer l'accountApiKey de la réponse
+    // Get the accountApiKey from the response
     const accountApiKey = response.data?.cmd?.[0]?.accounts?.loginmsg?.get?.data?.accountapikey;
     return { ...response, accountApiKey };
   } catch (error) {

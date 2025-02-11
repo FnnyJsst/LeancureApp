@@ -1,28 +1,37 @@
 import CryptoJS from 'crypto-js';
 /**
  * Create an API request object
- * @param {Object} cmd - The command object
+ * @param {string} saltPath - The salt path, ex : "amaiia_msg_srv/client/add_msg/1713024000000/"
  * @param {string} contractNumber - The contract number
  * @returns {Object} - The API request object
  */
-// export const createApiRequest = (cmd, contractNumber) => ({
-//   "api-version": "2",
-//   "api-contract-number": contractNumber,
-//   "api-signature": "msgApiKey",
-//   "api-signature-hash": "sha256",
-//   "api-signature-timestamp": Date.now(),
-//   cmd: [cmd]
-// });
+export const createSignature = (saltPath, contractNumber) => {
+  // console.log('🔑 Création signature avec:', { saltPath, contractNumber });
+  //We use the saltPath and the contractNumber to create a signature
+  const hash = CryptoJS.HmacSHA256(saltPath, contractNumber);
+  //We convert the hash to a hexadecimal string using the CryptoJS library
+  const signature = hash.toString(CryptoJS.enc.Hex);
+  // console.log('✍️ Signature générée:', signature);
+  return signature;
+};
 
+/**
+ * @function createApiRequest
+ * @description Create an API request object we can the reuse for all the API requests
+ * @param {Object} cmd - The command object
+ * @param {string} contractNumber - The contract number
+ * @param {string} accessToken - The access token
+ * @returns {Object} - The API request object
+ */
 export const createApiRequest = (cmd, contractNumber, accessToken = '') => {
   const timestamp = Date.now();
   const saltPath = getSaltPath(cmd, timestamp);
-  const hashHex = generateHash(saltPath, contractNumber);
+  const signature = createSignature(saltPath, contractNumber);
 
   return {
     "api-version": "2",
     "api-contract-number": contractNumber,
-    "api-signature": hashHex,
+    "api-signature": signature,
     "api-signature-hash": "sha256",
     "api-signature-timestamp": timestamp,
     "client-type": "mobile",
@@ -49,13 +58,13 @@ const getSaltPath = (cmd, timestamp) => {
   return `${firstKey}/${secondKey}/${thirdKey}/${timestamp}/`; 
 };
 
-/**
- * @function generateHash
- * @description Generate the hash
- * @param {string} saltPath - The salt path
- * @param {string} contractNumber - The contract number
- */
-const generateHash = (saltPath, contractNumber) => {
-  const hash = CryptoJS.HmacSHA256(saltPath, contractNumber);
-  return hash.toString(CryptoJS.enc.Hex);
-};
+// /**
+//  * @function generateHash
+//  * @description Generate the hash
+//  * @param {string} saltPath - The salt path
+//  * @param {string} contractNumber - The contract number
+//  */
+// const generateHash = (saltPath, contractNumber) => {
+//   const hash = CryptoJS.HmacSHA256(saltPath, contractNumber);
+//   return hash.toString(CryptoJS.enc.Hex);
+// };

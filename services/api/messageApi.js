@@ -122,57 +122,58 @@ const formatMessages = (messages) => {
 export const sendMessageApi = async (channelId, messageContent, userCredentials) => {
   try {
     const timestamp = Date.now();
+    const saltPath = `amaiia_msg_srv/client/add_msg/${timestamp}/`;
+    const signature = createSignature(saltPath, userCredentials.contractNumber);
     
-    // Check if messageContent is a file or a simple text
     const isFile = typeof messageContent === 'object' && messageContent.base64;
     
-    const data = createApiRequest({
-      "msg_srv": {
-        "client": {
-          "add_msg": {
-            "accountinfos": {
-              "login": userCredentials.login,
-              "password": userCredentials.password,
-              "email": "",
-              "nom": "",
-              "prenom": ""
-            },
-            "msg-msgapikey": ENV.MSG_API_KEY,
-            "msg-contract-number": userCredentials.contractNumber,
-            "channelid": parseInt(channelId),
-
-            "title": isFile ? messageContent.name : messageContent.substring(0, 50),
-            "details": isFile ? "" : messageContent,
-            "enddatets": timestamp + 99999,
-            ...(isFile && {
-              "filetype": messageContent.type.split('/')[1],
-              "img": {
-                "base64": messageContent.base64,
-                "type": messageContent.type.split('/')[1],
-                "real_name": messageContent.name
-              }
-            })
+    const body = {
+      "api-version": "2",
+      "api-contract-number": userCredentials.contractNumber,
+      "api-signature": signature,
+      "api-signature-hash": "sha256",
+      "api-signature-timestamp": timestamp,
+      "client-type": "mobile",
+      "client-login": "admin",
+      "client-token": userCredentials.accessToken || "",
+      "cmd": [{
+        "amaiia_msg_srv": {
+          "client": {
+            "add_msg": {
+              "channelid": parseInt(channelId),
+              "title": isFile ? messageContent.name : messageContent.substring(0, 50),
+              "details": isFile ? "" : messageContent,
+              "enddatets": timestamp + 99999,
+              ...(isFile && {
+                "file": {
+                  "base64": messageContent.base64,
+                  "filetype": messageContent.type.split('/')[1],
+                  "filename": messageContent.name
+                }
+              }),
+              "sentby": userCredentials.accountApiKey
+            }
           }
         }
-      }
-    }, userCredentials.contractNumber);
-
-    const response = await axios({
-      method: 'POST',
-      url: API_URL,
-      data: data,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    return {
-      status: 'ok',
-      message: messageContent,
-      timestamp: timestamp
+      }]
     };
 
+    console.log('📤 Envoi du message:', JSON.stringify(body, null, 2));
+    const response = await axios.post(API_URL, body);
+    console.log('📥 Réponse du serveur:', JSON.stringify(response.data, null, 2));
+
+    if (response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.add_msg?.status === 'ok') {
+      return {
+        status: 'ok',
+        message: messageContent,
+        timestamp: timestamp
+      };
+    }
+    
+    throw new Error(response.data?.error || response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.add_msg?.message || 'Message non enregistré');
+
   } catch (error) {
+    console.error('🔴 Erreur sendMessageApi:', error);
     throw error;
   }
 };
@@ -241,4 +242,3 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
 
 // const credentials = await secureStore.getCredentials();
 // const channelsResponse = await fetchUserChannels(contractNumber, login, password, '', credentials.accountApiKey);
-
