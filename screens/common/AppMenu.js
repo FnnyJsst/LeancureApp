@@ -8,11 +8,10 @@ import { Ionicons } from '@expo/vector-icons';
 import GradientBackground from '../../components/backgrounds/GradientBackground';
 
 /**
- * AppMenu Component
- * Displays the app menu
+ * @function AppMenu Component
+ * @description Displays the app menu
  * 
  * @param {Function} onNavigate - A function to navigate to a screen
- * @returns {JSX.Element} - A JSX element
  * 
  * @example
  * <AppMenu onNavigate={(screen) => navigate(screen)} />
@@ -33,13 +32,15 @@ export default function AppMenu({ onNavigate }) {
               title="Messages"
               icon={<Ionicons name="mail-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
               onPress={() => onNavigate(SCREENS.LOGIN)}
-              // unreadCount={unreadMessages}
             />
             <AppMenuCard
               title="WebViews"
               icon={<Ionicons name="tv-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
               onPress={() => onNavigate(SCREENS.WEBVIEW)}
               />
+          </View>
+          <View style={styles.settingsContainer}>
+            <Ionicons name="settings-outline" size={isSmartphone ? 24 : 40} color={COLORS.borderColor} />
           </View>
         </View>
       </GradientBackground>
@@ -70,5 +71,10 @@ const styles = StyleSheet.create({
   },
   cardsContainerSmartphoneLandscape: {
     flexDirection: 'row',
+  },
+  settingsContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
   }
 });

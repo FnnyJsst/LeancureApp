@@ -18,9 +18,12 @@ import { COLORS } from './constants/style';
 import { useNavigation } from './hooks/useNavigation';
 import * as SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
-import usePushNotifications from './services/notifications/notificationService';
+// import usePushNotifications from './services/notifications/notificationService';
 import { useWebViews } from './hooks/useWebviews';
 import { useWebViewsPassword } from './hooks/useWebViewsPassword';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs(['[expo-notifications]']);
 
 /**
  * @component App
@@ -36,7 +39,7 @@ export default function App() {
   const [timeoutInterval, setTimeoutInterval] = useState(null);
 
   const { navigate } = useNavigation(setCurrentScreen);
-  const expoPushToken = usePushNotifications();
+  // const expoPushToken = usePushNotifications();
 
   // Importation of the webviews hooks
   const {     
@@ -80,15 +83,15 @@ export default function App() {
     } = useWebViewsPassword(navigate);
 
 
-  /**
-   * @function useEffect
-   * @description Allows to display the push token in the console, used for notifications
-   */
-  useEffect(() => {
-    if (expoPushToken) {
-      // console.log('📲 Token dans App:', expoPushToken);
-    }
-  }, [expoPushToken]);
+  // /**
+  //  * @function useEffect
+  //  * @description Allows to display the push token in the console, used for notifications
+  //  */
+  // useEffect(() => {
+  //   if (expoPushToken) {
+  //     // console.log('📲 Token dans App:', expoPushToken);
+  //   }
+  // }, [expoPushToken]);
 
 
   /**

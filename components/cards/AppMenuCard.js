@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     margin: 10,
-    width: 400,
+    width: 350,
     height: 150,
     justifyContent: 'center',
     borderWidth: 1,

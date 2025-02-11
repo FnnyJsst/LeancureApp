@@ -133,8 +133,12 @@ export default function SettingsWebviews({
               color={COLORS.white} 
             />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Settings</Text>
+          <Text style={[
+            styles.headerTitle,
+            isSmartphone && styles.headerTitleSmartphone
+          ]}>Settings</Text>
         </View>
+
         <View style={[
           styles.pageContainer,
           isSmartphonePortrait && styles.pageContainerSmartphonePortrait
@@ -355,8 +359,11 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   headerTitle: {
-    color: COLORS.white,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: SIZES.fontWeight.bold,
+    fontWeight: SIZES.fontWeight.regular,
+  }, 
+  headerTitleSmartphone: {
+    fontSize: SIZES.fonts.subtitleSmartphone,
   }
 });

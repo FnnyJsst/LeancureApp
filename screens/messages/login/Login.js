@@ -7,14 +7,12 @@ import SimplifiedLogin from './SimplifiedLogin';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SCREENS } from '../../../constants/screens';
-// import { loginApi, fetchUserChannels } from '../../../services/api/messageApi';
 import { loginApi } from '../../../services/api/authApi';
 import { fetchUserChannels } from '../../../services/api/messageApi';
 import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 import GradientBackground from '../../../components/backgrounds/GradientBackground';
 import { hashPassword } from '../../../utils/encryption';
 import { secureStore } from '../../../utils/encryption';
-// import { Network } from '@react-native-community/netinfo';
 import * as Network from 'expo-network';
 
 
@@ -89,13 +87,6 @@ import * as Network from 'expo-network';
         checkSavedLogin();
     }, []);
 
-    // useEffect(() => {
-    //     if (isSimplifiedLogin && savedLoginInfo) {
-    //         handleSimplifiedLogin();
-    //     }
-    // }, [isSimplifiedLogin, savedLoginInfo]);
-
-    // If on is in initial loading, we don't render anything
     if (isInitialLoading) {
         return null;
     }
@@ -106,10 +97,11 @@ import * as Network from 'expo-network';
      */
     const handleLogin = async () => {
         try {
-            // Vérification de la connexion Internet
+            // Check the internet connection
             const netInfo = await Network.getNetworkStateAsync();
             if (!netInfo.isConnected || !netInfo.isInternetReachable) {
-                setError('Pas de connexion Internet');
+                setError('No internet connection');
+
                 return;
             }
 
@@ -132,7 +124,7 @@ import * as Network from 'expo-network';
             if (loginResponse && loginResponse.status === 'ok') {
                 // console.log('🔑 Sauvegarde des identifiants...');
                 
-                // Sauvegarder d'abord les identifiants
+                // Save the credentials
                 await secureStore.saveCredentials({
                     contractNumber,
                     login,
@@ -141,7 +133,7 @@ import * as Network from 'expo-network';
                 
                 // console.log('✅ Identifiants sauvegardés');
 
-                // Ensuite sauvegarder les infos de connexion simplifiée si nécessaire
+                // Then save the simplified login info if necessary
                 if (isChecked) {
                     await saveLoginInfo();
                 }
@@ -180,34 +172,31 @@ import * as Network from 'expo-network';
     
     /**
      * @function saveLoginInfo
-     * @description Saves the login info in Secure store
+     * @description Handles the saving of the login info in Secure store
      */
     const saveLoginInfo = async () => {
         try {
-            // Sauvegarder les identifiants de connexion
-            await secureStore.saveCredentials({
-                contractNumber,
-                login,
-                password: hashPassword(password)
-            });
-
-            // Sauvegarder les infos de connexion simplifiée si la case est cochée
             if (isChecked) {
+                // Save only the simplified login info
                 await SecureStore.setItemAsync('savedLoginInfo', JSON.stringify({
                     contractNumber,
                     login,
                     password,
                     wasChecked: true
+
                 }));
             } else {
+                // If the checkbox is not checked, delete the simplified login info
                 await SecureStore.deleteItemAsync('savedLoginInfo');
                 setIsSimplifiedLogin(false);
             }
+
         } catch (error) {
-            console.error('Error saving login info:', error);
-            throw error; // Propager l'erreur pour la gérer dans handleLogin
+            console.error('Error saving simplified login info:', error);
+            throw error;
         }
     };
+
 
     /**
      * @function validateInputs
