@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
@@ -7,6 +7,8 @@ import AppMenuCard from '../../components/cards/AppMenuCard';
 import { Ionicons } from '@expo/vector-icons';
 import GradientBackground from '../../components/backgrounds/GradientBackground';
 import { Text } from '../../components/text/CustomText';
+import * as SecureStore from 'expo-secure-store';
+import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
 
 /**
  * @function AppMenu Component
@@ -17,8 +19,34 @@ import { Text } from '../../components/text/CustomText';
  * @example
  * <AppMenu onNavigate={(screen) => navigate(screen)} />
  */
-export default function AppMenu({ onNavigate }) {
+export default function AppMenu({ onNavigate, selectedWebviews }) {
   const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
+  const [isMessagesHidden, setIsMessagesHidden] = useState(false);
+  const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
+
+  // Charger l'état au démarrage
+  useEffect(() => {
+    const loadMessagesVisibility = async () => {
+      try {
+        const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
+        if (savedValue !== null) {
+          setIsMessagesHidden(JSON.parse(savedValue));
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement du paramètre:', error);
+      }
+    };
+    loadMessagesVisibility();
+  }, []);
+
+  const handleHideMessages = async (shouldHide) => {
+    try {
+      await SecureStore.setItemAsync('hideMessages', JSON.stringify(shouldHide));
+      setIsMessagesHidden(shouldHide);
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde du paramètre:', error);
+    }
+  };
 
   return (
     <>    
@@ -28,21 +56,33 @@ export default function AppMenu({ onNavigate }) {
             styles.title,
             isSmartphone && styles.titleSmartphone
           ]}>Welcome</Text>
-          <View style={[styles.cardsContainer, isSmartphoneLandscape && styles.cardsContainerSmartphoneLandscape]}>
-            <AppMenuCard
-              title="Messages"
-              icon={<Ionicons name="mail-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
-              onPress={() => onNavigate(SCREENS.LOGIN)}
-            />
-            <AppMenuCard
-              title="WebViews"
-              icon={<Ionicons name="tv-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
-              onPress={() => onNavigate(SCREENS.WEBVIEW)}
+          <View style={[styles.cardsContainer, isSmartphoneLandscape && styles.cardsContainerLandscape]}>
+            <View style={styles.cardWrapper}>
+              {!isMessagesHidden && (
+                <AppMenuCard
+                  title="Messages"
+                  icon={<Ionicons name="mail-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
+                  onPress={() => onNavigate(SCREENS.LOGIN)}
+                />
+              )}
+            </View>
+            
+            <View style={styles.cardWrapper}>
+              <AppMenuCard
+                title="WebViews"
+                icon={<Ionicons name="tv-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
+                onPress={() => onNavigate(SCREENS.WEBVIEW)}
               />
+            </View>
           </View>
           <TouchableOpacity style={styles.settingsContainer} onPress={() => onNavigate(SCREENS.COMMON_SETTINGS)}>
             <Ionicons name="settings-outline" size={isSmartphone ? 24 : 40} color={COLORS.borderColor} />
           </TouchableOpacity>
+          <HideMessagesModal
+            visible={hideMessagesModalVisible}
+            onClose={() => setHideMessagesModalVisible(false)}
+            onToggleHideMessages={handleHideMessages}
+          />
         </View>
       </GradientBackground>
     </>
@@ -70,8 +110,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 15,
   },
-  cardsContainerSmartphoneLandscape: {
+  cardsContainerLandscape: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  // cardWrapper: {
+  //   flex: isSmartphoneLandscape ? 0 : 1,
+  //   width: isSmartphoneLandscape ? '40%' : '100%',
+  // },
+  lastCardLandscape: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 15,
   },
   settingsContainer: {
     position: 'absolute',

@@ -6,15 +6,37 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import SettingsCard from '../../components/cards/SettingsCard';
-import HideMessagesModal from '../../components/modals/common/HideMessagsModal';
-
-
+import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
+import * as SecureStore from 'expo-secure-store';
 
 const CommonSettings = ({ onBackPress, onHideMessages }) => {
     const { isSmartphone, isLandscape } = useDeviceType();
-
     const [hideMessages, setHideMessages] = useState(false);
     const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
+
+    useEffect(() => {
+        const loadHideMessagesState = async () => {
+            try {
+                const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
+                if (savedValue !== null) {
+                    setHideMessages(JSON.parse(savedValue));
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement du paramètre:', error);
+            }
+        };
+        loadHideMessagesState();
+    }, []);
+
+    const handleToggleHideMessages = async (value) => {
+        setHideMessages(value);
+        try {
+            await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(value));
+        } catch (error) {
+            console.error('Erreur lors de la sauvegarde du paramètre:', error);
+        }
+        closeHideMessagesModal();
+    };
 
     const openHideMessagesModal = () => {
         setHideMessagesModalVisible(true);
@@ -67,7 +89,7 @@ const CommonSettings = ({ onBackPress, onHideMessages }) => {
           <HideMessagesModal
             visible={hideMessagesModalVisible}
             onClose={closeHideMessagesModal}
-            onToggleHideMessages={setHideMessages}
+            onToggleHideMessages={handleToggleHideMessages}
           />
         </>
     );

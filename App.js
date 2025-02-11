@@ -45,20 +45,20 @@ export default function App() {
     'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),// 800
   });
 
-  // 2. Tous les états
   const [currentScreen, setCurrentScreen] = useState(SCREENS.LOGIN);
   const [isLoading, setIsLoading] = useState(true);
   const [userCredentials, setUserCredentials] = useState(null);
   const [globalMessages, setGlobalMessages] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [timeoutInterval, setTimeoutInterval] = useState(null);
+  const [isMessagesHidden, setIsMessagesHidden] = useState(false);
 
-  // 3. Hooks personnalisés
+  // 2. Hooks personnalisés
   const { navigate } = useNavigation(setCurrentScreen);
   const { isSmartphone } = useDeviceType();
   // const expoPushToken = usePushNotifications();
 
-  // 4. Hooks des webviews
+  // 3. Hooks des webviews
   const {     
     channels,
     setChannels,
@@ -82,7 +82,7 @@ export default function App() {
     navigateToWebView,
   } = useWebViews(setCurrentScreen);
 
-  // 5. Hooks du mot de passe
+  // 4. Hooks du mot de passe
   const {
     password,
     setPassword,
@@ -99,25 +99,17 @@ export default function App() {
     closePasswordDefineModal,
   } = useWebViewsPassword(navigate);
 
-  // 6. Fonctions qui utilisent des hooks
-  const handleSettingsAccess = useCallback(() => {
-    if (isPasswordRequired) {
-      setPasswordCheckModalVisible(true);
-    } else {
-      navigate(SCREENS.SETTINGS);
-    }
-  }, [isPasswordRequired, setPasswordCheckModalVisible, navigate]);
+  // // 5. Fonctions avec useCallback
+  // const handleHideMessages = useCallback(async (shouldHide) => {
+  //   try {
+  //     await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
+  //     setIsMessagesHidden(shouldHide);
+  //   } catch (error) {
+  //     console.error('Erreur lors de la sauvegarde du paramètre:', error);
+  //   }
+  // }, []);
 
-  // 7. Condition de retour
-  if (!fontsLoaded) {
-    return null;
-  }
-
-  /**
-   * @function loadTimeoutInterval
-   * @description Loads the timeout interval from secure storage
-   */
-  const loadTimeoutInterval = async () => {
+  const loadTimeoutInterval = useCallback(async () => {
     try {
       const storedTimeout = await SecureStore.getItemAsync('timeoutInterval');
       if (storedTimeout) {
@@ -126,12 +118,40 @@ export default function App() {
     } catch (error) {
       console.error('Error during the loading of the timeout:', error);
     }
-  };
+  }, []);
 
-  /**
-   * @function useEffect
-   * @description Handles the loading of the app to display the loading screen for 3 seconds
-   */
+  const handleSettingsAccess = useCallback(() => {
+    if (isPasswordRequired) {
+      setPasswordCheckModalVisible(true);
+    } else {
+      navigate(SCREENS.SETTINGS);
+    }
+  }, [isPasswordRequired, setPasswordCheckModalVisible, navigate]);
+
+  const hideMessages = useCallback(async (shouldHide) => {
+    try {
+      await SecureStore.setItemAsync('hideMessages', JSON.stringify(shouldHide));
+      setIsMessagesHidden(shouldHide);
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde du paramètre hideMessages:', error);
+    }
+  }, []);
+
+  // 6. Tous les useEffect
+  useEffect(() => {
+    const loadMessagesVisibility = async () => {
+      try {
+        const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
+        if (savedValue !== null) {
+          setIsMessagesHidden(JSON.parse(savedValue));
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement du paramètre:', error);
+      }
+    };
+    loadMessagesVisibility();
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -139,22 +159,39 @@ export default function App() {
       loadTimeoutInterval();
     }, 3000);
     return () => clearTimeout(timer);
+  }, [loadTimeoutInterval, navigate]);
+
+  useEffect(() => {
+    let timer;
+    if (timeoutInterval && currentScreen !== SCREENS.APP_MENU && currentScreen !== SCREENS.LOGIN) {
+      timer = setTimeout(() => {
+        setCurrentScreen(SCREENS.APP_MENU);
+        setGlobalMessages([]);
+        setIsExpanded(false);
+      }, timeoutInterval);
+    }
+    return () => clearTimeout(timer);
+  }, [timeoutInterval, currentScreen]);
+
+  useEffect(() => {
+    const loadHideMessagesState = async () => {
+      try {
+        const savedValue = await SecureStore.getItemAsync('hideMessages');
+        if (savedValue !== null) {
+          setIsMessagesHidden(JSON.parse(savedValue));
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement du paramètre hideMessages:', error);
+      }
+    };
+    
+    loadHideMessagesState();
   }, []);
 
-  /**
-   * @function useEffect
-   * @description Sets the interval to refresh the WebViews
-   * @returns {void}
-   */
-  useEffect(() => {
-    if (refreshInterval) {
-      const interval = setInterval(() => {
-        // console.log('Refresh interval:', new Date().toLocaleTimeString());
-      }, refreshInterval);
-      return () => clearInterval(interval);
-    }
-  }, [refreshInterval]);
-
+  // 7. Condition de retour
+  if (!fontsLoaded) {
+    return null;
+  }
 
   /**
    * @function handleImportWebviews
@@ -211,43 +248,6 @@ export default function App() {
         }
       }
     };
-
-    function handleHideMessages() {
-      console.log('Hide messages');
-    }
-
-    /**
-     * @function useEffect
-     * @description Handles the timeout in the chat section
-     * @returns {void}
-     */
-    useEffect(() => {
-      let timer;
-
-      if (timeoutInterval && currentScreen !== SCREENS.APP_MENU && currentScreen !== SCREENS.LOGIN) {
-        console.log(`⏰ Disconnection scheduled in ${timeoutInterval/1000} seconds`);
-        
-        timer = setTimeout(() => {
-          console.log('⏰ Automatic disconnection');
-          
-          // Reset the necessary states
-          setCurrentScreen(SCREENS.APP_MENU);
-          setGlobalMessages([]);
-          setIsExpanded(false);
-          
-          if (handleChatLogout) {
-            handleChatLogout();
-          }
-        }, timeoutInterval);
-      }
-    
-      return () => {
-        if (timer) {
-          clearTimeout(timer);
-        }
-      };
-    }, [timeoutInterval, currentScreen]);
-
 
   // If the app is loading, show the loading screen
   if (isLoading) {
@@ -382,7 +382,9 @@ export default function App() {
         return (
           <CommonSettings
             onBackPress={() => navigate(SCREENS.APP_MENU)}
-            onHideMessages={handleHideMessages}
+            onHideMessages={hideMessages}
+            hideMessages={isMessagesHidden}
+            isMessagesHidden={isMessagesHidden}
           />
         );
 

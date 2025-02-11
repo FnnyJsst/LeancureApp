@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from './useNavigation';
 import { useWebViewsPassword } from './useWebViewsPassword';
@@ -14,7 +14,7 @@ export function useWebViews(setCurrentScreen) {
   const [selectedWebviews, setSelectedWebviews] = useState([]);
   const [webViewUrl, setWebViewUrl] = useState('');
   const [refreshInterval, setRefreshInterval] = useState(null);
-  const [refreshOption, setRefreshOption] = useState('never');
+  const [refreshOption, setRefreshOption] = useState('manual');
   const [isReadOnly, setIsReadOnly] = useState(false);
 
   const { navigate } = useNavigation(setCurrentScreen);
@@ -37,31 +37,37 @@ export function useWebViews(setCurrentScreen) {
     closePasswordDefineModal
   } = useWebViewsPassword(navigate);
 
-  
+  const toggleReadOnly = useCallback((value) => {
+    setIsReadOnly(value !== undefined ? value : !isReadOnly);
+  }, [isReadOnly]);
 
-      /**
+  const handleSelectChannels = useCallback((selectedChannels) => {
+    setSelectedWebviews(selectedChannels);
+  }, []);
+
+  /**
    * @function getIntervalInMilliseconds
    * @description Gets the interval in milliseconds
    * @param {string} value - The value to get
    * @returns {number} - The interval in milliseconds
    */
-      const getIntervalInMilliseconds = (value) => {
-        switch (value) {
-          case 'every minute': return 60000;
-          case 'every 2 minutes': return 120000;
-          case 'every 5 minutes': return 300000;
-          case 'every 15 minutes': return 900000;
-          case 'every 30 minutes': return 1800000;
-          case 'every hour': return 3600000;
-          case 'every 2 hours': return 7200000;
-          case 'every 3 hours': return 10800000;
-          case 'every 6 hours': return 21600000;
-          case 'every day': return 86400000;
-          default: return null;
-        }
-      };
+  const getIntervalInMilliseconds = (value) => {
+    switch (value) {
+      case 'every minute': return 60000;
+      case 'every 2 minutes': return 120000;
+      case 'every 5 minutes': return 300000;
+      case 'every 15 minutes': return 900000;
+      case 'every 30 minutes': return 1800000;
+      case 'every hour': return 3600000;
+      case 'every 2 hours': return 7200000;
+      case 'every 3 hours': return 10800000;
+      case 'every 6 hours': return 21600000;
+      case 'every day': return 86400000;
+      default: return null;
+    }
+  };
 
-        /**
+  /**
    * @function handleSelectOption
    * @description Handles the selection of the refresh option
    * @param {string} option - The option to select
@@ -73,7 +79,6 @@ export function useWebViews(setCurrentScreen) {
     saveRefreshOption(option);
   };
 
-  
   /**
    * @function saveRefreshOption
    * @description Saves the refresh option in AsyncStorage
@@ -88,31 +93,7 @@ export function useWebViews(setCurrentScreen) {
     }
   };
 
-    /**
-   * @function handleSelectChannels
-   * @description Handles the selection of channels
-   * @param {Array} selected - The selected channels
-   * @returns {void}
-   */
-  const handleSelectChannels = (selected) => {
-    const updatedWebviews = [...selectedWebviews];
-    //For each new channel, check if it is already in the list
-    selected.forEach(newChannel => {
-      const isDuplicate = selectedWebviews.some(
-        existingChannel => existingChannel.href === newChannel.href
-      );
-      //If the channel is not already in the list, add it
-      if (!isDuplicate) {
-        updatedWebviews.push(newChannel);
-      }
-    });
-  
-    setSelectedWebviews(updatedWebviews);
-    saveSelectedWebviews(updatedWebviews);
-    navigate(SCREENS.WEBVIEWS_MANAGEMENT);
-  };
-
-    /**
+  /**
    * @function saveSelectedWebviews
    * @description Saves the channels selected by the user in AsyncStorage
    * @param {Array} channels - The channels to save
@@ -151,29 +132,7 @@ export function useWebViews(setCurrentScreen) {
     }
   };
 
-    /**
-   * @function toggleReadOnly
-   * @description Toggles the read-only mode in webviews settings
-   * @param {boolean} value - The value to set
-   * @returns {void}
-   */
-
-  const toggleReadOnly = (value) => {
-    setIsReadOnly(value !== undefined ? value : !isReadOnly);
-  };
-
   /**
-   * @function useEffect
-   * @description Loads the selected channels, the password and the refresh option from AsyncStorage
-   * @returns {void}
-   */
-  useEffect(() => {
-    loadSelectedChannels();
-    loadPasswordFromSecureStore();
-    loadRefreshOption();
-  }, []);
-
-    /**
    * @function loadRefreshOption
    * @description Loads the refresh option from AsyncStorage
    * @returns {void}
@@ -197,7 +156,7 @@ export function useWebViews(setCurrentScreen) {
    * @returns {void}
    */
   const navigateToChannelsList = (extractedChannels) => {
-    console.log('🔄 Navigation vers la liste des canaux');
+    console.log('�� Navigation vers la liste des canaux');
     setChannels(extractedChannels);
     // if (SCREENS.WEBVIEWS_LIST) {
     navigate(SCREENS.WEBVIEWS_LIST);
@@ -222,8 +181,6 @@ export function useWebViews(setCurrentScreen) {
     }
   };
 
-
-
   /**
    * @function useEffect
    * @description Loads the selected channels from the SecureStore when user opens the app
@@ -246,6 +203,12 @@ export function useWebViews(setCurrentScreen) {
       return () => clearInterval(interval);
     }
   }, [refreshInterval]);
+
+  useEffect(() => {
+    loadSelectedChannels();
+    loadPasswordFromSecureStore();
+    loadRefreshOption();
+  }, []);
 
   return {
     channels,
