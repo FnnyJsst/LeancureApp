@@ -6,7 +6,7 @@ import ChatMessage from './ChatMessage';
 import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as SecureStore from 'expo-secure-store';
-import { sendMessageApi } from '../../services/api/messageApi';
+import { sendMessageApi, fetchMessageFile } from '../../services/api/messageApi';
 import DateBanner from './DateBanner';
 import { Text } from '../text/CustomText';
 
@@ -32,46 +32,71 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [selectedFileType, setSelectedFileType] = useState(null);
   const [selectedBase64, setSelectedBase64] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [credentials, setCredentials] = useState(null);
 
   /**
    * @function useEffect
    * @description We use the useEffect hook to update the messages when the channel messages change
    */
   useEffect(() => {
-    // If there are no messages, we set the messages to an empty array
-    if (!channelMessages) {
-      setMessages([]);
-      return;
-    }
+    const loadCredentials = async () => {
+      const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+      if (credentialsStr) {
+        setCredentials(JSON.parse(credentialsStr));
+      }
+    };
+    loadCredentials();
+  }, []);
 
-    // We filter the messages to be used in the UI
-    const validMessages = channelMessages.filter(msg => {
-      // If the message has no timestamp, title or message, we ignore it
-      if (!msg.savedTimestamp || msg.savedTimestamp === 'undefined' ) {
-        return false;
-      }
-      
-      if (!msg.message && !msg.title) {
-        return false;
-      }
-      
-      return true;
-    });
-    
-    // We format the messages to be used in the UI
-    const formattedMessages = validMessages.map(msg => ({
-      ...msg,
-      username: msg.login || 'Anonymous',
-      text: msg.message || msg.details || '',
-      timestamp: new Date(parseInt(msg.savedTimestamp)).toLocaleTimeString([], { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      })
-    }));
-    
-    // We update the messages
-    setMessages(formattedMessages);
-  }, [channelMessages]);
+  useEffect(() => {
+    if (channelMessages && credentials) {
+      // console.log('📥 Début chargement avec credentials:', {
+      //   hasCredentials: !!credentials,
+      //   login: credentials.login
+      // });
+
+      const loadFiles = async () => {
+        const updatedMessages = await Promise.all(
+          channelMessages.map(async (msg) => {
+            if (msg.type === 'file' && !msg.base64) {
+              // console.log('📥 Traitement fichier message:', {
+              //   messageId: msg.id,
+              //   fileName: msg.fileName,
+              //   fileType: msg.fileType,
+              //   hasBase64: !!msg.base64
+              // });
+
+              try {
+                const base64 = await fetchMessageFile(msg.id, {
+                  channelid: parseInt(channel.id),
+                  ...msg
+                }, credentials);
+
+                // console.log('📥 Résultat chargement fichier:', {
+                //   messageId: msg.id,
+                //   base64Reçu: !!base64,
+                //   base64Length: base64?.length
+                // });
+                
+                return {
+                  ...msg,
+                  base64: base64 || null
+                };
+              } catch (error) {
+                console.error('🔴 Erreur chargement fichier:', error);
+                return msg;
+              }
+            }
+            return msg;
+          })
+        );
+
+        setMessages(updatedMessages);
+      };
+
+      loadFiles();
+    }
+  }, [channelMessages, credentials, channel?.id]);
 
   // Function to open the document preview modal
   const openDocumentPreviewModal = (message) => {
@@ -96,6 +121,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = async (messageData) => {
     try {
+      // console.log('📤 Données du message à envoyer:', {
+      //   type: typeof messageData,
+      //   isObject: typeof messageData === 'object',
+      //   content: messageData
+      // });
+
       // If we don't have any message data or any credentials, we return nothing
       if (!messageData || 
           (typeof messageData === 'string' && !messageData.trim()) || 
@@ -116,6 +147,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       // If the message is sent successfully, we create a new message object
       if (response.status === 'ok') {
         const currentTimestamp = Date.now();
+        // console.log('📤 Réponse API:', response);
+        
         const newMessage = {
           id: currentTimestamp,
           title: typeof messageData === 'string' ? messageData.substring(0, 50) : messageData.fileName,
@@ -131,9 +164,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             type: 'file',
             fileName: messageData.fileName,
             fileSize: messageData.fileSize,
+            base64: messageData.base64,
             uri: messageData.uri
           })
         };
+        
+        // console.log('📤 Nouveau message créé:', newMessage);
 
         // If the onMessageSent function is defined, we call it to inform the parent component that a message has been sent
         if (typeof onMessageSent === 'function') {
@@ -218,11 +254,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
                 acc.push(
                   <ChatMessage
-                    key={`msg-${message.id || index}`}
-                    message={{
-                      ...message,
-                      isUnread: message.isUnread || false
-                    }}
+                    key={message.id}
+                    message={message}
                     isOwnMessage={message.isOwnMessage}
                     onFileClick={openDocumentPreviewModal}
                   />

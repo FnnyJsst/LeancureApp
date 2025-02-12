@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Image, Platform } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Image, Platform, ActivityIndicator } from "react-native";
 import { COLORS, SIZES } from "../../constants/style";
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
@@ -20,14 +20,32 @@ import { Text } from '../text/CustomText';
  */
 
 export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
+  // console.log('🖼️ Message reçu dans ChatMessage:', {
+  //   type: message.type,
+  //   fileType: message.fileType,
+  //   hasBase64: !!message.base64,
+  //   messageComplet: message
+  // });
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
 
   if (message.type === 'file') {
     const isPDF = message.fileType === 'application/pdf';
-    const isImage = message.fileType?.includes('image');
+    const isImage = message.fileType?.toLowerCase().includes('image/') || 
+                message.fileType?.toLowerCase().includes('jpeg') || 
+                message.fileType?.toLowerCase().includes('jpg') || 
+                message.fileType?.toLowerCase().includes('png');
     
+    // console.log('🖼️ Détails du fichier:', {
+    //   isPDF,
+    //   isImage,
+    //   fileType: message.fileType,
+    //   fileName: message.fileName,
+    //   base64Length: message.base64?.length,
+    //   messageType: message.type
+    // });
+
     return (
       <View style={styles.messageWrapper(isOwnMessage)}>
         {/* Ajout de l'en-tête avec username et timestamp */}
@@ -134,13 +152,34 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
               </View>
             )}
 
-            {isImage && message.base64 && (
+            {isImage && (
               <View style={styles.previewContainer}>
-                <Image 
-                  source={{ uri: `data:${message.fileType};base64,${message.base64}` }}
-                  style={styles.preview}
-                  resizeMode="cover"
-                />
+                {/* {console.log('🖼️ Vérification base64:', {
+                  base64Present: !!message.base64,
+                  base64Length: message.base64?.length,
+                  messageId: message.id
+                })} */}
+                <TouchableOpacity 
+                  style={styles.previewContent} 
+                  onPress={() => onFileClick(message)}
+                >
+                  {message.base64 ? (
+                    <Image 
+                      source={{ 
+                        uri: `data:${message.fileType};base64,${message.base64}`
+                      }}
+                      style={styles.preview}
+                      resizeMode="contain"
+                      onError={(error) => console.error('🔴 Erreur chargement image:', error.nativeEvent)}
+                      onLoad={() => console.log('✅ Image chargée avec succès')}
+                    />
+                  ) : (
+                    <View style={styles.placeholderContainer}>
+                      <ActivityIndicator size="large" color={COLORS.orange} />
+                      <Text style={styles.placeholderText}>Chargement de l'image...</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
                 <View style={styles.fileHeader}>
                   <Ionicons 
                     name="image-outline" 
@@ -294,10 +333,38 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.medium,
     overflow: 'hidden',
     backgroundColor: COLORS.overlayLight,
+    position: 'relative',
   },
   preview: {
     width: '100%',
     height: '100%',
     borderRadius: SIZES.borderRadius.medium,
-  }
+  },
+  imageContainer: {
+    width: '93%',
+    height: 150,
+    borderRadius: SIZES.borderRadius.medium,
+    overflow: 'hidden',
+    backgroundColor: COLORS.overlayLight,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    borderRadius: SIZES.borderRadius.medium,
+  },
+  previewContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.textSmartphone,
+    fontWeight: SIZES.fontWeight.regular,
+  },
 });
