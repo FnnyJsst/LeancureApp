@@ -39,7 +39,7 @@ const WebViewScreen = ({ url, onNavigate, onSettingsAccess }) => {
           onPress={() => onNavigate(SCREENS.APP_MENU)}
         >
           <Ionicons 
-            name="chevron-back-outline" 
+            name="close-outline" 
             size={SIZES.isSmartphone ? 24 : 28} 
             color={COLORS.gray300} 
           />

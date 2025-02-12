@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     paddingBottom: '20%',
   },
   modalContent: {
-    width: '65%',
+    width: '40%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,

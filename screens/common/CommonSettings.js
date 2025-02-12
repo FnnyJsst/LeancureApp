@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '../../components/text/CustomText';
 import { SCREENS } from '../../constants/screens';
+import { FONTS } from '../../constants/style';
 import Header from '../../components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
@@ -53,11 +54,8 @@ const CommonSettings = ({ onBackPress, onHideMessages }) => {
             showBackButton={true}
             onBackPress={onBackPress}
           />
-          <View style={styles.headerContainer}>
-            <Text style={[
-              styles.header,
-              isSmartphone && styles.headerSmartphone
-            ]}>Settings</Text>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>Messages</Text>
           </View>
           <View style={[
             styles.configContainer,
@@ -104,21 +102,14 @@ const CommonSettings = ({ onBackPress, onHideMessages }) => {
 };
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    marginBottom: 0,
-    marginTop: 20,
-    marginLeft: 30,
-    justifyContent: 'flex-start',
-  }, 
-  header: {
-    color: COLORS.white,
-    fontSize: SIZES.fonts.headerTablet,
-    fontWeight: SIZES.fontWeight.semibold,
-    marginBottom: 20,
-    alignSelf: 'flex-start',
+  titleContainer: {
+    marginHorizontal: 35,
+    marginTop: 12,
   },
-  headerSmartphone: {
-    fontSize: SIZES.fonts.headerSmartphone,
+  title: {
+    color: COLORS.gray300,
+    fontFamily: FONTS.medium,
+    fontSize: SIZES.fonts.smallTextTabletTablet,
   },
   configContainer: {
     backgroundColor: COLORS.gray850,
@@ -129,7 +120,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginVertical: 12,
     borderWidth: 1,
-    borderColor: COLORS.gray650,
     width: '95%',
   },
   configContainerSmartphone: {

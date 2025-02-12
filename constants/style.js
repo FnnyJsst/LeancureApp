@@ -21,7 +21,7 @@ export const SIZES = {
     inputTitleSmartphone: 16,
     inputTitleTablet: 20,
     subtitleSmartphone: 18,
-    subtitleTablet: 22,
+    subtitleTablet: 20,
     titleSmartphone: 20,
     titleTablet: 24,
     headerSmartphone: 24,

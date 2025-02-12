@@ -1,8 +1,8 @@
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { SIZES, COLORS } from '../../constants/style';
+import { SIZES, COLORS, FONTS } from '../../constants/style';
 import { Text } from '../text/CustomText';
-
+import { Ionicons } from '@expo/vector-icons';
 /**
  * @component SettingsCard
  * @description A component that renders the cards used in the settings screen
@@ -17,15 +17,10 @@ import { Text } from '../text/CustomText';
  * <SettingsCard icon={<Ionicons name="home" size={24} color="white" />} title="Home" description="Home description" onPress={() => console.log('Card pressed')} />
  */
 export default function SettingsCard({ icon, title, description, onPress, iconBackgroundColor=COLORS.borderColor }) {
-
-  // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
 
   return (
-    <TouchableOpacity 
-      style={styles.container} 
-      onPress={onPress}
-    >
+    <TouchableOpacity style={styles.container} onPress={onPress}>
       <View style={styles.content}>
         <View style={[
           styles.iconContainer,
@@ -62,7 +57,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 50,
     height: 50,
-    borderRadius: SIZES.borderRadius.medium,
+    borderRadius: SIZES.borderRadius.large,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
@@ -77,13 +72,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: SIZES.fonts.subtitleTablet,
     color: COLORS.gray300,
-    fontWeight: SIZES.fontWeight.regular
+    fontFamily: FONTS.medium
   },
   titleSmartphone: {
     fontSize: 15,
     fontWeight: SIZES.fontWeight.medium
   },
   description: {
+    fontFamily: Platform.select({
+      android: 'Roboto',
+      ios: 'System', 
+    }),
     fontSize: SIZES.fonts.textTablet,
     color: COLORS.gray600,
     marginTop: 2

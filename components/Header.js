@@ -40,7 +40,7 @@ export default function Header({
   onBellPress
 }) {
   const { isSmartphone } = useDeviceType();
-  const iconSize = isSmartphone ? 30 : 40;
+  const iconSize = isSmartphone ? 20 : 30;
 
   const renderLeftSection = () => (
     <View style={styles.leftSection}>
@@ -50,7 +50,7 @@ export default function Header({
           onPress={onBackPress}
         >
           <Ionicons 
-            name="chevron-back-outline" 
+            name="close-outline" 
             size={iconSize}
             color={COLORS.gray300} 
           />

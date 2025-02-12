@@ -24,7 +24,7 @@ export default function AppMenu({ onNavigate, selectedWebviews }) {
   const [isMessagesHidden, setIsMessagesHidden] = useState(false);
   const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
 
-  // Charger l'état au démarrage
+  // Load the messages visibility
   useEffect(() => {
     const loadMessagesVisibility = async () => {
       try {
@@ -33,7 +33,7 @@ export default function AppMenu({ onNavigate, selectedWebviews }) {
           setIsMessagesHidden(JSON.parse(savedValue));
         }
       } catch (error) {
-        console.error('Erreur lors du chargement du paramètre:', error);
+        console.error('Error loading messages visibility:', error);
       }
     };
     loadMessagesVisibility();
@@ -41,10 +41,10 @@ export default function AppMenu({ onNavigate, selectedWebviews }) {
 
   const handleHideMessages = async (shouldHide) => {
     try {
-      await SecureStore.setItemAsync('hideMessages', JSON.stringify(shouldHide));
+      await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
       setIsMessagesHidden(shouldHide);
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde du paramètre:', error);
+      console.error('Error saving messages visibility:', error);
     }
   };
 

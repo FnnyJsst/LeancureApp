@@ -6,7 +6,7 @@ import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal'
 import ReadOnlyModal from '../../components/modals/webviews/ReadOnlyModal';
 import PasswordDefineModal from '../../components/modals/webviews/PasswordDefineModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { SIZES, COLORS } from '../../constants/style';
+import { SIZES, COLORS, FONTS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../../components/text/CustomText';
 
@@ -129,21 +129,20 @@ export default function SettingsWebviews({
             onPress={handleBackPress}
           >
             <Ionicons 
-              name="chevron-back-outline" 
+              name="close-outline" 
               size={isSmartphone ? 24 : 28} 
               color={COLORS.white} 
             />
           </TouchableOpacity>
-          <Text style={[
-            styles.headerTitle,
-            isSmartphone && styles.headerTitleSmartphone
-          ]}>Settings</Text>
         </View>
 
         <View style={[
           styles.pageContainer,
           isSmartphonePortrait && styles.pageContainerSmartphonePortrait
         ]}>
+          <View style={styles.titleContainer}>
+            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>App</Text>
+          </View>
           <View style={[
             styles.configContainer,
             isSmartphone && styles.configContainerSmartphone,
@@ -153,15 +152,18 @@ export default function SettingsWebviews({
               title="Quit app"
               iconBackgroundColor={COLORS.burgundy}
               icon={
-                  <Ionicons 
-                    name="exit-outline" 
-                    size={isSmartphone ? 22 : 28} 
-                    color={COLORS.red} 
-                  />
+                <Ionicons 
+                  name="exit-outline" 
+                  size={isSmartphone ? 22 : 28} 
+                  color={COLORS.red} 
+                />
               }
               description="Quit the app and go back to the home screen"
               onPress={handleQuitApp}
             />
+          </View>
+          <View style={styles.titleContainer}>
+            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>Channels</Text>
           </View>
           <View style={[
             styles.configContainer,
@@ -174,12 +176,7 @@ export default function SettingsWebviews({
               icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
               onPress={() => onNavigate(SCREENS.WEBVIEWS_MANAGEMENT)}
             />
-          </View>
-          <View style={[
-            styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape
-          ]}>
+            <View style={styles.separator} />
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
                 <SettingsCard
@@ -202,6 +199,9 @@ export default function SettingsWebviews({
               </TouchableOpacity>
             </View>
           </View>
+          <View style={styles.titleContainer}>
+            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>Security</Text>
+          </View>
           <View style={[
             styles.configContainer,
             isSmartphone && styles.configContainerSmartphone,
@@ -220,20 +220,15 @@ export default function SettingsWebviews({
                 style={styles.baseToggle} 
                 onPress={openReadOnlyModal}
               >
-                  <Text style={[
-                    styles.text,
-                    isSmartphone && styles.textSmartphone 
-                  ]}>
+                <Text style={[
+                  styles.text,
+                  isSmartphone && styles.textSmartphone 
+                ]}>
                   {isReadOnly ? 'Yes' : 'No'}
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
-          <View style={[styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape
-          ]}>
-
+            <View style={styles.separator} />
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
                 <SettingsCard
@@ -255,6 +250,9 @@ export default function SettingsWebviews({
                 </Text>
               </TouchableOpacity>
             </View>
+          </View>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>Messages</Text>
           </View>
           <View style={[
             styles.configContainer,
@@ -301,7 +299,7 @@ const styles = StyleSheet.create({
   },
   settingsContentContainer: {
     flex: 1,
-    paddingTop: '3%',
+    // paddingTop: '3%',
   },
   configContainer: {
     backgroundColor: COLORS.gray850,
@@ -312,7 +310,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginVertical: 12,
     borderWidth: 1,
-    borderColor: COLORS.gray650,
     width: '95%',
   },
   configContainerSmartphone: {
@@ -348,23 +345,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 15,
-    marginBottom: 20,
+    // marginBottom: 20,
   },
   backButton: {
-    backgroundColor: '#271E1E',
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
     marginRight: 15,
   },
-  headerTitle: {
+  titleContainer: {
+    marginHorizontal: 35,
+    marginTop: 12,
+  },
+  title: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: SIZES.fontWeight.regular,
-  }, 
-  headerTitleSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
-  }
+    fontFamily: FONTS.medium,
+    fontSize: SIZES.fonts.smallTextTablet,
+  },
+  titleSmartphone: {
+    fontSize: SIZES.fonts.smallTextSmartphone,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: COLORS.gray700,
+    marginVertical: 12,
+  },
 });
