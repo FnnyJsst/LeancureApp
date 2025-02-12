@@ -11,13 +11,15 @@ import { Text } from '../../components/text/CustomText';
  * @description Screen displayed when the user hasn't imported any channels
  * @param {Function} onNavigate - A function to navigate to a screen
  * @param {Function} handleSettingsAccess - A function to handle the settings access
+ * @param {boolean} isMessagesHidden - A boolean indicating if messages are hidden
  * @returns {JSX.Element} - A JSX element
  * @example
- * <NoUrlScreen onNavigate={(screen) => navigate(screen)} handleSettingsAccess={handleSettingsAccess} />
+ * <NoUrlScreen onNavigate={(screen) => navigate(screen)} handleSettingsAccess={handleSettingsAccess} isMessagesHidden={isMessagesHidden} />
  */
 export default function NoUrlScreen({ 
   onNavigate, 
-  handleSettingsAccess
+  handleSettingsAccess,
+  isMessagesHidden
 }) {
 
   const { isSmartphone } = useDeviceType();
@@ -32,18 +34,20 @@ export default function NoUrlScreen({
 
   return (
     <View style={styles.pageContainer}>
-      <View style={styles.customHeaderContainer}>
-        <TouchableOpacity 
-          style={[styles.backButton, isSmartphone && styles.backButtonSmartphone]}
-          onPress={handleBackPress}
-        >
-          <Ionicons 
-            name="chevron-back-outline" 
-            size={isSmartphone ? 24 : 28} 
-            color={COLORS.white} 
-          />
-        </TouchableOpacity>
-      </View>
+      {!isMessagesHidden && (
+        <View style={styles.customHeaderContainer}>
+          <TouchableOpacity 
+            style={[styles.backButton, isSmartphone && styles.backButtonSmartphone]}
+            onPress={handleBackPress}
+          >
+            <Ionicons 
+              name="chevron-back-outline" 
+              size={isSmartphone ? 24 : 28} 
+              color={COLORS.white} 
+            />
+          </TouchableOpacity>
+        </View>
+      )}
       <View style={styles.textContainer}>
         <Text style={[
           styles.text,
@@ -70,10 +74,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   backButton: {
-    backgroundColor: COLORS.charcoal,
     width: 45,
-    height: 45,
-    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,

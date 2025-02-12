@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
@@ -6,6 +6,7 @@ import { SCREENS } from '../../constants/screens';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
+import { useDeviceType } from '../../hooks/useDeviceType';
 
 /**
  * @component WebViewScreen
@@ -13,11 +14,20 @@ import { COLORS, SIZES } from '../../constants/style';
  * @param {string} url - The url of the web page
  * @param {Function} onNavigate - A function to navigate to a screen
  * @param {Function} onSettingsAccess - A function to handle the settings access
+ * @param {boolean} isMessagesHidden - A boolean to hide the header
  * @returns {JSX.Element} - A JSX element
  * @example
  * <WebViewScreen url={url} onNavigate={(screen) => navigate(screen)} onSettingsAccess={onSettingsAccess} />
  */
-const WebViewScreen = ({ url, onNavigate, onSettingsAccess }) => {
+export default function WebViewScreen({ 
+  url, 
+  onNavigate, 
+  onSettingsAccess,
+  isMessagesHidden
+}) {
+  const { isSmartphone } = useDeviceType();
+  const webViewRef = useRef(null);
+
   useEffect(() => {
     // Lock orientation to landscape when entering WebViewScreen
     const lockLandscape = async () => {
@@ -32,30 +42,35 @@ const WebViewScreen = ({ url, onNavigate, onSettingsAccess }) => {
   }, []);
 
   return (
-    <View style={styles.pageContainer}>
-      <View style={styles.customHeaderContainer}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => onNavigate(SCREENS.APP_MENU)}
-        >
-          <Ionicons 
-            name="close-outline" 
-            size={SIZES.isSmartphone ? 24 : 28} 
-            color={COLORS.gray300} 
-          />
-        </TouchableOpacity>
-      </View>
+    <View style={styles.container}>
+      {!isMessagesHidden && (
+        <View style={styles.customHeaderContainer}>
+          <TouchableOpacity 
+            style={[styles.backButton, isSmartphone && styles.backButtonSmartphone]}
+            onPress={() => onNavigate(SCREENS.APP_MENU)}
+          >
+            <Ionicons 
+              name="chevron-back-outline" 
+              size={isSmartphone ? 24 : 28} 
+              color={COLORS.white} 
+            />
+          </TouchableOpacity>
+        </View>
+      )}
       <WebView
+        ref={webViewRef}
         source={{ uri: url }}
         style={styles.webview}
       />
-      <ParameterButton onPress={() => onSettingsAccess()} />
+      <View style={styles.buttonContainer}>
+        <ParameterButton onPress={onSettingsAccess} />
+      </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  pageContainer: {
+  container: {
     flex: 1,
     backgroundColor: COLORS.gray900,
   },
@@ -79,6 +94,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 15,
   },
+  backButtonSmartphone: {
+    backgroundColor: '#271E1E',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
   headerTitle: {
     color: COLORS.white,
     fontSize: SIZES.fonts.subtitleTablet,
@@ -87,6 +111,12 @@ const styles = StyleSheet.create({
   webview: {
     flex: 1,
   },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+    padding: 15,
+  },
 });
-
-export default WebViewScreen;

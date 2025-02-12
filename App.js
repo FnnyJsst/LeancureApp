@@ -277,6 +277,7 @@ export default function App() {
             password={password}
             setPasswordCheckModalVisible={setPasswordCheckModalVisible}
             handleSettingsAccess={handleSettingsAccess}
+            isMessagesHidden={isMessagesHidden}
           />
         );
 
@@ -335,6 +336,7 @@ export default function App() {
             url={webViewUrl} 
             onNavigate={navigate}
             onSettingsAccess={handleSettingsAccess}
+            isMessagesHidden={isMessagesHidden}
           />
         );
 
