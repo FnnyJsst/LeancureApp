@@ -126,6 +126,15 @@ export default function SettingsWebviews({
     return option;
   };
 
+  const handleToggleHideMessages = async (value) => {
+    try {
+      setHideMessagesModalVisible(false);
+      await onToggleHideMessages(value);
+    } catch (error) {
+      console.error('Erreur lors de la modification du paramètre:', error);
+    }
+  };
+
   return (
     <View>
       <ScrollView showsVerticalScrollIndicator={true}>
@@ -265,40 +274,31 @@ export default function SettingsWebviews({
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape
           ]}>
-            {isMessagesHidden ? (
-              <View style={styles.rowContainer}>
-                <View style={styles.leftContent}>
-                  <SettingsCard
-                    title="Show/hide messages"
-                    iconBackgroundColor={COLORS.borderColor}
-                    icon={
-                      <Ionicons 
-                        name="remove-circle-outline" 
-                        size={isSmartphone ? 22 : 28} 
-                        color={COLORS.red} 
-                      />
-                    }
-                    description="Show or hide the message section of the app"
-                    onPress={() => setHideMessagesModalVisible(true)}
-                  />
-                </View>
-                <TouchableOpacity 
-                  style={styles.baseToggle} 
+            <View style={styles.rowContainer}>
+              <View style={styles.leftContent}>
+                <SettingsCard
+                  title="Show/hide messages"
+                  iconBackgroundColor={COLORS.borderColor}
+                  icon={
+                    <Ionicons 
+                      name="remove-circle-outline" 
+                      size={isSmartphone ? 22 : 28} 
+                      color={COLORS.red} 
+                    />
+                  }
+                  description="Show or hide the message section of the app"
                   onPress={() => setHideMessagesModalVisible(true)}
-                >
-                  <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
-                    {isMessagesHidden ? 'Hide' : 'Show'}
-                  </Text>
-                </TouchableOpacity>
+                />
               </View>
-            ) : (
-              <SettingsCard
-                title="Access messages"
-                icon={<Ionicons name="mail-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
-                description="Access to the messages section"
-                onPress={() => onNavigate(SCREENS.LOGIN)}
-              />
-            )}
+              <TouchableOpacity 
+                style={styles.baseToggle} 
+                onPress={() => setHideMessagesModalVisible(true)}
+              >
+                <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
+                  {isMessagesHidden ? 'Hide' : 'Show'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -322,7 +322,7 @@ export default function SettingsWebviews({
       <HideMessagesModal
         visible={hideMessagesModalVisible}
         onClose={() => setHideMessagesModalVisible(false)}
-        onToggleHideMessages={onToggleHideMessages}
+        onToggleHideMessages={handleToggleHideMessages}
       />
     </View>
   );

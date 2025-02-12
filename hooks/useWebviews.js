@@ -116,16 +116,12 @@ export function useWebViews(setCurrentScreen) {
   const loadSelectedChannels = async () => {
     try {
       const storedChannels = await SecureStore.getItemAsync('selectedWebviews');
-
       if (storedChannels) {
         const parsedChannels = JSON.parse(storedChannels);
         setSelectedWebviews(parsedChannels);
-        //If there are channels, set the first one as the current channel
         if (parsedChannels.length > 0) {
           setWebViewUrl(parsedChannels[0].href);
-          navigate(SCREENS.WEBVIEW);
         }
-
       }
     } catch (error) {
       console.error('Failed to load channels', error);
@@ -156,7 +152,7 @@ export function useWebViews(setCurrentScreen) {
    * @returns {void}
    */
   const navigateToChannelsList = (extractedChannels) => {
-    console.log('�� Navigation vers la liste des canaux');
+    console.log('🔄 Navigation vers la liste des canaux');
     setChannels(extractedChannels);
     // if (SCREENS.WEBVIEWS_LIST) {
     navigate(SCREENS.WEBVIEWS_LIST);

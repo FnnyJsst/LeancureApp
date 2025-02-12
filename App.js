@@ -130,36 +130,44 @@ export default function App() {
 
   const hideMessages = useCallback(async (shouldHide) => {
     try {
-      setIsMessagesHidden(shouldHide);
-      await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
+        await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
+        setIsMessagesHidden(shouldHide);
+        
+        if (shouldHide) {
+            setIsLoading(true);
+            setTimeout(() => {
+                setIsLoading(false);
+                navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+            }, 3000);
+        }
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde du paramètre hideMessages:', error);
+        console.error('Erreur lors de la sauvegarde du paramètre hideMessages:', error);
     }
-  }, []);
+  }, [navigate, selectedWebviews]);
 
   // 6. Tous les useEffect
   useEffect(() => {
-    const loadMessagesVisibility = async () => {
-      try {
-        const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
-        if (savedValue !== null) {
-          setIsMessagesHidden(JSON.parse(savedValue));
+    const initializeApp = async () => {
+        try {
+            const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
+            const isHidden = savedValue ? JSON.parse(savedValue) : false;
+            setIsMessagesHidden(isHidden);
+            await loadSelectedChannels();
+            setIsLoading(false);
+            
+            if (isHidden) {
+                navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+            } else {
+                navigate(SCREENS.APP_MENU);
+            }
+        } catch (error) {
+            console.error('Error initializing app:', error);
+            setIsLoading(false);
         }
-      } catch (error) {
-        console.error('Erreur lors du chargement du paramètre:', error);
-      }
     };
-    loadMessagesVisibility();
-  }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      navigate('APP_MENU');
-      loadTimeoutInterval();
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [loadTimeoutInterval, navigate]);
+    initializeApp();
+  }, []);
 
   useEffect(() => {
     let timer;
@@ -172,21 +180,6 @@ export default function App() {
     }
     return () => clearTimeout(timer);
   }, [timeoutInterval, currentScreen]);
-
-  useEffect(() => {
-    const loadHideMessagesState = async () => {
-      try {
-        const savedValue = await SecureStore.getItemAsync('hideMessages');
-        if (savedValue !== null) {
-          setIsMessagesHidden(JSON.parse(savedValue));
-        }
-      } catch (error) {
-        console.error('Erreur lors du chargement du paramètre hideMessages:', error);
-      }
-    };
-    
-    loadHideMessagesState();
-  }, []);
 
   // 7. Condition de retour
   if (!fontsLoaded) {
@@ -307,8 +300,9 @@ export default function App() {
             isReadOnly={isReadOnly}
             toggleReadOnly={toggleReadOnly}
             onNavigate={navigate}
-            onToggleHideMessages={hideMessages}
+            onHideMessages={hideMessages}
             isMessagesHidden={isMessagesHidden}
+            onToggleHideMessages={hideMessages}
           />
         );
 

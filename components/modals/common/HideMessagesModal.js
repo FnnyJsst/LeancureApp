@@ -62,13 +62,13 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
               title="Hide"
               backgroundColor={COLORS.gray950}
               width={isSmartphone ? '20%' : '22%'}
-              onPress={() => handleResponse(false)}
+              onPress={() => handleResponse(true)}
             />
             <Button
               title="Show"
               backgroundColor={COLORS.orange}
               width={isSmartphone ? '20%' : '22%'}
-              onPress={() => handleResponse(true)}
+              onPress={() => handleResponse(false)}
             />
           </View>
         </View>

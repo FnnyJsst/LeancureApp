@@ -11,90 +11,66 @@ import SettingsCard from '../../components/cards/SettingsCard';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
 import * as SecureStore from 'expo-secure-store';
 
-const CommonSettings = ({ onBackPress, onHideMessages }) => {
+const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
     const { isSmartphone, isLandscape } = useDeviceType();
-    const [hideMessages, setHideMessages] = useState(false);
     const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
 
-    useEffect(() => {
-        const loadHideMessagesState = async () => {
-            try {
-                const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
-                if (savedValue !== null) {
-                    setHideMessages(JSON.parse(savedValue));
-                }
-            } catch (error) {
-                console.error('Erreur lors du chargement du paramètre:', error);
-            }
-        };
-        loadHideMessagesState();
-    }, []);
-
     const handleToggleHideMessages = async (value) => {
-        onHideMessages(value);
-        setHideMessages(value);
-        closeHideMessagesModal();
+        try {
+            setHideMessagesModalVisible(false);
+            await onHideMessages(value);
+        } catch (error) {
+            console.error('Erreur lors de la modification du paramètre:', error);
+        }
     };
-
-    const openHideMessagesModal = () => {
-        setHideMessagesModalVisible(true);
-    }
-
-    const closeHideMessagesModal = () => {
-        setHideMessagesModalVisible(false);
-    }
 
     return (
         <>
-          <Header 
-            showBackButton={true}
-            onBackPress={onBackPress}
-          />
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Messages</Text>
-          </View>
-          <View style={[
-            styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape
-          ]}>
-            <View style={styles.rowContainer}>
-              <View style={styles.leftContent}>
-                <SettingsCard
-                    title="Show/hide messages"
-                    iconBackgroundColor={COLORS.borderColor}
-                    icon={
-                        <Ionicons 
-                          name="remove-circle-outline" 
-                          size={isSmartphone ? 22 : 28} 
-                          color={COLORS.red} 
+            <Header 
+                showBackButton={true}
+                onBackPress={onBackPress}
+            />
+            <View style={styles.titleContainer}>
+                <Text style={styles.title}>Messages</Text>
+            </View>
+            <View style={[
+                styles.configContainer,
+                isSmartphone && styles.configContainerSmartphone,
+                isLandscape && styles.configContainerLandscape
+            ]}>
+                <View style={styles.rowContainer}>
+                    <View style={styles.leftContent}>
+                        <SettingsCard
+                            title="Show/hide messages"
+                            iconBackgroundColor={COLORS.borderColor}
+                            icon={
+                                <Ionicons 
+                                    name="remove-circle-outline" 
+                                    size={isSmartphone ? 22 : 28} 
+                                    color={COLORS.red} 
+                                />
+                            }
+                            description="Show or hide the message section of the app"
+                            onPress={() => setHideMessagesModalVisible(true)}
                         />
-                    }
-                    description="Show or hide the message section of the app"
-                    onPress={onHideMessages}
-                  />
+                    </View>
+                    <TouchableOpacity 
+                        style={styles.baseToggle} 
+                        onPress={() => setHideMessagesModalVisible(true)}
+                    >
+                        <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
+                            {isMessagesHidden ? 'Hide' : 'Show'}
+                        </Text>
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity 
-                style={styles.baseToggle} 
-                onPress={openHideMessagesModal}
-              >
-                  <Text style={[
-                    styles.text,
-                    isSmartphone && styles.textSmartphone 
-                  ]}>
-                  {hideMessages ? 'Hide' : 'Show'}
-                </Text>
-              </TouchableOpacity>
-              </View>
-          </View>
-          <HideMessagesModal
-            visible={hideMessagesModalVisible}
-            onClose={closeHideMessagesModal}
-            onToggleHideMessages={handleToggleHideMessages}
-          />
+            </View>
+            <HideMessagesModal
+                visible={hideMessagesModalVisible}
+                onClose={() => setHideMessagesModalVisible(false)}
+                onToggleHideMessages={handleToggleHideMessages}
+            />
         </>
     );
-
 };
 
 const styles = StyleSheet.create({
