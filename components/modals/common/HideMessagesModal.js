@@ -53,19 +53,19 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
             <Text style={[
               styles.titleText,
               isSmartphone && styles.titleTextSmartphone,
-            ]}>Do you want to hide the messages section from the app menu?</Text>
+            ]}>Do you want to show or hide the messages section from the app menu?</Text>
           </View>
           <View style={[
             styles.buttonContainer, 
             isSmartphone && styles.buttonContainerSmartphone]}>
             <Button
-              title="No"
+              title="Hide"
               backgroundColor={COLORS.gray950}
               width={isSmartphone ? '20%' : '22%'}
               onPress={() => handleResponse(false)}
             />
             <Button
-              title="Yes"
+              title="Show"
               backgroundColor={COLORS.orange}
               width={isSmartphone ? '20%' : '22%'}
               onPress={() => handleResponse(true)}

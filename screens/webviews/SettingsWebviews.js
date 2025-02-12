@@ -5,6 +5,7 @@ import SettingsCard from '../../components/cards/SettingsCard';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnlyModal from '../../components/modals/webviews/ReadOnlyModal';
 import PasswordDefineModal from '../../components/modals/webviews/PasswordDefineModal';
+import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS, FONTS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
@@ -24,8 +25,10 @@ import { Text } from '../../components/text/CustomText';
  * @param {boolean} isReadOnly - A boolean to indicate if the user is read only
  * @param {Function} toggleReadOnly - A function to toggle the read only mode
  * @param {Function} handleSelectOption - A function to handle the select option
+ * @param {boolean} isMessagesHidden - A boolean to indicate if messages are hidden
+ * @param {Function} onToggleHideMessages - A function to toggle the hide messages mode
  * @example
- * <SettingsWebviews onNavigate={(screen) => navigate(screen)} onSettingsAccess={onSettingsAccess} selectedWebviews={selectedWebviews} refreshOption={refreshOption} handlePasswordSubmit={handlePasswordSubmit} isPasswordRequired={isPasswordRequired} disablePassword={disablePassword} isReadOnly={isReadOnly} toggleReadOnly={toggleReadOnly} handleSelectOption={handleSelectOption} />
+ * <SettingsWebviews onNavigate={(screen) => navigate(screen)} onSettingsAccess={onSettingsAccess} selectedWebviews={selectedWebviews} refreshOption={refreshOption} handlePasswordSubmit={handlePasswordSubmit} isPasswordRequired={isPasswordRequired} disablePassword={disablePassword} isReadOnly={isReadOnly} toggleReadOnly={toggleReadOnly} handleSelectOption={handleSelectOption} isMessagesHidden={isMessagesHidden} onToggleHideMessages={onToggleHideMessages} />
  */
 export default function SettingsWebviews({ 
   onNavigate,  
@@ -36,7 +39,9 @@ export default function SettingsWebviews({
   disablePassword, 
   isReadOnly,
   toggleReadOnly,
-  handleSelectOption
+  handleSelectOption,
+  isMessagesHidden,
+  onToggleHideMessages
 }) {
 
   // Device type variables
@@ -46,6 +51,7 @@ export default function SettingsWebviews({
   const [modalVisible, setModalVisible] = useState(false);
   const [isPasswordDefineModalVisible, setPasswordDefineModalVisible] = useState(false);
   const [isReadOnlyModalVisible, setReadOnlyModalVisible] = useState(false);
+  const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
 
   /**
    * @function handleQuitApp
@@ -259,12 +265,40 @@ export default function SettingsWebviews({
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape
           ]}>
-            <SettingsCard
-              title="Access messages"
-              icon={<Ionicons name="mail-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
-              description="Access to the messages section"
-              onPress={accessMessages}
-            />
+            {isMessagesHidden ? (
+              <View style={styles.rowContainer}>
+                <View style={styles.leftContent}>
+                  <SettingsCard
+                    title="Show/hide messages"
+                    iconBackgroundColor={COLORS.borderColor}
+                    icon={
+                      <Ionicons 
+                        name="remove-circle-outline" 
+                        size={isSmartphone ? 22 : 28} 
+                        color={COLORS.red} 
+                      />
+                    }
+                    description="Show or hide the message section of the app"
+                    onPress={() => setHideMessagesModalVisible(true)}
+                  />
+                </View>
+                <TouchableOpacity 
+                  style={styles.baseToggle} 
+                  onPress={() => setHideMessagesModalVisible(true)}
+                >
+                  <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
+                    {isMessagesHidden ? 'Hide' : 'Show'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <SettingsCard
+                title="Access messages"
+                icon={<Ionicons name="mail-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
+                description="Access to the messages section"
+                onPress={() => onNavigate(SCREENS.LOGIN)}
+              />
+            )}
           </View>
         </View>
       </ScrollView>
@@ -284,6 +318,11 @@ export default function SettingsWebviews({
         onClose={closePasswordDefineModal} 
         onSubmitPassword={handlePasswordSubmit}
         onDisablePassword={disablePassword}
+      />
+      <HideMessagesModal
+        visible={hideMessagesModalVisible}
+        onClose={() => setHideMessagesModalVisible(false)}
+        onToggleHideMessages={onToggleHideMessages}
       />
     </View>
   );
@@ -345,7 +384,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 15,
-    // marginBottom: 20,
   },
   backButton: {
     marginRight: 15,

@@ -130,8 +130,8 @@ export default function App() {
 
   const hideMessages = useCallback(async (shouldHide) => {
     try {
-      await SecureStore.setItemAsync('hideMessages', JSON.stringify(shouldHide));
       setIsMessagesHidden(shouldHide);
+      await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
     } catch (error) {
       console.error('Erreur lors de la sauvegarde du paramètre hideMessages:', error);
     }
@@ -307,6 +307,8 @@ export default function App() {
             isReadOnly={isReadOnly}
             toggleReadOnly={toggleReadOnly}
             onNavigate={navigate}
+            onToggleHideMessages={hideMessages}
+            isMessagesHidden={isMessagesHidden}
           />
         );
 

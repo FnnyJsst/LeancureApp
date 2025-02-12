@@ -31,12 +31,8 @@ const CommonSettings = ({ onBackPress, onHideMessages }) => {
     }, []);
 
     const handleToggleHideMessages = async (value) => {
+        onHideMessages(value);
         setHideMessages(value);
-        try {
-            await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(value));
-        } catch (error) {
-            console.error('Erreur lors de la sauvegarde du paramètre:', error);
-        }
         closeHideMessagesModal();
     };
 
@@ -65,7 +61,7 @@ const CommonSettings = ({ onBackPress, onHideMessages }) => {
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
                 <SettingsCard
-                    title="Hide messages"
+                    title="Show/hide messages"
                     iconBackgroundColor={COLORS.borderColor}
                     icon={
                         <Ionicons 
@@ -74,7 +70,7 @@ const CommonSettings = ({ onBackPress, onHideMessages }) => {
                           color={COLORS.red} 
                         />
                     }
-                    description="Hide the message section of the app"
+                    description="Show or hide the message section of the app"
                     onPress={onHideMessages}
                   />
                 </View>
@@ -86,7 +82,7 @@ const CommonSettings = ({ onBackPress, onHideMessages }) => {
                     styles.text,
                     isSmartphone && styles.textSmartphone 
                   ]}>
-                  {hideMessages ? 'Yes' : 'No'}
+                  {hideMessages ? 'Hide' : 'Show'}
                 </Text>
               </TouchableOpacity>
               </View>
