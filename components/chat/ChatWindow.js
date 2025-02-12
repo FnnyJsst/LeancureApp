@@ -118,16 +118,19 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         const currentTimestamp = Date.now();
         const newMessage = {
           id: currentTimestamp,
+          title: typeof messageData === 'string' ? messageData.substring(0, 50) : messageData.fileName,
           message: typeof messageData === 'string' ? messageData : messageData.fileName,
-          channelId: channel.id,
-          savedTimestamp: currentTimestamp.toString(),
-          isOwnMessage: true,
+          savedTimestamp: currentTimestamp,
+          endTimestamp: currentTimestamp + 99999,
+          fileType: typeof messageData === 'object' ? messageData.fileType : 'none',
           login: credentials.login,
+          isOwnMessage: true,
+          isUnread: false,
+          username: 'Moi',
           ...(typeof messageData === 'object' && {
             type: 'file',
             fileName: messageData.fileName,
             fileSize: messageData.fileSize,
-            fileType: messageData.fileType,
             uri: messageData.uri
           })
         };

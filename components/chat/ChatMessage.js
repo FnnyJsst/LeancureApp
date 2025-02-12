@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Image, Platform } from "react-native";
 import { COLORS, SIZES } from "../../constants/style";
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
@@ -249,6 +249,10 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.light,
+    fontFamily: Platform.select({
+      android: 'Roboto',
+      ios: 'System', 
+    }),
   },
   messageTextSmartphone: {
     fontSize: SIZES.fonts.biggerTextSmartphone,

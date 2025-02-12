@@ -5,6 +5,7 @@ import ChatWindow from '../../components/chat/ChatWindow';
 import Header from '../../components/Header';
 import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../../services/api/messageApi';
+import { sendMessageApi } from '../../services/api/messageApi';
 import { COLORS } from '../../constants/style';
 /**
  * @component ChatScreen
@@ -85,7 +86,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    */
   const handleNewMessage = async (message) => {
     try {
-      // We get the user credentials and parse them
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       if (!credentialsStr || !selectedChannel) {
         console.log('❌ Missing credentials or selectedChannel');
@@ -93,34 +93,23 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       }
       
       const credentials = JSON.parse(credentialsStr);
-
+      
       if (!message || (typeof message === 'string' && !message.trim())) {
         console.log('❌ Empty message');
         return;
       }
 
-      // We create the message object
-      const newMessage = {
-        id: Date.now().toString(),
-        message: typeof message === 'string' ? message : message.message,
-        channelId: selectedChannel.id,
-        savedTimestamp: Date.now().toString(),
-        isOwnMessage: typeof message === 'object' ? message.login === credentials.login : true,
-        isUnread: false,
-        login: typeof message === 'object' ? message.login : credentials.login
-      };
-
-      // Update the interface once the message is sent
-      setChannelMessages(prev => {
-        return [...prev, newMessage];
-      });
-
-      // Update the unread channels if necessary
-      if (!newMessage.isOwnMessage) {
-        setUnreadChannels(prev => ({
-          ...prev,
-          [selectedChannel.id]: true
-        }));
+      const response = await sendMessageApi(selectedChannel.id, message, credentials);
+      
+      if (response.status === 'ok') {
+        // On ajoute le message à l'état local
+        setChannelMessages(prev => [...prev, response.message]);
+        
+        // On rafraîchit les messages après un court délai pour s'assurer que le message est bien enregistré
+        setTimeout(async () => {
+          const updatedMessages = await fetchChannelMessages(selectedChannel.id, credentials);
+          setChannelMessages(updatedMessages);
+        }, 1000);
       }
     } catch (error) {
       console.error('Error handling message:', error);
