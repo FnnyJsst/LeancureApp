@@ -32,6 +32,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
   const [loading, setLoading] = useState(true);
   const [showGroups, setShowGroups] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [userInfo, setUserInfo] = useState({ firstname: '', lastname: '' });
 
   // Get the device type
   const { isSmartphone } = useDeviceType();
@@ -102,6 +103,21 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     };
     // Load the channels and groups
     loadChannels();
+  }, []);
+
+  useEffect(() => {
+    const loadUserInfo = async () => {
+      const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+      if (credentialsStr) {
+        const credentials = JSON.parse(credentialsStr);
+        setUserInfo({
+          firstname: credentials.firstname || '',
+          lastname: credentials.lastname || ''
+        });
+      }
+    };
+    
+    loadUserInfo();
   }, []);
 
   /**
@@ -284,8 +300,9 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         <View style={styles.profileBanner}>
           <View style={styles.profileInfo}>
             <View style={styles.userInfo}>
-              <Text style={[styles.userName, isSmartphone && styles.userNameSmartphone]}>John Doe</Text>
-              <Text style={[styles.userRole, isSmartphone && styles.userRoleSmartphone]}>Technician</Text>
+              <Text style={[styles.userName, isSmartphone && styles.userNameSmartphone]}>
+                {userInfo.firstname} {userInfo.lastname}
+              </Text>
             </View>
           </View>
           <TouchableOpacity 
@@ -449,14 +466,6 @@ const styles = StyleSheet.create({
   },
   userNameSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
-  },
-  userRole: {
-    color: COLORS.orange,
-    fontSize: SIZES.fonts.smallTextTablet,
-    fontWeight: SIZES.fontWeight.regular,
-  },
-  userRoleSmartphone: {
-    fontSize: SIZES.fonts.smallTextSmartphone,
   },
   logoutButton: {
     backgroundColor: COLORS.charcoal,

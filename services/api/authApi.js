@@ -39,9 +39,13 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       timeout: 10000 
     });
 
-    // Get the accountApiKey from the response
-    const accountApiKey = response.data?.cmd?.[0]?.accounts?.loginmsg?.get?.data?.accountapikey;
-    return { ...response, accountApiKey };
+    const userData = response.data?.cmd?.[0]?.accounts?.loginmsg?.get?.data;
+    return { 
+      ...response, 
+      accountApiKey: userData?.accountapikey,
+      firstname: userData?.firstname,
+      lastname: userData?.lastname
+    };
   } catch (error) {
     throw error;
   }

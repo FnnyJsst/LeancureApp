@@ -37,16 +37,21 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     let refreshInterval;
 
 
+    /**
+     * @function fetchChannelData
+     * @description Fetches the channel data and refreshes it every 5 seconds
+     */
     const fetchChannelData = async () => {
       try {
         if (!isMounted || !selectedChannel) return;
         await fetchMessages();
       } catch (error) {
-        console.error('🔴 Erreur lors du rafraîchissement des messages:', error);
+        console.error('🔴 Error fetching messages:', error);
       }
     };
 
     fetchChannelData();
+    // We refresh the channel data every 5 seconds for the user to see the new messages
     refreshInterval = setInterval(fetchChannelData, 5000);
 
     // When the component is unmounted, we clear the interval
