@@ -107,10 +107,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       const response = await sendMessageApi(selectedChannel.id, message, credentials);
       
       if (response.status === 'ok') {
-        // On ajoute le message à l'état local
-        setChannelMessages(prev => [...prev, response.message]);
-        
-        // On rafraîchit les messages après un court délai pour s'assurer que le message est bien enregistré
+        // On ne met à jour les messages qu'une seule fois après un délai
         setTimeout(async () => {
           const updatedMessages = await fetchChannelMessages(selectedChannel.id, credentials);
           setChannelMessages(updatedMessages);

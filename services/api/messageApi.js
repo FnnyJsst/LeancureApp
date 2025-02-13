@@ -101,49 +101,55 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
  */
 export const sendMessageApi = async (channelId, messageContent, userCredentials) => {
   try {
-    // console.log('📤 Envoi message - Credentials:', {
-    //   accountApiKey: userCredentials.accountApiKey,
-    //   login: userCredentials.login
-    // });
-
     const timestamp = Date.now();
     const saltPath = `amaiia_msg_srv/client/add_msg/${timestamp}/`;
     
     const isFile = typeof messageContent === 'object';
-    const messageTitle = isFile ? messageContent.fileName : messageContent.substring(0, 50);
-    const messageDetails = isFile ? messageContent.fileName : messageContent;
     
+    // Pour les fichiers, le titre est le nom du fichier
+    // Pour les messages texte, on prend les 50 premiers caractères
+    const messageTitle = isFile ? messageContent.fileName : messageContent.substring(0, 50);
+    
+    // Pour les fichiers, details est le nom du fichier
+    // Pour les messages texte, details est le message complet
+    const messageDetails = isFile ? messageContent.fileName : messageContent;
+
     const body = createApiRequest({
       "amaiia_msg_srv": {
         "client": {
           "add_msg": {
             "channelid": parseInt(channelId),
             "title": messageTitle,
-            "details": messageDetails,
+            "details": messageContent, // On envoie le message complet dans details
             "enddatets": timestamp + 99999,
-            ...(isFile && {
-              "file": {
-                "base64": messageContent.base64,
-                "filetype": messageContent.fileType || messageContent.type,
-                "filename": messageContent.fileName || messageContent.name
-              }
-            }),
+            "file": isFile ? {
+              "base64": messageContent.base64,
+              "filetype": messageContent.fileType,
+              "filename": messageContent.fileName,
+              "filesize": messageContent.fileSize
+            } : undefined,
             "sentby": userCredentials.accountApiKey
           }
         }
       }
     }, userCredentials.contractNumber);
 
-    const response = await axios.post(API_URL, body);
-    // console.log('📤 Réponse API sendMessage:', JSON.stringify(response.data, null, 2));
+    console.log('📤 Requête envoyée:', {
+      channelId,
+      title: messageTitle,
+      details: typeof messageContent === 'string' ? messageContent : messageContent.fileName,
+      isFile
+    });
 
-    if (response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.add_msg?.status === 'ok') {
-      const messageResponse = {
+    const response = await axios.post(API_URL, body);
+    
+    if (response.status === 200) {
+      return {
         status: 'ok',
         message: {
           id: timestamp,
           title: messageTitle,
-          message: messageDetails,
+          message: messageContent,
           savedTimestamp: timestamp,
           endTimestamp: timestamp + 99999,
           fileType: isFile ? messageContent.fileType : 'none',
@@ -160,8 +166,6 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
           })
         }
       };
-      // console.log('📤 Message envoyé avec succès:', messageResponse);
-      return messageResponse;
     }
     
     throw new Error('Message non enregistré');

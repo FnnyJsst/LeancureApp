@@ -133,20 +133,20 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
    * @description A function to handle the send of the message
    */
   const handleSend = () => {
-    // Si on a un fichier sélectionné, on l'envoie même si le message est vide
+    // Si on a un fichier sélectionné, on l'envoie
     if (selectedFile) {
-
       onSendMessage(selectedFile);
       setSelectedFile(null);
       return;
     }
 
-    // If a message is empty, we don't send it
-    if (!message.trim()) {
+    // Si on n'a pas de message texte, on ne fait rien
+    if (!message || !message.trim()) {
       return;
     }
 
-    onSendMessage(message);
+    // Envoi du message texte
+    onSendMessage(message.trim());
     setMessage('');
   };
 
