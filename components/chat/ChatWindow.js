@@ -50,53 +50,45 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   useEffect(() => {
     if (channelMessages && credentials) {
-      // console.log('📥 Début chargement avec credentials:', {
-      //   hasCredentials: !!credentials,
-      //   login: credentials.login
-      // });
-
       const loadFiles = async () => {
-        const updatedMessages = await Promise.all(
-          channelMessages.map(async (msg) => {
-            if (msg.type === 'file' && !msg.base64) {
-              // console.log('📥 Traitement fichier message:', {
-              //   messageId: msg.id,
-              //   fileName: msg.fileName,
-              //   fileType: msg.fileType,
-              //   hasBase64: !!msg.base64
-              // });
-
+        // Filtrer d'abord les messages qui nécessitent un chargement de fichier
+        const messagesNeedingFiles = channelMessages.filter(msg => msg.type === 'file' && !msg.base64);
+        
+        // Charger les fichiers en parallèle avec une limite de 3 requêtes simultanées
+        const batchSize = 3;
+        const updatedMessages = [...channelMessages];
+        
+        for (let i = 0; i < messagesNeedingFiles.length; i += batchSize) {
+          const batch = messagesNeedingFiles.slice(i, i + batchSize);
+          const results = await Promise.all(
+            batch.map(async (msg) => {
               try {
                 const base64 = await fetchMessageFile(msg.id, {
                   channelid: parseInt(channel.id),
                   ...msg
                 }, credentials);
-
-                // console.log('📥 Résultat chargement fichier:', {
-                //   messageId: msg.id,
-                //   base64Reçu: !!base64,
-                //   base64Length: base64?.length
-                // });
                 
-                return {
-                  ...msg,
-                  base64: base64 || null
-                };
+                // Mettre à jour le message dans le tableau original
+                const index = updatedMessages.findIndex(m => m.id === msg.id);
+                if (index !== -1) {
+                  updatedMessages[index] = {
+                    ...updatedMessages[index],
+                    base64: base64 || null
+                  };
+                }
               } catch (error) {
                 console.error('🔴 Erreur chargement fichier:', error);
-                return msg;
               }
-            }
-            return msg;
-          })
-        );
-
+            })
+          );
+        }
+        
         setMessages(updatedMessages);
       };
 
       loadFiles();
     }
-  }, [channelMessages, credentials, channel?.id]);
+  }, [channelMessages, credentials, channel]);
 
   // Function to open the document preview modal
   const openDocumentPreviewModal = (message) => {
