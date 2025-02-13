@@ -223,12 +223,22 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
                     
                     let base64 = null;
                     if (hasFile) {
-                      // console.log('📥 Récupération du fichier pour le message:', msg.messageid);
+                      console.log('📥 Tentative récupération fichier:', {
+                        messageId: msg.messageid,
+                        fileType: msg.filetype,
+                        fileName: msg.filename
+                      });
+                      
                       base64 = await fetchMessageFile(msg.messageid, {
                         ...msg,
                         channelid: parseInt(channelId)
                       }, userCredentials);
-                      // console.log('📥 Base64 reçu dans fetchChannelMessages:', base64 ? 'Oui (longueur: ' + base64.length + ')' : 'Non');
+                      
+                      console.log('📥 Résultat récupération fichier:', {
+                        messageId: msg.messageid,
+                        hasBase64: !!base64,
+                        base64Length: base64?.length
+                      });
                     }
 
                     return {
@@ -237,7 +247,7 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
                       message: msg.message || msg.title || '',
                       savedTimestamp: msg.savedts,
                       endTimestamp: msg.enddatets,
-                      fileType: msg.filetype || 'none',
+                      fileType: (msg.filetype || 'none').toLowerCase(),
                       login: isOwnMessage ? userCredentials.login : `${msg.firstname} ${msg.lastname}`,
                       isOwnMessage,
                       isUnread: msg.status === 'unread',

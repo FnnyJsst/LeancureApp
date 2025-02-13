@@ -51,15 +51,22 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   useEffect(() => {
     if (channelMessages && credentials) {
       const loadFiles = async () => {
-        // Filtrer d'abord les messages qui nécessitent un chargement de fichier
         const messagesNeedingFiles = channelMessages.filter(msg => msg.type === 'file' && !msg.base64);
         
-        // Charger les fichiers en parallèle avec une limite de 3 requêtes simultanées
+        console.log('📥 Messages nécessitant chargement:', {
+          total: messagesNeedingFiles.length,
+          types: messagesNeedingFiles.map(msg => msg.fileType)
+        });
+
         const batchSize = 3;
         const updatedMessages = [...channelMessages];
         
         for (let i = 0; i < messagesNeedingFiles.length; i += batchSize) {
           const batch = messagesNeedingFiles.slice(i, i + batchSize);
+          console.log('📥 Traitement batch:', {
+            batchNumber: Math.floor(i / batchSize) + 1,
+            batchSize: batch.length
+          });
           const results = await Promise.all(
             batch.map(async (msg) => {
               try {
