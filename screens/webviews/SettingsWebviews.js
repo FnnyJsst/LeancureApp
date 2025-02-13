@@ -387,6 +387,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginRight: 15,
+    marginTop: 10,
   },
   titleContainer: {
     marginHorizontal: 35,

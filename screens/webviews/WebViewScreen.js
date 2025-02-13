@@ -50,8 +50,8 @@ export default function WebViewScreen({
             onPress={() => onNavigate(SCREENS.APP_MENU)}
           >
             <Ionicons 
-              name="chevron-back-outline" 
-              size={isSmartphone ? 24 : 28} 
+              name="close-outline" 
+              size={isSmartphone ? 20 : 24} 
               color={COLORS.white} 
             />
           </TouchableOpacity>
@@ -87,12 +87,13 @@ const styles = StyleSheet.create({
   },
   backButton: {
     backgroundColor: '#271E1E',
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
+    marginTop: 10,
   },
   backButtonSmartphone: {
     backgroundColor: '#271E1E',

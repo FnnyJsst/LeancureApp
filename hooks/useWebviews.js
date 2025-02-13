@@ -41,9 +41,14 @@ export function useWebViews(setCurrentScreen) {
     setIsReadOnly(value !== undefined ? value : !isReadOnly);
   }, [isReadOnly]);
 
-  const handleSelectChannels = useCallback((selectedChannels) => {
-    setSelectedWebviews(selectedChannels);
-  }, []);
+  const handleSelectChannels = async (selectedChannels) => {
+    try {
+      const updatedWebviews = [...(selectedWebviews || []), ...(selectedChannels || [])];
+      await saveSelectedWebviews(updatedWebviews);
+    } catch (error) {
+      console.error('❌ Erreur lors de la sélection des canaux:', error);
+    }
+  };
 
   /**
    * @function getIntervalInMilliseconds
@@ -99,12 +104,14 @@ export function useWebViews(setCurrentScreen) {
    * @param {Array} channels - The channels to save
    * @returns {void}
    */
-  const saveSelectedWebviews = async (channels) => {
+  const saveSelectedWebviews = async (webviews) => {
     try {
-      //Save the channels in AsyncStorage
-      await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(channels));
+      console.log('📱 Sauvegarde des webviews:', webviews);
+      const webviewsToSave = webviews || [];
+      await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(webviewsToSave));
+      setSelectedWebviews(webviewsToSave);
     } catch (error) {
-      console.error('Failed to save channels', error);
+      console.error('❌ Erreur lors de la sauvegarde des webviews:', error);
     }
   };
 

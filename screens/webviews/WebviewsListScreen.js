@@ -70,10 +70,12 @@ export default function WebviewsListScreen({ channels, selectedWebviews, onBack,
    * @description Handles the import of the channels
    */
   const handleImportWebviews = () => {
-    // Check if the local selected channels are not empty
     if (localSelectedChannels.length > 0) {
-      // Call the onBack function with the local selected channels
       onBack(localSelectedChannels);
+      // Ajout d'un petit délai pour s'assurer que les webviews sont bien importées
+      setTimeout(() => {
+        onBackPress();  // Pour rediriger vers ChannelsManagementListScreen
+      }, 100);
     }
   };
 

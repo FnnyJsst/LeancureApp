@@ -41,7 +41,7 @@ export default function WebviewsManagementScreen({
 }) {
 
   // Customized hook to determine the device type and orientation
-  const { isTablet, isSmartphone, isSmartphonePortrait } = useDeviceType();
+  const { isTablet, isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
 
   // States for modals and interractions management
   const [isImportModalVisible, setImportModalVisible] = useState(false);
@@ -195,24 +195,22 @@ export default function WebviewsManagementScreen({
     <View style={styles.pageContainer}>
       <View style={styles.customHeaderContainer}>
         <TouchableOpacity 
-          style={[styles.iconBackground, isSmartphone && styles.iconBackgroundSmartphone]}
           onPress={() => onNavigate(SCREENS.SETTINGS)}
         >
           <Ionicons 
-            name="chevron-back-outline" 
+            name="close-outline" 
             size={isSmartphone ? 24 : 28} 
-            color={COLORS.gray300} 
+            color={COLORS.white} 
           />
         </TouchableOpacity>
         {!isReadOnly && (
           <TouchableOpacity 
-            style={[styles.iconBackground, isSmartphone && styles.iconBackgroundSmartphone]}
             onPress={openImportModal}
           >
             <Entypo 
               name="add-to-list"
               size={isSmartphone ? 24 : 28}
-              color={COLORS.gray300}
+              color={COLORS.white}
             />
           </TouchableOpacity>
         )}
@@ -292,7 +290,8 @@ export default function WebviewsManagementScreen({
                 ]}>
                   <View style={[
                     styles.arrowContainer,
-                    isSmartphone && styles.arrowContainerSmartphone
+                    isSmartphone && styles.arrowContainerSmartphone,
+                    isLandscape && styles.arrowContainerLandscape
                   ]}>
                   <TouchableOpacity
                   onPress={() => moveWebviewUp(index)}
@@ -329,7 +328,8 @@ export default function WebviewsManagementScreen({
                   
                   <View style={[
                     styles.iconsContainer,
-                    isSmartphone && styles.iconsContainerSmartphone
+                    isSmartphone && styles.iconsContainerSmartphone,
+                    isLandscape && styles.iconsContainerLandscape
                   ]}>
                   <TouchableOpacity
                     onPress={() => openEditModal(channel)}
@@ -372,7 +372,8 @@ export default function WebviewsManagementScreen({
 
 const styles = StyleSheet.create({
   pageContainer: {
-    paddingHorizontal: '3%',
+    flex: 1,
+    paddingHorizontal: '1%',
   },
   headerContainer: {
     alignSelf: 'flex-start',
@@ -391,6 +392,7 @@ const styles = StyleSheet.create({
   channelsContainer: {
     marginTop: 10,
     alignItems: 'center',
+    paddingBottom: 20,
   },
   channelContainer: {
     flexDirection: 'row',
@@ -430,6 +432,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginRight: 30,
   },
+  arrowContainerLandscape: {
+    // marginRight: 10,
+  },
   arrowContainerSmartphone: {
     marginRight: 5,
   },
@@ -440,15 +445,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginRight: 10,
     height: 45,
-    width: 45,
+    width: 90,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  iconsContainerLandscape: {
+    marginRight: 50,
   },
   iconsContainerSmartphone: {
     marginRight: 0,
     height: 40,
-    width: 40,
+    width: 80,
   },
   iconButton: {
     padding: 5,
+    minWidth: 40,
   },
   text: {
     color: COLORS.gray300,
@@ -475,15 +486,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 15,
-    paddingHorizontal: 15,
     marginBottom: 5,
-  },
-  iconBackground: {
-    backgroundColor: '#271E1E',
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+    marginTop: 10,
+    paddingHorizontal: '2%',
+  }
 });

@@ -215,7 +215,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         >
           <Ionicons 
             name="send-outline" 
-            size={isSmartphone ? 18 : 22} 
+            size={isSmartphone ? 18 : 24} 
             color={(message.trim() || selectedFile) ? COLORS.orange : COLORS.white}
             style={styles.sendIcon}
           />
@@ -280,8 +280,8 @@ const styles = StyleSheet.create({
     height: 36,
   },
   sendButton: {
-    width: 38,
-    height: 38,
+    width: 45,
+    height: 45,
     backgroundColor: COLORS.gray900,
     borderRadius: SIZES.borderRadius.small,
     alignItems: 'center',

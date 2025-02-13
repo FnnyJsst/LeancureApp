@@ -22,7 +22,7 @@ import { Text } from '../../text/CustomText';
  * <CustomAlert visible={true} title="Alert" message="This is an alert" onClose={() => console.log('Alert closed')} onConfirm={() => console.log('Alert confirmed')} type="error" />  
  */
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error' }) {
-  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait, isTabletLandscape } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait } = useDeviceType();
 
   return (
     <Modal
@@ -35,7 +35,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
         <View style={[
           styles.modalContent,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
-          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+          isLandscape && styles.modalContentLandscape,
           isTabletPortrait && styles.modalContentTabletPortrait
         ]}>
           <TitleModal title={title} />
@@ -80,14 +80,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.borderColor
   },
-  modalContentSmartphoneLandscape: {
+  modalContentLandscape: {
     width: '40%',
   },
   modalContentSmartphonePortrait: {
     width: '80%',
-  },
-  modalContentTabletLandscape: {
-    width: '70%',
   },
   message: {
     color: COLORS.gray300,

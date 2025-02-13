@@ -41,7 +41,7 @@ export default function NoUrlScreen({
             onPress={handleBackPress}
           >
             <Ionicons 
-              name="chevron-back-outline" 
+              name="close-outline" 
               size={isSmartphone ? 24 : 28} 
               color={COLORS.white} 
             />
@@ -71,13 +71,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 15,
-    marginBottom: 5,
   },
   backButton: {
     width: 45,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
+    marginTop: 10,
   },
   backButtonSmartphone: {
     width: 40,
