@@ -156,7 +156,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
           login: userCredentials.login,
           isOwnMessage: true,
           isUnread: false,
-          username: 'Moi',
+          username: 'Me',
           ...(isFile && {
             type: 'file',
             fileName: messageContent.fileName,

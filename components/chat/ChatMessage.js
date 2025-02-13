@@ -19,6 +19,15 @@ import { Text } from '../text/CustomText';
  * <ChatMessage message={message} isOwnMessage={isOwnMessage} onFileClick={() => console.log('File clicked')} />
  */
 
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return '';
+  const date = new Date(parseInt(timestamp));
+  return date.toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
 export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
   // console.log('🖼️ Message reçu dans ChatMessage:', {
   //   type: message.type,
@@ -29,6 +38,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
+  const messageTime = formatTimestamp(message.savedTimestamp);
 
   if (message.type === 'file') {
     const isPDF = message.fileType?.toLowerCase().includes('pdf');
@@ -56,7 +66,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
             styles.username,
             isSmartphone && styles.usernameSmartphone
           ]}>{message.username}</Text>
-          <Text style={styles.timestamp}>{message.timestamp}</Text>
+          <Text style={styles.timestamp}>{messageTime}</Text>
         </View>
 
         <View style={[
@@ -127,7 +137,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
           styles.username,
           isSmartphone && styles.usernameSmartphone
         ]}>{message.username}</Text>
-        <Text style={styles.timestamp}>{message.timestamp}</Text>
+        <Text style={styles.timestamp}>{messageTime}</Text>
       </View>
 
       {/* Message bubble */}

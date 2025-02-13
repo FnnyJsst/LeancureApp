@@ -158,7 +158,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           login: credentials.login,
           isOwnMessage: true,
           isUnread: false,
-          username: 'Moi',
+          username: 'Me',
           ...(typeof messageData === 'object' && {
             type: 'file',
             fileName: messageData.fileName,
