@@ -6,7 +6,6 @@ import InputModal from '../../inputs/InputModal';
 import { useDeviceType } from '../../../hooks/useDeviceType'; 
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style'; 
 import { Ionicons } from '@expo/vector-icons';
-import { Text } from '../../text/CustomText';
 /**
  * @component EditWebviewModal
  * @description A component that renders a modal for editing a channel
@@ -76,10 +75,6 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
           <View style={[
             styles.inputContainer,
           ]}>
-            <Text style={[
-              styles.text,
-              isSmartphone && styles.textSmartphone
-            ]}>Title</Text>
             <InputModal 
               value={title} 
               // We update the title state
@@ -102,10 +97,6 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
           <View style={[
             styles.inputContainer,
           ]}>
-            <Text style={[
-              styles.text,
-              isSmartphone && styles.textSmartphone
-            ]}>URL</Text>
             <InputModal 
               value={url} 
               // We update the URL state
@@ -172,7 +163,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: '90%',
+    width: '100%',
     marginTop: 15
   },
   inputSmartphone: {
