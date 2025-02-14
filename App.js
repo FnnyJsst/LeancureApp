@@ -22,8 +22,8 @@ import { useWebViews } from './hooks/useWebviews';
 import { useWebViewsPassword } from './hooks/useWebViewsPassword';
 import { LogBox } from 'react-native';
 import { useFonts } from 'expo-font';
-import { useDeviceType } from './hooks/useDeviceType';
 import CommonSettings from './screens/common/CommonSettings';
+import { useTimeout } from './hooks/useTimeOut';
 // import { usePushNotifications } from './services/notifications/notificationService';
 
 
@@ -47,18 +47,18 @@ export default function App() {
 
   const [currentScreen, setCurrentScreen] = useState(SCREENS.LOGIN);
   const [isLoading, setIsLoading] = useState(true);
-  const [userCredentials, setUserCredentials] = useState(null);
+
   const [globalMessages, setGlobalMessages] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [timeoutInterval, setTimeoutInterval] = useState(null);
+  // const [timeoutInterval, setTimeoutInterval] = useState(null);
   const [isMessagesHidden, setIsMessagesHidden] = useState(false);
 
-  // 2. Hooks personnalisés
   const { navigate } = useNavigation(setCurrentScreen);
-  const { isSmartphone } = useDeviceType();
+  const { timeoutInterval, handleTimeoutSelection, loadTimeoutInterval } = useTimeout();
+
   // const expoPushToken = usePushNotifications();
 
-  // 3. Hooks des webviews
+  // Webviews hooks
   const {     
     channels,
     setChannels,
@@ -82,7 +82,7 @@ export default function App() {
     navigateToWebView,
   } = useWebViews(setCurrentScreen);
 
-  // 4. Hooks du mot de passe
+  // Password hooks
   const {
     password,
     setPassword,
@@ -98,27 +98,6 @@ export default function App() {
     openPasswordDefineModal,
     closePasswordDefineModal,
   } = useWebViewsPassword(navigate);
-
-  // // 5. Fonctions avec useCallback
-  // const handleHideMessages = useCallback(async (shouldHide) => {
-  //   try {
-  //     await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
-  //     setIsMessagesHidden(shouldHide);
-  //   } catch (error) {
-  //     console.error('Erreur lors de la sauvegarde du paramètre:', error);
-  //   }
-  // }, []);
-
-  const loadTimeoutInterval = useCallback(async () => {
-    try {
-      const storedTimeout = await SecureStore.getItemAsync('timeoutInterval');
-      if (storedTimeout) {
-        setTimeoutInterval(Number(storedTimeout) * 1000);
-      }
-    } catch (error) {
-      console.error('Error during the loading of the timeout:', error);
-    }
-  }, []);
 
   const handleSettingsAccess = useCallback(() => {
     if (isPasswordRequired) {
@@ -149,6 +128,7 @@ export default function App() {
   useEffect(() => {
     const initializeApp = async () => {
         try {
+            await loadTimeoutInterval();
             const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
             const isHidden = savedValue ? JSON.parse(savedValue) : false;
             setIsMessagesHidden(isHidden);
@@ -181,7 +161,6 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [timeoutInterval, currentScreen]);
 
-  // 7. Condition de retour
   if (!fontsLoaded) {
     return null;
   }
@@ -193,54 +172,10 @@ export default function App() {
    * @returns {void}
    */
   const handleImportWebviews = (selectedWebviews) => {
-    // console.log('Channels to import:', selectedWebviews);
     if (selectedWebviews && selectedWebviews.length > 0) {
       handleSelectChannels(selectedWebviews);
     }
   };
-
-  /**
-   * @function gettimeoutInSeconds
-   * @description Gets the timeout in seconds
-   * @param {string} value - The value to get
-   * @returns {number} - The timeout in seconds
-   */
-  const getTimeoutInSeconds = (value) => {
-    switch (value) {
-      case 'after 2 hours': return 7200;
-      case 'after 6 hours': return 21600;
-      case 'after 12 hours': return 43200;
-      case 'after 24 hours': return 86400;
-      case 'never': return null;
-      default: return null;
-    }
-  }
-
-    /**
-   * @function handleTimeoutSelection 
-   * @description Handles the selection of the timeout
-   * @param {string} value - The value to handle
-   * @returns {void}
-   */
-    const handleTimeoutSelection = (value) => {
-      const timeoutInSeconds = getTimeoutInSeconds(value);
-      
-      if (value === 'never') {
-        setTimeoutInterval(null);
-        try {
-          SecureStore.deleteItemAsync('timeoutInterval');
-        } catch (error) {
-          console.error('Error during the deletion of the timeout:', error);
-        }
-      } else {
-        setTimeoutInterval(timeoutInSeconds * 1000);
-        try {
-          SecureStore.setItemAsync('timeoutInterval', String(timeoutInSeconds));
-        } catch (error) {
-          console.error('Error during the saving of the timeout:', error);
-        }
-      }
-    };
 
   // If the app is loading, show the loading screen
   if (isLoading) {

@@ -15,9 +15,6 @@ import HideMessagesModal from '../../components/modals/common/HideMessagesModal'
  * @description Displays the app menu
  * 
  * @param {Function} onNavigate - A function to navigate to a screen
- * 
- * @example
- * <AppMenu onNavigate={(screen) => navigate(screen)} />
  */
 export default function AppMenu({ onNavigate, selectedWebviews }) {
   const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
@@ -57,7 +54,6 @@ export default function AppMenu({ onNavigate, selectedWebviews }) {
             isSmartphone && styles.titleSmartphone
           ]}>Welcome</Text>
           <View style={[styles.cardsContainer, isSmartphoneLandscape && styles.cardsContainerLandscape]}>
-            <View style={styles.cardWrapper}>
               {!isMessagesHidden && (
                 <AppMenuCard
                   title="Messages"
@@ -65,15 +61,11 @@ export default function AppMenu({ onNavigate, selectedWebviews }) {
                   onPress={() => onNavigate(SCREENS.LOGIN)}
                 />
               )}
-            </View>
-            
-            <View style={styles.cardWrapper}>
               <AppMenuCard
                 title="WebViews"
                 icon={<Ionicons name="tv-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
                 onPress={() => onNavigate(SCREENS.WEBVIEW)}
               />
-            </View>
           </View>
           <TouchableOpacity style={styles.settingsContainer} onPress={() => onNavigate(SCREENS.COMMON_SETTINGS)}>
             <Ionicons name="settings-outline" size={isSmartphone ? 24 : 40} color={COLORS.borderColor} />
@@ -116,10 +108,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
   },
-  // cardWrapper: {
-  //   flex: isSmartphoneLandscape ? 0 : 1,
-  //   width: isSmartphoneLandscape ? '40%' : '100%',
-  // },
   lastCardLandscape: {
     width: '100%',
     alignItems: 'center',

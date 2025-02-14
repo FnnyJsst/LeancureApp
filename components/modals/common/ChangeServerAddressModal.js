@@ -7,37 +7,38 @@ import { SIZES, COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
 import { Ionicons } from '@expo/vector-icons';
 import { ENV } from '../../../config/env';
-import * as SecureStore from 'expo-secure-store';
-import { SCREENS } from '../../../constants/screens';
 
-export default function ChangeServerAddressModal({ visible, onClose, onNavigate }) {
+/**
+ * @function ChangeServerAddressModal
+ * @description This component allows the user to change the server address
+ * @param {boolean} visible - Whether the modal is visible
+ * @param {function} onClose - Function to close the modal
+ * @param {function} onNavigate - Function to navigate to the login screen
+ */
+export default function ChangeServerAddressModal({ visible, onClose }) {
   const [serverAddress, setServerAddress] = useState('');
   const [error, setError] = useState('');
 
-  // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
 
+  /**
+   * @function handleSave
+   * @description This function handles the save button press
+   */
   const handleSave = async () => {
     try {
-      console.log('💾 Début handleSave');
-      console.log('📝 Adresse saisie:', serverAddress);
-      
+      //If the server address is empty, set the error
       if (!serverAddress.trim()) {
-        setError('L\'adresse ne peut pas être vide');
+        setError('Address cannot be empty');
         return;
       }
 
-      // Validation de l'URL
+      // Validate the URL
       try {
         const url = new URL(serverAddress.trim());
-        console.log('🔍 URL parsée:', {
-          protocol: url.protocol,
-          host: url.host,
-          pathname: url.pathname
-        });
-
+        //If the URL is invalid, set the error
         if (!url.protocol || !url.host) {
-          setError('Format d\'URL invalide');
+          setError('Invalid URL format');
           return;
         }
         if (!['http:', 'https:'].includes(url.protocol)) {
@@ -45,42 +46,19 @@ export default function ChangeServerAddressModal({ visible, onClose, onNavigate 
           return;
         }
 
-        // On nettoie l'URL pour ne garder que le protocol et le host
+        //We clean the URL to keep only the protocol and the host
         const baseUrl = `${url.protocol}//${url.host}`;
-        // On ajoute /ic.php à la fin
+        //We add /ic.php to the end
         const finalUrl = `${baseUrl}/ic.php`;
-        
-        console.log('🔧 URLs transformées:', {
-          baseUrl,
-          finalUrl
-        });
 
-        console.log('📝 Tentative de sauvegarde de l\'URL:', finalUrl);
+        //We save the URL
         await ENV.setCustomApiUrl(finalUrl);
-        
-        console.log('🗑️ Tentative de suppression des credentials');
-        const existingCredentials = await SecureStore.getItemAsync('userCredentials');
-        if (existingCredentials) {
-          await SecureStore.deleteItemAsync('userCredentials');
-          console.log('✅ Credentials supprimés avec succès');
-        } else {
-          console.log('ℹ️ Pas de credentials à supprimer');
-        }
-        
-        console.log('✅ Sauvegarde réussie, fermeture du modal');
         onClose();
-        
-        if (onNavigate) {
-          console.log('🔄 Navigation vers LOGIN');
-          onNavigate(SCREENS.LOGIN);
-        }
       } catch (storageError) {
-        console.error('🔴 Erreur SecureStore:', storageError);
-        setError('Erreur lors de la sauvegarde des données');
+        setError('Error saving the data in the storage');
       }
     } catch (error) {
-      console.error('🔴 Erreur générale:', error);
-      setError('Erreur lors de la sauvegarde de l\'adresse');
+      setError('Error saving the server address');
     }
   };
 
@@ -96,20 +74,21 @@ export default function ChangeServerAddressModal({ visible, onClose, onNavigate 
         <View style={[
           styles.modalContent,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
-          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-          isTabletPortrait && styles.modalContentTabletPortrait
+          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape, 
+          isTabletLandscape && styles.modalContentTabletLandscape
         ]}>
           <View style={styles.titleContainer}>
             <Text style={[styles.titleText, isSmartphone && styles.titleTextSmartphone]}>
-              Changer l'adresse du serveur
+              Change the server address
             </Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <InputModal
-            placeholder="Entrez la nouvelle adresse du serveur"
+            placeholder="Enter the new server address"
             icon={<Ionicons name="server-outline" size={24} color={COLORS.orange} />}
             onChangeText={setServerAddress}
             value={serverAddress}
+            secureTextEntry={false}
           />
           <View style={[styles.buttonContainer, isSmartphone && styles.buttonContainerSmartphone]}>
             <Button
@@ -132,7 +111,7 @@ export default function ChangeServerAddressModal({ visible, onClose, onNavigate 
 }
 
 const styles = StyleSheet.create({
-  //Container styles
+
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -141,24 +120,23 @@ const styles = StyleSheet.create({
     paddingBottom: '20%',
   },
   modalContent: {
-    width: '40%',
+    width: '65%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
-  },
-    modalContentSmartphonePortrait: {
-    width: '95%',
+},
+  modalContentSmartphonePortrait: {
+  width: '95%',
   },
   modalContentSmartphoneLandscape: {
     width: '50%',
   },
-  modalContentTabletPortrait: {
-    width: '60%',
+  modalContentTabletLandscape: {
+    width: '40%',
   },
-
-    titleContainer: {
+  titleContainer: {
     marginBottom: 20,
   },
   titleText: {
@@ -171,15 +149,12 @@ const styles = StyleSheet.create({
   titleTextSmartphone: {
     fontSize: SIZES.fonts.biggerTextSmartphone,
   },
-
-  //Button styles
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 20,
     width: '100%',
   },
-
   errorText: {
     color: COLORS.error,
     fontSize: SIZES.fonts.smallText,
