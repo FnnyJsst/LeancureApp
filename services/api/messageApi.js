@@ -4,8 +4,6 @@ import { createApiRequest, createSignature } from './baseApi';
 import { secureStore } from '../../utils/encryption';
 import CryptoJS from 'crypto-js';
 
-const API_URL = ENV.API_URL;
-
 /**
  * @function fetchUserChannels
  * @description Fetches the user's channels
@@ -17,11 +15,9 @@ const API_URL = ENV.API_URL;
  */
 export const fetchUserChannels = async (contractNumber, login, password, accessToken = '', accountApiKey = '') => {
   console.log('🔢 Contract Number:', contractNumber);
+  console.log('🔑 Account API Key:', accountApiKey);
   
   try {
-    const timestamp = Date.now();
-    const saltPath = `amaiia_msg_srv/client/get_account_links/${timestamp}/`;
-    
     const body = createApiRequest({
       "amaiia_msg_srv": {
         "client": {
@@ -34,60 +30,65 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
       }
     }, contractNumber, accessToken);
 
-    // console.log('📦 Requête complète:', JSON.stringify(body, null, 2));
+    let apiUrl;
+    try {
+      apiUrl = await ENV.API_URL();
+    } catch (urlError) {
+      console.error('🔴 Erreur URL API:', urlError);
+      apiUrl = 'http://192.168.1.67/ic.php';
+    }
 
-    const response = await axios.post(API_URL, body);
+    console.log('🔗 URL API pour les channels:', apiUrl);
 
-    if (response.status === 200) {
-      // console.log('🔍 Réponse complète:', JSON.stringify(response.data, null, 2));
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: apiUrl,
+        data: body,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 10000
+      });
+
       const data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data;
-      if (!data) {
-        // console.error('❌ Structure de données invalide:', response.data);
-        return {
-          status: 'error',
-          error: 'Invalid data structure'
-        };
+      
+      if (!data?.private?.groups) {
+        console.error('🔴 Pas de groupes dans la réponse:', data);
+        return { status: 'error', message: 'Pas de groupes trouvés' };
       }
 
-      const publicChannels = data.public === "No channel" ? [] : Object.entries(data.public || {}).map(([id, channel]) => ({
-        id,
-        title: channel.identifier || 'Channel without title',
-        description: channel.description || '',
-        messages: channel.messages || []
-      }));
+      const privateGroups = Object.entries(data.private.groups)
+        .map(([groupId, groupData]) => ({
+          id: groupId,
+          title: groupData.identifier || 'Groupe sans nom',
+          channels: Object.entries(groupData.channels || {})
+            .map(([channelId, channel]) => ({
+              id: channelId,
+              title: channel.identifier || channel.description || 'Canal sans nom',
+              unreadCount: 0,
+              groupId: groupId
+            }))
+        }))
+        .filter(group => group.channels.length > 0);
 
-      const privateGroups = data.private?.groups ? Object.entries(data.private.groups).map(([id, group]) => ({
-        id,
-        title: group.identifier || 'Group without title',
-        description: group.description || '',
-        rights: group.rights,
-        channels: group.channels ? Object.entries(group.channels).map(([channelId, channel]) => ({
-          id: channelId,
-          title: channel.identifier || 'Channel without title',
-          description: channel.description || '',
-          messages: channel.messages || []
-        })) : []
-      })) : [];
+      console.log('👥 Groupes traités:', JSON.stringify(privateGroups, null, 2));
 
-      // console.log('📊 Données formatées - Public:', publicChannels);
-      // console.log('📊 Données formatées - Groups:', privateGroups);
-
-      return {
-        status: 'ok',
-        publicChannels,
-        privateGroups
+      return { 
+        status: 'ok', 
+        privateGroups,
+        publicChannels: [],
+        rawData: data
       };
-    } else {
-      return {
-        status: 'error',
-        error: 'Error while fetching data'
-      };
+
+    } catch (axiosError) {
+      console.error('🔴 Erreur axios:', axiosError);
+      return { status: 'error', message: axiosError.message };
     }
+
   } catch (error) {
-    return {
-      status: 'error',
-      error: error.message || 'Error while fetching data'
-    };
+    console.error('🔴 Erreur fetchUserChannels:', error);
+    return { status: 'error', message: error.message };
   }
 };
 
@@ -134,7 +135,8 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       isFile
     });
 
-    const response = await axios.post(API_URL, body, {
+    const apiUrl = await ENV.API_URL();
+    const response = await axios.post(apiUrl, body, {
       timeout: 30000 // 30 secondes max
     });
     
@@ -199,7 +201,8 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
       }
     }, userCredentials.contractNumber);
 
-    const response = await axios.post(API_URL, body);
+    const apiUrl = await ENV.API_URL();
+    const response = await axios.post(apiUrl, body);
     // console.log('📥 Structure complète des messages:', JSON.stringify(response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data?.private?.groups, null, 2));
 
 
@@ -303,7 +306,8 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
       }
     }, userCredentials.contractNumber);
 
-    const response = await axios.post(API_URL, body);
+    const apiUrl = await ENV.API_URL();
+    const response = await axios.post(apiUrl, body);
     
     // Extraction correcte du base64
     const base64Data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_base64?.data?.base64;

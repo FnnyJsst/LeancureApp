@@ -78,7 +78,7 @@ export default function Login({ onNavigate }) {
 
             const loginResponse = await loginApi(contractNumber, login, password);
             
-            if (loginResponse && loginResponse.status === 200) {
+            if (loginResponse.success) {
                 // Save the new credentials in the SecureStore
                 const credentials = {
                     contractNumber,

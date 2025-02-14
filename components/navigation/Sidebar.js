@@ -7,6 +7,7 @@ import { fetchUserChannels } from '../../services/api/messageApi';
 import * as SecureStore from 'expo-secure-store';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../text/CustomText';
+import { clearSecureStorage } from '../../services/api/authApi';
 
 /**
  * @component Sidebar
@@ -77,33 +78,45 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
   useEffect(() => {
     const loadChannels = async () => {
       try {
-        // Set the loading state to true
         setLoading(true);
-        // Get the credentials from the async storage
         const credentials = await SecureStore.getItemAsync('userCredentials');
+        
         if (!credentials) {
-          throw new Error('No credentials found');
+          console.log('❌ Pas de credentials trouvés');
+          await clearSecureStorage();
+          if (onNavigate) onNavigate(SCREENS.LOGIN);
+          return;
         }
-        // Parse the credentials
-        const { contractNumber, login, password, accountApiKey } = JSON.parse(credentials);
-        // Fetch the user channels
-        const response = await fetchUserChannels(contractNumber, login, password, '', accountApiKey);
-        // console.log('📊 Données chargées:', response);
-        // Set the channels and groups
-        setChannels(response.publicChannels || []);
-        setGroups(response.privateGroups || []);
-        console.log('📱 Channels dans Sidebar:', channels);
-        console.log('👥 Groupes dans Sidebar:', groups);
-        // If there is an error, log it
+
+        try {
+          const { contractNumber, login, password, accountApiKey } = JSON.parse(credentials);
+          const response = await fetchUserChannels(contractNumber, login, password, '', accountApiKey);
+          
+          if (response.status === 'ok' && response.privateGroups) {
+            console.log('✅ Groupes chargés:', response.privateGroups.length);
+            setGroups(response.privateGroups);
+            setChannels(response.publicChannels || []);
+          } else {
+            throw new Error('Erreur lors du chargement des canaux');
+          }
+        } catch (error) {
+          console.error('🔴 Erreur:', error);
+          if (error.message.includes('Could not decrypt')) {
+            await clearSecureStorage();
+            if (onNavigate) onNavigate(SCREENS.LOGIN);
+          }
+        }
       } catch (error) {
-        console.error('🔴 Erreur dans Sidebar:', error);
+        console.error('🔴 Erreur globale:', error);
+        await clearSecureStorage();
+        if (onNavigate) onNavigate(SCREENS.LOGIN);
       } finally {
         setLoading(false);
       }
     };
-    // Load the channels and groups
+    
     loadChannels();
-  }, []);
+  }, [onNavigate]);
 
   useEffect(() => {
     const loadUserInfo = async () => {
