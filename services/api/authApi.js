@@ -26,8 +26,8 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     }, contractNumber, accessToken);
 
     const apiUrl = await ENV.API_URL();
-    console.log('🔗 URL API:', apiUrl);
 
+    // Try to send the request to the API
     try {
       const response = await axios({
         method: 'POST',
@@ -40,10 +40,10 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       });
 
       if (!response.data?.cmd?.[0]?.accounts?.loginmsg?.get?.data) {
-        console.error('🔴 Format de réponse invalide:', response.data);
-        throw new Error('Format de réponse invalide');
+        throw new Error('Invalid response format');
       }
 
+      // Get the user data
       const userData = response.data.cmd[0].accounts.loginmsg.get.data;
       
       return { 
@@ -54,7 +54,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
         success: true
       };
     } catch (axiosError) {
-      console.error('🔴 Erreur axios:', axiosError?.response || axiosError);
+      console.error('🔴 Axios error:', axiosError?.response || axiosError);
       return {
         status: axiosError?.response?.status || 500,
         success: false,
@@ -62,7 +62,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       };
     }
   } catch (error) {
-    console.error('🔴 Erreur loginApi:', error);
+    console.error('🔴 Error loginApi:', error);
     return {
       status: 500,
       success: false,
@@ -109,7 +109,7 @@ export const getCredentials = async () => {
 
 /**
  * @function clearSecureStorage
- * @description Nettoie le stockage sécurisé
+ * @description Clears the secure storage when the user logs out
  */
 export const clearSecureStorage = async () => {
   try {
@@ -117,10 +117,9 @@ export const clearSecureStorage = async () => {
     await SecureStore.deleteItemAsync('savedLoginInfo');
     await SecureStore.deleteItemAsync('custom_api_url');
     await SecureStore.deleteItemAsync('isMessagesHidden');
-    console.log('✅ Stockage sécurisé nettoyé avec succès');
     return true;
   } catch (error) {
-    console.error('🔴 Erreur lors du nettoyage du stockage:', error);
+    console.error('🔴 Error clearing secure storage:', error);
     return false;
   }
 };

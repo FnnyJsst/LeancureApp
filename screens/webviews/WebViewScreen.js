@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
 import { SCREENS } from '../../constants/screens';
@@ -15,9 +15,6 @@ import { useDeviceType } from '../../hooks/useDeviceType';
  * @param {Function} onNavigate - A function to navigate to a screen
  * @param {Function} onSettingsAccess - A function to handle the settings access
  * @param {boolean} isMessagesHidden - A boolean to hide the header
- * @returns {JSX.Element} - A JSX element
- * @example
- * <WebViewScreen url={url} onNavigate={(screen) => navigate(screen)} onSettingsAccess={onSettingsAccess} />
  */
 export default function WebViewScreen({ 
   url, 
@@ -43,6 +40,7 @@ export default function WebViewScreen({
 
   return (
     <View style={styles.container}>
+      {/* If messages are not hidden, display the back button so we can go back to the app menu */}
       {!isMessagesHidden && (
         <View style={styles.customHeaderContainer}>
           <TouchableOpacity 
@@ -86,7 +84,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   backButton: {
-    backgroundColor: '#271E1E',
+    backgroundColor: COLORS.charcoal,
     width: 30,
     height: 30,
     borderRadius: 10,
@@ -96,13 +94,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   backButtonSmartphone: {
-    backgroundColor: '#271E1E',
     width: 40,
     height: 40,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
   },
   headerTitle: {
     color: COLORS.white,

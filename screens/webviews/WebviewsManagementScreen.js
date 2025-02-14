@@ -21,13 +21,8 @@ import Entypo from '@expo/vector-icons/Entypo';
  * @param {Function} setSelectedWebviews - A function to set the selected channels
  * @param {Function} saveSelectedWebviews - A function to save the selected channels
  * @param {boolean} isReadOnly - A boolean to indicate if the user is read only
-
  * @param {Function} onNavigateToWebView - A function to navigate to a webview
  * @param {Function} onImport - A function to import channels
- * @returns {JSX.Element} - A JSX element
- * 
- * @example
- * <WebviewsManagementScreen onNavigate={(screen) => navigate(screen)} selectedWebviews={selectedWebviews} setSelectedWebviews={setSelectedWebviews} saveSelectedWebviews={saveSelectedWebviews} isReadOnly={isReadOnly} onNavigateToWebView={onNavigateToWebView} onImport={onImport} />
  */
 
 export default function WebviewsManagementScreen({ 
@@ -43,14 +38,11 @@ export default function WebviewsManagementScreen({
   // Customized hook to determine the device type and orientation
   const { isTablet, isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
 
-  // States for modals and interractions management
   const [isImportModalVisible, setImportModalVisible] = useState(false);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const [webviewToEdit, setWebviewToEdit] = useState(null);
   const [webviewToDelete, setWebviewToDelete] = useState(null);
-
-  // States for the colors of the interractions
   const [selectedTitleId, setSelectedTitleId] = useState(null);
   const [selectedPencilIndex, setSelectedPencilIndex] = useState(null);
   const [selectedBinIndex, setSelectedBinIndex] = useState(null);
@@ -58,53 +50,28 @@ export default function WebviewsManagementScreen({
   const [selectedDownIndex, setSelectedDownIndex] = useState(null);
   
   /**
-   * @function openImportModal
-   * @description Opens the import modal
-   */
+  * functions to open and close the different modals
+  */
   const openImportModal = () => setImportModalVisible(true);
-
-  /**
-   * @function closeImportModal
-   * @description Closes the import modal
-   */
   const closeImportModal = () => setImportModalVisible(false);
 
-  /**
-   * @function openEditModal
-   * @description Opens the edit modal
-   * @param {Object} channel - The channel to edit
-   */
   const openEditModal = (channel) => {
     setWebviewToEdit(channel);
     setEditModalVisible(true);
   };
 
-  /**
-   * @function closeEditModal
-   * @description Closes the edit modal
-   */
   const closeEditModal = () => {
     setEditModalVisible(false);
     setWebviewToEdit(null);
   };
 
-  /**
-   * @function openDeleteModal
-   * @description Opens the delete modal
-   * @param {Object} channel - The channel to delete
-   */
   const openDeleteModal = (channel) => {
     setWebviewToDelete(channel);
     setDeleteModalVisible(true);
   };
 
-  /**
-   * @function closeDeleteModal
-   * @description Closes the delete modal
-   */
   const closeDeleteModal = () => setDeleteModalVisible(false);
 
-  /////CHANNEL OPERATIONS/////
   /**
    * @function handleDeleteWebview
    * @description Deletes a channel from the list
@@ -131,7 +98,7 @@ export default function WebviewsManagementScreen({
 
   /**
    * @function moveWebviewUp
-   * @description Moves a channel up
+   * @description Moves a channel up in the list
    * @param {number} index - The index of the channel to move up
    */
   const moveWebviewUp = (index) => {
@@ -151,7 +118,7 @@ export default function WebviewsManagementScreen({
 
   /**
    * @function moveWebviewDown
-   * @description Moves a channel down
+   * @description Moves a channel down in the list
    * @param {number} index - The index of the channel to move down
    */
   const moveWebviewDown = (index) => {
@@ -172,7 +139,7 @@ export default function WebviewsManagementScreen({
 
   /**
    * @function handleEditWebviewModal
-   * @description Edits a channel
+   * @description Edits a channel name and/or url
    * @param {Object} oldChannel - The old channel
    * @param {string} newUrl - The new url
    * @param {string} newTitle - The new title

@@ -13,9 +13,6 @@ import { Text } from '../../text/CustomText';
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onToggleHideMessages - The function to call when the hide messages mode is toggled
- * 
- * @example
- * <HideMessagesModal visible={visible} onClose={() => console.log('Modal closed')} onToggleHideMessages={() => console.log('Hide messages mode toggled')} />
  */
 export default function HideMessagesModal({ visible, onClose, onToggleHideMessages }) {
 
@@ -103,8 +100,7 @@ const styles = StyleSheet.create({
   modalContentTabletPortrait: {
     width: '60%',
   },
-
-    titleContainer: {
+  titleContainer: {
     marginBottom: 20,
   },
   titleText: {
@@ -117,8 +113,6 @@ const styles = StyleSheet.create({
   titleTextSmartphone: {
     fontSize: SIZES.fonts.biggerTextSmartphone,
   },
-
-  //Button styles
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',

@@ -6,12 +6,10 @@ import CryptoJS from 'crypto-js';
  * @returns {Object} - The API request object
  */
 export const createSignature = (saltPath, contractNumber) => {
-  // console.log('🔑 Création signature avec:', { saltPath, contractNumber });
   //We use the saltPath and the contractNumber to create a signature
   const hash = CryptoJS.HmacSHA256(saltPath, contractNumber);
   //We convert the hash to a hexadecimal string using the CryptoJS library
   const signature = hash.toString(CryptoJS.enc.Hex);
-  // console.log('✍️ Signature générée:', signature);
   return signature;
 };
 

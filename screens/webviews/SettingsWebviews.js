@@ -27,8 +27,6 @@ import { Text } from '../../components/text/CustomText';
  * @param {Function} handleSelectOption - A function to handle the select option
  * @param {boolean} isMessagesHidden - A boolean to indicate if messages are hidden
  * @param {Function} onToggleHideMessages - A function to toggle the hide messages mode
- * @example
- * <SettingsWebviews onNavigate={(screen) => navigate(screen)} onSettingsAccess={onSettingsAccess} selectedWebviews={selectedWebviews} refreshOption={refreshOption} handlePasswordSubmit={handlePasswordSubmit} isPasswordRequired={isPasswordRequired} disablePassword={disablePassword} isReadOnly={isReadOnly} toggleReadOnly={toggleReadOnly} handleSelectOption={handleSelectOption} isMessagesHidden={isMessagesHidden} onToggleHideMessages={onToggleHideMessages} />
  */
 export default function SettingsWebviews({ 
   onNavigate,  
@@ -47,7 +45,6 @@ export default function SettingsWebviews({
   // Device type variables
   const { isSmartphone, isLandscape, isSmartphonePortrait } = useDeviceType();
   
-  // State management
   const [modalVisible, setModalVisible] = useState(false);
   const [isPasswordDefineModalVisible, setPasswordDefineModalVisible] = useState(false);
   const [isReadOnlyModalVisible, setReadOnlyModalVisible] = useState(false);
@@ -88,14 +85,6 @@ export default function SettingsWebviews({
   };
 
   /**
-   * @function accessMessages
-   * @description Accesses the messages section
-   */
-  const accessMessages = () => {
-    onNavigate(SCREENS.LOGIN);
-  };
-
-  /**
    * @function formatRefreshOption
    * @description Formats the refresh option and displays it in a readable format
    * @param {string} option - The refresh option
@@ -126,12 +115,17 @@ export default function SettingsWebviews({
     return option;
   };
 
+  /**
+   * @function handleToggleHideMessages
+   * @description Handles the toggle hide messages action
+   * @param {boolean} value - The value to toggle
+   */
   const handleToggleHideMessages = async (value) => {
     try {
       setHideMessagesModalVisible(false);
       await onToggleHideMessages(value);
     } catch (error) {
-      console.error('Erreur lors de la modification du paramètre:', error);
+      console.error('Error when modifying the parameter:', error);
     }
   };
 
@@ -338,7 +332,6 @@ const styles = StyleSheet.create({
   },
   settingsContentContainer: {
     flex: 1,
-    // paddingTop: '3%',
   },
   configContainer: {
     backgroundColor: COLORS.gray850,

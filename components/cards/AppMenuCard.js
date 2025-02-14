@@ -13,15 +13,10 @@ import { Text } from '../text/CustomText';
  * @param {ReactNode} props.icon - The icon of the card
  * @param {Function} props.onPress - The function to call when the card is pressed
  * @param {number} props.unreadCount - The number of unread messages
- * 
- * @example
- * <AppMenuCard title="Home" icon={<Ionicons name="home" size={24} color="white" />} onPress={() => console.log('Card pressed')} unreadCount={10} />
-
  */
 
 const AppMenuCard = ({ title, icon, onPress, unreadCount }) => {
 
-  // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
 
   return (

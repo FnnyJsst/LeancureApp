@@ -12,7 +12,6 @@ import PasswordCheckModal from './components/modals/webviews/PasswordCheckModal'
 import AppMenu from './screens/common/AppMenu';
 import ChatScreen from './screens/messages/ChatScreen';
 import SettingsMessage from './components/modals/chat/SettingsMessage';
-import AccountScreen from './screens/messages/AccountScreen';
 import { SCREENS } from './constants/screens';
 import { COLORS } from './constants/style';
 import { useNavigation } from './hooks/useNavigation';
@@ -23,9 +22,8 @@ import { useWebViewsPassword } from './hooks/useWebViewsPassword';
 import { LogBox } from 'react-native';
 import { useFonts } from 'expo-font';
 import CommonSettings from './screens/common/CommonSettings';
-import { useTimeout } from './hooks/useTimeOut';
+import { useTimeout } from './hooks/useTimeout';
 // import { usePushNotifications } from './services/notifications/notificationService';
-
 
 LogBox.ignoreLogs(['[expo-notifications]']);
 
@@ -47,10 +45,8 @@ export default function App() {
 
   const [currentScreen, setCurrentScreen] = useState(SCREENS.LOGIN);
   const [isLoading, setIsLoading] = useState(true);
-
   const [globalMessages, setGlobalMessages] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
-  // const [timeoutInterval, setTimeoutInterval] = useState(null);
   const [isMessagesHidden, setIsMessagesHidden] = useState(false);
 
   const { navigate } = useNavigation(setCurrentScreen);
@@ -124,19 +120,26 @@ export default function App() {
     }
   }, [navigate, selectedWebviews]);
 
-  // 6. Tous les useEffect
+  /**
+   * @function initializeApp
+   * @description Initializes the app when the component is mounted
+   */
   useEffect(() => {
     const initializeApp = async () => {
         try {
+            // Load the timeout interval
             await loadTimeoutInterval();
+            // Get the isMessagesHidden value to hide or show the messages
             const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
             const isHidden = savedValue ? JSON.parse(savedValue) : false;
             setIsMessagesHidden(isHidden);
+            // Load the selected channels
             await loadSelectedChannels();
             setIsLoading(false);
-            
+            // If the messages are hidden, navigate to the webview or the no url screen
             if (isHidden) {
                 navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+            // If the messages are not hidden, navigate to the app menu
             } else {
                 navigate(SCREENS.APP_MENU);
             }
@@ -149,6 +152,10 @@ export default function App() {
     initializeApp();
   }, []);
 
+  /**
+   * @function handleTimeout
+   * @description Handles the timeout
+   */
   useEffect(() => {
     let timer;
     if (timeoutInterval && currentScreen !== SCREENS.APP_MENU && currentScreen !== SCREENS.LOGIN) {
@@ -278,13 +285,6 @@ export default function App() {
       case SCREENS.LOGIN:
         return (
           <Login 
-            onNavigate={navigate}
-          />
-        );
-
-      case SCREENS.ACCOUNT:
-        return (
-          <AccountScreen 
             onNavigate={navigate}
           />
         );

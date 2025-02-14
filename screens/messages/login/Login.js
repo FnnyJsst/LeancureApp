@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ScrollView, View, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { ScrollView, View, TouchableOpacity, StyleSheet } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import InputLogin from '../../../components/inputs/InputLogin';
 import CheckBox from '../../../components/inputs/CheckBox';
@@ -13,9 +13,7 @@ import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 import GradientBackground from '../../../components/backgrounds/GradientBackground';
 import { hashPassword } from '../../../utils/encryption';
 import { secureStore } from '../../../utils/encryption';
-import * as Network from 'expo-network';
 import { Text } from '../../../components/text/CustomText';
-
 
 /**
  * @component Login
@@ -23,9 +21,6 @@ import { Text } from '../../../components/text/CustomText';
  * 
  * @param {Object} props - The properties of the component
  * @param {Function} props.onNavigate - Function to navigate between screens
- * 
- * @example
- * <Login onNavigate={(screen) => navigate(screen)} />
  */
 export default function Login({ onNavigate }) {
 
@@ -122,7 +117,7 @@ export default function Login({ onNavigate }) {
 
     /**
      * @function handleSimplifiedLogin
-     * @description Handle the simplified login process
+     * @description Handle the simplified login process when the user has saved login info
      */
     const handleSimplifiedLogin = useCallback(async () => {
         if (!savedLoginInfo) return;
@@ -215,14 +210,10 @@ export default function Login({ onNavigate }) {
 
     return (
         <>
-            <StatusBar 
-                barStyle="light-content"
-                translucent={true}
-            />
             <GradientBackground>
                 <ScrollView>
-                    <View style={styles.contentContainer}>
-                        <View style={[styles.formContainerPortrait, isSmartphone && styles.formContainerSmartphonePortrait]}>
+                    <View style={styles.container}>
+                        <View style={[isSmartphone && styles.formContainerSmartphone]}>
                             {isSimplifiedLogin ? (
                                 <SimplifiedLogin 
                                     contractNumber={contractNumber}
@@ -339,8 +330,7 @@ export default function Login({ onNavigate }) {
 }
 
 const styles = StyleSheet.create({
-    contentContainer: {
-        flex: 1,
+    container: {
         paddingTop: 20,
     },
     titleContainer: {
@@ -374,7 +364,7 @@ const styles = StyleSheet.create({
     subtitleLandscape: {
         marginBottom: 0,
     },
-    formContainerSmartphonePortrait: {
+    formContainerSmartphone: {
         paddingHorizontal: '5%',
     },
     loginContainer: {

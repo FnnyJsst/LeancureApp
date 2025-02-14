@@ -12,9 +12,6 @@ import { Text } from '../../components/text/CustomText';
  * @param {Function} onNavigate - A function to navigate to a screen
  * @param {Function} handleSettingsAccess - A function to handle the settings access
  * @param {boolean} isMessagesHidden - A boolean indicating if messages are hidden
- * @returns {JSX.Element} - A JSX element
- * @example
- * <NoUrlScreen onNavigate={(screen) => navigate(screen)} handleSettingsAccess={handleSettingsAccess} isMessagesHidden={isMessagesHidden} />
  */
 export default function NoUrlScreen({ 
   onNavigate, 
@@ -34,6 +31,7 @@ export default function NoUrlScreen({
 
   return (
     <View style={styles.pageContainer}>
+      {/* If messages are not hidden, display the back button so we can go back to the app menu */}
       {!isMessagesHidden && (
         <View style={styles.customHeaderContainer}>
           <TouchableOpacity 

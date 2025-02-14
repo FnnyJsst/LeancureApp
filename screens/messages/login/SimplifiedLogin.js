@@ -10,18 +10,13 @@ import { Text } from '../../../components/text/CustomText';
  * @description Simplified login screen is used when the user has already logged in and checked "Stay connected" on the login screen
  * 
  * @param {string} contractNumber - The contract number of the user
- * @param {string} savedLoginInfo - The saved login information of the user
  * @param {Function} onSwitchAccount - A function to switch to another account
  * @param {Function} handleLogin - A function to handle the login process
  * @param {boolean} isLoading - A boolean to indicate if the login process is loading
  * @returns {JSX.Element} - A JSX element
- * 
- * @example
- * <SimplifiedLogin contractNumber={contractNumber} savedLoginInfo={savedLoginInfo} onSwitchAccount={onSwitchAccount} handleLogin={handleLogin} isLoading={isLoading} />
  */
 export default function SimplifiedLogin({ 
     contractNumber, 
-    savedLoginInfo,
     onSwitchAccount, 
     handleLogin,
     isLoading 

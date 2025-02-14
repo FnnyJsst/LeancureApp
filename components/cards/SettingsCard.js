@@ -2,7 +2,6 @@ import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS, FONTS } from '../../constants/style';
 import { Text } from '../text/CustomText';
-import { Ionicons } from '@expo/vector-icons';
 /**
  * @component SettingsCard
  * @description A component that renders the cards used in the settings screen
@@ -12,11 +11,9 @@ import { Ionicons } from '@expo/vector-icons';
  * @param {string} props.title - The title of the card
  * @param {string} props.description - The description of the card
  * @param {Function} props.onPress - The function to call when the card is pressed
- * 
- * @example
- * <SettingsCard icon={<Ionicons name="home" size={24} color="white" />} title="Home" description="Home description" onPress={() => console.log('Card pressed')} />
  */
 export default function SettingsCard({ icon, title, description, onPress, iconBackgroundColor=COLORS.borderColor }) {
+
   const { isSmartphone } = useDeviceType();
 
   return (
@@ -47,7 +44,6 @@ export default function SettingsCard({ icon, title, description, onPress, iconBa
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    width: '100%',
     alignItems: 'center'
   },
   content: {

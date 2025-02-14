@@ -6,7 +6,7 @@ import Header from '../../components/Header';
 import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../../services/api/messageApi';
 import { sendMessageApi } from '../../services/api/messageApi';
-import { COLORS } from '../../constants/style';
+
 /**
  * @component ChatScreen
  * @description Displays the chat screen
@@ -14,9 +14,6 @@ import { COLORS } from '../../constants/style';
  * @param {boolean} isExpanded - A boolean to indicate if the menu is expanded
  * @param {Function} setIsExpanded - A function to set the isExpanded state
  * @param {Function} handleChatLogout - A function to handle logout
- * 
- * @example
- * <ChatScreen onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} handleChatLogout={handleChatLogout} />
  */
 export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, handleChatLogout }) {
 
@@ -30,17 +27,12 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
   /**
    * @function useEffect
-   * @description Fetches the channel data and refreshes it every 5 seconds
+   * @description Fetches the channel data and refreshes it every 5 seconds to ensure the user sees the new messages
    */
   useEffect(() => {
     let isMounted = true;
     let refreshInterval;
 
-
-    /**
-     * @function fetchChannelData
-     * @description Fetches the channel data and refreshes it every 5 seconds
-     */
     const fetchChannelData = async () => {
       try {
         if (!isMounted || !selectedChannel) return;
@@ -51,7 +43,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     };
 
     fetchChannelData();
-    // We refresh the channel data every 5 seconds for the user to see the new messages
     refreshInterval = setInterval(fetchChannelData, 5000);
 
     // When the component is unmounted, we clear the interval
@@ -99,15 +90,17 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       
       const credentials = JSON.parse(credentialsStr);
       
+      // We check if the message is not empty
       if (!message || (typeof message === 'string' && !message.trim())) {
         console.log('❌ Empty message');
         return;
       }
 
+      // We send the message to the API
       const response = await sendMessageApi(selectedChannel.id, message, credentials);
       
       if (response.status === 'ok') {
-        // On ne met à jour les messages qu'une seule fois après un délai
+        // We update the messages after a delay to ensure the user sees the new message
         setTimeout(async () => {
           const updatedMessages = await fetchChannelMessages(selectedChannel.id, credentials);
           setChannelMessages(updatedMessages);
@@ -197,7 +190,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray950,
   },
   mainContent: {
     flex: 1,

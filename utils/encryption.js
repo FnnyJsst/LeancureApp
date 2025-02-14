@@ -52,11 +52,11 @@ export const secureStore = {
      * @description Get credentials from secure storage
      * @returns {object} - The credentials
      */
-
     async getCredentials() {
         try {
+            // Get the credentials from the secure storage
             const credentials = await SecureStore.getItemAsync('userCredentials');
-
+            // Return the credentials and parse them
             return credentials ? JSON.parse(credentials) : null;
         } catch (error) {
             console.error('Error retrieving credentials:', error);

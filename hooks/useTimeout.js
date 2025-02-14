@@ -60,7 +60,6 @@ export const useTimeout = () => {
 
     return {
         timeoutInterval,
-        setTimeoutInterval,
         handleTimeoutSelection,
         loadTimeoutInterval
     };

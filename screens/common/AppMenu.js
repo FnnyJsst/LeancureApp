@@ -16,7 +16,7 @@ import HideMessagesModal from '../../components/modals/common/HideMessagesModal'
  * 
  * @param {Function} onNavigate - A function to navigate to a screen
  */
-export default function AppMenu({ onNavigate, selectedWebviews }) {
+export default function AppMenu({ onNavigate }) {
   const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
   const [isMessagesHidden, setIsMessagesHidden] = useState(false);
   const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
@@ -36,6 +36,12 @@ export default function AppMenu({ onNavigate, selectedWebviews }) {
     loadMessagesVisibility();
   }, []);
 
+
+  /**
+   * @function handleHideMessages
+   * @description Handles the hide messages action. When the user hides the messages, he can only access the webviews
+   * @param {boolean} shouldHide - Whether the messages should be hidden
+   */
   const handleHideMessages = async (shouldHide) => {
     try {
       await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
@@ -104,14 +110,7 @@ const styles = StyleSheet.create({
   },
   cardsContainerLandscape: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
     width: '100%',
-  },
-  lastCardLandscape: {
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 15,
   },
   settingsContainer: {
     position: 'absolute',

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '../../components/text/CustomText';
-import { SCREENS } from '../../constants/screens';
 import { FONTS } from '../../constants/style';
 import Header from '../../components/Header';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,13 +9,27 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import SettingsCard from '../../components/cards/SettingsCard';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
 import ChangeServerAddressModal from '../../components/modals/common/ChangeServerAddressModal';
-import * as SecureStore from 'expo-secure-store';
 
+/**
+ * @component CommonSettings
+ * @description A component that renders the common settings of the app
+ * 
+ * @param {Function} onBackPress - The function to call when the back button is pressed
+ * @param {Function} onHideMessages - The function to call when the hide messages action is performed
+ * @param {boolean} isMessagesHidden - Whether the messages are hidden
+ */
 const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
+
     const { isSmartphone, isLandscape } = useDeviceType();
+
     const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
     const [changeServerAddressModalVisible, setChangeServerAddressModalVisible] = useState(false);
 
+    /**
+     * @function handleToggleHideMessages
+     * @description Handles the toggle hide messages action
+     * @param {boolean} value - The value to set the hide messages parameter to
+     */
     const handleToggleHideMessages = async (value) => {
         try {
             setHideMessagesModalVisible(false);
@@ -26,6 +39,9 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
         }
     };
 
+    /**
+     * functions to open and close the change server address modal
+     */
     const openChangeServerAddressModal = () => {
         setChangeServerAddressModalVisible(true);
     };
@@ -41,7 +57,7 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
                 onBackPress={onBackPress}
             />
             <View style={styles.titleContainer}>
-                <Text style={styles.title}>Messages</Text>
+                <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>Messages</Text>
             </View>
             <View style={[
                 styles.configContainer,
@@ -120,6 +136,9 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.medium,
     fontSize: SIZES.fonts.smallTextTabletTablet,
   },
+  titleSmartphone: {
+    fontSize: SIZES.fonts.smallTextSmartphone,
+  },
   configContainer: {
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,
@@ -159,7 +178,6 @@ const styles = StyleSheet.create({
     minWidth: 40,
     alignItems: 'center',
   },
-
 });
 
 export default CommonSettings;
