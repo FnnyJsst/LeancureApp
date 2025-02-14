@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Modal, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
+import InputModal from '../../inputs/InputModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
@@ -34,7 +35,28 @@ export default function ChangeServerAddressModal({ visible, onClose}) {
             <Text style={[
               styles.titleText,
               isSmartphone && styles.titleTextSmartphone,
-            ]}>Do you want to show or hide the messages section from the app menu?</Text>
+            ]}>Change server address</Text>
+          </View>
+          <InputModal
+            placeholder="Enter the new server address"
+            // onChangeText={setServerAddress}
+            // value={serverAddress}
+          />
+          <View style={[
+          styles.buttonContainer, 
+          isSmartphone && styles.buttonContainerSmartphone]}>
+          <Button
+            title="Cancel"
+            backgroundColor={COLORS.gray950}
+            width={isSmartphone ? '20%' : '22%'}
+            // onPress={() => handleResponse(true)}
+          />
+          <Button
+            title="Save"
+            backgroundColor={COLORS.orange}
+            width={isSmartphone ? '20%' : '22%'}
+            // onPress={() => handleResponse(false)}
+          />
           </View>
         </View>
       </View>
