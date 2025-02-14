@@ -9,19 +9,29 @@ import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import SettingsCard from '../../components/cards/SettingsCard';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
+import ChangeServerAddressModal from '../../components/modals/common/ChangeServerAddressModal';
 import * as SecureStore from 'expo-secure-store';
 
 const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
     const { isSmartphone, isLandscape } = useDeviceType();
     const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
+    const [changeServerAddressModalVisible, setChangeServerAddressModalVisible] = useState(false);
 
     const handleToggleHideMessages = async (value) => {
         try {
             setHideMessagesModalVisible(false);
             await onHideMessages(value);
         } catch (error) {
-            console.error('Erreur lors de la modification du paramètre:', error);
+            console.error('Error while changing the hide messages parameter:', error);
         }
+    };
+
+    const openChangeServerAddressModal = () => {
+        setChangeServerAddressModalVisible(true);
+    };
+
+    const closeChangeServerAddressModal = () => {
+        setChangeServerAddressModalVisible(false);
     };
 
     return (
@@ -42,7 +52,7 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
                     <View style={styles.leftContent}>
                         <SettingsCard
                             title="Show/hide messages"
-                            iconBackgroundColor={COLORS.borderColor}
+                            iconBackgroundColor={COLORS.burgundy}
                             icon={
                                 <Ionicons 
                                     name="remove-circle-outline" 
@@ -64,10 +74,37 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
                     </TouchableOpacity>
                 </View>
             </View>
+            <View style={[
+                styles.configContainer,
+                isSmartphone && styles.configContainerSmartphone,
+                isLandscape && styles.configContainerLandscape
+            ]}>
+                <View style={styles.rowContainer}>
+                    <View style={styles.leftContent}>
+                        <SettingsCard
+                            title="Change server address"
+                            iconBackgroundColor={COLORS.borderColor}
+                            icon={
+                                <Ionicons 
+                                    name="server-outline" 
+                                    size={isSmartphone ? 22 : 28} 
+                                    color={COLORS.orange} 
+                                />
+                            }
+                            description="Change the server address of the app"
+                            onPress={openChangeServerAddressModal}
+                        />
+                    </View>
+                </View>
+            </View>
             <HideMessagesModal
                 visible={hideMessagesModalVisible}
                 onClose={() => setHideMessagesModalVisible(false)}
                 onToggleHideMessages={handleToggleHideMessages}
+            />
+            <ChangeServerAddressModal
+                visible={changeServerAddressModalVisible}
+                onClose={closeChangeServerAddressModal}
             />
         </>
     );
