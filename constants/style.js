@@ -97,7 +97,7 @@ export const MODAL_STYLES = {
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,
     borderWidth: 1,
-    borderColor: '#403430',
+    borderColor: COLORS.borderColor,
   },
   buttonContainer: {
     flexDirection: "row",

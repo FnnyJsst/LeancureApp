@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Modal, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { WebView } from 'react-native-webview';
-import * as ScreenOrientation from 'expo-screen-orientation';
 import { COLORS, SIZES, MODAL_STYLES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,26 +25,7 @@ import { Text } from '../../text/CustomText';
  * <DocumentPreviewModal visible={visible} onClose={() => console.log('Modal closed')} fileName="File.pdf" fileSize="100" fileType="application/pdf" base64="base64" />
  */
 export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64 }) {
-  const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
-
-  // Lock the orientation to portrait when the modal is visible
-  useEffect(() => {
-    const lockOrientation = async () => {
-      if (visible) {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-      } else {
-        // Unlock the orientation when the modal is closed
-        await ScreenOrientation.unlockAsync();
-      }
-    };
-
-    lockOrientation();
-
-    // Cleanup : rétablir l'orientation automatique quand le composant est démonté
-    return () => {
-      ScreenOrientation.unlockAsync();
-    };
-  }, [visible]);
+  const { isSmartphone, isSmartphoneLandscape, isLandscape } = useDeviceType();
 
   /**
    * @function handleDownload
@@ -154,10 +134,11 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       onRequestClose={onClose}
     >
       <View style={[
-        MODAL_STYLES.modalContainer,
+        styles.modalContainer,
         isSmartphoneLandscape && styles.modalContainerSmartphoneLandscape,
+        isLandscape && styles.modalContainerLandscape,
       ]}>
-        <View style={styles.modalContent}>
+        <View style={[styles.modalContent, isLandscape && styles.modalContentLandscape]}>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Ionicons name="close" size={24} color={COLORS.white} />
           </TouchableOpacity>
@@ -193,16 +174,32 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
 }
 
 const styles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    paddingBottom: '40%',
+    paddingTop: '20%'
+  },
+  modalContainerLandscape: {
+    paddingBottom: '5%',
+    paddingTop: '5%',
+  },
   modalContent: {
     flex: 1,
     backgroundColor: COLORS.gray850,
     borderWidth: 1,
-    borderColor: '#403430',
+    borderColor: COLORS.borderColor,
     borderRadius: SIZES.borderRadius.xxLarge,
     marginTop: '10%',
     padding: 20,
-    width: '100%',
-    height: '100%',
+    width: '50%',
+    height: '50%',
+  },
+  modalContentLandscape: {
+    width: '32%',
+    marginTop: '0%',
   },
   closeButton: {
     position: 'absolute',

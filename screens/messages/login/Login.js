@@ -28,7 +28,7 @@ import { Text } from '../../../components/text/CustomText';
  * <Login onNavigate={(screen) => navigate(screen)} />
  */
 export default function Login({ onNavigate }) {
-    // 1. Tous les useState au début
+
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState('');
@@ -39,10 +39,13 @@ export default function Login({ onNavigate }) {
     const [isSimplifiedLogin, setIsSimplifiedLogin] = useState(false);
     const [savedLoginInfo, setSavedLoginInfo] = useState(null);
 
-    // 2. Hooks personnalisés
     const { isSmartphone, isSmartphoneLandscape, isLandscape } = useDeviceType();
 
-    // 3. useCallback après les états
+    /**
+     * @function validateInputs
+     * @description Validate the inputs of the login form
+     * @returns {string} The error message if the inputs are not valid, otherwise null
+     */
     const validateInputs = useCallback(() => {
         if (!contractNumber || !login || !password) {
             return 'All fields are required';
@@ -50,10 +53,22 @@ export default function Login({ onNavigate }) {
         return null;
     }, [contractNumber, login, password]);
 
+
+    /**
+     * @function handleLogin
+     * @description Handle the login process
+     */
     const handleLogin = useCallback(async () => {
         try {
             setIsLoading(true);
             setError('');
+
+            // Clean up the SecureStore in case of previous error
+            try {
+                await SecureStore.deleteItemAsync('userCredentials');
+            } catch (e) {
+                console.log('Clean up error:', e);
+            }
 
             const validationError = validateInputs();
             if (validationError) {
@@ -64,19 +79,31 @@ export default function Login({ onNavigate }) {
             const loginResponse = await loginApi(contractNumber, login, password);
             
             if (loginResponse && loginResponse.status === 200) {
-                await secureStore.saveCredentials({
+                // Save the new credentials in the SecureStore
+                const credentials = {
                     contractNumber,
                     login,
                     password: hashPassword(password),
                     accountApiKey: loginResponse.accountApiKey
-                });
+                };
+                
+                await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
 
+                // Save the login info if the checkbox is checked
                 if (isChecked) {
                     await saveLoginInfo();
                 }
 
-                const channelsResponse = await fetchUserChannels(contractNumber, login, password, '', loginResponse.accountApiKey);
+                // Fetch the user channels
+                const channelsResponse = await fetchUserChannels(
+                    contractNumber, 
+                    login, 
+                    password, 
+                    '', 
+                    loginResponse.accountApiKey
+                );
 
+                // Navigate to the chat screen if the channels are loaded
                 if (channelsResponse.status === 'ok') {
                     onNavigate(SCREENS.CHAT);
                 } else {
@@ -86,16 +113,17 @@ export default function Login({ onNavigate }) {
                 setError('Invalid credentials');
             }
         } catch (error) {
-            if (error.message === 'Network Error') {
-                setError('Impossible de joindre le serveur. Vérifiez votre connexion.');
-            } else {
-                setError('Erreur de connexion au serveur');
-            }
+            console.error('Login error:', error);
+            setError('Login failed');
         } finally {
             setIsLoading(false);
         }
-    }, [contractNumber, login, password, isChecked, onNavigate, validateInputs]);
+    }, [contractNumber, login, password, isChecked, onNavigate]);
 
+    /**
+     * @function handleSimplifiedLogin
+     * @description Handle the simplified login process
+     */
     const handleSimplifiedLogin = useCallback(async () => {
         if (!savedLoginInfo) return;
         
@@ -117,7 +145,7 @@ export default function Login({ onNavigate }) {
                 if (channelsResponse.status === 'ok') {
                     onNavigate(SCREENS.CHAT);
                 } else {
-                    console.error('Erreur channels:', channelsResponse);
+                    console.error('Error loading channels:', channelsResponse);
                     setError('Error loading channels');
                     setIsSimplifiedLogin(false);
                 }
@@ -134,6 +162,10 @@ export default function Login({ onNavigate }) {
         }
     }, [savedLoginInfo, onNavigate]);
 
+    /**
+     * @function saveLoginInfo
+     * @description Save the login info in the SecureStore
+     */
     const saveLoginInfo = useCallback(async () => {
         try {
             if (isChecked) {
@@ -153,7 +185,10 @@ export default function Login({ onNavigate }) {
         }
     }, [isChecked, contractNumber, login, password]);
 
-    // 4. useEffect en dernier
+    /**
+     * @function checkSavedLogin
+     * @description Check if the login info is saved in the SecureStore
+     */
     useEffect(() => {
         const checkSavedLogin = async () => {
             try {

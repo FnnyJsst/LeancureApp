@@ -105,14 +105,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     const saltPath = `amaiia_msg_srv/client/add_msg/${timestamp}/`;
     
     const isFile = typeof messageContent === 'object';
-    
-    // Pour les fichiers, le titre est le nom du fichier
-    // Pour les messages texte, on prend les 50 premiers caractères
     const messageTitle = isFile ? messageContent.fileName : messageContent.substring(0, 50);
-    
-    // Pour les fichiers, details est le nom du fichier
-    // Pour les messages texte, details est le message complet
-    const messageDetails = isFile ? messageContent.fileName : messageContent;
 
     const body = createApiRequest({
       "amaiia_msg_srv": {
@@ -120,14 +113,14 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
           "add_msg": {
             "channelid": parseInt(channelId),
             "title": messageTitle,
-            "details": messageContent, // On envoie le message complet dans details
+            "details": messageContent,
             "enddatets": timestamp + 99999,
             "file": isFile ? {
               "base64": messageContent.base64,
               "filetype": messageContent.fileType,
               "filename": messageContent.fileName,
               "filesize": messageContent.fileSize
-            } : undefined,
+            } : null,
             "sentby": userCredentials.accountApiKey
           }
         }
@@ -141,7 +134,9 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       isFile
     });
 
-    const response = await axios.post(API_URL, body);
+    const response = await axios.post(API_URL, body, {
+      timeout: 30000 // 30 secondes max
+    });
     
     if (response.status === 200) {
       return {
