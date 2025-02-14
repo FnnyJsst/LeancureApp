@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
 import { Modal, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { COLORS, SIZES, MODAL_STYLES } from '../../../constants/style';
+import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../../../components/buttons/Button';
@@ -21,8 +20,6 @@ import { Text } from '../../text/CustomText';
  * @param {string} props.fileType - The type of the file
  * @param {string} props.base64 - The base64 of the file
  * 
- * @example
- * <DocumentPreviewModal visible={visible} onClose={() => console.log('Modal closed')} fileName="File.pdf" fileSize="100" fileType="application/pdf" base64="base64" />
  */
 export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64 }) {
   const { isSmartphone, isSmartphoneLandscape, isLandscape } = useDeviceType();
@@ -46,8 +43,29 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
   };
 
   /**
+   * @function formatFileSize
+   * @description Formate la taille du fichier avec l'unité appropriée
+   * @param {number} bytes - La taille en bytes
+   * @returns {string} - La taille formatée avec son unité
+   */
+  const formatFileSize = (bytes) => {
+    if (!bytes) return '0 Ko';
+    
+    const units = ['Ko', 'Mo', 'Go'];
+    let size = bytes / 1024; // Conversion directe en Ko
+    let unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+
+    return `${Math.round(size)} ${units[unitIndex]}`;
+  };
+
+  /**
    * @function renderPreview
-   * @description A function to render the preview
+   * @description A function to render the preview of the file
    */
   const renderPreview = () => {
     if (fileType?.includes('pdf')) {
@@ -154,7 +172,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                 {fileName}
               </Text>
               <Text style={[styles.fileSize, isSmartphone && styles.fileSizeSmartphone]}>
-                {fileType?.includes('pdf') ? 'PDF' : 'Image'} • {fileSize}
+                {fileType?.includes('pdf') ? 'PDF' : 'Image'} • {formatFileSize(fileSize)}
               </Text>
             </View>
           </View>

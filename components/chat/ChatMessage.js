@@ -28,6 +28,21 @@ const formatTimestamp = (timestamp) => {
   });
 };
 
+const formatFileSize = (bytes) => {
+  if (!bytes) return '0 Ko';
+  
+  const units = ['Ko', 'Mo', 'Go'];
+  let size = bytes / 1024; // Conversion directe en Ko
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+
+  return `${Math.round(size)} ${units[unitIndex]}`;
+};
+
 export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
   // console.log('🖼️ Message reçu dans ChatMessage:', {
   //   type: message.type,
@@ -87,7 +102,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                       {message.fileName}
                     </Text>
                     <Text style={styles.fileSize}>
-                      PDF • {message.fileSize}
+                      PDF • {formatFileSize(message.fileSize)}
                     </Text>
                   </View>
                 </View>
@@ -114,7 +129,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                       {message.fileName}
                     </Text>
                     <Text style={styles.fileSize}>
-                      Image • {message.fileSize}
+                      Image • {formatFileSize(message.fileSize)}
                     </Text>
                   </View>
                 </View>
