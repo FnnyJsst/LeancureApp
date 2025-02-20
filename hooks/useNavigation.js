@@ -5,9 +5,6 @@ import { SCREENS } from '../constants/screens';
  * Custom hook to handle navigation between screens
  * @param {Function} setCurrentScreen - A function to set the current screen
  * @returns {Object} - An object containing the navigate and goBack functions
- * 
- * @example
- * const { navigate, goBack } = useNavigation(setCurrentScreen);
  */
 export const useNavigation = (setCurrentScreen) => {
   const navigate = useCallback((screen) => {
