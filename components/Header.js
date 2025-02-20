@@ -111,7 +111,7 @@ export default function Header({
         styles.headerContainer,
         isSmartphone && styles.headerContainerSmartphone,
         transparent && styles.transparent,
-        currentSection !== 'chat' && styles.noBorder
+        currentSection !== 'chat' && styles.noBorder,
       ]}>
         {renderLeftSection()}
 
@@ -119,7 +119,7 @@ export default function Header({
           <View style={styles.titleSection}>
             <Text style={[
               styles.headerText,
-              isSmartphone && styles.headerTextSmartphone
+              isSmartphone && styles.headerTextSmartphone,
             ]}>
               {title}
             </Text>
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 1
+    zIndex: 1,
   },
   headerContainer: {
     width: '100%',
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   headerContainerSmartphone: {
-    height: 55
+    height: 55,
   },
   titleSection: {
     flex: 1,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.medium,
   },
   headerTextSmartphone: {
-    fontSize: SIZES.fonts.biggerTextSmartphone
+    fontSize: SIZES.fonts.biggerTextSmartphone,
   },
   iconButton: {
     padding: 5,

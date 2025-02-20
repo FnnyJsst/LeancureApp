@@ -7,7 +7,7 @@ import { Text } from '../text/CustomText';
 /**
  * @component AppMenuCard
  * @description A component that renders the cards used in the app menu
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {string} props.title - The title of the card
  * @param {ReactNode} props.icon - The icon of the card
@@ -20,8 +20,8 @@ const AppMenuCard = ({ title, icon, onPress, unreadCount }) => {
   const { isSmartphone } = useDeviceType();
 
   return (
-    <TouchableOpacity 
-      style={[styles.card, isSmartphone && styles.cardSmartphone]} 
+    <TouchableOpacity
+      style={[styles.card, isSmartphone && styles.cardSmartphone]}
       onPress={onPress}
     >
       {/* If there are unread messages, we display a badge with the number of unread messages */}
@@ -56,11 +56,11 @@ const styles = StyleSheet.create({
   cardSmartphone: {
     width: 250,
     height: 100,
-    padding: 15
+    padding: 15,
   },
   iconContainer: {
     flexDirection: 'row',
-    gap: 30
+    gap: 30,
   },
   title: {
     color: COLORS.white,
@@ -81,21 +81,21 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 4
+    padding: 4,
   },
   badgeSmartphone: {
     width: 35,
     height: 35,
     top: -5,
-    right: -5
+    right: -5,
   },
   badgeText: {
     color: COLORS.white,
     fontSize: SIZES.fonts.subtitleTablet,
     fontWeight: SIZES.fontWeight.semibold,
-  }, 
+  },
   badgeTextSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone
+    fontSize: SIZES.fonts.subtitleSmartphone,
   }
 });
 

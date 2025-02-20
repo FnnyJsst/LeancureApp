@@ -13,15 +13,15 @@ import { Text } from '../text/CustomText';
 /**
  * @component ChatWindow
  * @description A component that renders the chat window in the chat screen
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {Object} props.channel - The channel to display
- * 
+ *
  * @example
  * <ChatWindow channel={channel} messages={channelMessages} onInputFocusChange={() => console.log('Input focused')} />
  */
 export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange, onMessageSent }) {
-  
+
   const { isSmartphone } = useDeviceType();
   const scrollViewRef = useRef();
 
@@ -52,7 +52,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     if (channelMessages && credentials) {
       const loadFiles = async () => {
         const messagesNeedingFiles = channelMessages.filter(msg => msg.type === 'file' && !msg.base64);
-        
+
         console.log('📥 Messages nécessitant chargement:', {
           total: messagesNeedingFiles.length,
           types: messagesNeedingFiles.map(msg => msg.fileType)
@@ -60,7 +60,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
         const batchSize = 3;
         const updatedMessages = [...channelMessages];
-        
+
         for (let i = 0; i < messagesNeedingFiles.length; i += batchSize) {
           const batch = messagesNeedingFiles.slice(i, i + batchSize);
           console.log('📥 Traitement batch:', {
@@ -74,7 +74,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                   channelid: parseInt(channel.id),
                   ...msg
                 }, credentials);
-                
+
                 // Mettre à jour le message dans le tableau original
                 const index = updatedMessages.findIndex(m => m.id === msg.id);
                 if (index !== -1) {
@@ -89,7 +89,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             })
           );
         }
-        
+
         setMessages(updatedMessages);
       };
 
@@ -127,8 +127,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       // });
 
       // If we don't have any message data or any credentials, we return nothing
-      if (!messageData || 
-          (typeof messageData === 'string' && !messageData.trim()) || 
+      if (!messageData ||
+          (typeof messageData === 'string' && !messageData.trim()) ||
           messageData === undefined) {
         return;
       }
@@ -138,7 +138,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         console.log('❌ No credentials found');
         return;
       }
-      
+
       // We parse the credentials
       const credentials = JSON.parse(credentialsStr);
       // We send the message to the API
@@ -147,7 +147,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       if (response.status === 'ok') {
         const currentTimestamp = Date.now();
         // console.log('📤 Réponse API:', response);
-        
+
         const newMessage = {
           id: currentTimestamp,
           title: typeof messageData === 'string' ? messageData.substring(0, 50) : messageData.fileName,
@@ -167,13 +167,13 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             uri: messageData.uri
           })
         };
-        
+
         // console.log('📤 Nouveau message créé:', newMessage);
 
         // If the onMessageSent function is defined, we call it to inform the parent component that a message has been sent
         if (typeof onMessageSent === 'function') {
           onMessageSent(newMessage);
-        } 
+        }
       }
     } catch (error) {
       console.error('🔴 Error sending message:', error);
@@ -197,7 +197,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
     // If the timestamp is a string, we convert it to an integer
     const parsedTimestamp = typeof timestamp === 'string' ? parseInt(timestamp) : timestamp;
-    
+
     // If the timestamp is not a number, we return today
     if (isNaN(parsedTimestamp)) {
       console.warn('Invalid timestamp format:', timestamp);
@@ -216,12 +216,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     } else if (date.toDateString() === yesterday.toDateString()) {
       return "Yesterday";
     }
-    
+
     // If the date is not today or yesterday, we return the date in the format "day month year"
-    return date.toLocaleDateString('en-US', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
     });
   };
 
@@ -235,18 +235,18 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
           >
             {(() => {
-              
+
               return messages.reduce((acc, message, index) => {
-                
+
                 const currentDate = formatDate(message.savedTimestamp);
                 const prevMessage = messages[index - 1];
                 const prevDate = prevMessage ? formatDate(prevMessage.savedTimestamp) : null;
 
                 if (currentDate !== prevDate) {
                   acc.push(
-                    <DateBanner 
+                    <DateBanner
                       key={`date-${currentDate}-${index}`}
-                      date={currentDate} 
+                      date={currentDate}
                     />
                   );
                 }
@@ -265,8 +265,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             })()}
           </ScrollView>
 
-          <InputChatWindow 
-            onSendMessage={sendMessage} 
+          <InputChatWindow
+            onSendMessage={sendMessage}
             onFocusChange={onInputFocusChange}
           />
         </>

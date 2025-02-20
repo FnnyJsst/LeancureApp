@@ -12,7 +12,7 @@ import { clearSecureStorage } from '../../services/api/authApi';
 /**
  * @component Sidebar
  * @description A component that renders the sidebar menu
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {Function} props.onChannelSelect - The function to call when a channel is selected
  * @param {Object} props.selectedGroup - The selected group
@@ -23,7 +23,7 @@ import { clearSecureStorage } from '../../services/api/authApi';
  * @param {string} props.currentSection - The current section
  * @param {Object} props.unreadChannels - The unread channels
  * @param {Function} props. - The function to call when the user logs out
- * 
+ *
  * @example
  * <Sidebar onChannelSelect={() => console.log('Channel selected')} selectedGroup={selectedGroup} onGroupSelect={() => console.log('Group selected')} isExpanded={isExpanded} toggleMenu={() => console.log('Menu toggled')} onNavigate={() => console.log('Navigated')} currentSection="settings" unreadChannels={unreadChannels} onLogout={() => console.log('Logged out')} />
  */
@@ -37,7 +37,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
 
   // Get the device type
   const { isSmartphone } = useDeviceType();
-  
+
   /**
    * @function slideAnim
    * @description A function to animate the sidebar
@@ -80,7 +80,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
       try {
         setLoading(true);
         const credentials = await SecureStore.getItemAsync('userCredentials');
-        
+
         if (!credentials) {
           console.log('❌ Pas de credentials trouvés');
           await clearSecureStorage();
@@ -91,7 +91,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         try {
           const { contractNumber, login, password, accountApiKey } = JSON.parse(credentials);
           const response = await fetchUserChannels(contractNumber, login, password, '', accountApiKey);
-          
+
           if (response.status === 'ok' && response.privateGroups) {
             console.log('✅ Groupes chargés:', response.privateGroups.length);
             setGroups(response.privateGroups);
@@ -114,7 +114,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         setLoading(false);
       }
     };
-    
+
     loadChannels();
   }, [onNavigate]);
 
@@ -129,7 +129,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         });
       }
     };
-    
+
     loadUserInfo();
   }, []);
 
@@ -139,7 +139,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
    */
   const filteredGroups = groups.map(group => ({
     ...group,
-    channels: group.channels?.filter(channel => 
+    channels: group.channels?.filter(channel =>
       channel.title.toLowerCase().includes(searchQuery.toLowerCase())
     )
   })).filter(group => group.channels?.length > 0);
@@ -172,7 +172,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     <>
       {/* Overlay */}
       {isExpanded && (
-        <Animated.View 
+        <Animated.View
           style={[styles.overlay, { opacity: fadeAnim }]}
           pointerEvents="auto"
           onTouchStart={toggleMenu}
@@ -193,10 +193,10 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         <ScrollView style={styles.menuList}>
           {/* Search input */}
           <View style={styles.searchContainer}>
-            <Ionicons 
-              name="search-outline" 
-              size={isSmartphone ? 20 : 24} 
-              color={COLORS.gray300} 
+            <Ionicons
+              name="search-outline"
+              size={isSmartphone ? 20 : 24}
+              color={COLORS.gray300}
             />
             <TextInput
               style={[
@@ -211,20 +211,20 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           </View>
 
           {/* Group button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
               styles.menuItem,
               showGroups && styles.selectedItem
             ]}
             onPress={handleGroupsClick}
           >
-            <Ionicons 
-              name="people-outline" 
-              size={isSmartphone ? 20 : 24} 
-              color={showGroups ? COLORS.orange : COLORS.gray300} 
+            <Ionicons
+              name="people-outline"
+              size={isSmartphone ? 20 : 24}
+              color={showGroups ? COLORS.orange : COLORS.gray300}
             />
             <Text style={[
-              styles.menuText, 
+              styles.menuText,
               isSmartphone && styles.menuTextSmartphone,
               showGroups && { color: COLORS.orange }
             ]}>Groupes</Text>
@@ -240,14 +240,14 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                   styles.groupItem,
                   selectedGroup?.id === group.id
                 ]}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.groupHeader}
                     onPress={() => onGroupSelect(group)}
                   >
                     <View style={styles.groupHeaderContent}>
-                      <Ionicons 
-                        name={selectedGroup?.id === group.id ? "chevron-down" : "chevron-forward"} 
-                        size={isSmartphone ? 10 : 15} 
+                      <Ionicons
+                        name={selectedGroup?.id === group.id ? "chevron-down" : "chevron-forward"}
+                        size={isSmartphone ? 10 : 15}
                         color={COLORS.gray300}
                       />
                       <Text style={[
@@ -289,26 +289,26 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           )}
 
           {/* Settings button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
               styles.menuItem,
               currentSection === 'settings' && styles.selectedItem
             ]}
             onPress={handleSettingsClick}
           >
-            <Ionicons 
-              name="settings-outline" 
-              size={isSmartphone ? 20 : 24} 
-              color={currentSection === 'settings' ? COLORS.orange : COLORS.gray300} 
+            <Ionicons
+              name="settings-outline"
+              size={isSmartphone ? 20 : 24}
+              color={currentSection === 'settings' ? COLORS.orange : COLORS.gray300}
             />
             <Text style={[
-              styles.menuText, 
+              styles.menuText,
               isSmartphone && styles.menuTextSmartphone,
               currentSection === 'settings' && { color: COLORS.orange }
             ]}>Settings</Text>
           </TouchableOpacity>
         </ScrollView>
-        
+
         {/* User profile banner */}
         <View style={styles.profileBanner}>
           <View style={styles.profileInfo}>
@@ -318,7 +318,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
               </Text>
             </View>
           </View>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={onLogout}
             style={styles.logoutButton}
           >

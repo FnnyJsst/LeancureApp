@@ -52,33 +52,33 @@ export const COLORS = {
 
   // Color of the login forms and modals
   charcoal: '#271E1E',
-  
+
   // Dark grays (from darkest to lightest)
   gray950: '#111111',
-  gray900: '#1a1a1a',      
-  gray850: '#1e1e1e',      
-  gray800: '#232424',      
-  gray750: '#27272a',      
-  gray700: '#282828',      
-  gray650: '#313135',      
-  
+  gray900: '#1a1a1a',
+  gray850: '#1e1e1e',
+  gray800: '#232424',
+  gray750: '#27272a',
+  gray700: '#282828',
+  gray650: '#313135',
+
   // Medium grays
-  gray600: '#646262',      
-  
+  gray600: '#646262',
+
   // Light grays
-  gray300: '#b2b2b2',      
-  
+  gray300: '#b2b2b2',
+
   // Base colors
-  white: '#ffffff',       
+  white: '#ffffff',
   overlay: 'rgba(0,0,0,0.8)',
   overlayLight: 'rgba(0, 0, 0, 0.1)',
 
   // Border colors
   borderColor: '#403430',
-  
+
   burgundy: '#502e2e',
   red: '#e74242',
-  
+
   // Background colors
   backgroundModal: 'rgba(0, 0, 0, 0.8)',
 };

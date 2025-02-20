@@ -9,12 +9,12 @@ import { Text } from '../text/CustomText';
 /**
  * @component ChatMessage
  * @description A component that renders a message in the chat screen
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {Object} props.message - The message to display
  * @param {boolean} props.isOwnMessage - Whether the message is own
  * @param {Function} props.onFileClick - The function to call when the file is clicked
- * 
+ *
  * @example
  * <ChatMessage message={message} isOwnMessage={isOwnMessage} onFileClick={() => console.log('File clicked')} />
  */
@@ -30,7 +30,7 @@ const formatTimestamp = (timestamp) => {
 
 const formatFileSize = (bytes) => {
   if (!bytes) return '0 Ko';
-  
+
   const units = ['Ko', 'Mo', 'Go'];
   let size = bytes / 1024; // Conversion directe en Ko
   let unitIndex = 0;
@@ -57,11 +57,11 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
 
   if (message.type === 'file') {
     const isPDF = message.fileType?.toLowerCase().includes('pdf');
-    const isImage = message.fileType?.toLowerCase().includes('image/') || 
-                message.fileType?.toLowerCase().includes('jpeg') || 
-                message.fileType?.toLowerCase().includes('jpg') || 
+    const isImage = message.fileType?.toLowerCase().includes('image/') ||
+                message.fileType?.toLowerCase().includes('jpeg') ||
+                message.fileType?.toLowerCase().includes('jpg') ||
                 message.fileType?.toLowerCase().includes('png');
-    
+
     console.log('📄 Message PDF détecté:', {
       isPDF,
       fileType: message.fileType,
@@ -85,7 +85,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
         </View>
 
         <View style={[
-          styles.messageContainer, 
+          styles.messageContainer,
           isOwnMessage ? styles.ownMessage : styles.otherMessage,
           styles.fileMessageContainer,
           message.isUnread && styles.unreadMessage
@@ -112,17 +112,17 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
             {isImage && message.base64 && (
               <View style={styles.previewContainer}>
                 <Image
-                  source={{ 
+                  source={{
                     uri: `data:${message.fileType};base64,${message.base64}`
                   }}
                   style={styles.preview}
                   resizeMode="contain"
                 />
                 <View style={styles.fileHeader}>
-                  <Ionicons 
-                    name="image-outline" 
-                    size={25} 
-                    color={COLORS.white} 
+                  <Ionicons
+                    name="image-outline"
+                    size={25}
+                    color={COLORS.white}
                   />
                   <View style={styles.fileInfo}>
                     <Text style={styles.fileName} numberOfLines={1}>
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.light,
     fontFamily: Platform.select({
       android: 'Roboto',
-      ios: 'System', 
+      ios: 'System',
     }),
   },
   messageTextSmartphone: {

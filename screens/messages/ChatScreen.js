@@ -71,7 +71,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     if (isExpanded) {
       toggleMenu();
     }
-    
+
     setSelectedChannel(channel);
   };
 
@@ -87,9 +87,9 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         console.log('❌ Missing credentials or selectedChannel');
         return;
       }
-      
+
       const credentials = JSON.parse(credentialsStr);
-      
+
       // We check if the message is not empty
       if (!message || (typeof message === 'string' && !message.trim())) {
         console.log('❌ Empty message');
@@ -98,7 +98,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
       // We send the message to the API
       const response = await sendMessageApi(selectedChannel.id, message, credentials);
-      
+
       if (response.status === 'ok') {
         // We update the messages after a delay to ensure the user sees the new message
         setTimeout(async () => {
@@ -132,12 +132,12 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       if (!credentialsStr || !selectedChannel) {
         return;
       }
-      
+
       const credentials = JSON.parse(credentialsStr);
-      
+
       // We fetch the messages of the channel
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
-      
+
       if (!messages || messages.length === 0) {
         setChannelMessages([]);
         return;
@@ -153,16 +153,16 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
   return (
     <View style={styles.container}>
-      <Header 
+      <Header
         showMenuIcon={true}
         showBackButton={false}
-        showAccountImage={true} 
-        onNavigate={onNavigate} 
-        toggleMenu={toggleMenu} 
+        showAccountImage={true}
+        onNavigate={onNavigate}
+        toggleMenu={toggleMenu}
         title={selectedChannel?.title}
         currentSection={currentSection}
       />
-      <Sidebar 
+      <Sidebar
         onChannelSelect={handleChannelSelect}
         selectedGroup={selectedGroup}
         selectedChannel={selectedChannel}
@@ -175,7 +175,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         onLogout={handleChatLogout}
       />
       <View style={styles.mainContent}>
-        <ChatWindow 
+        <ChatWindow
           channel={selectedChannel}
           messages={channelMessages}
           isExpanded={isExpanded}

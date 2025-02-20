@@ -1,12 +1,13 @@
+import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { COLORS, SIZES } from '../../constants/style'; 
+import { COLORS, SIZES } from '../../constants/style';
 import { Text } from '../text/CustomText';
 
 /**
  * @component Button
  * @description A component that renders a button for the app
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {string} props.title - The title of the button
  * @param {string} [props.backgroundColor = COLORS.orange] - The background color of the button
@@ -14,42 +15,42 @@ import { Text } from '../text/CustomText';
  * @param {Function} props.onPress - The function to call when the button is pressed
  * @param {number} [props.width] - The width of the button
  * @param {string} [props.variant = 'default'] - The variant of the button - "large" for a large button, "default" for a small one
- * 
+ *
  * @example
  * <Button title="Click me" onPress={() => console.log('Button pressed')} />
  */
-export default function Button({ 
-  title, 
+export default function Button({
+  title,
   backgroundColor = COLORS.orange,
   textColor = COLORS.white,
-  onPress, 
+  onPress,
   width,
   variant = 'default', // 'default' for a small button, 'large' for a large one
-  style 
+  style,
 }) {
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[
         styles.button,
         // If the button is large, we use the buttonLarge style
-        variant === 'large' && styles.buttonLarge, 
+        variant === 'large' && styles.buttonLarge,
         variant === 'largeTablet' && styles.buttonLargeTablet,
         { backgroundColor, width },
         isSmartphone && styles.buttonSmartphone,
         isSmartphoneLandscape && styles.buttonSmartphoneLandscape,
-        style
-      ]} 
+        style,
+      ]}
       onPress={onPress}
-      activeOpacity={0.8} 
+      activeOpacity={0.8}
     >
       <Text style={[
-        styles.buttonText, 
+        styles.buttonText,
         isSmartphone && styles.buttonTextSmartphone,
-        { color: textColor }
+        { color: textColor },
       ]}>
         {title}
       </Text>
@@ -62,7 +63,6 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 8,
     borderWidth: 1,
     borderColor: 'transparent',
     justifyContent: 'center',

@@ -13,7 +13,7 @@ import ChangeServerAddressModal from '../../components/modals/common/ChangeServe
 /**
  * @component CommonSettings
  * @description A component that renders the common settings of the app
- * 
+ *
  * @param {Function} onBackPress - The function to call when the back button is pressed
  * @param {Function} onHideMessages - The function to call when the hide messages action is performed
  * @param {boolean} isMessagesHidden - Whether the messages are hidden
@@ -52,7 +52,7 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
 
     return (
         <>
-            <Header 
+            <Header
                 showBackButton={true}
                 onBackPress={onBackPress}
             />
@@ -70,18 +70,18 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
                             title="Show/hide messages"
                             iconBackgroundColor={COLORS.burgundy}
                             icon={
-                                <Ionicons 
-                                    name="remove-circle-outline" 
-                                    size={isSmartphone ? 22 : 28} 
-                                    color={COLORS.red} 
+                                <Ionicons
+                                    name="remove-circle-outline"
+                                    size={isSmartphone ? 22 : 28}
+                                    color={COLORS.red}
                                 />
                             }
                             description="Show or hide the message section of the app"
                             onPress={() => setHideMessagesModalVisible(true)}
                         />
                     </View>
-                    <TouchableOpacity 
-                        style={styles.baseToggle} 
+                    <TouchableOpacity
+                        style={styles.baseToggle}
                         onPress={() => setHideMessagesModalVisible(true)}
                     >
                         <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
@@ -101,10 +101,10 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
                             title="Change server address"
                             iconBackgroundColor={COLORS.borderColor}
                             icon={
-                                <Ionicons 
-                                    name="server-outline" 
-                                    size={isSmartphone ? 22 : 28} 
-                                    color={COLORS.orange} 
+                                <Ionicons
+                                    name="server-outline"
+                                    size={isSmartphone ? 22 : 28}
+                                    color={COLORS.orange}
                                 />
                             }
                             description="Change the server address of the app"
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.regular,
   },
   textSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone, 
+    fontSize: SIZES.fonts.textSmartphone,
   },
   baseToggle: {
     backgroundColor: COLORS.gray650,

@@ -1,24 +1,25 @@
+import React from 'react';
 import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useState } from 'react';  
+import { useState } from 'react';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS } from '../../constants/style';
 
 /**
  * @component ParameterButton
  * @description A component that renders a button used to access the parameters screen
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {Function} props.onPress - The function to call when the button is pressed
- * 
+ *
  * @example
  * <ParameterButton onPress={() => console.log('Button pressed')} />
  */
 export default function ParameterButton({ onPress }) {
 
-  const { isSmartphone } = useDeviceType(); 
+  const { isSmartphone } = useDeviceType();
 
-  const [iconColor, setIconColor] = useState(COLORS.white);  
+  const [iconColor, setIconColor] = useState(COLORS.white);
 
   // When we press the button, we change the icon color to orange
   const handlePressIn = () => {
@@ -32,17 +33,17 @@ export default function ParameterButton({ onPress }) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.buttonContainer, isSmartphone && styles.buttonContainerSmartphone]}
         onPress={onPress}
-        onPressIn={handlePressIn}   
-        onPressOut={handlePressOut}  
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
       >
         <View style={styles.iconContainer}>
-          <Ionicons 
-            name="settings-outline" 
-            color={iconColor}    
-            size={isSmartphone ? 22 : 24} 
+          <Ionicons
+            name="settings-outline"
+            color={iconColor}
+            size={isSmartphone ? 22 : 24}
           />
         </View>
       </TouchableOpacity>

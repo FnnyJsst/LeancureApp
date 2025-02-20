@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS, FONTS } from '../../constants/style';
@@ -5,7 +6,7 @@ import { Text } from '../text/CustomText';
 /**
  * @component SettingsCard
  * @description A component that renders the cards used in the settings screen
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {ReactNode} props.icon - The icon of the card
  * @param {string} props.title - The title of the card
@@ -72,18 +73,18 @@ const styles = StyleSheet.create({
   },
   titleSmartphone: {
     fontSize: 15,
-    fontWeight: SIZES.fontWeight.medium
+    fontWeight: SIZES.fontWeight.medium,
   },
   description: {
     fontFamily: Platform.select({
       android: 'Roboto',
-      ios: 'System', 
+      ios: 'System',
     }),
     fontSize: SIZES.fonts.textTablet,
     color: COLORS.gray600,
     marginTop: 2
   },
   descriptionSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone
-  }
+    fontSize: SIZES.fonts.textSmartphone,
+  },
 });
