@@ -7,7 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "eslint .",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "jest",
     "build": "expo build"
   },
@@ -38,6 +38,7 @@
     "expo-image-picker": "~15.0.7",
     "expo-linear-gradient": "~13.0.2",
     "expo-media-library": "~16.0.5",
+    "expo-network": "~6.0.1",
     "expo-notifications": "~0.28.19",
     "expo-screen-orientation": "~7.0.5",
     "expo-secure-store": "~13.0.2",
@@ -61,11 +62,12 @@
     "react-native-screens": "3.31.1",
     "react-native-switch": "^1.5.1",
     "react-native-webview": "13.8.6",
-    "socket.io-client": "^4.8.1",
-    "expo-network": "~6.0.1"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@react-native-community/eslint-config": "^3.2.0",
+    "eslint": "^8.57.1",
     "react-native-dotenv": "^3.4.11"
   },
   "private": true
