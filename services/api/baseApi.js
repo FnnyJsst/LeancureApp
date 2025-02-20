@@ -55,14 +55,3 @@ const getSaltPath = (cmd, timestamp) => {
   //Return the salt path "accounts/loginmsg/get/1713024000000/"
   return `${firstKey}/${secondKey}/${thirdKey}/${timestamp}/`; 
 };
-
-// /**
-//  * @function generateHash
-//  * @description Generate the hash
-//  * @param {string} saltPath - The salt path
-//  * @param {string} contractNumber - The contract number
-//  */
-// const generateHash = (saltPath, contractNumber) => {
-//   const hash = CryptoJS.HmacSHA256(saltPath, contractNumber);
-//   return hash.toString(CryptoJS.enc.Hex);
-// };

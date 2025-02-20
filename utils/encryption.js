@@ -59,7 +59,7 @@ export const secureStore = {
             // Return the credentials and parse them
             return credentials ? JSON.parse(credentials) : null;
         } catch (error) {
-            console.error('Error retrieving credentials:', error);
+            logError('Error retrieving credentials:', error);
             return null;
         }
     },
@@ -71,9 +71,14 @@ export const secureStore = {
     async deleteCredentials() {
         try {
             await SecureStore.deleteItemAsync('userCredentials');
-
         } catch (error) {
-            console.error('Error deleting credentials:', error);
+            logError('Error deleting credentials:', error);
         }
+    }
+};
+
+const logError = (message, error) => {
+    if (__DEV__) {
+        console.error(message, error);
     }
 };

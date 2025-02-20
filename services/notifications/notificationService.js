@@ -10,10 +10,6 @@ export default function usePushNotifications() {
   useEffect(() => {
     async function registerForPushNotificationsAsync() {
       try {
-        if (!Device.isDevice) {
-          console.log('💻 Émulateur détecté');
-          return;
-        }
 
         if (Platform.OS === 'android') {
           await Notifications.setNotificationChannelAsync('default', {
@@ -32,13 +28,11 @@ export default function usePushNotifications() {
         }
         
         if (finalStatus !== 'granted') {
-          // console.log('❌ Permission refusée');
           return;
         }
 
         try {
           const projectId = Constants.expoConfig.extra.eas.projectId;
-          // console.log('🔑 ProjectId:', projectId);
           
           const token = await Notifications.getExpoPushTokenAsync({
             projectId: projectId

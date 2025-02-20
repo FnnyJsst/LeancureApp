@@ -32,7 +32,7 @@ export default function WebviewsManagementScreen({
   saveSelectedWebviews,
   isReadOnly,
   onNavigateToWebView,
-  onImport
+  onImport,
 }) {
 
   // Customized hook to determine the device type and orientation

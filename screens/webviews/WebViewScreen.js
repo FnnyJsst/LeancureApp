@@ -20,7 +20,7 @@ export default function WebViewScreen({
   url, 
   onNavigate, 
   onSettingsAccess,
-  isMessagesHidden
+  isMessagesHidden,
 }) {
   const { isSmartphone } = useDeviceType();
   const webViewRef = useRef(null);

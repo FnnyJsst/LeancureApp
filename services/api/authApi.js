@@ -36,7 +36,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
         headers: {
           'Content-Type': 'application/json'
         },
-        timeout: 10000 
+        timeout: 10000
       });
 
       if (!response.data?.cmd?.[0]?.accounts?.loginmsg?.get?.data) {
@@ -51,14 +51,14 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
         accountApiKey: userData.accountapikey || '',
         firstname: userData.firstname || '',
         lastname: userData.lastname || '',
-        success: true
+        success: true,
       };
     } catch (axiosError) {
       console.error('🔴 Axios error:', axiosError?.response || axiosError);
       return {
         status: axiosError?.response?.status || 500,
         success: false,
-        error: axiosError?.response?.data?.message || 'Erreur de connexion au serveur'
+        error: axiosError?.response?.data?.message || 'Erreur de connexion au serveur',
       };
     }
   } catch (error) {
@@ -66,7 +66,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     return {
       status: 500,
       success: false,
-      error: error.message
+      error: error.message,
     };
   }
 };

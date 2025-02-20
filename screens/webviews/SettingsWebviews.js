@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 import { ScrollView, View, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -39,7 +40,7 @@ export default function SettingsWebviews({
   toggleReadOnly,
   handleSelectOption,
   isMessagesHidden,
-  onToggleHideMessages
+  onToggleHideMessages,
 }) {
 
   // Device type variables

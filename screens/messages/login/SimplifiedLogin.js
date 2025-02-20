@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import InputLogin from '../../../components/inputs/InputLogin';
 import { COLORS, SIZES } from '../../../constants/style';
@@ -19,7 +20,7 @@ export default function SimplifiedLogin({
     contractNumber, 
     onSwitchAccount, 
     handleLogin,
-    isLoading 
+    isLoading,
 }) {
   const { isSmartphone, isLandscape } = useDeviceType();
   

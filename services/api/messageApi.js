@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { ENV } from '../../config/env';
 import { createApiRequest, createSignature } from './baseApi';
-import { secureStore } from '../../utils/encryption';
-import CryptoJS from 'crypto-js';
 
 /**
  * @function fetchUserChannels
@@ -19,11 +17,11 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
   
   try {
     const body = createApiRequest({
-      "amaiia_msg_srv": {
-        "client": {
-          "get_account_links": {
-            "accountinfos": {
-              "accountapikey": accountApiKey
+      'amaiia_msg_srv': {
+        'client': {
+          'get_account_links': {
+            'accountinfos': {
+              'accountapikey': accountApiKey
             }
           }
         }
@@ -103,26 +101,25 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
 export const sendMessageApi = async (channelId, messageContent, userCredentials) => {
   try {
     const timestamp = Date.now();
-    const saltPath = `amaiia_msg_srv/client/add_msg/${timestamp}/`;
     
     const isFile = typeof messageContent === 'object';
     const messageTitle = isFile ? messageContent.fileName : messageContent.substring(0, 50);
 
     const body = createApiRequest({
-      "amaiia_msg_srv": {
-        "client": {
-          "add_msg": {
-            "channelid": parseInt(channelId),
-            "title": messageTitle,
-            "details": messageContent,
-            "enddatets": timestamp + 99999,
-            "file": isFile ? {
-              "base64": messageContent.base64,
-              "filetype": messageContent.fileType,
-              "filename": messageContent.fileName,
-              "filesize": messageContent.fileSize
+      'amaiia_msg_srv': {
+        'client': {
+          'add_msg': {
+            'channelid': parseInt(channelId),
+            'title': messageTitle,
+            'details': messageContent,
+            'enddatets': timestamp + 99999,
+            'file': isFile ? {
+              'base64': messageContent.base64,
+              'filetype': messageContent.fileType,
+              'filename': messageContent.fileName,
+              'filesize': messageContent.fileSize
             } : null,
-            "sentby": userCredentials.accountApiKey
+            'sentby': userCredentials.accountApiKey
           }
         }
       }
@@ -187,14 +184,13 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
     // });
 
     const timestamp = Date.now();
-    const saltPath = `amaiia_msg_srv/client/get_account_links/${timestamp}/`;
     
     const body = createApiRequest({
-      "amaiia_msg_srv": {
-        "client": {
-          "get_account_links": {
-            "accountinfos": {
-              "accountapikey": userCredentials.accountApiKey
+      'amaiia_msg_srv': {
+        'client': {
+          'get_account_links': {
+            'accountinfos': {
+              'accountapikey': userCredentials.accountApiKey
             }
           }
         }
@@ -293,14 +289,14 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
 
     const timestamp = Date.now();
     const saltPath = `amaiia_msg_srv/client/get_base64/${timestamp}/`;
-    const signature = createSignature(saltPath, userCredentials.contractNumber);
+    createSignature(saltPath, userCredentials.contractNumber);
 
     const body = createApiRequest({
-      "amaiia_msg_srv": {
-        "client": {
-          "get_base64": {
-            "messageid": parseInt(messageId),
-            "channelid": parseInt(msg.channelid)
+      'amaiia_msg_srv': {
+        'client': {
+          'get_base64': {
+            'messageid': parseInt(messageId),
+            'channelid': parseInt(msg.channelid)
           }
         }
       }
@@ -330,6 +326,3 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
     return null;
   }
 };
-
-// const credentials = await secureStore.getCredentials();
-// const channelsResponse = await fetchUserChannels(contractNumber, login, password, '', credentials.accountApiKey);

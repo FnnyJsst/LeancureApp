@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import ParameterButton from '../../components/buttons/ParameterButton';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,7 +17,7 @@ import { Text } from '../../components/text/CustomText';
 export default function NoUrlScreen({ 
   onNavigate, 
   handleSettingsAccess,
-  isMessagesHidden
+  isMessagesHidden,
 }) {
 
   const { isSmartphone } = useDeviceType();

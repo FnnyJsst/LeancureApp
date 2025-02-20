@@ -57,15 +57,11 @@ export default function App() {
   // Webviews hooks
   const {     
     channels,
-    setChannels,
     selectedWebviews,
     setSelectedWebviews,
     webViewUrl,
-    setWebViewUrl,
-    refreshInterval,
     setRefreshInterval,
     refreshOption,
-    setRefreshOption,
     isReadOnly,
     toggleReadOnly,
     handleSelectChannels,
@@ -81,11 +77,8 @@ export default function App() {
   // Password hooks
   const {
     password,
-    setPassword,
     isPasswordRequired,
-    setIsPasswordRequired,
     isPasswordDefineModalVisible,
-    setPasswordDefineModalVisible,
     passwordCheckModalVisible,
     setPasswordCheckModalVisible,
     handlePasswordSubmit,
