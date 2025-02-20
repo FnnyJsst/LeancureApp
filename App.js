@@ -55,7 +55,7 @@ export default function App() {
   // const expoPushToken = usePushNotifications();
 
   // Webviews hooks
-  const {     
+  const {
     channels,
     selectedWebviews,
     setSelectedWebviews,
@@ -100,7 +100,6 @@ export default function App() {
     try {
         await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
         setIsMessagesHidden(shouldHide);
-        
         if (shouldHide) {
             setIsLoading(true);
             setTimeout(() => {
@@ -143,7 +142,7 @@ export default function App() {
     };
 
     initializeApp();
-  }, []);
+  }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews?.length]);
 
   /**
    * @function handleTimeout
@@ -168,12 +167,12 @@ export default function App() {
   /**
    * @function handleImportWebviews
    * @description Handles the import of channels
-   * @param {Array} selectedWebviews - The selected channels
+   * @param {Array} newWebviews - The selected channels
    * @returns {void}
    */
-  const handleImportWebviews = (selectedWebviews) => {
-    if (selectedWebviews && selectedWebviews.length > 0) {
-      handleSelectChannels(selectedWebviews);
+  const handleImportWebviews = (newWebviews) => {
+    if (newWebviews && newWebviews.length > 0) {
+      handleSelectChannels(newWebviews);
     }
   };
 
@@ -191,7 +190,7 @@ export default function App() {
     switch (currentScreen) {
       case SCREENS.APP_MENU:
         return (
-          <AppMenu 
+          <AppMenu
             onNavigate={(screen) => {
               if (screen === SCREENS.WEBVIEW) {
                 navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
@@ -200,13 +199,13 @@ export default function App() {
               } else {
                 navigate(screen);
               }
-            }} 
+            }}
           />
         );
 
       case SCREENS.NO_URL:
         return (
-          <NoUrlScreen 
+          <NoUrlScreen
             onNavigate={navigate}
             isPasswordRequired={isPasswordRequired}
             password={password}
@@ -267,8 +266,8 @@ export default function App() {
 
       case SCREENS.WEBVIEW:
         return (
-          <WebViewScreen 
-            url={webViewUrl} 
+          <WebViewScreen
+            url={webViewUrl}
             onNavigate={navigate}
             onSettingsAccess={handleSettingsAccess}
             isMessagesHidden={isMessagesHidden}
@@ -277,14 +276,14 @@ export default function App() {
 
       case SCREENS.LOGIN:
         return (
-          <Login 
+          <Login
             onNavigate={navigate}
           />
         );
 
       case SCREENS.CHAT:
         return (
-          <ChatScreen 
+          <ChatScreen
             onNavigate={navigate}
             isExpanded={isExpanded}
             setIsExpanded={setIsExpanded}
@@ -295,7 +294,7 @@ export default function App() {
 
       case SCREENS.SETTINGS_MESSAGE:
         return (
-          <SettingsMessage 
+          <SettingsMessage
             onNavigate={navigate}
             isExpanded={isExpanded}
             setIsExpanded={setIsExpanded}
@@ -303,7 +302,7 @@ export default function App() {
             onSelectOption={handleTimeoutSelection}
           />
         );
-      
+
       case SCREENS.COMMON_SETTINGS:
         return (
           <CommonSettings
@@ -336,21 +335,21 @@ export default function App() {
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.gray950 }}>
       {renderWebviewScreen()}
-      
+
       <PasswordDefineModal
         visible={isPasswordDefineModalVisible}
         onClose={closePasswordDefineModal}
         onSubmitPassword={handlePasswordSubmit}
         onDisablePassword={disablePassword}
       />
-  
+
       <PasswordCheckModal
         visible={passwordCheckModalVisible}
         onClose={() => setPasswordCheckModalVisible(false)}
         onSubmit={handlePasswordCheck}
       />
 
-      <Sidebar 
+      <Sidebar
         onLogout={handleChatLogout}
       />
     </View>

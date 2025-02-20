@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons, Entypo } from '@expo/vector-icons';
 import { useDeviceType } from '../hooks/useDeviceType';
@@ -7,7 +8,7 @@ import { Text } from './text/CustomText';
 /**
  * @component Header
  * @description A component that renders a header
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {string} props.title - The title of the header
  * @param {Function} props.onBackPress - The function to call when the back button is pressed
@@ -21,13 +22,13 @@ import { Text } from './text/CustomText';
  * @param {string} props.currentSection - The current section of the app
  * @param {boolean} props.showBell - Whether to show the bell icon
  * @param {Function} props.onBellPress - The function to call when the bell icon is pressed
- * 
+ *
  * @example
  * <Header title="Title" onBackPress={() => console.log('Back button pressed')} rightIcon="bell" onRightIconPress={() => console.log('Right icon pressed')} showIcons={true} showMenuIcon={true} showBackButton={true} toggleMenu={() => console.log('Menu toggled')} transparent={false} currentSection="chat" showBell={false} onBellPress={() => console.log('Bell pressed')} />
  */
-export default function Header({ 
-  title, 
-  onBackPress, 
+export default function Header({
+  title,
+  onBackPress,
   rightIcon,
   onRightIconPress,
   showIcons = true,
@@ -37,7 +38,7 @@ export default function Header({
   transparent,
   currentSection,
   showBell = false,
-  onBellPress
+  onBellPress,
 }) {
   const { isSmartphone } = useDeviceType();
   const iconSize = isSmartphone ? 20 : 30;
@@ -45,24 +46,24 @@ export default function Header({
   const renderLeftSection = () => (
     <View style={styles.leftSection}>
       {showBackButton && (
-        <TouchableOpacity 
-          style={styles.iconButton} 
+        <TouchableOpacity
+          style={styles.iconButton}
           onPress={onBackPress}
         >
-          <Ionicons 
-            name="close-outline" 
+          <Ionicons
+            name="close-outline"
             size={iconSize}
-            color={COLORS.gray300} 
+            color={COLORS.gray300}
           />
         </TouchableOpacity>
       )}
       {showMenuIcon && (
-        <TouchableOpacity 
-          style={[styles.iconButton, !showBackButton && styles.menuButtonLeft]} 
+        <TouchableOpacity
+          style={[styles.iconButton, !showBackButton && styles.menuButtonLeft]}
           onPress={toggleMenu}
         >
-          <Ionicons 
-            name="menu-outline" 
+          <Ionicons
+            name="menu-outline"
             size={iconSize}
             color={COLORS.gray300}
           />
@@ -73,15 +74,15 @@ export default function Header({
 
   const renderRightSection = () => {
     if (!showIcons) return null;
-    
+
     return (
       <View style={styles.rightIconsContainer}>
         {showBell && (
-          <TouchableOpacity 
-            style={styles.bellIconButton} 
+          <TouchableOpacity
+            style={styles.bellIconButton}
             onPress={onBellPress}
           >
-            <Ionicons 
+            <Ionicons
               name="notifications-outline"
               size={iconSize - 5}
               color={COLORS.gray300}
@@ -89,11 +90,11 @@ export default function Header({
           </TouchableOpacity>
         )}
         {rightIcon && (
-          <TouchableOpacity 
-            style={styles.iconButton} 
+          <TouchableOpacity
+            style={styles.iconButton}
             onPress={onRightIconPress}
           >
-            <Entypo 
+            <Entypo
               name={rightIcon}
               size={iconSize}
               color={COLORS.gray300}
@@ -117,7 +118,7 @@ export default function Header({
         {title && (
           <View style={styles.titleSection}>
             <Text style={[
-              styles.headerText, 
+              styles.headerText,
               isSmartphone && styles.headerTextSmartphone
             ]}>
               {title}
