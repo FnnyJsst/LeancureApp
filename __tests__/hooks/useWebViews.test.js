@@ -1,5 +1,5 @@
 // Tests de hooks
-import { renderHook } from '@testing-library/react-native';
+import { renderHook, act } from '@testing-library/react-native';
 import { useWebViews } from '../../hooks/useWebviews';
 import * as SecureStore from 'expo-secure-store';
 
@@ -37,6 +37,10 @@ describe('useWebViews', () => {
     SecureStore.getItemAsync.mockResolvedValue(null);
   });
 
+  afterEach(() => {
+    jest.clearAllTimers();
+  });
+
   it('should initialize with correct default values', () => {
     const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
     expect(result.current.selectedWebviews).toEqual([]);
@@ -60,46 +64,30 @@ describe('useWebViews', () => {
     expect(result.current.getIntervalInMilliseconds('every hour')).toBe(3600000);
   });
 
-  // it('should save webviews to SecureStore', () => {
-  //   const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
-  //   const testWebviews = [{ href: 'https://test.com' }];
-
-  //   result.current.saveSelectedWebviews(testWebviews);
-
-  //   expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
-  //     'selectedWebviews',
-  //     JSON.stringify(testWebviews)
-  //   );
-  // });
-
-  // it('should handle navigation to webview', () => {
-  //   const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
-  //   const testUrl = 'https://test.com';
-
-  //   result.current.navigateToWebView(testUrl);
-
-  //   expect(result.current.webViewUrl).toBe(testUrl);
-  //   expect(mockSetCurrentScreen).toHaveBeenCalledWith('WEBVIEW');
-  // });
-
-  it('should toggle read-only mode', () => {
+  it('should toggle read-only mode', async () => {
     const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
 
-    // Premier appel pour passer à true
-    result.current.toggleReadOnly();
-    expect(result.current.isReadOnly).toBe(false); // La valeur initiale reste false
+    await act(async () => {
+      result.current.toggleReadOnly();
+    });
 
-    // Test de la fonction elle-même
-    const newState = !result.current.isReadOnly;
-    expect(newState).toBe(true);
+    expect(result.current.isReadOnly).toBe(true);
+
+    await act(async () => {
+      result.current.toggleReadOnly();
+    });
+
+    expect(result.current.isReadOnly).toBe(false);
   });
 
-  it('should handle refresh option changes', () => {
+  it('should handle refresh option changes', async () => {
     const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
     const testOption = 'every minute';
 
-    // Test de la fonction directement
-    result.current.handleSelectOption(testOption);
+    await act(async () => {
+      result.current.handleSelectOption(testOption);
+    });
+
     expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
       'refreshOption',
       testOption
