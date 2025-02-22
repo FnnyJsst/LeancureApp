@@ -26,7 +26,7 @@ describe('useWebviewsPassword', () => {
   });
 
   it('should initialize with correct default values', () => {
-    const { result } = renderHook(() => useWebViewsPassword(mockNavigate));
+    const { result } = renderHook(() => useWebviewsPassword(mockNavigate));
     expect(result.current.password).toBeNull();
     expect(result.current.isPasswordRequired).toBe(false);
     expect(result.current.isPasswordDefineModalVisible).toBe(false);
@@ -34,7 +34,7 @@ describe('useWebviewsPassword', () => {
   });
 
   it('should handle password submission', () => {
-    const { result } = renderHook(() => useWebViewsPassword(mockNavigate));
+    const { result } = renderHook(() => useWebviewsPassword(mockNavigate));
 
     act(() => {
       result.current.handlePasswordSubmit('test123');
@@ -47,7 +47,7 @@ describe('useWebviewsPassword', () => {
   });
 
   it('should handle password check correctly', () => {
-    const { result } = renderHook(() => useWebViewsPassword(mockNavigate));
+    const { result } = renderHook(() => useWebviewsPassword(mockNavigate));
 
     act(() => {
       result.current.handlePasswordSubmit('test123');
@@ -59,7 +59,7 @@ describe('useWebviewsPassword', () => {
   });
 
   it('should show alert for incorrect password', () => {
-    const { result } = renderHook(() => useWebViewsPassword(mockNavigate));
+    const { result } = renderHook(() => useWebviewsPassword(mockNavigate));
 
     act(() => {
       result.current.handlePasswordSubmit('test123');
