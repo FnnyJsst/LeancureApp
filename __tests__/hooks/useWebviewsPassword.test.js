@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react-native';
-import { useTimeout } from '../../hooks/useTimeout';
+import { useWebviewsPassword } from '../../hooks/useWebviewsPassword';
 import * as SecureStore from 'expo-secure-store';
 
 // We create a mock for the SecureStore used in the useWebviewsPassword hook
