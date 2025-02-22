@@ -17,7 +17,7 @@ jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(),
 }));
 
-describe('useWebViewsPassword', () => {
+describe('useWebviewsPassword', () => {
   const mockNavigate = jest.fn();
 
   beforeEach(() => {
