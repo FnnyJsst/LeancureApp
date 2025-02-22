@@ -91,8 +91,8 @@ export const useWebviewsPassword = (navigate) => {
    * @description Handles the check of the password when the user wants to access the settings
    * @param {string} enteredPassword - The password entered by the user
    */
-  const handlePasswordCheck = (enteredPassword) => {
-    if (enteredPassword === password) {
+  const handlePasswordCheck = (inputPassword) => {
+    if (inputPassword === password) {
       setPasswordCheckModalVisible(false);
       navigate(SCREENS.SETTINGS);
     } else {
