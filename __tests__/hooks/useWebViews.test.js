@@ -34,9 +34,32 @@ describe('useWebViews', () => {
     SecureStore.getItemAsync.mockResolvedValue(null);
   });
 
-  it('should initialize correctly', () => {
+  it('should initialize with correct default values', () => {
     const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
-    expect(result.current).toBeDefined();
+
+    // Vérifie les valeurs initiales
+    expect(result.current.selectedWebviews).toEqual([]);
+    expect(result.current.webViewUrl).toBe('');
+    expect(result.current.refreshInterval).toBeNull();
+    expect(result.current.isReadOnly).toBe(false);
+  });
+
+  it('should provide all required functions', () => {
+    const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
+
+    // Vérifie que toutes les fonctions nécessaires sont présentes
     expect(typeof result.current.handleSelectChannels).toBe('function');
+    expect(typeof result.current.saveSelectedWebviews).toBe('function');
+    expect(typeof result.current.loadSelectedChannels).toBe('function');
+    expect(typeof result.current.navigateToWebView).toBe('function');
+    expect(typeof result.current.toggleReadOnly).toBe('function');
+  });
+
+  it('should handle refresh interval conversion correctly', () => {
+    const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
+
+    // Vérifie la conversion des intervalles
+    expect(result.current.getIntervalInMilliseconds('every minute')).toBe(60000);
+    expect(result.current.getIntervalInMilliseconds('every hour')).toBe(3600000);
   });
 });
