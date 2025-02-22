@@ -24,14 +24,20 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     steps:
+      # We check out the code
       - uses: actions/checkout@v3
+      # We setup the Node.js environment
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18.17.0'
+      # We install the dependencies
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install --save-dev jest @testing-library/react-native @testing-library/jest-native jest-expo
       - name: Run unit tests
         run: npm run test
+      # We upload the coverage reports
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
