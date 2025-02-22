@@ -9,6 +9,16 @@ jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(),
 }));
 
+// Supprime les logs d'erreur pendant les tests
+const originalError = console.error;
+beforeAll(() => {
+  console.error = jest.fn();
+});
+
+afterAll(() => {
+  console.error = originalError;
+});
+
 // We create a test suite for the useTimeout hook
 describe('useTimeout', () => {
   beforeEach(() => {
@@ -67,8 +77,6 @@ describe('useTimeout', () => {
 
   // Test #5: Handle errors when saving timeout
   it('should handle errors when saving timeout', async () => {
-    // Capture console.error calls
-    const consoleError = jest.spyOn(console, 'error');
     SecureStore.setItemAsync.mockImplementation(() => {
       throw new Error('Storage error');
     });
@@ -76,19 +84,14 @@ describe('useTimeout', () => {
     const { result } = renderHook(() => useTimeout());
 
     await act(async () => {
-      result.current.handleTimeoutSelection('after 2 hours');
+      await result.current.handleTimeoutSelection('after 2 hours');
     });
 
-    // Check that console.error was called with the correct message
-    expect(consoleError).toHaveBeenCalled();
-
-    // Clean up the mock
-    consoleError.mockRestore();
+    expect(console.error).toHaveBeenCalled();
   });
 
   // Test #6: Handle errors when loading timeout
   it('should handle errors when loading timeout', async () => {
-    const consoleError = jest.spyOn(console, 'error');
     SecureStore.getItemAsync.mockImplementation(() => {
       throw new Error('Loading error');
     });
@@ -99,7 +102,6 @@ describe('useTimeout', () => {
       await result.current.loadTimeoutInterval();
     });
 
-    expect(consoleError).toHaveBeenCalled();
-    consoleError.mockRestore();
+    expect(console.error).toHaveBeenCalled();
   });
 });
