@@ -55,17 +55,17 @@ describe('useTimeout', () => {
     expect(result.current.timeoutInterval).toBe(7200 * 1000);
   });
 
-  it('should handle errors when saving timeout', () => {
+  it('should handle errors when saving timeout', async () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     SecureStore.setItemAsync.mockRejectedValue(new Error('Storage error'));
 
     const { result } = renderHook(() => useTimeout());
 
-    act(() => {
-      result.current.handleTimeoutSelection('after 2 hours');
+    await act(async () => {
+      await result.current.handleTimeoutSelection('after 2 hours');
     });
 
-    expect(consoleError).toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledWith('Error during the saving of the timeout:', expect.any(Error));
     consoleError.mockRestore();
   });
 
@@ -79,7 +79,7 @@ describe('useTimeout', () => {
       await result.current.loadTimeoutInterval();
     });
 
-    expect(consoleError).toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledWith('Error during the loading of the timeout:', expect.any(Error));
     consoleError.mockRestore();
   });
 });
