@@ -8,7 +8,7 @@ import { Text } from '../../text/CustomText';
 /**
  * @component DeleteWebviewModal
  * @description A component that renders a modal for deleting a webview
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
@@ -19,7 +19,7 @@ import { Text } from '../../text/CustomText';
 export default function DeleteWebviewModal({ visible, onClose, handleDelete }) {
 
   // Hook to determine the device type and orientation
-  const { isSmartphonePortrait, isSmartphoneLandscape, isSmartphone, isTabletPortrait } = useDeviceType(); 
+  const { isSmartphonePortrait, isSmartphoneLandscape, isSmartphone, isTabletPortrait } = useDeviceType();
 
   return (
     <Modal
@@ -27,39 +27,39 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete }) {
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
-      statusBarTranslucent={true} 
+      statusBarTranslucent={true}
     >
       <View style={MODAL_STYLES.modalContainer}>
         <View style={[
           MODAL_STYLES.content,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-          isTabletPortrait && styles.modalContentTabletPortrait
+          isTabletPortrait && styles.modalContentTabletPortrait,
         ]}>
           <View style={[
             styles.titleContainer,
             isSmartphone && styles.titleContainerSmartphone,
-            isTabletPortrait && styles.titleContainerTabletPortrait
+            isTabletPortrait && styles.titleContainerTabletPortrait,
           ]}>
             <Text style={[
               styles.title,
-              isSmartphone && styles.titleSmartphone
+              isSmartphone && styles.titleSmartphone,
             ]}>Are you sure you want to delete this channel?</Text>
           </View>
           <View style={MODAL_STYLES.buttonContainer}>
-            <Button 
-              title="Cancel" 
+            <Button
+              title="Cancel"
               backgroundColor={COLORS.gray650}
               color={COLORS.white}
-              width="22%" 
-              onPress={onClose} 
+              width="22%"
+              onPress={onClose}
             />
-            <Button 
-              title="Delete" 
+            <Button
+              title="Delete"
               backgroundColor={COLORS.orange}
-              color={COLORS.white} 
-              width="22%" 
-              onPress={() => handleDelete()} 
+              color={COLORS.white}
+              width="22%"
+              onPress={() => handleDelete()}
             />
           </View>
         </View>

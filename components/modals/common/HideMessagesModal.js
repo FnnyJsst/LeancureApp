@@ -8,7 +8,7 @@ import { Text } from '../../text/CustomText';
 /**
  * @component HideMessagesModal
  * @description A component that renders a modal for hiding the messages section from the app menu
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
@@ -35,14 +35,14 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
-      statusBarTranslucent={true} 
+      statusBarTranslucent={true}
     >
       <View style={styles.modalContainer}>
         <View style={[
           styles.modalContent,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-          isTabletPortrait && styles.modalContentTabletPortrait
+          isTabletPortrait && styles.modalContentTabletPortrait,
         ]}>
           <View style={[
             styles.titleContainer,
@@ -53,7 +53,7 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
             ]}>Do you want to show or hide the messages section from the app menu?</Text>
           </View>
           <View style={[
-            styles.buttonContainer, 
+            styles.buttonContainer,
             isSmartphone && styles.buttonContainerSmartphone]}>
             <Button
               title="Hide"
@@ -118,5 +118,5 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     gap: 20,
     width: '100%',
-  }
+  },
 });

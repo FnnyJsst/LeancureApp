@@ -15,14 +15,14 @@ import * as SecureStore from 'expo-secure-store';
 export const loginApi = async (contractNumber, login, password, accessToken = '') => {
   try {
     const data = createApiRequest({
-      "accounts": {
-        "loginmsg": {
-          "get": {
-            "login": login,
-            "password": password
-          }
-        }
-      }
+      'accounts': {
+        'loginmsg': {
+          'get': {
+            'login': login,
+            'password': password,
+          },
+        },
+      },
     }, contractNumber, accessToken);
 
     const apiUrl = await ENV.API_URL();
@@ -34,9 +34,9 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
         url: apiUrl,
         data: data,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        timeout: 10000
+        timeout: 10000,
       });
 
       if (!response.data?.cmd?.[0]?.accounts?.loginmsg?.get?.data) {
@@ -45,8 +45,8 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
 
       // Get the user data
       const userData = response.data.cmd[0].accounts.loginmsg.get.data;
-      
-      return { 
+
+      return {
         status: response.status,
         accountApiKey: userData.accountapikey || '',
         firstname: userData.firstname || '',
@@ -86,7 +86,7 @@ export const saveCredentials = async ({ contractNumber, login, password, account
       contractNumber,
       login,
       password,
-      accountApiKey
+      accountApiKey,
     }));
   } catch (error) {
     throw new Error('Failed to save credentials');

@@ -29,13 +29,13 @@ import { Text } from '../../components/text/CustomText';
  * @param {boolean} isMessagesHidden - A boolean to indicate if messages are hidden
  * @param {Function} onToggleHideMessages - A function to toggle the hide messages mode
  */
-export default function SettingsWebviews({ 
-  onNavigate,  
-  selectedWebviews, 
+export default function SettingsWebviews({
+  onNavigate,
+  selectedWebviews,
   refreshOption,
-  handlePasswordSubmit,  
-  isPasswordRequired, 
-  disablePassword, 
+  handlePasswordSubmit,
+  isPasswordRequired,
+  disablePassword,
   isReadOnly,
   toggleReadOnly,
   handleSelectOption,
@@ -45,7 +45,7 @@ export default function SettingsWebviews({
 
   // Device type variables
   const { isSmartphone, isLandscape, isSmartphonePortrait } = useDeviceType();
-  
+
   const [modalVisible, setModalVisible] = useState(false);
   const [isPasswordDefineModalVisible, setPasswordDefineModalVisible] = useState(false);
   const [isReadOnlyModalVisible, setReadOnlyModalVisible] = useState(false);
@@ -60,7 +60,7 @@ export default function SettingsWebviews({
   };
 
   /**
-   * @functions 
+   * @functions
    * @description Open and close the different modals
    */
   const openModal = () => setModalVisible(true);
@@ -92,27 +92,27 @@ export default function SettingsWebviews({
    * @returns {string} - The formatted refresh option
    */
   const formatRefreshOption = (option) => {
-    // Check if the option is not null and is not 'never' 
-    if (!option || option === 'never') return 'never';
+    // Check if the option is not null and is not 'never'
+    if (!option || option === 'never') {return 'never';}
     // Extract the number and the unit
     const match = option.match(/every (\d+) (\w+)/i);
     // Check if the match is not null
     if (!match) {
-      if (option === 'every hour') return '1h';
-      if (option === 'every day') return '24h';
-      if (option === 'every minute') return '1min';
+      if (option === 'every hour') {return '1h';}
+      if (option === 'every day') {return '24h';}
+      if (option === 'every minute') {return '1min';}
       return option;
     }
 
     const [_, number, unit] = match;
-    
+
     // Format the option depending on the unit
     if (unit.includes('hour')) {
       return `${number}h`;
     } else if (unit.includes('minute')) {
       return `${number}min`;
     }
-    
+
     return option;
   };
 
@@ -126,7 +126,7 @@ export default function SettingsWebviews({
       setHideMessagesModalVisible(false);
       await onToggleHideMessages(value);
     } catch (error) {
-      console.error('Error when modifying the parameter:', error);
+      throw error;
     }
   };
 
@@ -134,21 +134,21 @@ export default function SettingsWebviews({
     <View>
       <ScrollView showsVerticalScrollIndicator={true}>
         <View style={styles.customHeaderContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.backButton}
             onPress={handleBackPress}
           >
-            <Ionicons 
-              name="close-outline" 
-              size={isSmartphone ? 24 : 28} 
-              color={COLORS.white} 
+            <Ionicons
+              name="close-outline"
+              size={isSmartphone ? 24 : 28}
+              color={COLORS.white}
             />
           </TouchableOpacity>
         </View>
 
         <View style={[
           styles.pageContainer,
-          isSmartphonePortrait && styles.pageContainerSmartphonePortrait
+          isSmartphonePortrait && styles.pageContainerSmartphonePortrait,
         ]}>
           <View style={styles.titleContainer}>
             <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>App</Text>
@@ -156,16 +156,16 @@ export default function SettingsWebviews({
           <View style={[
             styles.configContainer,
             isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape
+            isLandscape && styles.configContainerLandscape,
           ]}>
             <SettingsCard
               title="Quit app"
               iconBackgroundColor={COLORS.burgundy}
               icon={
-                <Ionicons 
-                  name="exit-outline" 
-                  size={isSmartphone ? 22 : 28} 
-                  color={COLORS.red} 
+                <Ionicons
+                  name="exit-outline"
+                  size={isSmartphone ? 22 : 28}
+                  color={COLORS.red}
                 />
               }
               description="Quit the app and go back to the home screen"
@@ -178,7 +178,7 @@ export default function SettingsWebviews({
           <View style={[
             styles.configContainer,
             isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape
+            isLandscape && styles.configContainerLandscape,
           ]}>
             <SettingsCard
               title="Channels Management"
@@ -196,13 +196,13 @@ export default function SettingsWebviews({
                   onPress={openModal}
                 />
               </View>
-              <TouchableOpacity 
-                style={styles.baseToggle} 
+              <TouchableOpacity
+                style={styles.baseToggle}
                 onPress={openModal}
               >
                 <Text style={[
                   styles.text,
-                  isSmartphone && styles.textSmartphone 
+                  isSmartphone && styles.textSmartphone,
                 ]}>
                   {formatRefreshOption(refreshOption)}
                 </Text>
@@ -215,7 +215,7 @@ export default function SettingsWebviews({
           <View style={[
             styles.configContainer,
             isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape
+            isLandscape && styles.configContainerLandscape,
           ]}>
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
@@ -226,13 +226,13 @@ export default function SettingsWebviews({
                   onPress={openReadOnlyModal}
                 />
               </View>
-              <TouchableOpacity 
-                style={styles.baseToggle} 
+              <TouchableOpacity
+                style={styles.baseToggle}
                 onPress={openReadOnlyModal}
               >
                 <Text style={[
                   styles.text,
-                  isSmartphone && styles.textSmartphone 
+                  isSmartphone && styles.textSmartphone,
                 ]}>
                   {isReadOnly ? 'Yes' : 'No'}
                 </Text>
@@ -248,13 +248,13 @@ export default function SettingsWebviews({
                   onPress={openPasswordDefineModal}
                 />
               </View>
-              <TouchableOpacity 
-                style={styles.baseToggle} 
+              <TouchableOpacity
+                style={styles.baseToggle}
                 onPress={openPasswordDefineModal}
               >
                 <Text style={[
                   styles.text,
-                  isSmartphone && styles.textSmartphone 
+                  isSmartphone && styles.textSmartphone,
                 ]}>
                   {isPasswordRequired ? 'Yes' : 'No'}
                 </Text>
@@ -267,7 +267,7 @@ export default function SettingsWebviews({
           <View style={[
             styles.configContainer,
             isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape
+            isLandscape && styles.configContainerLandscape,
           ]}>
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
@@ -275,18 +275,18 @@ export default function SettingsWebviews({
                   title="Show/hide messages"
                   iconBackgroundColor={COLORS.borderColor}
                   icon={
-                    <Ionicons 
-                      name="remove-circle-outline" 
-                      size={isSmartphone ? 22 : 28} 
-                      color={COLORS.red} 
+                    <Ionicons
+                      name="remove-circle-outline"
+                      size={isSmartphone ? 22 : 28}
+                      color={COLORS.red}
                     />
                   }
                   description="Show or hide the message section of the app"
                   onPress={() => setHideMessagesModalVisible(true)}
                 />
               </View>
-              <TouchableOpacity 
-                style={styles.baseToggle} 
+              <TouchableOpacity
+                style={styles.baseToggle}
                 onPress={() => setHideMessagesModalVisible(true)}
               >
                 <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
@@ -308,9 +308,9 @@ export default function SettingsWebviews({
         onClose={closeReadOnlyModal}
         onToggleReadOnly={toggleReadOnly}
       />
-      <PasswordDefineModal 
+      <PasswordDefineModal
         visible={isPasswordDefineModalVisible}
-        onClose={closePasswordDefineModal} 
+        onClose={closePasswordDefineModal}
         onSubmitPassword={handlePasswordSubmit}
         onDisablePassword={disablePassword}
       />
@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.regular,
   },
   textSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone, 
+    fontSize: SIZES.fonts.textSmartphone,
   },
   baseToggle: {
     backgroundColor: COLORS.gray650,

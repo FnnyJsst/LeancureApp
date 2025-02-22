@@ -13,7 +13,7 @@ import { Text } from '../text/CustomText';
  * @param {string} props.description - The description of the card
  * @param {Function} props.onPress - The function to call when the card is pressed
  */
-export default function SettingsCard({ icon, title, description, onPress, iconBackgroundColor=COLORS.borderColor }) {
+export default function SettingsCard({ icon, title, description, onPress, iconBackgroundColor = COLORS.borderColor }) {
 
   const { isSmartphone } = useDeviceType();
 
@@ -23,18 +23,18 @@ export default function SettingsCard({ icon, title, description, onPress, iconBa
         <View style={[
           styles.iconContainer,
           isSmartphone && styles.iconContainerSmartphone,
-          iconBackgroundColor && { backgroundColor: iconBackgroundColor }
+          iconBackgroundColor && { backgroundColor: iconBackgroundColor },
         ]}>
           {icon}
         </View>
         <View style={styles.textContainer}>
           <Text style={[
             styles.title,
-            isSmartphone && styles.titleSmartphone
+            isSmartphone && styles.titleSmartphone,
           ]}>{title}</Text>
           <Text style={[
             styles.description,
-            isSmartphone && styles.descriptionSmartphone
+            isSmartphone && styles.descriptionSmartphone,
           ]}>{description}</Text>
         </View>
       </View>
@@ -45,11 +45,11 @@ export default function SettingsCard({ icon, title, description, onPress, iconBa
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   content: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   iconContainer: {
     width: 50,
@@ -64,12 +64,12 @@ const styles = StyleSheet.create({
     height: 40,
   },
   textContainer: {
-    flex: 1
+    flex: 1,
   },
   title: {
     fontSize: SIZES.fonts.subtitleTablet,
     color: COLORS.gray300,
-    fontFamily: FONTS.medium
+    fontFamily: FONTS.medium,
   },
   titleSmartphone: {
     fontSize: 15,
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     }),
     fontSize: SIZES.fonts.textTablet,
     color: COLORS.gray600,
-    marginTop: 2
+    marginTop: 2,
   },
   descriptionSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,

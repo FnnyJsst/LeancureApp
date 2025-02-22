@@ -16,9 +16,9 @@ import { useDeviceType } from '../../hooks/useDeviceType';
  * @param {Function} onSettingsAccess - A function to handle the settings access
  * @param {boolean} isMessagesHidden - A boolean to hide the header
  */
-export default function WebViewScreen({ 
-  url, 
-  onNavigate, 
+export default function WebViewScreen({
+  url,
+  onNavigate,
   onSettingsAccess,
   isMessagesHidden,
 }) {
@@ -43,14 +43,14 @@ export default function WebViewScreen({
       {/* If messages are not hidden, display the back button so we can go back to the app menu */}
       {!isMessagesHidden && (
         <View style={styles.customHeaderContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.backButton, isSmartphone && styles.backButtonSmartphone]}
             onPress={() => onNavigate(SCREENS.APP_MENU)}
           >
-            <Ionicons 
-              name="close-outline" 
-              size={isSmartphone ? 20 : 24} 
-              color={COLORS.white} 
+            <Ionicons
+              name="close-outline"
+              size={isSmartphone ? 20 : 24}
+              color={COLORS.white}
             />
           </TouchableOpacity>
         </View>

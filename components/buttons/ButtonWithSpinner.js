@@ -27,7 +27,7 @@ export default function ButtonWithSpinner({ isLoading, title, ...props }) {
 
       title={
         isLoading ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <View style={styles.button}>
             <ActivityIndicator size="small" color={COLORS.white} />
             <Text style={[styles.buttonText, isSmartphone && styles.buttonTextSmartphone]}>Connecting...</Text>
           </View>
@@ -42,7 +42,9 @@ export default function ButtonWithSpinner({ isLoading, title, ...props }) {
 
 const styles = StyleSheet.create({
   button: {
-    height: 60,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   buttonText: {
     color: COLORS.white,

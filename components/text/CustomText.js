@@ -1,16 +1,17 @@
+import React from 'react';
 import { Text as RNText } from 'react-native';
 import { FONTS } from '../../constants/style';
 
 export const Text = (props) => {
   return (
-    <RNText 
-      {...props} 
+    <RNText
+      {...props}
       style={[
         { fontFamily: FONTS.regular },
-        props.style
+        props.style,
       ]}
     >
       {props.children}
     </RNText>
   );
-}; 
+};

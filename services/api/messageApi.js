@@ -12,28 +12,30 @@ import { createApiRequest, createSignature } from './baseApi';
  * @returns {Promise<Object>} - The user's channels
  */
 export const fetchUserChannels = async (contractNumber, login, password, accessToken = '', accountApiKey = '') => {
+
+
+
   console.log('🔢 Contract Number:', contractNumber);
   console.log('🔑 Account API Key:', accountApiKey);
-  
+
   try {
     const body = createApiRequest({
       'amaiia_msg_srv': {
         'client': {
           'get_account_links': {
             'accountinfos': {
-              'accountapikey': accountApiKey
-            }
-          }
-        }
-      }
+              'accountapikey': accountApiKey,
+            },
+          },
+        },
+      },
     }, contractNumber, accessToken);
 
     let apiUrl;
     try {
       apiUrl = await ENV.API_URL();
     } catch (urlError) {
-      console.error('🔴 Erreur URL API:', urlError);
-      apiUrl = 'http://192.168.1.67/ic.php';
+      throw urlError;
     }
 
     console.log('🔗 URL API pour les channels:', apiUrl);
@@ -44,16 +46,15 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
         url: apiUrl,
         data: body,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        timeout: 10000
+        timeout: 10000,
       });
 
       const data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data;
-      
+
       if (!data?.private?.groups) {
-        console.error('🔴 Pas de groupes dans la réponse:', data);
-        return { status: 'error', message: 'Pas de groupes trouvés' };
+        return { status: 'error', message: 'No groups found' };
       }
 
       const privateGroups = Object.entries(data.private.groups)
@@ -65,27 +66,23 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
               id: channelId,
               title: channel.identifier || channel.description || 'Canal sans nom',
               unreadCount: 0,
-              groupId: groupId
-            }))
+              groupId: groupId,
+            })),
         }))
         .filter(group => group.channels.length > 0);
 
-      console.log('👥 Groupes traités:', JSON.stringify(privateGroups, null, 2));
-
-      return { 
-        status: 'ok', 
+      return {
+        status: 'ok',
         privateGroups,
         publicChannels: [],
-        rawData: data
+        rawData: data,
       };
 
     } catch (axiosError) {
-      console.error('🔴 Erreur axios:', axiosError);
       return { status: 'error', message: axiosError.message };
     }
 
   } catch (error) {
-    console.error('🔴 Erreur fetchUserChannels:', error);
     return { status: 'error', message: error.message };
   }
 };
@@ -101,7 +98,7 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
 export const sendMessageApi = async (channelId, messageContent, userCredentials) => {
   try {
     const timestamp = Date.now();
-    
+
     const isFile = typeof messageContent === 'object';
     const messageTitle = isFile ? messageContent.fileName : messageContent.substring(0, 50);
 
@@ -109,7 +106,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       'amaiia_msg_srv': {
         'client': {
           'add_msg': {
-            'channelid': parseInt(channelId),
+            'channelid': parseInt(channelId, 10),
             'title': messageTitle,
             'details': messageContent,
             'enddatets': timestamp + 99999,
@@ -117,26 +114,26 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
               'base64': messageContent.base64,
               'filetype': messageContent.fileType,
               'filename': messageContent.fileName,
-              'filesize': messageContent.fileSize
+              'filesize': messageContent.fileSize,
             } : null,
-            'sentby': userCredentials.accountApiKey
-          }
-        }
-      }
+            'sentby': userCredentials.accountApiKey,
+          },
+        },
+      },
     }, userCredentials.contractNumber);
 
     console.log('📤 Requête envoyée:', {
       channelId,
       title: messageTitle,
       details: typeof messageContent === 'string' ? messageContent : messageContent.fileName,
-      isFile
+      isFile,
     });
 
     const apiUrl = await ENV.API_URL();
     const response = await axios.post(apiUrl, body, {
-      timeout: 30000 // 30 secondes max
+      timeout: 30000, // 30 secondes max
     });
-    
+
     if (response.status === 200) {
       return {
         status: 'ok',
@@ -156,15 +153,14 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
             fileName: messageContent.fileName,
             fileSize: messageContent.fileSize,
             fileType: messageContent.fileType,
-            base64: messageContent.base64
-          })
-        }
+            base64: messageContent.base64,
+          }),
+        },
       };
     }
-    
-    throw new Error('Message non enregistré');
+
+    throw new Error('Message not saved');
   } catch (error) {
-    console.error('🔴 Erreur sendMessageApi:', error);
     throw error;
   }
 };
@@ -184,17 +180,17 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
     // });
 
     const timestamp = Date.now();
-    
+
     const body = createApiRequest({
       'amaiia_msg_srv': {
         'client': {
           'get_account_links': {
             'accountinfos': {
-              'accountapikey': userCredentials.accountApiKey
-            }
-          }
-        }
-      }
+              'accountapikey': userCredentials.accountApiKey,
+            },
+          },
+        },
+      },
     }, userCredentials.contractNumber);
 
     const apiUrl = await ENV.API_URL();
@@ -215,27 +211,27 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
                   Object.entries(channel.messages).map(async ([id, msg]) => {
                     // console.log('📥 Message reçu:', msg);
                     // console.log('📥 Structure d\'un message:', JSON.stringify(msg, null, 2));
-                    
+
                     const isOwnMessage = msg.accountapikey === userCredentials.accountApiKey;
                     const hasFile = msg.filename && msg.filetype && msg.filetype !== 'none';
-                    
+
                     let base64 = null;
                     if (hasFile) {
                       console.log('📥 Tentative récupération fichier:', {
                         messageId: msg.messageid,
                         fileType: msg.filetype,
-                        fileName: msg.filename
+                        fileName: msg.filename,
                       });
-                      
+
                       base64 = await fetchMessageFile(msg.messageid, {
                         ...msg,
-                        channelid: parseInt(channelId)
+                        channelid: parseInt(channelId, 10),
                       }, userCredentials);
-                      
+
                       console.log('📥 Résultat récupération fichier:', {
                         messageId: msg.messageid,
                         hasBase64: !!base64,
-                        base64Length: base64?.length
+                        base64Length: base64?.length,
                       });
                     }
 
@@ -256,8 +252,8 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
                         fileName: msg.filename,
                         fileSize: msg.filesize,
                         fileType: msg.filetype,
-                        base64: base64 || null
-                      })
+                        base64: base64 || null,
+                      }),
                     };
                   })
                 );
@@ -295,19 +291,19 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
       'amaiia_msg_srv': {
         'client': {
           'get_base64': {
-            'messageid': parseInt(messageId),
-            'channelid': parseInt(msg.channelid)
-          }
-        }
-      }
+            'messageid': parseInt(messageId, 10),
+            'channelid': parseInt(msg.channelid, 10),
+          },
+        },
+      },
     }, userCredentials.contractNumber);
 
     const apiUrl = await ENV.API_URL();
     const response = await axios.post(apiUrl, body);
-    
+
     // Extraction correcte du base64
     const base64Data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_base64?.data?.base64;
-    
+
     // console.log('📥 Réponse get_base64:', {
     //   status: response.status,
     //   hasData: !!response.data,

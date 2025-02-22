@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import ImportWebviewModal from '../../components/modals/webviews/ImportWebviewModal';
-import EditWebviewModal from '../../components/modals/webviews/EditWebviewModal'; 
+import EditWebviewModal from '../../components/modals/webviews/EditWebviewModal';
 import DeleteWebviewModal from '../../components/modals/webviews/DeleteWebviewModal';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
@@ -13,7 +13,7 @@ import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import Entypo from '@expo/vector-icons/Entypo';
 
-/** 
+/**
  * @component WebviewsManagementScreen
  * @description Allows displaying, editing, deleting and reordering webviews
  * @param {Function} onNavigate - A function to navigate to a screen
@@ -25,10 +25,10 @@ import Entypo from '@expo/vector-icons/Entypo';
  * @param {Function} onImport - A function to import channels
  */
 
-export default function WebviewsManagementScreen({ 
+export default function WebviewsManagementScreen({
   onNavigate,
-  selectedWebviews, 
-  setSelectedWebviews, 
+  selectedWebviews,
+  setSelectedWebviews,
   saveSelectedWebviews,
   isReadOnly,
   onNavigateToWebView,
@@ -48,7 +48,7 @@ export default function WebviewsManagementScreen({
   const [selectedBinIndex, setSelectedBinIndex] = useState(null);
   const [selectedUpIndex, setSelectedUpIndex] = useState(null);
   const [selectedDownIndex, setSelectedDownIndex] = useState(null);
-  
+
   /**
   * functions to open and close the different modals
   */
@@ -91,7 +91,7 @@ export default function WebviewsManagementScreen({
       try {
         await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(updatedWebviews));
       } catch (error) {
-        console.error('Failed to save channels after deletion', error);
+        throw error;
       }
     }
   };
@@ -161,20 +161,20 @@ export default function WebviewsManagementScreen({
   return (
     <View style={styles.pageContainer}>
       <View style={styles.customHeaderContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => onNavigate(SCREENS.SETTINGS)}
         >
-          <Ionicons 
-            name="close-outline" 
-            size={isSmartphone ? 24 : 28} 
-            color={COLORS.white} 
+          <Ionicons
+            name="close-outline"
+            size={isSmartphone ? 24 : 28}
+            color={COLORS.white}
           />
         </TouchableOpacity>
         {!isReadOnly && (
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={openImportModal}
           >
-            <Entypo 
+            <Entypo
               name="add-to-list"
               size={isSmartphone ? 24 : 28}
               color={COLORS.white}
@@ -182,11 +182,11 @@ export default function WebviewsManagementScreen({
           </TouchableOpacity>
         )}
       </View>
-      
+
       {selectedWebviews.length === 0 && (
         <Text style={[
-          styles.addChannelText, 
-          isSmartphone && styles.addChannelTextSmartphone
+          styles.addChannelText,
+          isSmartphone && styles.addChannelTextSmartphone,
         ]}>
           Use the top right button to add a channel
         </Text>
@@ -216,17 +216,17 @@ export default function WebviewsManagementScreen({
       <ScrollView>
         <View style={styles.channelsContainer}>
           {selectedWebviews && selectedWebviews.map((channel, index) => (
-            <View 
+            <View
               style={[
                 styles.channelContainer,
-                isSmartphone && styles.channelContainerSmartphone
-              ]} 
+                isSmartphone && styles.channelContainerSmartphone,
+              ]}
               key={channel.href}
             >
               <TouchableOpacity
                 style={[
                   styles.titleContainer,
-                  isSmartphone && styles.titleContainerSmartphone
+                  isSmartphone && styles.titleContainerSmartphone,
                 ]}
                 // Navigate to the webview with the channel href
                 onPress={() => onNavigateToWebView(channel.href)}
@@ -235,11 +235,11 @@ export default function WebviewsManagementScreen({
                 // Reset the selected title id
                 onPressOut={() => setSelectedTitleId(null)}
               >
-                <Text 
+                <Text
                   style={[
                     styles.text,
                     isSmartphone && styles.textSmartphone,
-                    selectedTitleId === channel.href && styles.textSelected
+                    selectedTitleId === channel.href && styles.textSelected,
                   ]}
                   numberOfLines={1}
                   // Add an ellipsis at the end of the text if it is too long
@@ -248,17 +248,17 @@ export default function WebviewsManagementScreen({
                   {channel.title}
                 </Text>
               </TouchableOpacity>
-              
+
               {/* Check if the user is not read only */}
               {!isReadOnly && (
                 <View style={[
                   styles.controlsContainer,
-                  isSmartphone && styles.controlsContainerSmartphone
+                  isSmartphone && styles.controlsContainerSmartphone,
                 ]}>
                   <View style={[
                     styles.arrowContainer,
                     isSmartphone && styles.arrowContainerSmartphone,
-                    isLandscape && styles.arrowContainerLandscape
+                    isLandscape && styles.arrowContainerLandscape,
                   ]}>
                   <TouchableOpacity
                   onPress={() => moveWebviewUp(index)}
@@ -266,13 +266,13 @@ export default function WebviewsManagementScreen({
                   onPressOut={() => setSelectedUpIndex(null)}
                   style={styles.arrowButton}
                 >
-                  <AntDesign 
-                    name="up" 
-                    size={isTablet ? 30 : 23} 
+                  <AntDesign
+                    name="up"
+                    size={isTablet ? 30 : 23}
                     style={[
-                      { marginRight: isSmartphonePortrait ? 0 : 15 }, 
-                      { color: selectedUpIndex === index ? COLORS.orange : COLORS.gray300 }
-                    ]} 
+                      { marginRight: isSmartphonePortrait ? 0 : 15 },
+                      { color: selectedUpIndex === index ? COLORS.orange : COLORS.gray300 },
+                    ]}
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -281,22 +281,22 @@ export default function WebviewsManagementScreen({
                   onPressOut={() => setSelectedDownIndex(null)}
                   style={styles.arrowButton}
                 >
-                  <AntDesign 
-                    name="down" 
-                    size={isTablet ? 30 : 23} 
+                  <AntDesign
+                    name="down"
+                    size={isTablet ? 30 : 23}
                     style={[
                       { marginLeft: isSmartphonePortrait ? 0 : 15 },
                       { marginRight: isSmartphonePortrait ? 0 : 15 },
-                      { color: selectedDownIndex === index ? COLORS.orange : COLORS.gray300 }
-                    ]} 
+                      { color: selectedDownIndex === index ? COLORS.orange : COLORS.gray300 },
+                    ]}
                   />
                 </TouchableOpacity>
                   </View>
-                  
+
                   <View style={[
                     styles.iconsContainer,
                     isSmartphone && styles.iconsContainerSmartphone,
-                    isLandscape && styles.iconsContainerLandscape
+                    isLandscape && styles.iconsContainerLandscape,
                   ]}>
                   <TouchableOpacity
                     onPress={() => openEditModal(channel)}
@@ -304,13 +304,13 @@ export default function WebviewsManagementScreen({
                     onPressOut={() => setSelectedPencilIndex(null)}
                     style={styles.iconButton}
                   >
-                    <EvilIcons 
-                      name="pencil" 
-                      size={isTablet ? 40 : 29} 
+                    <EvilIcons
+                      name="pencil"
+                      size={isTablet ? 40 : 29}
                       style={[
-                        { marginRight: isSmartphonePortrait ? 0 : 15 }, 
-                        { color: isTablet && selectedPencilIndex === index ? COLORS.orange : COLORS.gray300 }
-                      ]} 
+                        { marginRight: isSmartphonePortrait ? 0 : 15 },
+                        { color: isTablet && selectedPencilIndex === index ? COLORS.orange : COLORS.gray300 },
+                      ]}
                     />
                   </TouchableOpacity>
                   {/* Delete a channel */}
@@ -320,10 +320,10 @@ export default function WebviewsManagementScreen({
                     onPressOut={() => setSelectedBinIndex(null)}
                     style={styles.iconButton}
                   >
-                    <Ionicons 
-                      name="trash-outline" 
-                      size={isTablet ? 30 : 23} 
-                      style={{ color: selectedBinIndex === index ? COLORS.orange : COLORS.gray300 }} 
+                    <Ionicons
+                      name="trash-outline"
+                      size={isTablet ? 30 : 23}
+                      style={{ color: selectedBinIndex === index ? COLORS.orange : COLORS.gray300 }}
                     />
                   </TouchableOpacity>
                   </View>
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     width: '95%',
     borderRadius: SIZES.borderRadius.xLarge,
     borderWidth: 1,
-    borderColor: COLORS.borderColor
+    borderColor: COLORS.borderColor,
   },
   channelContainerSmartphone: {
     width: '100%',
@@ -456,5 +456,5 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     marginTop: 10,
     paddingHorizontal: '2%',
-  }
+  },
 });

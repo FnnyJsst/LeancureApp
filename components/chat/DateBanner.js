@@ -7,10 +7,10 @@ import { Text } from '../text/CustomText';
 /**
  * @component DateBanner
  * @description A component that renders a date banner in the chat screen
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {string} props.date - The date to display
- * 
+ *
  * @example
  * <DateBanner date="2024-01-01" />
  */
@@ -46,6 +46,6 @@ const styles = StyleSheet.create({
   },
   textSmartphone: {
     fontSize: SIZES.fonts.smallTextSmartphone,
-  }
+  },
 
-}); 
+});

@@ -1,29 +1,29 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, View, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
-import { useDeviceType } from '../../../hooks/useDeviceType'; 
-import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style'; 
+import { useDeviceType } from '../../../hooks/useDeviceType';
+import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 /**
  * @component EditWebviewModal
  * @description A component that renders a modal for editing a channel
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onSave - The function to call when the channel is saved
  * @param {string} props.initialUrl - The initial URL of the channel
  * @param {string} props.initialTitle - The initial title of the channel
- * 
+ *
  * @example
  * <EditWebviewModal visible={visible} onClose={() => console.log('Modal closed')} onSave={() => console.log('Channel saved')} initialUrl="https://www.google.com" initialTitle="Google" />
  */
 export default function EditWebviewModal({ visible, onClose, onSave, initialUrl, initialTitle }) {
 
   // We create a hook to determine the device type and orientation
-  const { isSmartphone, isTabletLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType(); 
+  const { isSmartphone, isTabletLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType();
 
   // State management for form inputs
   const [url, setUrl] = useState(initialUrl || '');
@@ -62,23 +62,23 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
-      statusBarTranslucent={true} 
+      statusBarTranslucent={true}
     >
       <View style={MODAL_STYLES.modalContainer}>
         <View style={[
           styles.modalContent,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-          isTabletLandscape && styles.modalContentTabletLandscape
+          isTabletLandscape && styles.modalContentTabletLandscape,
         ]}>
           <TitleModal title="Edit a channel" />
           <View style={[
             styles.inputContainer,
           ]}>
-            <InputModal 
-              value={title} 
+            <InputModal
+              value={title}
               // We update the title state
-              onChangeText={setTitle} 
+              onChangeText={setTitle}
               placeholder="Enter channel title"
               //No need to secure the title
               secureTextEntry={false}
@@ -86,9 +86,9 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               onFocus={() => setIsTitleFocused(true)}
               onBlur={() => setIsTitleFocused(false)}
               icon={
-                <Ionicons 
-                  name="text-outline" 
-                  size={20} 
+                <Ionicons
+                  name="text-outline"
+                  size={20}
                   color={isTitleFocused ? COLORS.orange : COLORS.gray300}
                 />
               }
@@ -97,10 +97,10 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
           <View style={[
             styles.inputContainer,
           ]}>
-            <InputModal 
-              value={url} 
+            <InputModal
+              value={url}
               // We update the URL state
-              onChangeText={setUrl} 
+              onChangeText={setUrl}
               placeholder="Enter channel URL"
               //No need to secure the URL
               secureTextEntry={false}
@@ -108,28 +108,28 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               onFocus={() => setIsUrlFocused(true)}
               onBlur={() => setIsUrlFocused(false)}
               icon={
-                <Ionicons 
-                  name="link-outline" 
-                  size={20} 
+                <Ionicons
+                  name="link-outline"
+                  size={20}
                   color={isUrlFocused ? COLORS.orange : COLORS.gray300}
                 />
               }
             />
           </View>
           <View style={MODAL_STYLES.buttonContainer}>
-            <Button 
-              title="Cancel" 
-              backgroundColor={COLORS.gray950} 
-              color={COLORS.gray300} 
+            <Button
+              title="Cancel"
+              backgroundColor={COLORS.gray950}
+              color={COLORS.gray300}
               width="22%"
-              onPress={onClose} 
+              onPress={onClose}
             />
-            <Button 
-              title="Ok" 
-              backgroundColor={COLORS.orange} 
-              color={COLORS.white} 
+            <Button
+              title="Ok"
+              backgroundColor={COLORS.orange}
+              color={COLORS.white}
               width="22%"
-              onPress={handleOk} 
+              onPress={handleOk}
             />
           </View>
         </View>
@@ -140,7 +140,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
 
 const styles = StyleSheet.create({
   modalContainerSmartphoneLandscape: {
-    paddingTop: '10%'
+    paddingTop: '10%',
   },
   modalContent: {
     width: '60%',
@@ -151,31 +151,31 @@ const styles = StyleSheet.create({
     borderColor: '#403430',
   },
   modalContentTabletLandscape: {
-    width: '40%'
+    width: '40%',
   },
   modalContentSmartphonePortrait: {
-    width: '95%'
+    width: '95%',
   },
   modalContentSmartphoneLandscape: {
-    width: '60%'
+    width: '60%',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    marginTop: 15
+    marginTop: 15,
   },
   inputSmartphone: {
-    marginBottom: 10
+    marginBottom: 10,
   },
   text: {
     fontSize: SIZES.fonts.subtitleTablet,
     marginBottom: 20,
-    color: COLORS.gray600
+    color: COLORS.gray600,
   },
   textSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
-    marginBottom: 10
+    marginBottom: 10,
   },
 });

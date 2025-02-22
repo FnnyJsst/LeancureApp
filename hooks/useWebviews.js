@@ -34,7 +34,7 @@ export function useWebViews(setCurrentScreen) {
     loadPasswordFromSecureStore,
     savePasswordInSecureStore,
     openPasswordDefineModal,
-    closePasswordDefineModal
+    closePasswordDefineModal,
   } = useWebViewsPassword(navigate);
 
   const toggleReadOnly = useCallback((value) => {
@@ -56,7 +56,7 @@ export function useWebViews(setCurrentScreen) {
    * @param {string} value - The value to get
    * @returns {number} - The interval in milliseconds
    */
-  const getIntervalInMilliseconds = (value) => {
+  const getIntervalInMilliseconds = useCallback((value) => {
     switch (value) {
       case 'every minute': return 60000;
       case 'every 2 minutes': return 120000;
@@ -70,7 +70,7 @@ export function useWebViews(setCurrentScreen) {
       case 'every day': return 86400000;
       default: return null;
     }
-  };
+  }, []);
 
   /**
    * @function handleSelectOption
@@ -120,7 +120,7 @@ export function useWebViews(setCurrentScreen) {
    * @description Loads the selected channels from the SecureStore
    * @returns {void}
    */
-  const loadSelectedChannels = async () => {
+  const loadSelectedChannels = useCallback(async () => {
     try {
       const storedChannels = await SecureStore.getItemAsync('selectedWebviews');
       if (storedChannels) {
@@ -131,26 +131,30 @@ export function useWebViews(setCurrentScreen) {
         }
       }
     } catch (error) {
-      console.error('Failed to load channels', error);
+      if (__DEV__) {
+        console.error('Failed to load channels', error);
+      }
     }
-  };
+  }, [setSelectedWebviews, setWebViewUrl]);
 
   /**
    * @function loadRefreshOption
    * @description Loads the refresh option from AsyncStorage
    * @returns {void}
    */
-  const loadRefreshOption = async () => {
+  const loadRefreshOption = useCallback(async () => {
     try {
       const storedOption = await SecureStore.getItemAsync('refreshOption');
       if (storedOption) {
-        setRefreshOption(storedOption); 
+        setRefreshOption(storedOption);
         setRefreshInterval(getIntervalInMilliseconds(storedOption));
       }
     } catch (error) {
-      console.error('Failed to load refresh option', error);
+      if (__DEV__) {
+        console.error('Failed to load refresh option', error);
+      }
     }
-  };
+  }, [setRefreshOption, setRefreshInterval, getIntervalInMilliseconds]);
 
   /**
    * @function navigateToChannelsList
@@ -191,7 +195,7 @@ export function useWebViews(setCurrentScreen) {
    */
   useEffect(() => {
     loadSelectedChannels();
-  }, []);
+  }, [loadSelectedChannels]);
 
   /**
    * @function useEffect
@@ -211,7 +215,7 @@ export function useWebViews(setCurrentScreen) {
     loadSelectedChannels();
     loadPasswordFromSecureStore();
     loadRefreshOption();
-  }, []);
+  }, [loadSelectedChannels, loadPasswordFromSecureStore, loadRefreshOption]);
 
   return {
     channels,
@@ -228,7 +232,7 @@ export function useWebViews(setCurrentScreen) {
     toggleReadOnly,
     handleSelectChannels,
     saveSelectedWebviews,
-    loadSelectedChannels, 
+    loadSelectedChannels,
     getIntervalInMilliseconds,
     saveRefreshOption,
     handleSelectOption,

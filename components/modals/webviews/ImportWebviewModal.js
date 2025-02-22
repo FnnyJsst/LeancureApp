@@ -11,21 +11,20 @@ import { Text } from '../../text/CustomText';
 /**
  * @component ImportWebviewModal
  * @description A component that renders a modal for importing channels
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onImport - The function to call when the channels are imported
- * 
+ *
  * @example
  * <ImportWebviewModal visible={visible} onClose={() => console.log('Modal closed')} onImport={() => console.log('Channels imported')} />
  */
 const ImportWebviewModal = ({ visible, onClose, onImport }) => {
-  
+
   // State management for the URL, error and channels
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
-  const [channels, setChannels] = useState([]);
   const [isFocused, setIsFocused] = useState(false);
 
   // Customized hook to determine the device type and orientation
@@ -34,17 +33,17 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
   /**
    * @function validateUrl
    * @description A function to validate the URL
-   * @param {string} url - The URL to validate
+   * @param {string} urlToValidate - The URL to validate
    * @returns {boolean} - Whether the URL is valid
    */
-  const validateUrl = (url) => {
-    const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name
-      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+  const validateUrl = (urlToValidate) => {
+    const pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
       '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-    return !!pattern.test(url);
+    return !!pattern.test(urlToValidate);
   };
 
   /**
@@ -95,7 +94,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
 
     // Build the full URL
     const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
-    console.log('🔄 URL complète:', fullUrl);
     fetch(fullUrl)
       .then(response => {
         // Get the content type
@@ -113,9 +111,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
       .then(data => {
         // If the data is a string, extract the channels links and titles
         if (typeof data === 'string') {
-          console.log('🔄 Données HTML:', data);
           const extractedChannels = parseHtml(data);
-          setChannels(extractedChannels);
           // If no channels are found, set the error message
           if (extractedChannels.length === 0) {
             setError('No channels found at this URL');
@@ -128,9 +124,8 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
           setError('Invalid response format');
         }
       })
-      .catch(error => {
-        console.error(error);
-        setError(`Error during the download of channels: ${error.message}`);
+      .catch(fetchError => {
+        setError(`Error during the download of channels: ${fetchError.message}`);
       });
   };
 
@@ -157,7 +152,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
             MODAL_STYLES.content,
             isSmartphone && styles.modalContentSmartphone,
             isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-            isTabletPortrait && styles.modalContentTabletPortrait
+            isTabletPortrait && styles.modalContentTabletPortrait,
           ]}>
           <TitleModal title="Import channels"/>
           <InputModal
@@ -167,35 +162,35 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
             // We set the secureTextEntry to false so the user can see the URL
             secureTextEntry={false}
             icon={
-              <Ionicons 
-                name="link-outline" 
-                size={20} 
+              <Ionicons
+                name="link-outline"
+                size={20}
                 color={isFocused ? COLORS.orange : COLORS.gray300}
               />
             }
           />
           {error ? (
             <View style={[
-              styles.errorContainer
+              styles.errorContainer,
             ]}>
               <Text style={[
                 styles.errorText,
-                isSmartphone && styles.smallTextSmartphone
+                isSmartphone && styles.smallTextSmartphone,
               ]}>{error}</Text>
             </View>
           ) : null}
           <View style={[
             MODAL_STYLES.buttonContainer,
           ]}>
-            <Button 
-              title="Cancel" 
+            <Button
+              title="Cancel"
               onPress={handleClose}
               backgroundColor={COLORS.gray950}
               textColor={COLORS.gray300}
               width={isSmartphone ? '22%' : '25%'}
             />
-            <Button 
-              title="Import" 
+            <Button
+              title="Import"
               onPress={handleDownload}
               backgroundColor={COLORS.orange}
               width={isSmartphone ? '22%' : '25%'}

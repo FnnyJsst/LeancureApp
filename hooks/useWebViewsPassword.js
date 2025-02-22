@@ -17,21 +17,21 @@ export function useWebViewsPassword(navigate) {
   const [passwordCheckModalVisible, setPasswordCheckModalVisible] = useState(false);
 
     /**
-   * @function openPasswordDefineModal 
-   * @description Opens the modals used to set the password 
+   * @function openPasswordDefineModal
+   * @description Opens the modals used to set the password
    */
   const openPasswordDefineModal = () => setPasswordDefineModalVisible(true);
-  
+
   /**
    * @function closePasswordDefineModal
-   * @description Closes the modals used to set the password 
+   * @description Closes the modals used to set the password
    */
   const closePasswordDefineModal = () => setPasswordDefineModalVisible(false);
 
 
   /**
    * @function handlePasswordSubmit
-   * @description Handles the submission of the password in the modals used to set the password 
+   * @description Handles the submission of the password in the modals used to set the password
    * @param {string} enteredPassword - The password entered by the user
    */
   const handlePasswordSubmit = (enteredPassword) => {
@@ -40,7 +40,7 @@ export function useWebViewsPassword(navigate) {
     savePasswordInSecureStore({
 
       password: enteredPassword,
-      isRequired: true
+      isRequired: true,
     });
     closePasswordDefineModal();
   };
@@ -74,11 +74,11 @@ export function useWebViewsPassword(navigate) {
       const storedPassword = await SecureStore.getItemAsync('password');
 
       const storedIsRequired = await SecureStore.getItemAsync('isPasswordRequired');
-      
+
       if (storedPassword) {
         setPassword(storedPassword);
       }
-      if (storedIsRequired !== null) {  
+      if (storedIsRequired !== null) {
         setIsPasswordRequired(JSON.parse(storedIsRequired));
       }
     } catch (error) {
@@ -110,7 +110,7 @@ export function useWebViewsPassword(navigate) {
     savePasswordInSecureStore({
 
       password: null,
-      isRequired: false
+      isRequired: false,
     });
   };
 
@@ -137,6 +137,6 @@ export function useWebViewsPassword(navigate) {
     handlePasswordSubmit,
     handlePasswordCheck,
     disablePassword,
-    loadPasswordFromSecureStore
+    loadPasswordFromSecureStore,
   };
 }

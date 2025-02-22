@@ -96,5 +96,5 @@ const styles = StyleSheet.create({
   },
   buttonTextSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
-  }
+  },
 });

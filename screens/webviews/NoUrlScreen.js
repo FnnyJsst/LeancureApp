@@ -14,8 +14,8 @@ import { Text } from '../../components/text/CustomText';
  * @param {Function} handleSettingsAccess - A function to handle the settings access
  * @param {boolean} isMessagesHidden - A boolean indicating if messages are hidden
  */
-export default function NoUrlScreen({ 
-  onNavigate, 
+export default function NoUrlScreen({
+  onNavigate,
   handleSettingsAccess,
   isMessagesHidden,
 }) {
@@ -35,14 +35,14 @@ export default function NoUrlScreen({
       {/* If messages are not hidden, display the back button so we can go back to the app menu */}
       {!isMessagesHidden && (
         <View style={styles.customHeaderContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.backButton, isSmartphone && styles.backButtonSmartphone]}
             onPress={handleBackPress}
           >
-            <Ionicons 
-              name="close-outline" 
-              size={isSmartphone ? 24 : 28} 
-              color={COLORS.white} 
+            <Ionicons
+              name="close-outline"
+              size={isSmartphone ? 24 : 28}
+              color={COLORS.white}
             />
           </TouchableOpacity>
         </View>
@@ -50,7 +50,7 @@ export default function NoUrlScreen({
       <View style={styles.textContainer}>
         <Text style={[
           styles.text,
-          isSmartphone && styles.textSmartphone
+          isSmartphone && styles.textSmartphone,
         ]}>Please enter settings to add an URL</Text>
       </View>
 

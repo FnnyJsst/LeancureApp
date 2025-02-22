@@ -9,31 +9,31 @@ import { Text } from '../../../components/text/CustomText';
 /**
  * @component SimplifiedLogin
  * @description Simplified login screen is used when the user has already logged in and checked "Stay connected" on the login screen
- * 
+ *
  * @param {string} contractNumber - The contract number of the user
  * @param {Function} onSwitchAccount - A function to switch to another account
  * @param {Function} handleLogin - A function to handle the login process
  * @param {boolean} isLoading - A boolean to indicate if the login process is loading
  * @returns {JSX.Element} - A JSX element
  */
-export default function SimplifiedLogin({ 
-    contractNumber, 
-    onSwitchAccount, 
+export default function SimplifiedLogin({
+    contractNumber,
+    onSwitchAccount,
     handleLogin,
     isLoading,
 }) {
   const { isSmartphone, isLandscape } = useDeviceType();
-  
+
   return (
     <View>
       <View style={[
-        styles.loginContainer, 
-        isSmartphone && styles.loginContainerSmartphone, 
-        isLandscape && styles.loginContainerLandscape
+        styles.loginContainer,
+        isSmartphone && styles.loginContainerSmartphone,
+        isLandscape && styles.loginContainerLandscape,
       ]}>
         <View style={styles.welcomeContainer}>
           <Text style={[
-            styles.welcomeText, 
+            styles.welcomeText,
             isSmartphone && styles.welcomeTextSmartphone]}>
             Welcome back
           </Text>
@@ -43,12 +43,12 @@ export default function SimplifiedLogin({
 
           <Text style={[
             styles.inputTitle,
-            isSmartphone && styles.inputTitleSmartphone
+            isSmartphone && styles.inputTitleSmartphone,
           ]}>
             Contract number
           </Text>
           <View style={styles.inputWrapper}>
-            <InputLogin 
+            <InputLogin
               placeholder="Enter your contract number"
               value={contractNumber}
               editable={false}
@@ -59,7 +59,7 @@ export default function SimplifiedLogin({
         </View>
 
         <View style={styles.buttonContainer}>
-          <ButtonWithSpinner 
+          <ButtonWithSpinner
             variant="large"
             title="Login"
             isLoading={isLoading}
@@ -68,8 +68,8 @@ export default function SimplifiedLogin({
           />
         </View>
       </View>
-      
-      <TouchableOpacity 
+
+      <TouchableOpacity
         style={styles.switchAccountLink}
         onPress={onSwitchAccount}
       >

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { View, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
@@ -10,12 +10,12 @@ import { Text } from '../../text/CustomText';
 /**
  * @component AutoRefreshModal
  * @description A component that renders a modal for auto-refresh options
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onSelectOption - The function to call when the option is selected
- * 
+ *
  * @example
  * <AutoRefreshModal visible={visible} onClose={() => console.log('Modal closed')} onSelectOption={() => console.log('Option selected')} />
  */
@@ -33,7 +33,7 @@ const TimeOutModal = ({ visible, onClose, onSelectOption }) => {
     { label: 'After 2 hours', value: 'after 2 hours' },
     { label: 'After 6 hours', value: 'after 6 hours' },
     { label: 'After 12 hours', value: 'after 12 hours' },
-    { label: 'After 24 hours', value: 'after 24 hours' }
+    { label: 'After 24 hours', value: 'after 24 hours' },
   ];
 
   return (
@@ -42,11 +42,11 @@ const TimeOutModal = ({ visible, onClose, onSelectOption }) => {
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
-      statusBarTranslucent={true} 
+      statusBarTranslucent={true}
     >
       <View style={[
         styles.modalContainer,
-        isSmartphone && styles.modalContainerSmartphone
+        isSmartphone && styles.modalContainerSmartphone,
       ]}>
         <View style={[
             styles.modalContent,
@@ -58,19 +58,19 @@ const TimeOutModal = ({ visible, onClose, onSelectOption }) => {
             <TitleModal title="Logout automatically after"/>
             <View style={[
               styles.optionsContainer,
-              isSmartphone && styles.optionsContainerSmartphone
+              isSmartphone && styles.optionsContainerSmartphone,
             ]}>
             {options.map((option) => (
               <TouchableOpacity
                 key={option.value}
                 style={[
                   styles.radioContainer,
-                  isSmartphone && styles.radioContainerSmartphone
+                  isSmartphone && styles.radioContainerSmartphone,
                 ]}
                 onPress={() => setSelectedOption(option.value)}
               >
-                <Ionicons 
-                  name={selectedOption === option.value ? "radio-button-on-outline" : "radio-button-off-outline"}
+                <Ionicons
+                  name={selectedOption === option.value ? 'radio-button-on-outline' : 'radio-button-off-outline'}
                   size={isSmartphone ? 20 : 24}
                   color={selectedOption === option.value ? COLORS.orange : COLORS.gray600}
                   style={styles.radioIcon}
@@ -82,16 +82,16 @@ const TimeOutModal = ({ visible, onClose, onSelectOption }) => {
             ))}
             </View>
             <View style={MODAL_STYLES.buttonContainer}>
-              <Button 
-                title="Close" 
+              <Button
+                title="Close"
                 backgroundColor={COLORS.gray950}
-                textColor={COLORS.gray300} 
+                textColor={COLORS.gray300}
                 width={isSmartphone ? '22%' : '25%'}
                 onPress={onClose} />
-              <Button 
-                title="Set" 
+              <Button
+                title="Set"
                 backgroundColor={COLORS.orange}
-                color={COLORS.white} 
+                color={COLORS.white}
                 width={isSmartphone ? '22%' : '25%'}
                 onPress={() => {
                   // We send the selected option to the parent component
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
 
   //Content styles
   modalContent: {
-    width: "55%",
+    width: '55%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,

@@ -8,12 +8,12 @@ import { Text } from '../../text/CustomText';
 /**
  * @component ReadOnly
  * @description A component that renders a modal for setting the read-only mode
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onToggleReadOnly - The function to call when the read-only mode is toggled
- * 
+ *
  * @example
  * <ReadOnly visible={visible} onClose={() => console.log('Modal closed')} onToggleReadOnly={() => console.log('Read-only mode toggled')} />
  */
@@ -27,7 +27,7 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly }) {
    * @description A function to handle the "Yes" button to set the read-only mode
    */
   const handleYes = () => {
-    onToggleReadOnly(true); 
+    onToggleReadOnly(true);
     onClose();
   };
 
@@ -36,24 +36,24 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly }) {
    * @description A function to handle the "No" button to set the read-only mode
    */
   const handleNo = () => {
-    onToggleReadOnly(false);  
+    onToggleReadOnly(false);
     onClose();
   };
-  
+
   return (
     <Modal
       animationType="slide"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
-      statusBarTranslucent={true} 
+      statusBarTranslucent={true}
     >
       <View style={styles.modalContainer}>
         <View style={[
           styles.modalContent,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-          isTabletPortrait && styles.modalContentTabletPortrait
+          isTabletPortrait && styles.modalContentTabletPortrait,
         ]}>
           <View style={[
             styles.titleContainer,
@@ -67,18 +67,18 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly }) {
             styles.buttonContainer,
             isSmartphone && styles.buttonContainerSmartphone,
           ]}>
-            <Button 
-              title="Yes" 
+            <Button
+              title="Yes"
               backgroundColor={COLORS.orange}
               width={isSmartphone ? '20%' : '22%'}
-              onPress={handleYes} 
+              onPress={handleYes}
             />
-            <Button 
-              title="No" 
+            <Button
+              title="No"
               backgroundColor={COLORS.gray950}
-              color={COLORS.gray300} 
+              color={COLORS.gray300}
               width={isSmartphone ? '20%' : '22%'}
-              onPress={handleNo} 
+              onPress={handleNo}
             />
           </View>
         </View>
@@ -137,6 +137,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   buttonContainerSmartphone: {
-    gap: 10
+    gap: 10,
   },
 });

@@ -61,15 +61,15 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
       Animated.timing(slideAnim, {
         toValue: isExpanded ? 0 : (isSmartphone ? -500 : -300),
         duration: 300,
-        useNativeDriver: true
+        useNativeDriver: true,
       }),
       Animated.timing(fadeAnim, {
         toValue: isExpanded ? 0.6 : 0,
         duration: 300,
-        useNativeDriver: true
-      })
+        useNativeDriver: true,
+      }),
     ]).start();
-  }, [isExpanded, isSmartphone]);
+  }, [isExpanded, isSmartphone, slideAnim, fadeAnim]);
 
   /**
    * @function useEffect
@@ -82,9 +82,8 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         const credentials = await SecureStore.getItemAsync('userCredentials');
 
         if (!credentials) {
-          console.log('❌ Pas de credentials trouvés');
           await clearSecureStorage();
-          if (onNavigate) onNavigate(SCREENS.LOGIN);
+          if (onNavigate) {onNavigate(SCREENS.LOGIN);}
           return;
         }
 
@@ -93,7 +92,6 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           const response = await fetchUserChannels(contractNumber, login, password, '', accountApiKey);
 
           if (response.status === 'ok' && response.privateGroups) {
-            console.log('✅ Groupes chargés:', response.privateGroups.length);
             setGroups(response.privateGroups);
             setChannels(response.publicChannels || []);
           } else {
@@ -103,13 +101,13 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           console.error('🔴 Erreur:', error);
           if (error.message.includes('Could not decrypt')) {
             await clearSecureStorage();
-            if (onNavigate) onNavigate(SCREENS.LOGIN);
+            if (onNavigate) {onNavigate(SCREENS.LOGIN);}
           }
         }
       } catch (error) {
         console.error('🔴 Erreur globale:', error);
         await clearSecureStorage();
-        if (onNavigate) onNavigate(SCREENS.LOGIN);
+        if (onNavigate) {onNavigate(SCREENS.LOGIN);}
       } finally {
         setLoading(false);
       }
@@ -125,7 +123,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         const credentials = JSON.parse(credentialsStr);
         setUserInfo({
           firstname: credentials.firstname || '',
-          lastname: credentials.lastname || ''
+          lastname: credentials.lastname || '',
         });
       }
     };
@@ -141,7 +139,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     ...group,
     channels: group.channels?.filter(channel =>
       channel.title.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    ),
   })).filter(group => group.channels?.length > 0);
 
   /**
@@ -182,7 +180,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
       <Animated.View style={[
         styles.sidebar,
         isSmartphone && styles.sidebarSmartphone,
-        { transform: [{ translateX: slideAnim }] }
+        { transform: [{ translateX: slideAnim }] },
       ]}>
         {/* Close button */}
         <TouchableOpacity onPress={toggleMenu} style={styles.closeButton}>
@@ -201,7 +199,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
             <TextInput
               style={[
                 styles.searchInput,
-                isSmartphone && styles.searchInputSmartphone
+                isSmartphone && styles.searchInputSmartphone,
               ]}
               placeholder="Search a channel"
               placeholderTextColor={COLORS.gray300}
@@ -214,7 +212,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           <TouchableOpacity
             style={[
               styles.menuItem,
-              showGroups && styles.selectedItem
+              showGroups && styles.selectedItem,
             ]}
             onPress={handleGroupsClick}
           >
@@ -226,7 +224,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
             <Text style={[
               styles.menuText,
               isSmartphone && styles.menuTextSmartphone,
-              showGroups && { color: COLORS.orange }
+              showGroups && { color: COLORS.orange },
             ]}>Groupes</Text>
           </TouchableOpacity>
 
@@ -238,7 +236,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
               ) : filteredGroups.map((group) => (
                 <View key={group.id} style={[
                   styles.groupItem,
-                  selectedGroup?.id === group.id
+                  selectedGroup?.id === group.id,
                 ]}>
                   <TouchableOpacity
                     style={styles.groupHeader}
@@ -246,13 +244,13 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                   >
                     <View style={styles.groupHeaderContent}>
                       <Ionicons
-                        name={selectedGroup?.id === group.id ? "chevron-down" : "chevron-forward"}
+                        name={selectedGroup?.id === group.id ? 'chevron-down' : 'chevron-forward'}
                         size={isSmartphone ? 10 : 15}
                         color={COLORS.gray300}
                       />
                       <Text style={[
                         styles.groupName,
-                        isSmartphone && styles.groupNameSmartphone
+                        isSmartphone && styles.groupNameSmartphone,
                       ]}>{group.title}</Text>
                     </View>
                   </TouchableOpacity>
@@ -268,11 +266,11 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                         <View style={styles.channelContent}>
                           <Text style={[
                             styles.hashIcon,
-                            isSmartphone && styles.hashIconSmartphone
+                            isSmartphone && styles.hashIconSmartphone,
                           ]}>#</Text>
                           <Text style={[
                             styles.channelName,
-                            isSmartphone && styles.channelNameSmartphone
+                            isSmartphone && styles.channelNameSmartphone,
                           ]}>{channel.title}</Text>
                         </View>
                         {unreadChannels[channel.id] && (
@@ -292,7 +290,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           <TouchableOpacity
             style={[
               styles.menuItem,
-              currentSection === 'settings' && styles.selectedItem
+              currentSection === 'settings' && styles.selectedItem,
             ]}
             onPress={handleSettingsClick}
           >
@@ -304,7 +302,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
             <Text style={[
               styles.menuText,
               isSmartphone && styles.menuTextSmartphone,
-              currentSection === 'settings' && { color: COLORS.orange }
+              currentSection === 'settings' && { color: COLORS.orange },
             ]}>Settings</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -338,7 +336,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: COLORS.backgroundModal,
-    zIndex: 1
+    zIndex: 1,
   },
   sidebar: {
     position: 'absolute',
@@ -354,14 +352,14 @@ const styles = StyleSheet.create({
   },
   sidebarSmartphone: {
     width: '80%',
-    maxWidth: 500
+    maxWidth: 500,
   },
   closeButton: {
     position: 'absolute',
     top: 10,
     right: 10,
     zIndex: 3,
-    padding: 10
+    padding: 10,
   },
   menuList: {
     marginTop: 60,
@@ -372,13 +370,13 @@ const styles = StyleSheet.create({
     color: COLORS.gray300,
     fontSize: SIZES.fonts.smallTextTablet,
     textAlign: 'center',
-    marginTop: 20
+    marginTop: 20,
   },
   loadingTextSmartphone: {
     fontSize: SIZES.fonts.smallTextSmartphone,
   },
   groupItem: {
-    marginBottom: 15
+    marginBottom: 15,
   },
   selectedItem: {
     backgroundColor: COLORS.charcoal,
@@ -388,7 +386,7 @@ const styles = StyleSheet.create({
   groupHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8
+    paddingVertical: 8,
   },
   groupHeaderContent: {
     flexDirection: 'row',
@@ -397,7 +395,7 @@ const styles = StyleSheet.create({
   groupName: {
     color: COLORS.gray300,
     fontSize: SIZES.fonts.textTablet,
-    marginLeft: 10
+    marginLeft: 10,
   },
   groupNameSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
@@ -461,7 +459,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderTopWidth: 0.5,
-    borderTopColor: COLORS.borderColor
+    borderTopColor: COLORS.borderColor,
   },
   profileInfo: {
     flexDirection: 'row',

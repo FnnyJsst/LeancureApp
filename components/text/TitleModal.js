@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
@@ -6,7 +7,7 @@ import { Text } from './CustomText';
 /**
  * @component TitleModal
  * @description A component that renders a title for a modal
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {string} props.title - The title of the modal
  */
@@ -37,6 +38,6 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   titleSmartphone: {
-    fontSize: SIZES.fonts.biggerTextSmartphone
+    fontSize: SIZES.fonts.biggerTextSmartphone,
   },
 });

@@ -4,20 +4,20 @@ import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
 import CustomAlert from './CustomAlert';
-import { useDeviceType } from '../../../hooks/useDeviceType'; 
+import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 
 /**
  * @component PasswordDefineModal
  * @description A component that renders a modal for setting a password
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onSubmitPassword - The function to call when the password is submitted
  * @param {Function} props.onDisablePassword - The function to call when the password is disabled
- * 
+ *
  * @example
  * <PasswordDefineModal visible={visible} onClose={() => console.log('Modal closed')} onSubmitPassword={() => console.log('Password submitted')} onDisablePassword={() => console.log('Password disabled')} />
  */
@@ -33,7 +33,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     message: '',
-    type: 'error'
+    type: 'error',
   });
   const [isFocused, setIsFocused] = useState(false);
 
@@ -59,7 +59,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
       showAlert('Error', 'Password must contain at least 6 characters');
       return;
     }
-    
+
     //Check if passwords match
     if (password === confirmPassword) {
       showAlert('Success', 'Password has been set successfully', 'success');
@@ -99,7 +99,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
         transparent={true}
         visible={visible}
         onRequestClose={handleClose}
-        statusBarTranslucent={true} 
+        statusBarTranslucent={true}
       >
         <View style={[
           MODAL_STYLES.modalContainer,
@@ -110,12 +110,12 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
               MODAL_STYLES.content,
               isSmartphone && styles.modalContentSmartphone,
               isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-              isTabletPortrait && styles.modalContentTabletPortrait
+              isTabletPortrait && styles.modalContentTabletPortrait,
             ]}>
             <TitleModal title="Enter password" />
             <View style={[
               styles.inputContainer,
-              isSmartphone && styles.inputContainerSmartphone
+              isSmartphone && styles.inputContainerSmartphone,
             ]}>
               <InputModal
                 placeholder="Enter a password (6+ chars)"
@@ -125,9 +125,9 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 icon={
-                  <Ionicons 
-                    name="lock-closed-outline" 
-                    size={20} 
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={20}
                     color={isFocused ? COLORS.orange : COLORS.gray300}
                     style={styles.icon}
                   />
@@ -139,9 +139,9 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
                 onChangeText={setConfirmPassword}
                 secureTextEntry={true}
                 icon={
-                  <Ionicons 
-                    name="lock-closed-outline" 
-                    size={20} 
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={20}
                     color={isFocused ? COLORS.orange : COLORS.gray300}
                     style={styles.icon}
                   />
@@ -153,9 +153,9 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
                 title="Do not use"
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
-                onPress={() => { 
-                  onDisablePassword(); 
-                  handleClose(); 
+                onPress={() => {
+                  onDisablePassword();
+                  handleClose();
                 }}
                 width={isSmartphone ? '28%' : '32%'}
               />

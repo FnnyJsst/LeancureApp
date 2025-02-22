@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ScrollView, View, TouchableOpacity, StyleSheet } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import InputLogin from '../../../components/inputs/InputLogin';
@@ -17,8 +17,8 @@ import { Text } from '../../../components/text/CustomText';
 
 /**
  * @component Login
- * @description Component to handle the login process and the persistence of the login data 
- * 
+ * @description Component to handle the login process and the persistence of the login data
+ *
  * @param {Object} props - The properties of the component
  * @param {Function} props.onNavigate - Function to navigate between screens
  */
@@ -61,8 +61,8 @@ export default function Login({ onNavigate }) {
             // Clean up the SecureStore in case of previous error
             try {
                 await SecureStore.deleteItemAsync('userCredentials');
-            } catch (e) {
-                console.log('Clean up error:', e);
+            } catch (error) {
+                throw error;
             }
 
             const validationError = validateInputs();
@@ -72,16 +72,16 @@ export default function Login({ onNavigate }) {
             }
 
             const loginResponse = await loginApi(contractNumber, login, password);
-            
+
             if (loginResponse.success) {
                 // Save the new credentials in the SecureStore
                 const credentials = {
                     contractNumber,
                     login,
                     password: hashPassword(password),
-                    accountApiKey: loginResponse.accountApiKey
+                    accountApiKey: loginResponse.accountApiKey,
                 };
-                
+
                 await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
 
                 // Save the login info if the checkbox is checked
@@ -91,10 +91,10 @@ export default function Login({ onNavigate }) {
 
                 // Fetch the user channels
                 const channelsResponse = await fetchUserChannels(
-                    contractNumber, 
-                    login, 
-                    password, 
-                    '', 
+                    contractNumber,
+                    login,
+                    password,
+                    '',
                     loginResponse.accountApiKey
                 );
 
@@ -107,32 +107,31 @@ export default function Login({ onNavigate }) {
             } else {
                 setError('Invalid credentials');
             }
-        } catch (error) {
-            console.error('Login error:', error);
+        } catch (loginError) {
             setError('Login failed');
         } finally {
             setIsLoading(false);
         }
-    }, [contractNumber, login, password, isChecked, onNavigate]);
+    }, [contractNumber, login, password, isChecked, onNavigate, saveLoginInfo, validateInputs]);
 
     /**
      * @function handleSimplifiedLogin
      * @description Handle the simplified login process when the user has saved login info
      */
     const handleSimplifiedLogin = useCallback(async () => {
-        if (!savedLoginInfo) return;
-        
+        if (!savedLoginInfo) {return;}
+
         setIsLoading(true);
         try {
             const { contractNumber, login, password } = savedLoginInfo;
             const loginResponse = await loginApi(contractNumber, login, password);
-            
+
             if (loginResponse && loginResponse.status === 200) {
                 await secureStore.saveCredentials({
                     contractNumber,
                     login,
                     password: hashPassword(password),
-                    accountApiKey: loginResponse.accountApiKey
+                    accountApiKey: loginResponse.accountApiKey,
                 });
 
                 const channelsResponse = await fetchUserChannels(contractNumber, login, password, '', loginResponse.accountApiKey);
@@ -140,7 +139,6 @@ export default function Login({ onNavigate }) {
                 if (channelsResponse.status === 'ok') {
                     onNavigate(SCREENS.CHAT);
                 } else {
-                    console.error('Error loading channels:', channelsResponse);
                     setError('Error loading channels');
                     setIsSimplifiedLogin(false);
                 }
@@ -149,7 +147,6 @@ export default function Login({ onNavigate }) {
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            console.error('Login error:', error);
             setError('Login failed');
             setIsSimplifiedLogin(false);
         } finally {
@@ -168,7 +165,7 @@ export default function Login({ onNavigate }) {
                     contractNumber,
                     login,
                     password,
-                    wasChecked: true
+                    wasChecked: true,
                 }));
             } else {
                 await SecureStore.deleteItemAsync('savedLoginInfo');
@@ -194,13 +191,13 @@ export default function Login({ onNavigate }) {
                     setIsSimplifiedLogin(true);
                     setContractNumber(parsedInfo.contractNumber);
                 }
-            } catch (error) {
-                console.error('Error checking saved login:', error);
+            } catch (savedLoginError) {
+                throw savedLoginError;
             } finally {
                 setIsInitialLoading(false);
             }
         };
-        
+
         checkSavedLogin();
     }, []);
 
@@ -215,7 +212,7 @@ export default function Login({ onNavigate }) {
                     <View style={styles.container}>
                         <View style={[isSmartphone && styles.formContainerSmartphone]}>
                             {isSimplifiedLogin ? (
-                                <SimplifiedLogin 
+                                <SimplifiedLogin
                                     contractNumber={contractNumber}
                                     login={login}
                                     onSwitchAccount={() => setIsSimplifiedLogin(false)}
@@ -227,22 +224,22 @@ export default function Login({ onNavigate }) {
                                     <View style={[
                                         styles.loginContainer,
                                         isSmartphone && styles.loginContainerSmartphone,
-                                        isLandscape && styles.loginContainerLandscape
+                                        isLandscape && styles.loginContainerLandscape,
                                     ]}>
                                         <View style={styles.titleContainer}>
                                             <Text style={[styles.title, isSmartphone && styles.titleSmartphone, isLandscape && styles.titleLandscape]}>Welcome</Text>
                                             <Text style={[styles.subtitle, isSmartphone && styles.subtitleSmartphone, isLandscape && styles.subtitleLandscape]}>Sign in to your account</Text>
                                         </View>
-                                        
+
                                         <View style={styles.inputsContainer}>
                                             <View style={styles.inputGroup}>
                                                 <Text style={[
                                                     styles.inputTitle,
                                                     isSmartphone && styles.inputTitleSmartphone,
-                                                    isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape
+                                                    isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape,
                                                 ]}>Contract number</Text>
                                                 <View style={styles.inputWrapper}>
-                                                    <InputLogin 
+                                                    <InputLogin
                                                         placeholder="Enter your contract number"
                                                         value={contractNumber}
                                                         onChangeText={setContractNumber}
@@ -256,12 +253,12 @@ export default function Login({ onNavigate }) {
                                                 <Text style={[
                                                     styles.inputTitle,
                                                     isSmartphone && styles.inputTitleSmartphone,
-                                                    isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape
+                                                    isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape,
                                                 ]}>
                                                     Login
                                                 </Text>
                                                 <View style={styles.inputWrapper}>
-                                                    <InputLogin 
+                                                    <InputLogin
                                                         placeholder="Enter your login"
                                                         value={login}
                                                         onChangeText={setLogin}
@@ -272,13 +269,13 @@ export default function Login({ onNavigate }) {
 
                                             <View style={styles.inputGroup}>
                                                 <Text style={[
-                                                    styles.inputTitle, 
+                                                    styles.inputTitle,
                                                     isSmartphone && styles.inputTitleSmartphone,
                                                     isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>
                                                     Password
                                                 </Text>
                                                 <View style={styles.inputWrapper}>
-                                                    <InputLogin 
+                                                    <InputLogin
                                                         placeholder="Enter your password"
                                                         value={password}
                                                         onChangeText={setPassword}
@@ -293,7 +290,7 @@ export default function Login({ onNavigate }) {
                                             ) : null}
 
                                             <View style={styles.checkboxContainer}>
-                                                <CheckBox 
+                                                <CheckBox
                                                     checked={isChecked}
                                                     onPress={() => setIsChecked(!isChecked)}
                                                     label="Stay connected"
@@ -301,7 +298,7 @@ export default function Login({ onNavigate }) {
                                             </View>
 
                                             <View style={styles.buttonContainer}>
-                                                <ButtonWithSpinner 
+                                                <ButtonWithSpinner
                                                     variant="large"
                                                     title="Login"
                                                     isLoading={isLoading}
@@ -311,7 +308,7 @@ export default function Login({ onNavigate }) {
                                             </View>
                                         </View>
                                     </View>
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
                                         style={styles.backLink}
                                         onPress={() => onNavigate(SCREENS.APP_MENU)}
                                     >
@@ -356,10 +353,10 @@ const styles = StyleSheet.create({
         fontSize: SIZES.fonts.subtitleTablet,
         fontWeight: SIZES.fontWeight.regular,
         textAlign: 'center',
-        marginBottom: 20
+        marginBottom: 20,
     },
     subtitleSmartphone: {
-        fontSize: SIZES.fonts.subtitleSmartphone,  
+        fontSize: SIZES.fonts.subtitleSmartphone,
     },
     subtitleLandscape: {
         marginBottom: 0,
@@ -431,7 +428,7 @@ const styles = StyleSheet.create({
     backLink: {
         padding: 15,
         alignItems: 'center',
-        marginTop: 10, 
+        marginTop: 10,
     },
     backLinkText: {
         color: COLORS.orange,

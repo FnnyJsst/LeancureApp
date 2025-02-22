@@ -57,7 +57,7 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
       } catch (storageError) {
         setError('Error saving the data in the storage');
       }
-    } catch (error) {
+    } catch (saveServerAddressError) {
       setError('Error saving the server address');
     }
   };
@@ -68,14 +68,14 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
-      statusBarTranslucent={true} 
+      statusBarTranslucent={true}
     >
       <View style={styles.modalContainer}>
         <View style={[
           styles.modalContent,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
-          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape, 
-          isTabletLandscape && styles.modalContentTabletLandscape
+          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+          isTabletLandscape && styles.modalContentTabletLandscape,
         ]}>
           <View style={styles.titleContainer}>
             <Text style={[styles.titleText, isSmartphone && styles.titleTextSmartphone]}>
@@ -159,6 +159,6 @@ const styles = StyleSheet.create({
     color: COLORS.error,
     fontSize: SIZES.fonts.smallText,
     marginTop: 8,
-    textAlign: 'center'
+    textAlign: 'center',
   },
 });

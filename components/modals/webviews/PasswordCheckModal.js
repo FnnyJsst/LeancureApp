@@ -11,20 +11,20 @@ import { Ionicons } from '@expo/vector-icons';
 /**
  * @component PasswordCheckModal
  * @description A component that renders a modal for checking the password
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onSubmit - The function to call when the password is submitted
  * @param {boolean} props.isFocused - Whether the input is focused
- * 
+ *
  * @example
  * <PasswordCheckModal visible={visible} onClose={() => console.log('Modal closed')} onSubmit={() => console.log('Password submitted')} isFocused={true} />
  */
 export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocused }) {
 
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType(); 
+  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
 
   // State for the password and the alert
   const [password, setPassword] = useState('');
@@ -32,7 +32,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     message: '',
-    type: 'error'
+    type: 'error',
   });
 
   /**
@@ -45,7 +45,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
       setAlertConfig({
         title: 'Error',
         message: 'Please enter a password',
-        type: 'error'
+        type: 'error',
       });
       setAlertVisible(true);
       return;
@@ -69,14 +69,14 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
         transparent={true}
         visible={visible}
         onRequestClose={handleClose}
-        statusBarTranslucent={true} 
+        statusBarTranslucent={true}
       >
         <View style={MODAL_STYLES.modalContainer}>
           <View style={[
             MODAL_STYLES.content,
             isSmartphone && styles.modalContentSmartphone,
             isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-            isTabletPortrait && styles.modalContentTabletPortrait
+            isTabletPortrait && styles.modalContentTabletPortrait,
           ]}>
             <TitleModal title="Enter password" />
             <InputModal
@@ -85,9 +85,9 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
               onChangeText={setPassword}
               secureTextEntry={true}
               icon={
-                <Ionicons 
-                  name="lock-closed-outline" 
-                  size={20} 
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
                   color={isFocused ? COLORS.orange : COLORS.gray300}
                   style={styles.icon}
                 />

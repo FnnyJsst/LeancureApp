@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { Modal, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { COLORS, SIZES } from '../../../constants/style';
@@ -11,7 +12,7 @@ import { Text } from '../../text/CustomText';
 /**
  * @component DocumentPreviewModal
  * @description A component that renders a document preview in the chat
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
@@ -19,10 +20,11 @@ import { Text } from '../../text/CustomText';
  * @param {string} props.fileSize - The size of the file
  * @param {string} props.fileType - The type of the file
  * @param {string} props.base64 - The base64 of the file
- * 
+ *
  */
 export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64 }) {
   const { isSmartphone, isSmartphoneLandscape, isLandscape } = useDeviceType();
+  const [error, setError] = useState(null);
 
   /**
    * @function handleDownload
@@ -36,9 +38,9 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         encoding: FileSystem.EncodingType.Base64,
       });
       await Sharing.shareAsync(fileUri);
-      console.log('File downloaded successfully');
-    } catch (error) {
-      console.error('Error downloading file:', error);
+      setError('File downloaded successfully');
+    } catch (downloadFileError) {
+      setError(`Error downloading file: ${downloadFileError.message}`);
     }
   };
 
@@ -49,8 +51,8 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
    * @returns {string} - La taille formatée avec son unité
    */
   const formatFileSize = (bytes) => {
-    if (!bytes) return '0 Ko';
-    
+    if (!bytes) {return '0 Ko';}
+
     const units = ['Ko', 'Mo', 'Go'];
     let size = bytes / 1024; // Conversion directe en Ko
     let unitIndex = 0;
@@ -107,15 +109,15 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                           const canvas = document.createElement('canvas');
                           const context = canvas.getContext('2d');
                           const viewport = page.getViewport({scale: 0.62});
-                          
+
                           canvas.width = viewport.width;
                           canvas.height = viewport.height;
-                          
+
                           const renderContext = {
                             canvasContext: context,
                             viewport: viewport
                           };
-                          
+
                           document.getElementById('viewer').appendChild(canvas);
                           page.render(renderContext);
                         });
@@ -123,7 +125,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                     </script>
                   </body>
                 </html>
-              `
+              `,
             }}
             originWhitelist={['*']}
             scalesPageToFit={true}
@@ -160,12 +162,12 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Ionicons name="close" size={24} color={COLORS.white} />
           </TouchableOpacity>
-          
+
           <View style={styles.fileHeader}>
-            <Ionicons 
-              name={fileType?.includes('pdf') ? "document-outline" : "image-outline"} 
-              size={24} 
-              color={COLORS.white} 
+            <Ionicons
+              name={fileType?.includes('pdf') ? 'document-outline' : 'image-outline'}
+              size={24}
+              color={COLORS.white}
             />
             <View style={styles.fileInfo}>
               <Text style={[styles.fileName, isSmartphone && styles.fileNameSmartphone]} numberOfLines={1}>
@@ -177,11 +179,11 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
             </View>
           </View>
           {renderPreview()}
-          <View style={styles.buttonContainer}> 
-            <Button 
-              title="Download" 
+          <View style={styles.buttonContainer}>
+            <Button
+              title="Download"
               variant="large"
-              onPress={handleDownload} 
+              onPress={handleDownload}
               width="100%"
             />
           </View>
@@ -198,7 +200,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     paddingBottom: '40%',
-    paddingTop: '20%'
+    paddingTop: '20%',
   },
   modalContainerLandscape: {
     paddingBottom: '5%',
@@ -263,11 +265,11 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   fileSizeSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone
+    fontSize: SIZES.fonts.textSmartphone,
   },
   buttonContainer: {
     width: '100%',
     alignItems: 'center',
-    marginTop: 10
+    marginTop: 10,
   },
 });

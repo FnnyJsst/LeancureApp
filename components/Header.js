@@ -73,7 +73,7 @@ export default function Header({
   );
 
   const renderRightSection = () => {
-    if (!showIcons) return null;
+    if (!showIcons) {return null;}
 
     return (
       <View style={styles.rightIconsContainer}>

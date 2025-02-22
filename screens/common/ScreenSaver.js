@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, Image, StyleSheet, StatusBar } from 'react-native';
-import { COLORS } from '../../constants/style';  
+import { COLORS } from '../../constants/style';
 
 /**
  * @component ScreenSaver
  * @description Displays the screen saver
- * 
+ *
  * @returns {JSX.Element} - A JSX element
- * 
+ *
  * @example
  * <ScreenSaver />
  */

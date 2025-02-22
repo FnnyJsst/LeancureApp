@@ -73,5 +73,5 @@ const styles = StyleSheet.create({
   iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-  }
+  },
 });

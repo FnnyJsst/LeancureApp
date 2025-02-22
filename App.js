@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
@@ -333,7 +333,7 @@ export default function App() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: COLORS.gray950 }}>
+    <View style={styles.container}>
       {renderWebviewScreen()}
 
       <PasswordDefineModal
@@ -355,3 +355,10 @@ export default function App() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.gray950,
+  },
+});

@@ -22,14 +22,14 @@ export const useTimeout = () => {
     };
 
     /**
-   * @function handleTimeoutSelection 
+   * @function handleTimeoutSelection
    * @description Handles the selection of the timeout
    * @param {string} value - The value to handle
    * @returns {void}
    */
     const handleTimeoutSelection = (value) => {
         const timeoutInSeconds = getTimeoutInSeconds(value);
-        
+
         if (value === 'never') {
             setTimeoutInterval(null);
             try {
@@ -61,6 +61,6 @@ export const useTimeout = () => {
     return {
         timeoutInterval,
         handleTimeoutSelection,
-        loadTimeoutInterval
+        loadTimeoutInterval,
     };
 };

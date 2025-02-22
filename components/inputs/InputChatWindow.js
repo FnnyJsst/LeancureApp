@@ -10,11 +10,11 @@ import { Text } from '../text/CustomText';
 /**
  * @component FilePreview
  * @description A component that renders the file information in the input of the chat
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {Object} props.file - The file to display
  * @param {Function} props.onRemove - The function to call when the file is removed
- * 
+ *
  * @example
  * <FilePreview file={file} onRemove={() => console.log('File removed')} />
  */
@@ -22,10 +22,10 @@ const  FilePreview = ({ file, onRemove }) => {
   return (
     <View style={styles.previewContainer}>
       <View style={styles.fileInfo}>
-        <Ionicons 
-          name="document-outline" 
-          size={24} 
-          color={COLORS.gray300} 
+        <Ionicons
+          name="document-outline"
+          size={24}
+          color={COLORS.gray300}
         />
         <View style={styles.fileDetails}>
           <Text style={styles.fileName} numberOfLines={1}>
@@ -37,10 +37,10 @@ const  FilePreview = ({ file, onRemove }) => {
         </View>
       </View>
       <TouchableOpacity onPress={onRemove}>
-        <Ionicons 
-          name="close-circle" 
-          size={24} 
-          color={COLORS.gray600} 
+        <Ionicons
+          name="close-circle"
+          size={24}
+          color={COLORS.gray600}
         />
       </TouchableOpacity>
     </View>
@@ -48,12 +48,12 @@ const  FilePreview = ({ file, onRemove }) => {
 };
 
 /**
- * @component InputChatWindow 
+ * @component InputChatWindow
  * @description A component that renders the input of the chat
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {Function} props.onFocusChange - The function to call when the input is focused
- * 
+ *
  * @example
  * <InputChatWindow onSendMessage={() => console.log('Message sent')} onFocusChange={() => console.log('Input focused')} />
  */
@@ -72,7 +72,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
    * @returns {string} The size of the file in a readable format
    */
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) {return '0 B';}
 
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
@@ -92,11 +92,11 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
         // We allow only one file to be picked
         multiple: false,
       });
-  
+
       if (result.assets && result.assets.length > 0) {
         const file = result.assets[0];
         const fileSize = formatFileSize(file.size);
-        
+
         // We store the file in base64 format
         const base64 = await FileSystem.readAsStringAsync(file.uri, {
           encoding: FileSystem.EncodingType.Base64,
@@ -108,11 +108,11 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
           fileSize: fileSize,
           fileType: file.mimeType,
           uri: file.uri,
-          base64: base64
+          base64: base64,
         });
       }
-    } catch (error) {
-      console.error('Error when picking the document:', error);
+    } catch (pickDocumentError) {
+      throw pickDocumentError;
     }
   };
 
@@ -163,23 +163,23 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
     <>
       <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
         {/* We display the attach icon */}
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={pickDocument}
           style={[
             styles.attachButton,
-            isSmartphone && styles.attachButtonSmartphone
+            isSmartphone && styles.attachButtonSmartphone,
           ]}
         >
-          <Ionicons 
-            name="add-outline" 
-            size={isSmartphone ? 24 : 30} 
-            color={COLORS.gray300} 
+          <Ionicons
+            name="add-outline"
+            size={isSmartphone ? 24 : 30}
+            color={COLORS.gray300}
           />
         </TouchableOpacity>
         {/* If we have a selected file, we display the file preview */}
         {selectedFile ? (
-          <FilePreview 
-            file={selectedFile} 
+          <FilePreview
+            file={selectedFile}
             onRemove={handleRemoveFile}
           />
         ) : (
@@ -188,7 +188,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
             style={[
               styles.input,
               isSmartphone && styles.smartphoneInput,
-              isFocused && styles.inputFocused
+              isFocused && styles.inputFocused,
             ]}
             placeholder="Type your message here..."
             placeholderTextColor={COLORS.gray600}
@@ -205,17 +205,17 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
           />
         )}
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
-            styles.sendButton, 
+            styles.sendButton,
             isSmartphone && styles.smartphoneSendButton,
-            (message.trim() || selectedFile) && styles.sendButtonActive
+            (message.trim() || selectedFile) && styles.sendButtonActive,
           ]}
           onPress={handleSend}
         >
-          <Ionicons 
-            name="send-outline" 
-            size={isSmartphone ? 18 : 24} 
+          <Ionicons
+            name="send-outline"
+            size={isSmartphone ? 18 : 24}
             color={(message.trim() || selectedFile) ? COLORS.orange : COLORS.white}
             style={styles.sendIcon}
           />
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     borderColor: '#403430',
   },
   inputFocused: {
-    borderColor: COLORS.orange + '50', 
+    borderColor: COLORS.orange + '50',
     shadowColor: COLORS.orange,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.2,

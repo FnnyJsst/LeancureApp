@@ -10,11 +10,11 @@ if (!DEFAULT_API_URL) {
 export const ENV = {
     API_URL: async () => {
         console.log('🔄 Début récupération URL API');
-        
+
         try {
             console.log('🔍 Recherche d\'une URL personnalisée...');
             const customUrl = await SecureStore.getItemAsync('custom_api_url');
-            
+
             if (customUrl) {
                 console.log('📱 URL personnalisée trouvée:', customUrl);
                 // Vérifions que l'URL est valide
@@ -36,7 +36,7 @@ export const ENV = {
             console.error('🔴 Erreur détaillée:', {
                 name: error.name,
                 message: error.message,
-                stack: error.stack
+                stack: error.stack,
             });
             return DEFAULT_API_URL;
         }
@@ -53,22 +53,22 @@ export const ENV = {
         try {
             // Vérifions que l'URL est valide
             new URL(trimmedUrl);
-            
+
             // Supprimons d'abord l'ancienne URL
             await SecureStore.deleteItemAsync('custom_api_url');
             console.log('🗑️ Ancienne URL supprimée');
-            
+
             // Sauvegardons la nouvelle URL
             await SecureStore.setItemAsync('custom_api_url', trimmedUrl);
             console.log('✅ Nouvelle URL sauvegardée:', trimmedUrl);
-            
+
             return true;
         } catch (error) {
             console.error('🔴 Erreur lors de la sauvegarde:', {
                 name: error.name,
-                message: error.message
+                message: error.message,
             });
             throw error;
         }
-    }
-}; 
+    },
+};

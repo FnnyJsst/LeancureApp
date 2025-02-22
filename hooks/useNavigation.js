@@ -7,6 +7,7 @@ import { SCREENS } from '../constants/screens';
  * @returns {Object} - An object containing the navigate and goBack functions
  */
 export const useNavigation = (setCurrentScreen) => {
+
   const navigate = useCallback((screen) => {
     if (!SCREENS[screen]) {
       console.warn(`Screen "${screen}" doesn't exist`);
@@ -24,7 +25,7 @@ export const useNavigation = (setCurrentScreen) => {
       [SCREENS.CHAT]: SCREENS.APP_MENU,
       [SCREENS.SETTINGS]: SCREENS.APP_MENU,
     };
-    
+
     return (currentScreen) => {
       setCurrentScreen(screenHierarchy[currentScreen] || defaultScreen);
     };

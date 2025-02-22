@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '../../components/text/CustomText';
 import { FONTS } from '../../constants/style';
@@ -62,7 +62,7 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
             <View style={[
                 styles.configContainer,
                 isSmartphone && styles.configContainerSmartphone,
-                isLandscape && styles.configContainerLandscape
+                isLandscape && styles.configContainerLandscape,
             ]}>
                 <View style={styles.rowContainer}>
                     <View style={styles.leftContent}>
@@ -93,7 +93,7 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
             <View style={[
                 styles.configContainer,
                 isSmartphone && styles.configContainerSmartphone,
-                isLandscape && styles.configContainerLandscape
+                isLandscape && styles.configContainerLandscape,
             ]}>
                 <View style={styles.rowContainer}>
                     <View style={styles.leftContent}>

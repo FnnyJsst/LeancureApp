@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
-import { useDeviceType } from '../../hooks/useDeviceType'; 
-import { SIZES, COLORS, FONTS } from '../../constants/style'; 
+import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { useDeviceType } from '../../hooks/useDeviceType';
+import { SIZES, COLORS, FONTS } from '../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 
 /**
  * @component InputModal
  * @description A component that renders an input used in all the modals
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {string} props.placeholder - The placeholder of the input
  * @param {string} props.value - The value of the input
@@ -15,24 +15,24 @@ import { Ionicons } from '@expo/vector-icons';
  * @param {Object} props.style - The style of the input
  * @param {boolean} props.secureTextEntry - Whether the input is secure
  * @param {ReactNode} props.icon - The icon of the input
- * 
+ *
  * @example
  * <InputModal placeholder="Placeholder" value="Value" onChangeText={() => console.log('Input changed')} />
  */
 export default function InputModal({
-  placeholder, 
-  value, 
-  onChangeText, 
-  style, 
+  placeholder,
+  value,
+  onChangeText,
+  style,
   secureTextEntry = true,
-  icon
+  icon,
 }) {
 
   // We create a hook to determine the device type
-  const { isSmartphone, isSmartphonePortrait } = useDeviceType(); 
+  const { isSmartphone, isSmartphonePortrait } = useDeviceType();
 
   // We create a state to store if the input is focused
-  const [isFocused, setIsFocused] = useState(false); 
+  const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -42,12 +42,12 @@ export default function InputModal({
         isFocused && styles.inputFocused,
         style,
         isSmartphone && styles.inputSmartphone,
-        isSmartphonePortrait && styles.inputSmartphonePortrait
+        isSmartphonePortrait && styles.inputSmartphonePortrait,
       ]}>
         {icon && React.cloneElement(icon, {
-          color: isFocused ? COLORS.orange : COLORS.gray300
+          color: isFocused ? COLORS.orange : COLORS.gray300,
         })}
-        <TextInput 
+        <TextInput
           placeholder={placeholder}
           secureTextEntry={secureTextEntry && !showPassword}
           placeholderTextColor={COLORS.gray600}
@@ -58,14 +58,14 @@ export default function InputModal({
           onBlur={() => setIsFocused(false)}
         />
         {secureTextEntry && (
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
             style={styles.eyeIcon}
           >
-            <Ionicons 
-              name={showPassword ? "eye-outline" : "eye-off-outline"} 
-              size={20} 
-              color={COLORS.gray600} 
+            <Ionicons
+              name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+              size={20}
+              color={COLORS.gray600}
             />
           </TouchableOpacity>
         )}
@@ -76,11 +76,11 @@ export default function InputModal({
 
 const styles = StyleSheet.create({
   inputContainer: {
-    width: "100%",
+    width: '100%',
   },
   inputWrapper: {
     height: 50,
-    marginHorizontal: "auto",
+    marginHorizontal: 'auto',
     padding: 10,
     width: '100%',
     backgroundColor: COLORS.gray950,
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   inputSmartphonePortrait: {
-    width: "95%",
+    width: '95%',
   },
   eyeIcon: {
     marginRight: 10,

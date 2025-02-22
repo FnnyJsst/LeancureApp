@@ -33,19 +33,33 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     let isMounted = true;
     let refreshInterval;
 
-    const fetchChannelData = async () => {
+    const fetchMessages = async () => {
       try {
-        if (!isMounted || !selectedChannel) return;
-        await fetchMessages();
+        if (!isMounted || !selectedChannel) {return;}
+
+        const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+        if (!credentialsStr) {return;}
+
+        const credentials = JSON.parse(credentialsStr);
+        const messages = await fetchChannelMessages(selectedChannel.id, credentials);
+
+        if (!messages || messages.length === 0) {
+          setChannelMessages([]);
+          return;
+        }
+
+        setChannelMessages(messages);
       } catch (error) {
-        console.error('🔴 Error fetching messages:', error);
+        if (__DEV__) {
+          console.error('🔴 Error fetching messages:', error);
+        }
+        setChannelMessages([]);
       }
     };
 
-    fetchChannelData();
-    refreshInterval = setInterval(fetchChannelData, 5000);
+    fetchMessages();
+    refreshInterval = setInterval(fetchMessages, 5000);
 
-    // When the component is unmounted, we clear the interval
     return () => {
       isMounted = false;
       if (refreshInterval) {
@@ -118,37 +132,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    */
   const handleInputFocusChange = async (isFocused) => {
     setIsInputFocused(isFocused);
-  };
-
-  /**
-   * @function fetchMessages
-   * @description Fetches the user messages from the API
-   * @returns {Promise<Array>} - The messages
-   */
-  const fetchMessages = async () => {
-    try {
-      // We get the user credentials and parse them
-      const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-      if (!credentialsStr || !selectedChannel) {
-        return;
-      }
-
-      const credentials = JSON.parse(credentialsStr);
-
-      // We fetch the messages of the channel
-      const messages = await fetchChannelMessages(selectedChannel.id, credentials);
-
-      if (!messages || messages.length === 0) {
-        setChannelMessages([]);
-        return;
-      }
-
-      // We update the messages of the channel
-      setChannelMessages(messages);
-    } catch (error) {
-      console.error('🔴 Error fetching messages:', error);
-      setChannelMessages([]);
-    }
   };
 
   return (

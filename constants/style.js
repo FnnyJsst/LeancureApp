@@ -6,7 +6,7 @@ export const FONTS = {
   semiBold: 'Raleway-SemiBold',// 600
   bold: 'Raleway-Bold',        // 700
   extraBold: 'Raleway-ExtraBold',// 800
-  black: 'Raleway-Black'       // 900
+  black: 'Raleway-Black',       // 900
 };
 
 export const SIZES = {
@@ -35,7 +35,7 @@ export const SIZES = {
     semiBold: '600',
     bold: '700',
     extraBold: '800',
-    black: '900'
+    black: '900',
   },
   borderRadius: {
     small: 6,
@@ -100,8 +100,8 @@ export const MODAL_STYLES = {
     borderColor: COLORS.borderColor,
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     gap: 15,
     marginTop: 10,
   },

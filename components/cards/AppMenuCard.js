@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   },
   badgeTextSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
-  }
+  },
 });
 
 export default AppMenuCard;

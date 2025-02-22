@@ -8,29 +8,29 @@ import { Text } from '../text/CustomText';
 /**
  * @component CheckBox
  * @description A component that renders a checkbox
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.checked - Whether the checkbox is checked
  * @param {Function} props.onPress - The function to call when the checkbox is pressed
  * @param {string} props.label - The label of the checkbox
  * @param {boolean} props.disabled - Whether the checkbox is disabled
  * @param {Object} props.style - The style of the checkbox
- * 
+ *
  * @example
  * <CheckBox checked={checked} onPress={() => console.log('Checkbox pressed')} label="Checkbox label" />
  */
-export default function CheckBox({ 
-  checked, 
-  onPress, 
+export default function CheckBox({
+  checked,
+  onPress,
   label,
   disabled = false,
-  style 
+  style,
 }) {
 
   const { isSmartphone } = useDeviceType();
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
       style={[styles.container, style]}
@@ -38,13 +38,13 @@ export default function CheckBox({
       <View style={[
         styles.checkbox,
         checked && styles.checked,
-        disabled && styles.disabled
+        disabled && styles.disabled,
       ]}>
         {checked && (
-          <Ionicons 
-            name="checkmark" 
-            size={16} 
-            color={disabled ? COLORS.gray300 : COLORS.orange} 
+          <Ionicons
+            name="checkmark"
+            size={16}
+            color={disabled ? COLORS.gray300 : COLORS.orange}
           />
         )}
       </View>
@@ -52,7 +52,7 @@ export default function CheckBox({
         <Text style={[
           styles.label,
           isSmartphone && styles.labelSmartphone,
-          disabled && styles.labelDisabled
+          disabled && styles.labelDisabled,
         ]}>
           {label}
         </Text>
@@ -93,5 +93,5 @@ const styles = StyleSheet.create({
   },
   labelDisabled: {
     color: COLORS.gray300,
-  }
+  },
 });

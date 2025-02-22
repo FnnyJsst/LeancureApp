@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES, FONTS } from '../../constants/style';
 import { Ionicons, FontAwesome, MaterialIcons, Feather } from '@expo/vector-icons';
@@ -7,7 +7,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 /**
  * @component InputLogin
  * @description A component that renders an input for the login screen
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {string} props.placeholder - The placeholder of the input
  * @param {string} props.value - The value of the input
@@ -15,17 +15,17 @@ import { useDeviceType } from '../../hooks/useDeviceType';
  * @param {boolean} props.secureTextEntry - Whether the input is secure
  * @param {string} props.iconName - The name of the icon to display in the input
  * @param {string} props.iconLibrary - The library to use for the icon
- * 
+ *
  * @example
  * <InputLogin placeholder="Placeholder" value="Value" onChangeText={() => console.log('Input changed')} secureTextEntry={true} iconName="iconName" iconLibrary="Ionicons" />
  */
-export default function InputLogin({ 
-    placeholder, 
-    value, 
-    onChangeText, 
+export default function InputLogin({
+    placeholder,
+    value,
+    onChangeText,
     secureTextEntry,
     iconName,
-    iconLibrary = 'Ionicons' 
+    iconLibrary = 'Ionicons',
 }) {
 
     // Get device type
@@ -45,7 +45,7 @@ export default function InputLogin({
             name: iconName,
             size: 20,
             color: isFocused ? COLORS.orange : COLORS.gray600,
-            style: styles.icon
+            style: styles.icon,
         };
 
         switch (iconLibrary) {
@@ -65,36 +65,36 @@ export default function InputLogin({
     return (
         <View style={[
             styles.inputContainer,
-            isFocused && styles.inputContainerFocused
+            isFocused && styles.inputContainerFocused,
         ]}>
             {renderIcon()}
-            <TextInput 
+            <TextInput
                 style={[
                     styles.input,
-                    isSmartphone && styles.inputSmartphone
-                ]} 
-                placeholder={placeholder} 
-                value={value} 
-                onChangeText={onChangeText} 
-                secureTextEntry={secureTextEntry && !showPassword} 
+                    isSmartphone && styles.inputSmartphone,
+                ]}
+                placeholder={placeholder}
+                value={value}
+                onChangeText={onChangeText}
+                secureTextEntry={secureTextEntry && !showPassword}
                 placeholderTextColor={COLORS.gray600}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
             />
             {secureTextEntry && (
-                <TouchableOpacity 
+                <TouchableOpacity
                     onPress={() => setShowPassword(!showPassword)}
                     style={styles.eyeIcon}
                 >
-                    <Ionicons 
-                        name={showPassword ? "eye-outline" : "eye-off-outline"} 
-                        size={20} 
-                        color={COLORS.gray600} 
+                    <Ionicons
+                        name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                        size={20}
+                        color={COLORS.gray600}
                     />
                 </TouchableOpacity>
             )}
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
         transition: 'all 0.3s ease',
     },
     inputContainerFocused: {
-        borderColor: COLORS.orange + '50', 
+        borderColor: COLORS.orange + '50',
         shadowColor: COLORS.orange,
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.2,
@@ -132,5 +132,5 @@ const styles = StyleSheet.create({
     },
     inputSmartphone: {
         fontSize: SIZES.fonts.textSmartphone,
-    }
+    },
 });

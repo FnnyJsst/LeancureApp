@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { useDeviceType } from '../../hooks/useDeviceType'; 
+import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
 import Button from '../../components/buttons/Button';
 import CheckBox from '../../components/inputs/CheckBox';
@@ -15,7 +15,7 @@ import { Text } from '../../components/text/CustomText';
  * @param {Function} onBack - A function to navigate to a screen
  * @param {Function} onBackPress - A function to navigate to a screen
  * @returns {JSX.Element} - A JSX element
- * 
+ *
  * @example
  * <WebviewsListScreen channels={channels} selectedWebviews={selectedWebviews} onBack={onBack} onBackPress={onBackPress} />
  */
@@ -34,9 +34,9 @@ export default function WebviewsListScreen({ channels, selectedWebviews, onBack,
    */
   useEffect(() => {
     // Filter the channels that are not already selected
-    const filteredChannels = channels.filter(newChannel => 
+    const filteredChannels = channels.filter(newChannel =>
       // Check if the channel is not already selected
-      !selectedWebviews?.some(existingChannel => 
+      !selectedWebviews?.some(existingChannel =>
         // Check if the channel href is the same as the existing channel href
         existingChannel.href === newChannel.href
       )
@@ -82,14 +82,14 @@ export default function WebviewsListScreen({ channels, selectedWebviews, onBack,
   return (
     <View style={styles.pageContainer}>
       <View style={styles.customHeaderContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={onBackPress}
         >
-          <Ionicons 
-            name="chevron-back" 
-            size={isSmartphone ? 24 : 28} 
-            color={COLORS.white} 
+          <Ionicons
+            name="chevron-back"
+            size={isSmartphone ? 24 : 28}
+            color={COLORS.white}
           />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Import channels</Text>
@@ -117,7 +117,7 @@ export default function WebviewsListScreen({ channels, selectedWebviews, onBack,
         />
       </View>
       <View style={styles.buttonContainer}>
-        <Button 
+        <Button
           title="Import channels"
           variant="large"
           backgroundColor={COLORS.orange}

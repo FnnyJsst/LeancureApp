@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Image, Platform, ActivityIndicator } from "react-native";
-import { COLORS, SIZES } from "../../constants/style";
+import { View, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
+import { COLORS, SIZES } from '../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
-import { WebView } from 'react-native-webview';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
 
@@ -20,16 +19,16 @@ import { Text } from '../text/CustomText';
  */
 
 const formatTimestamp = (timestamp) => {
-  if (!timestamp) return '';
-  const date = new Date(parseInt(timestamp));
+  if (!timestamp) {return '';}
+  const date = new Date(parseInt(timestamp, 10));
   return date.toLocaleTimeString('fr-FR', {
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
 };
 
 const formatFileSize = (bytes) => {
-  if (!bytes) return '0 Ko';
+  if (!bytes) {return '0 Ko';}
 
   const units = ['Ko', 'Mo', 'Go'];
   let size = bytes / 1024; // Conversion directe en Ko
@@ -67,7 +66,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
       fileType: message.fileType,
       fileName: message.fileName,
       hasBase64: !!message.base64,
-      messageType: message.type
+      messageType: message.type,
     });
 
     return (
@@ -75,11 +74,11 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
         {/* Ajout de l'en-tête avec username et timestamp */}
         <View style={[
           styles.messageHeader,
-          isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft
+          isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft,
         ]}>
           <Text style={[
             styles.username,
-            isSmartphone && styles.usernameSmartphone
+            isSmartphone && styles.usernameSmartphone,
           ]}>{message.username}</Text>
           <Text style={styles.timestamp}>{messageTime}</Text>
         </View>
@@ -88,7 +87,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
           styles.messageContainer,
           isOwnMessage ? styles.ownMessage : styles.otherMessage,
           styles.fileMessageContainer,
-          message.isUnread && styles.unreadMessage
+          message.isUnread && styles.unreadMessage,
         ]}>
           <TouchableOpacity onPress={() => {
             onFileClick(message);
@@ -113,7 +112,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
               <View style={styles.previewContainer}>
                 <Image
                   source={{
-                    uri: `data:${message.fileType};base64,${message.base64}`
+                    uri: `data:${message.fileType};base64,${message.base64}`,
                   }}
                   style={styles.preview}
                   resizeMode="contain"
@@ -146,11 +145,11 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
       {/* Username and timestamp container */}
       <View style={[
         styles.messageHeader,
-        isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft
+        isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft,
       ]}>
         <Text style={[
           styles.username,
-          isSmartphone && styles.usernameSmartphone
+          isSmartphone && styles.usernameSmartphone,
         ]}>{message.username}</Text>
         <Text style={styles.timestamp}>{messageTime}</Text>
       </View>
@@ -160,11 +159,11 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
         styles.messageContainer,
         isOwnMessage ? styles.ownMessage : styles.otherMessage,
         styles.textMessageContainer,
-        message.isUnread && styles.unreadMessage
+        message.isUnread && styles.unreadMessage,
       ]}>
         <Text style={[
           styles.messageText,
-          isSmartphone && styles.messageTextSmartphone
+          isSmartphone && styles.messageTextSmartphone,
         ]}>{message.text}</Text>
       </View>
 

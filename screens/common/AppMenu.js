@@ -13,7 +13,7 @@ import HideMessagesModal from '../../components/modals/common/HideMessagesModal'
 /**
  * @function AppMenu Component
  * @description Displays the app menu
- * 
+ *
  * @param {Function} onNavigate - A function to navigate to a screen
  */
 export default function AppMenu({ onNavigate }) {
@@ -52,12 +52,12 @@ export default function AppMenu({ onNavigate }) {
   };
 
   return (
-    <>    
+    <>
       <GradientBackground>
         <View style={styles.container}>
           <Text style={[
             styles.title,
-            isSmartphone && styles.titleSmartphone
+            isSmartphone && styles.titleSmartphone,
           ]}>Welcome</Text>
           <View style={[styles.cardsContainer, isSmartphoneLandscape && styles.cardsContainerLandscape]}>
               {!isMessagesHidden && (
@@ -116,5 +116,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     left: 20,
-  }
+  },
 });

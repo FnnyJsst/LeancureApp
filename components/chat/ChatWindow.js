@@ -33,6 +33,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [selectedBase64, setSelectedBase64] = useState(null);
   const [messages, setMessages] = useState([]);
   const [credentials, setCredentials] = useState(null);
+  const [error, setError] = useState(null);
 
   /**
    * @function useEffect
@@ -53,11 +54,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       const loadFiles = async () => {
         const messagesNeedingFiles = channelMessages.filter(msg => msg.type === 'file' && !msg.base64);
 
-        console.log('📥 Messages nécessitant chargement:', {
-          total: messagesNeedingFiles.length,
-          types: messagesNeedingFiles.map(msg => msg.fileType)
-        });
-
         const batchSize = 3;
         const updatedMessages = [...channelMessages];
 
@@ -65,14 +61,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           const batch = messagesNeedingFiles.slice(i, i + batchSize);
           console.log('📥 Traitement batch:', {
             batchNumber: Math.floor(i / batchSize) + 1,
-            batchSize: batch.length
+            batchSize: batch.length,
           });
-          const results = await Promise.all(
+          await Promise.all(
             batch.map(async (msg) => {
               try {
                 const base64 = await fetchMessageFile(msg.id, {
-                  channelid: parseInt(channel.id),
-                  ...msg
+                  channelid: parseInt(channel.id, 10),
+                  ...msg,
                 }, credentials);
 
                 // Mettre à jour le message dans le tableau original
@@ -80,11 +76,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 if (index !== -1) {
                   updatedMessages[index] = {
                     ...updatedMessages[index],
-                    base64: base64 || null
+                    base64: base64 || null,
                   };
                 }
-              } catch (error) {
-                console.error('🔴 Erreur chargement fichier:', error);
+              } catch (fileError) {
+                setError(`Error loading file: ${fileError.message}`);
               }
             })
           );
@@ -120,12 +116,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = async (messageData) => {
     try {
-      // console.log('📤 Données du message à envoyer:', {
-      //   type: typeof messageData,
-      //   isObject: typeof messageData === 'object',
-      //   content: messageData
-      // });
-
       // If we don't have any message data or any credentials, we return nothing
       if (!messageData ||
           (typeof messageData === 'string' && !messageData.trim()) ||
@@ -135,14 +125,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       if (!credentialsStr) {
-        console.log('❌ No credentials found');
+        setError('❌ No credentials found');
         return;
       }
 
       // We parse the credentials
-      const credentials = JSON.parse(credentialsStr);
+      const userCredentials = JSON.parse(credentialsStr);
       // We send the message to the API
-      const response = await sendMessageApi(channel.id, messageData, credentials);
+      const response = await sendMessageApi(channel.id, messageData, userCredentials);
       // If the message is sent successfully, we create a new message object
       if (response.status === 'ok') {
         const currentTimestamp = Date.now();
@@ -155,7 +145,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           savedTimestamp: currentTimestamp,
           endTimestamp: currentTimestamp + 99999,
           fileType: typeof messageData === 'object' ? messageData.fileType : 'none',
-          login: credentials.login,
+          login: userCredentials.login,
           isOwnMessage: true,
           isUnread: false,
           username: 'Me',
@@ -164,11 +154,9 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             fileName: messageData.fileName,
             fileSize: messageData.fileSize,
             base64: messageData.base64,
-            uri: messageData.uri
-          })
+            uri: messageData.uri,
+          }),
         };
-
-        // console.log('📤 Nouveau message créé:', newMessage);
 
         // If the onMessageSent function is defined, we call it to inform the parent component that a message has been sent
         if (typeof onMessageSent === 'function') {
@@ -176,7 +164,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }
       }
     } catch (error) {
-      console.error('🔴 Error sending message:', error);
+      setError(`Error sending message: ${error.message}`);
     }
   };
 
@@ -190,17 +178,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const formatDate = (timestamp) => {
     // If the timestamp is missing, we return today
     if (!timestamp) {
-
-      console.warn('Missing timestamp for message');
       return 'Today'; // Default value
     }
 
     // If the timestamp is a string, we convert it to an integer
-    const parsedTimestamp = typeof timestamp === 'string' ? parseInt(timestamp) : timestamp;
+    const parsedTimestamp = typeof timestamp === 'string' ? parseInt(timestamp, 10) : timestamp;
 
     // If the timestamp is not a number, we return today
     if (isNaN(parsedTimestamp)) {
-      console.warn('Invalid timestamp format:', timestamp);
       return 'Today'; // Default value
     }
 
@@ -212,16 +197,16 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
     // If the date is today, we return "Today"
     if (date.toDateString() === today.toDateString()) {
-      return "Today";
+      return 'Today';
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Yesterday";
+      return 'Yesterday';
     }
 
     // If the date is not today or yesterday, we return the date in the format "day month year"
     return date.toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -274,7 +259,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         <View style={styles.noChannelContainer}>
           <Text style={[
             styles.noChannelText,
-            isSmartphone && styles.noChannelTextSmartphone
+            isSmartphone && styles.noChannelTextSmartphone,
           ]}>
             Select a channel to start chatting
           </Text>
@@ -297,7 +282,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray950
+    backgroundColor: COLORS.gray950,
   },
   noChannelContainer: {
     alignItems: 'center',
@@ -313,7 +298,7 @@ const styles = StyleSheet.create({
   channelDescription: {
     fontSize: SIZES.fonts.textSmartphone,
     color: COLORS.gray300,
-    marginTop: 4
+    marginTop: 4,
   },
   messagesContainer: {
     flex: 1,

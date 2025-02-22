@@ -27,16 +27,16 @@ export const createApiRequest = (cmd, contractNumber, accessToken = '') => {
   const signature = createSignature(saltPath, contractNumber);
 
   return {
-    "api-version": "2",
-    "api-contract-number": contractNumber,
-    "api-signature": signature,
-    "api-signature-hash": "sha256",
-    "api-signature-timestamp": timestamp,
-    "client-type": "mobile",
-    "client-login": "admin",
-    "client-token": "",
-    "client-token-validity": "1m",
-    cmd: [cmd]
+    'api-version': '2',
+    'api-contract-number': contractNumber,
+    'api-signature': signature,
+    'api-signature-hash': 'sha256',
+    'api-signature-timestamp': timestamp,
+    'client-type': 'mobile',
+    'client-login': 'admin',
+    'client-token': '',
+    'client-token-validity': '1m',
+    cmd: [cmd],
   };
 };
 
@@ -53,5 +53,5 @@ const getSaltPath = (cmd, timestamp) => {
   const secondKey = Object.keys(cmd[firstKey])[0]; //"loginmsg"
   const thirdKey = Object.keys(cmd[firstKey][secondKey])[0]; //"get"
   //Return the salt path "accounts/loginmsg/get/1713024000000/"
-  return `${firstKey}/${secondKey}/${thirdKey}/${timestamp}/`; 
+  return `${firstKey}/${secondKey}/${thirdKey}/${timestamp}/`;
 };

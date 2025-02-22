@@ -9,7 +9,7 @@ import { Text } from '../../text/CustomText';
 /**
  * @component CustomAlert
  * @description A component that renders a custom alert
- * 
+ *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the alert is visible
  * @param {string} props.title - The title of the alert
@@ -17,9 +17,9 @@ import { Text } from '../../text/CustomText';
  * @param {Function} props.onClose - The function to call when the alert is closed
  * @param {Function} props.onConfirm - The function to call when the alert is confirmed
  * @param {string} props.type - The type of the alert
- * 
+ *
  * @example
- * <CustomAlert visible={true} title="Alert" message="This is an alert" onClose={() => console.log('Alert closed')} onConfirm={() => console.log('Alert confirmed')} type="error" />  
+ * <CustomAlert visible={true} title="Alert" message="This is an alert" onClose={() => console.log('Alert closed')} onConfirm={() => console.log('Alert confirmed')} type="error" />
  */
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error' }) {
   const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait } = useDeviceType();
@@ -36,7 +36,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
           styles.modalContent,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isLandscape && styles.modalContentLandscape,
-          isTabletPortrait && styles.modalContentTabletPortrait
+          isTabletPortrait && styles.modalContentTabletPortrait,
         ]}>
           <TitleModal title={title} />
           <Text style={[styles.message, isSmartphone && styles.messageSmartphone]}>{message}</Text>
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,
     borderWidth: 1,
-    borderColor: COLORS.borderColor
+    borderColor: COLORS.borderColor,
   },
   modalContentLandscape: {
     width: '40%',

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { COLORS, SIZES } from '../../../constants/style'; 
+import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import Header from '../../Header';
 import SettingsCard from '../../cards/SettingsCard';
@@ -16,7 +16,7 @@ import { Text } from '../../text/CustomText';
  * @param {boolean} isExpanded - A boolean to indicate if the menu is expanded
  * @param {Function} setIsExpanded - A function to set the isExpanded state
  * @param {Function} handleChatLogout - A function to handle logout
- * 
+ *
  * @example
  * <SettingsMessage onNavigate={(screen) => navigate(screen)} isExpanded={isExpanded} setIsExpanded={setIsExpanded} handleChatLogout={handleChatLogout} />
  */
@@ -42,12 +42,12 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
 
   return (
     <>
-      <Header 
-        showMenuIcon={true} 
-        onNavigate={onNavigate} 
+      <Header
+        showMenuIcon={true}
+        onNavigate={onNavigate}
         toggleMenu={toggleMenu}
       />
-      <Sidebar 
+      <Sidebar
         onChannelSelect={() => {}}
         selectedGroup={null}
         onGroupSelect={() => {}}
@@ -61,22 +61,22 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
         <View style={styles.headerContainer}>
           <Text style={[
             styles.header,
-            isSmartphone && styles.headerSmartphone
+            isSmartphone && styles.headerSmartphone,
           ]}>Settings</Text>
         </View>
         <View style={[
           styles.configContainer,
           isSmartphone && styles.configContainerSmartphone,
-          isLandscape && styles.configContainerLandscape
+          isLandscape && styles.configContainerLandscape,
         ]}>
           <SettingsCard
             title="Session Timeout"
             iconBackgroundColor={COLORS.burgundy}
             icon={
-              <Ionicons 
-                name="exit-outline" 
-                size={isSmartphone ? 22 : 28} 
-                color={COLORS.red} 
+              <Ionicons
+                name="exit-outline"
+                size={isSmartphone ? 22 : 28}
+                color={COLORS.red}
               />
             }
             description="Define the time after which the session will be logged out"
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginLeft: 30,
     justifyContent: 'flex-start',
-  }, 
+  },
   header: {
     color: COLORS.white,
     fontSize: SIZES.fonts.headerTablet,
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   },
   headerSmartphone: {
     fontSize: SIZES.fonts.headerSmartphone,
-  }, 
+  },
   configContainer: {
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,
@@ -131,5 +131,5 @@ const styles = StyleSheet.create({
   },
   configContainerLandscape: {
     marginHorizontal: 50,
-  }
+  },
 });

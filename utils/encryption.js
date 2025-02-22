@@ -74,7 +74,7 @@ export const secureStore = {
         } catch (error) {
             logError('Error deleting credentials:', error);
         }
-    }
+    },
 };
 
 const logError = (message, error) => {
