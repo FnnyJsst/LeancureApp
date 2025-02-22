@@ -62,4 +62,50 @@ describe('useWebViews', () => {
     expect(result.current.getIntervalInMilliseconds('every minute')).toBe(60000);
     expect(result.current.getIntervalInMilliseconds('every hour')).toBe(3600000);
   });
+
+  it('should save webviews to SecureStore', () => {
+    const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
+    const testWebviews = [{ href: 'https://test.com' }];
+
+    result.current.saveSelectedWebviews(testWebviews);
+
+    expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+      'selectedWebviews',
+      JSON.stringify(testWebviews)
+    );
+  });
+
+  it('should handle navigation to webview', () => {
+    const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
+    const testUrl = 'https://test.com';
+
+    result.current.navigateToWebView(testUrl);
+
+    expect(result.current.webViewUrl).toBe(testUrl);
+    expect(mockSetCurrentScreen).toHaveBeenCalledWith('WEBVIEW');
+  });
+
+  it('should toggle read-only mode', () => {
+    const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
+
+    result.current.toggleReadOnly();
+    expect(result.current.isReadOnly).toBe(true);
+
+    result.current.toggleReadOnly();
+    expect(result.current.isReadOnly).toBe(false);
+  });
+
+  it('should handle refresh option changes', () => {
+    const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
+    const testOption = 'every minute';
+
+    result.current.handleSelectOption(testOption);
+
+    expect(result.current.refreshOption).toBe(testOption);
+    expect(result.current.refreshInterval).toBe(60000);
+    expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+      'refreshOption',
+      testOption
+    );
+  });
 });
