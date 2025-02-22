@@ -15,37 +15,45 @@ jest.mock('../../hooks/useWebViewsPassword', () => ({
   useWebViewsPassword: () => ({
     password: null,
     isPasswordRequired: false,
-    handlePasswordCheck: jest.fn()
+    handlePasswordCheck: jest.fn(),
+    loadPasswordFromSecureStore: jest.fn()
   })
 }));
 
 describe('useWebViews', () => {
+  const mockSetCurrentScreen = jest.fn();
+
   beforeEach(() => {
-    // Reset all mocks before each test
     jest.clearAllMocks();
+    SecureStore.getItemAsync.mockResolvedValue(null);
   });
 
-  it('should initialize with default values', () => {
-    const { result } = renderHook(() => useWebViews());
+  it('should initialize with default values', async () => {
+    const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
     expect(result.current.selectedWebviews).toEqual([]);
     expect(result.current.webViewUrl).toBe('');
   });
 
   it('should load stored webviews', async () => {
-    // Préparer les données de test
     const mockWebviews = [{ href: 'https://test.com' }];
     SecureStore.getItemAsync.mockImplementation((key) => {
       switch (key) {
         case 'selectedWebviews':
           return Promise.resolve(JSON.stringify(mockWebviews));
+        case 'refreshOption':
+          return Promise.resolve(null);
         default:
           return Promise.resolve(null);
       }
     });
 
-    const { result } = renderHook(() => useWebViews());
+    const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
 
-    // Attendre que les effets soient appliqués
     await act(async () => {
       await Promise.resolve();
     });
