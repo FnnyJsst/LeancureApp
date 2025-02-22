@@ -9,7 +9,7 @@ import { SCREENS } from '../constants/screens';
  * @param {function} navigate - The navigation function used to access to the settings screen
  * @returns {object} - The password state and functions
  */
-export function useWebViewsPassword(navigate) {
+export function useWebviewsPassword(navigate) {
 
   const [password, setPassword] = useState(null);
   const [isPasswordRequired, setIsPasswordRequired] = useState(false);
