@@ -37,6 +37,8 @@ jobs:
           npm install
           npm install --save-dev jest @testing-library/react-native @testing-library/jest-native jest-expo react-test-renderer@18.2.0
       - name: Run unit tests
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
         run: npm run test
       # We upload the coverage reports
       - name: Upload coverage reports
