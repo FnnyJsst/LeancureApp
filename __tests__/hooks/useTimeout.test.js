@@ -68,11 +68,10 @@ describe('useTimeout', () => {
   // Test #5: Handle errors when saving timeout
   it('should handle errors when saving timeout', async () => {
     // Capture console.error calls
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleError = jest.spyOn(console, 'error');
 
     // Simulate a specific error
-    const testError = new Error('Storage error');
-    SecureStore.setItemAsync.mockRejectedValue(testError);
+    SecureStore.setItemAsync.mockRejectedValue(new Error());
 
     const { result } = renderHook(() => useTimeout());
 
@@ -89,10 +88,10 @@ describe('useTimeout', () => {
 
   // Test #6: Handle errors when loading timeout
   it('should handle errors when loading timeout', async () => {
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleError = jest.spyOn(console, 'error');
 
     const testError = new Error('Loading error');
-    SecureStore.getItemAsync.mockRejectedValue(testError);
+    SecureStore.getItemAsync.mockRejectedValue(new Error());
 
     const { result } = renderHook(() => useTimeout());
 
