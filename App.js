@@ -5,7 +5,7 @@ import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
 import WebviewsManagementScreen from './screens/webviews/WebviewsManagementScreen';
 import WebviewsListScreen from './screens/webviews/WebviewsListScreen';
-import WebViewScreen from './screens/webviews/WebViewScreen';
+import WebviewScreen from './screens/webviews/WebviewScreen';
 import Login from './screens/messages/login/Login';
 import PasswordDefineModal from './components/modals/webviews/PasswordDefineModal';
 import PasswordCheckModal from './components/modals/webviews/PasswordCheckModal';
@@ -17,8 +17,8 @@ import { COLORS } from './constants/style';
 import { useNavigation } from './hooks/useNavigation';
 import * as SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
-import { useWebViews } from './hooks/useWebviews';
-import { useWebViewsPassword } from './hooks/useWebViewsPassword';
+import { useWebviews } from './hooks/useWebviews';
+import { useWebviewsPassword } from './hooks/useWebviewsPassword';
 import { LogBox } from 'react-native';
 import { useFonts } from 'expo-font';
 import CommonSettings from './screens/common/CommonSettings';
@@ -71,8 +71,8 @@ export default function App() {
     saveRefreshOption,
     handleSelectOption,
     navigateToChannelsList,
-    navigateToWebView,
-  } = useWebViews(setCurrentScreen);
+    navigateToWebview,
+  } = useWebviews(setCurrentScreen);
 
   // Password hooks
   const {
@@ -86,7 +86,7 @@ export default function App() {
     disablePassword,
     openPasswordDefineModal,
     closePasswordDefineModal,
-  } = useWebViewsPassword(navigate);
+  } = useWebviewsPassword(navigate);
 
   const handleSettingsAccess = useCallback(() => {
     if (isPasswordRequired) {
@@ -249,7 +249,7 @@ export default function App() {
             setSelectedWebviews={setSelectedWebviews}
             saveSelectedWebviews={saveSelectedWebviews}
             onNavigate={navigate}
-            onNavigateToWebView={navigateToWebView}
+            onNavigateToWebview={navigateToWebview}
             isReadOnly={isReadOnly}
           />
         );
@@ -266,7 +266,7 @@ export default function App() {
 
       case SCREENS.WEBVIEW:
         return (
-          <WebViewScreen
+          <WebviewScreen
             url={webViewUrl}
             onNavigate={navigate}
             onSettingsAccess={handleSettingsAccess}

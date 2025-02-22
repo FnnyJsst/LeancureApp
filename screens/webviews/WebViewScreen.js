@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { WebView } from 'react-native-webview';
+import { Webview } from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
 import { SCREENS } from '../../constants/screens';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -9,14 +9,14 @@ import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 
 /**
- * @component WebViewScreen
+ * @component WebviewScreen
  * @description Displays a web page when the user has imported a channel
  * @param {string} url - The url of the web page
  * @param {Function} onNavigate - A function to navigate to a screen
  * @param {Function} onSettingsAccess - A function to handle the settings access
  * @param {boolean} isMessagesHidden - A boolean to hide the header
  */
-export default function WebViewScreen({
+export default function WebviewScreen({
   url,
   onNavigate,
   onSettingsAccess,
@@ -26,13 +26,13 @@ export default function WebViewScreen({
   const webViewRef = useRef(null);
 
   useEffect(() => {
-    // Lock orientation to landscape when entering WebViewScreen
+    // Lock orientation to landscape when entering WebviewScreen
     const lockLandscape = async () => {
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     };
     lockLandscape();
 
-    // Unlock orientation when leaving WebViewScreen
+    // Unlock orientation when leaving WebviewScreen
     return () => {
       ScreenOrientation.unlockAsync();
     };
@@ -55,7 +55,7 @@ export default function WebViewScreen({
           </TouchableOpacity>
         </View>
       )}
-      <WebView
+      <Webview
         ref={webViewRef}
         source={{ uri: url }}
         style={styles.webview}

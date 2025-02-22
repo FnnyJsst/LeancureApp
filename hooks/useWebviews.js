@@ -1,18 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from './useNavigation';
-import { useWebViewsPassword } from './useWebviewsPassword';
+import { useWebviewsPassword } from './useWebviewsPassword';
 import { SCREENS } from '../constants/screens';
 
 /**
- * @function useWebViews
+ * @function useWebviews
  * @description This hook is used to manage the webviews
  * @returns {Object} - The webviews state
  */
-export function useWebViews(setCurrentScreen) {
+export function useWebviews(setCurrentScreen) {
   const [channels, setChannels] = useState([]);
   const [selectedWebviews, setSelectedWebviews] = useState([]);
-  const [webViewUrl, setWebViewUrl] = useState('');
+  const [webViewUrl, setWebviewUrl] = useState('');
   const [refreshInterval, setRefreshInterval] = useState(null);
   const [refreshOption, setRefreshOption] = useState('manual');
   const [isReadOnly, setIsReadOnly] = useState(false);
@@ -35,7 +35,7 @@ export function useWebViews(setCurrentScreen) {
     savePasswordInSecureStore,
     openPasswordDefineModal,
     closePasswordDefineModal,
-  } = useWebViewsPassword(navigate);
+  } = useWebviewsPassword(navigate);
 
   const toggleReadOnly = useCallback((value) => {
     setIsReadOnly(value !== undefined ? value : !isReadOnly);
@@ -127,7 +127,7 @@ export function useWebViews(setCurrentScreen) {
         const parsedChannels = JSON.parse(storedChannels);
         setSelectedWebviews(parsedChannels);
         if (parsedChannels.length > 0) {
-          setWebViewUrl(parsedChannels[0].href);
+          setWebviewUrl(parsedChannels[0].href);
         }
       }
     } catch (error) {
@@ -135,7 +135,7 @@ export function useWebViews(setCurrentScreen) {
         console.error('Failed to load channels', error);
       }
     }
-  }, [setSelectedWebviews, setWebViewUrl]);
+  }, [setSelectedWebviews, setWebviewUrl]);
 
   /**
    * @function loadRefreshOption
@@ -173,14 +173,14 @@ export function useWebViews(setCurrentScreen) {
   };
 
   /**
-   * @function navigateToWebView
+   * @function navigateToWebview
    * @description Navigates to the web view screen
    * @param {string} url - The URL to navigate to
    * @returns {void}
    */
-  const navigateToWebView = (url) => {
+  const navigateToWebview = (url) => {
     console.log('🔄 Navigation vers la webview:', url);
-    setWebViewUrl(url);
+    setWebviewUrl(url);
     if (SCREENS.WEBVIEW) {
         navigate(SCREENS.WEBVIEW);
     } else {
@@ -223,7 +223,7 @@ export function useWebViews(setCurrentScreen) {
     selectedWebviews,
     setSelectedWebviews,
     webViewUrl,
-    setWebViewUrl,
+    setWebviewUrl,
     refreshInterval,
     setRefreshInterval,
     refreshOption,
@@ -237,6 +237,6 @@ export function useWebViews(setCurrentScreen) {
     saveRefreshOption,
     handleSelectOption,
     navigateToChannelsList,
-    navigateToWebView,
+    navigateToWebview,
   };
 }

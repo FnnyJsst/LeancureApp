@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { WebView } from 'react-native-webview';
+import { Webview } from 'react-native-webview';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { Ionicons } from '@expo/vector-icons';
@@ -74,7 +74,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       return (
 
         <View style={styles.previewContainer}>
-          <WebView
+          <Webview
             source={{
               html: `
                 <!DOCTYPE html>

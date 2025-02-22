@@ -31,8 +31,8 @@ Features:
 └── assets/ # Images and resources
 
 ## Main Hooks
-- `useWebViews`: Webviews management
-- `useWebViewsPassword`: Password management
+- `useWebviews`: Webviews management
+- `useWebviewsPassword`: Password management
 - `useDeviceType`: Device type detection
 - `usePushNotifications`: Notifications management
 - `useNavigation`: Application navigation

@@ -68,7 +68,7 @@ export default function AppMenu({ onNavigate }) {
                 />
               )}
               <AppMenuCard
-                title="WebViews"
+                title="Webviews"
                 icon={<Ionicons name="tv-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
                 onPress={() => onNavigate(SCREENS.WEBVIEW)}
               />

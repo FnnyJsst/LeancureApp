@@ -21,7 +21,7 @@ import Entypo from '@expo/vector-icons/Entypo';
  * @param {Function} setSelectedWebviews - A function to set the selected channels
  * @param {Function} saveSelectedWebviews - A function to save the selected channels
  * @param {boolean} isReadOnly - A boolean to indicate if the user is read only
- * @param {Function} onNavigateToWebView - A function to navigate to a webview
+ * @param {Function} onNavigateToWebview - A function to navigate to a webview
  * @param {Function} onImport - A function to import channels
  */
 
@@ -31,7 +31,7 @@ export default function WebviewsManagementScreen({
   setSelectedWebviews,
   saveSelectedWebviews,
   isReadOnly,
-  onNavigateToWebView,
+  onNavigateToWebview,
   onImport,
 }) {
 
@@ -229,7 +229,7 @@ export default function WebviewsManagementScreen({
                   isSmartphone && styles.titleContainerSmartphone,
                 ]}
                 // Navigate to the webview with the channel href
-                onPress={() => onNavigateToWebView(channel.href)}
+                onPress={() => onNavigateToWebview(channel.href)}
                 // Set the selected title id
                 onPressIn={() => setSelectedTitleId(channel.href)}
                 // Reset the selected title id

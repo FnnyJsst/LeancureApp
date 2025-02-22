@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import { SCREENS } from '../constants/screens';
 
 /**
- * @function useWebViewsPassword
+ * @function useWebviewsPassword
  * @description This hook is used to manage the password used to access the webviews settings
  * @param {function} navigate - The navigation function used to access to the settings screen
  * @returns {object} - The password state and functions
