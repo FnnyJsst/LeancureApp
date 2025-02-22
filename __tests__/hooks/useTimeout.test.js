@@ -55,40 +55,40 @@ describe('useTimeout', () => {
 
   // Test #4: Handle errors when saving timeout
   it('should handle errors when saving timeout', async () => {
-    // We mock the console to log errors
+    // Capture console.error calls
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
-    // We mock the SecureStore to return an error
-    SecureStore.setItemAsync.mockRejectedValue(new Error('Storage error'));
 
-    // We render the hook
+    // Simulate a specific error
+    const testError = new Error('Storage error');
+    SecureStore.setItemAsync.mockRejectedValue(testError);
+
     const { result } = renderHook(() => useTimeout());
 
-    // We select the timeout interval to be 2 hours
     await act(async () => {
       await result.current.handleTimeoutSelection('after 2 hours');
     });
 
-    expect(consoleError).toHaveBeenCalledWith('Error during the saving of the timeout:', expect.any(Error));
+    // Check that console.error was called with the correct message
+    expect(consoleError).toHaveBeenCalledWith('Failed to save timeout', testError);
+
+    // Clean up the mock
     consoleError.mockRestore();
   });
 
   // Test #5: Handle errors when loading timeout
   it('should handle errors when loading timeout', async () => {
-    // We mock the console to log errors
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
-    // We mock the SecureStore to return an error
-    SecureStore.getItemAsync.mockRejectedValue(new Error('Loading error'));
 
-    // We render the hook
+    const testError = new Error('Loading error');
+    SecureStore.getItemAsync.mockRejectedValue(testError);
+
     const { result } = renderHook(() => useTimeout());
 
-    // We wait for the loadTimeoutInterval to be executed
     await act(async () => {
       await result.current.loadTimeoutInterval();
     });
 
-    // We expect the console to log an error
-    expect(consoleError).toHaveBeenCalledWith('Error during the loading of the timeout:', expect.any(Error));
+    expect(consoleError).toHaveBeenCalledWith('Failed to load timeout', testError);
     consoleError.mockRestore();
   });
 });
