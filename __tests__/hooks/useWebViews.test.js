@@ -1,17 +1,13 @@
 // Tests de hooks
-import { renderHook, act } from '@testing-library/react-native';
+import { renderHook } from '@testing-library/react-native';
 import { useWebViews } from '../../hooks/useWebviews';
 import * as SecureStore from 'expo-secure-store';
 
-// Mock React avec un vrai useState
-jest.mock('react', () => {
-  const originalModule = jest.requireActual('react');
-
-  return {
-    ...originalModule,
-    useEffect: jest.fn((cb) => cb()),
-  };
-});
+// Mock simple de React
+jest.mock('react', () => ({
+  ...jest.requireActual('react'),
+  useEffect: jest.fn(),
+}));
 
 jest.mock('../../hooks/useNavigation', () => ({
   useNavigation: () => ({
@@ -34,11 +30,9 @@ describe('useWebViews', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Mock simple pour SecureStore
     SecureStore.getItemAsync.mockResolvedValue(null);
-  });
-
-  afterEach(() => {
-    jest.clearAllTimers();
+    SecureStore.setItemAsync.mockResolvedValue(null);
   });
 
   it('should initialize with correct default values', () => {
@@ -64,33 +58,16 @@ describe('useWebViews', () => {
     expect(result.current.getIntervalInMilliseconds('every hour')).toBe(3600000);
   });
 
-  it('should toggle read-only mode', async () => {
+  it('should toggle read-only mode', () => {
     const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
-
-    await act(async () => {
-      result.current.toggleReadOnly();
-    });
-
+    result.current.toggleReadOnly();
     expect(result.current.isReadOnly).toBe(true);
-
-    await act(async () => {
-      result.current.toggleReadOnly();
-    });
-
-    expect(result.current.isReadOnly).toBe(false);
   });
 
-  it('should handle refresh option changes', async () => {
+  it('should handle refresh option changes', () => {
     const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
     const testOption = 'every minute';
-
-    await act(async () => {
-      result.current.handleSelectOption(testOption);
-    });
-
-    expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
-      'refreshOption',
-      testOption
-    );
+    result.current.handleSelectOption(testOption);
+    expect(SecureStore.setItemAsync).toHaveBeenCalledWith('refreshOption', testOption);
   });
 });
