@@ -1,5 +1,5 @@
 // Tests de hooks
-import { renderHook } from '@testing-library/react-native';
+import { renderHook, act } from '@testing-library/react-native';
 import { useWebViews } from '../../hooks/useWebviews';
 import * as SecureStore from 'expo-secure-store';
 
@@ -10,7 +10,7 @@ describe('useWebViews', () => {
     SecureStore.getItemAsync.mockResolvedValue(null);
   });
 
-  test('should initialize with empty selectedWebviews', async () => {
+  test('should initialize with empty selectedWebviews', () => {
     const { result } = renderHook(() => useWebViews());
     expect(result.current.selectedWebviews).toEqual([]);
   });
@@ -21,8 +21,11 @@ describe('useWebViews', () => {
 
     const { result } = renderHook(() => useWebViews());
 
-    // Wait for the async operation to complete
-    await new Promise(resolve => setTimeout(resolve, 0));
+    // Utilisation de act pour wrapper les mises à jour d'état
+    await act(async () => {
+      // Attend que toutes les promesses soient résolues
+      await new Promise(resolve => setImmediate(resolve));
+    });
 
     expect(result.current.selectedWebviews).toEqual(mockWebviews);
   });
