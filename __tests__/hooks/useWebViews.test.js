@@ -1,5 +1,5 @@
 // Tests de hooks
-import { renderHook, act } from '@testing-library/react-native';
+import { renderHook } from '@testing-library/react-native';
 import { useWebViews } from '../../hooks/useWebviews';
 import * as SecureStore from 'expo-secure-store';
 
@@ -23,23 +23,28 @@ jest.mock('../../hooks/useWebViewsPassword', () => ({
 describe('useWebViews', () => {
   const mockSetCurrentScreen = jest.fn();
 
+  beforeAll(() => {
+    jest.useFakeTimers(); // Utiliser des timers simulés
+  });
+
+  afterAll(() => {
+    jest.useRealTimers(); // Restaurer les timers réels
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     SecureStore.getItemAsync.mockResolvedValue(null);
   });
 
-  it('should initialize with default values', async () => {
+  it('should initialize with default values', () => {
     const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
-
-    await act(async () => {
-      await Promise.resolve();
-    });
+    jest.runAllTimers(); // Exécuter tous les timers en attente
 
     expect(result.current.selectedWebviews).toEqual([]);
     expect(result.current.webViewUrl).toBe('');
   });
 
-  it('should load stored webviews', async () => {
+  it('should load stored webviews', () => {
     const mockWebviews = [{ href: 'https://test.com' }];
     SecureStore.getItemAsync.mockImplementation((key) => {
       switch (key) {
@@ -53,10 +58,7 @@ describe('useWebViews', () => {
     });
 
     const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
-
-    await act(async () => {
-      await Promise.resolve();
-    });
+    jest.runAllTimers(); // Exécuter tous les timers en attente
 
     expect(result.current.selectedWebviews).toEqual(mockWebviews);
   });
