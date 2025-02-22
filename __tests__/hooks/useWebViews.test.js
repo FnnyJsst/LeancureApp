@@ -3,11 +3,17 @@ import { renderHook } from '@testing-library/react-native';
 import { useWebViews } from '../../hooks/useWebviews';
 import * as SecureStore from 'expo-secure-store';
 
-// Mock tous les hooks et dépendances
+// Mock React avec un vrai useState
 jest.mock('react', () => ({
   ...jest.requireActual('react'),
   useEffect: jest.fn((cb) => cb()),
-  useState: jest.fn((initial) => [initial, jest.fn()]),
+  useState: (initial) => {
+    let state = initial;
+    const setState = (newValue) => {
+      state = typeof newValue === 'function' ? newValue(state) : newValue;
+    };
+    return [state, setState];
+  }
 }));
 
 jest.mock('../../hooks/useNavigation', () => ({
@@ -86,20 +92,23 @@ describe('useWebViews', () => {
   // });
 
   it('should toggle read-only mode', () => {
-    const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
+    const { result, rerender } = renderHook(() => useWebViews(mockSetCurrentScreen));
 
     result.current.toggleReadOnly();
+    rerender(); // Force une mise à jour
     expect(result.current.isReadOnly).toBe(true);
 
     result.current.toggleReadOnly();
+    rerender(); // Force une mise à jour
     expect(result.current.isReadOnly).toBe(false);
   });
 
   it('should handle refresh option changes', () => {
-    const { result } = renderHook(() => useWebViews(mockSetCurrentScreen));
+    const { result, rerender } = renderHook(() => useWebViews(mockSetCurrentScreen));
     const testOption = 'every minute';
 
     result.current.handleSelectOption(testOption);
+    rerender(); // Force une mise à jour
 
     expect(result.current.refreshOption).toBe(testOption);
     expect(result.current.refreshInterval).toBe(60000);
