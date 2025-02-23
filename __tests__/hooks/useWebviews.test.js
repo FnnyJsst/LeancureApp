@@ -3,11 +3,33 @@ import { useWebviews } from '../../hooks/useWebviews';
 import * as SecureStore from 'expo-secure-store';
 import { SCREENS } from '../../constants/screens';
 
-// Mock de SecureStore
-jest.mock('expo-secure-store', () => ({
-  setItemAsync: jest.fn(),
-  deleteItemAsync: jest.fn(),
-  getItemAsync: jest.fn(),
+// Mock des modules
+jest.mock('expo-secure-store');
+jest.mock('../../hooks/useNavigation', () => ({
+  useNavigation: () => ({
+    navigate: jest.fn()
+  })
+}));
+
+// Mock de useWebviewsPassword
+jest.mock('../../hooks/useWebviewsPassword', () => ({
+  useWebviewsPassword: () => ({
+    password: null,
+    setPassword: jest.fn(),
+    isPasswordRequired: false,
+    setIsPasswordRequired: jest.fn(),
+    isPasswordDefineModalVisible: false,
+    setPasswordDefineModalVisible: jest.fn(),
+    passwordCheckModalVisible: false,
+    setPasswordCheckModalVisible: jest.fn(),
+    handlePasswordSubmit: jest.fn(),
+    handlePasswordCheck: jest.fn(),
+    disablePassword: jest.fn(),
+    loadPasswordFromSecureStore: jest.fn(),
+    savePasswordInSecureStore: jest.fn(),
+    openPasswordDefineModal: jest.fn(),
+    closePasswordDefineModal: jest.fn(),
+  })
 }));
 
 const mockSetInterval = jest.fn();
