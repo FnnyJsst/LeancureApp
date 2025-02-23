@@ -44,6 +44,7 @@ export function useWebviews(setCurrentScreen) {
   const handleSelectChannels = async (selectedChannels) => {
     try {
       const updatedWebviews = [...(selectedWebviews || []), ...(selectedChannels || [])];
+      setSelectedWebviews(updatedWebviews);
       await saveSelectedWebviews(updatedWebviews);
     } catch (error) {
       console.error('❌ Erreur lors de la sélection des canaux:', error);
@@ -106,10 +107,9 @@ export function useWebviews(setCurrentScreen) {
    */
   const saveSelectedWebviews = async (webviews) => {
     try {
-      console.log('📱 Sauvegarde des webviews:', webviews);
       const webviewsToSave = webviews || [];
-      await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(webviewsToSave));
       setSelectedWebviews(webviewsToSave);
+      await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(webviewsToSave));
     } catch (error) {
       console.error('❌ Erreur lors de la sauvegarde des webviews:', error);
     }
