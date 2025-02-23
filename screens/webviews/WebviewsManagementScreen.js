@@ -162,6 +162,7 @@ export default function WebviewsManagementScreen({
     <View style={styles.pageContainer}>
       <View style={styles.customHeaderContainer}>
         <TouchableOpacity
+          testID="back-button"
           onPress={() => onNavigate(SCREENS.SETTINGS)}
         >
           <Ionicons
@@ -172,6 +173,7 @@ export default function WebviewsManagementScreen({
         </TouchableOpacity>
         {!isReadOnly && (
           <TouchableOpacity
+            testID="import-button"
             onPress={openImportModal}
           >
             <Entypo
@@ -194,12 +196,14 @@ export default function WebviewsManagementScreen({
 
       {/* Modal to import channels */}
       <ImportWebviewModal
+        testID="import-modal"
         visible={isImportModalVisible}
         onClose={closeImportModal}
         onImport={onImport}
       />
       {/* Modal to edit a channel */}
       <EditWebviewModal
+        testID="edit-modal"
         visible={isEditModalVisible}
         onClose={closeEditModal}
         initialUrl={webviewToEdit?.href}
@@ -208,6 +212,7 @@ export default function WebviewsManagementScreen({
       />
       {/* Modal to delete a webview */}
       <DeleteWebviewModal
+        testID="delete-modal"
         visible={isDeleteModalVisible}
         onClose={closeDeleteModal}
         handleDelete={() => handleDeleteWebview(webviewToDelete)}
@@ -217,6 +222,7 @@ export default function WebviewsManagementScreen({
         <View style={styles.channelsContainer}>
           {selectedWebviews && selectedWebviews.map((channel, index) => (
             <View
+              testID={`webview-container-${index}`}
               style={[
                 styles.channelContainer,
                 isSmartphone && styles.channelContainerSmartphone,
@@ -224,6 +230,7 @@ export default function WebviewsManagementScreen({
               key={channel.href}
             >
               <TouchableOpacity
+                testID={`webview-item-${index}`}
                 style={[
                   styles.titleContainer,
                   isSmartphone && styles.titleContainerSmartphone,
@@ -261,21 +268,23 @@ export default function WebviewsManagementScreen({
                     isLandscape && styles.arrowContainerLandscape,
                   ]}>
                   <TouchableOpacity
-                  onPress={() => moveWebviewUp(index)}
-                  onPressIn={() => setSelectedUpIndex(index)}
-                  onPressOut={() => setSelectedUpIndex(null)}
-                  style={styles.arrowButton}
-                >
-                  <AntDesign
-                    name="up"
-                    size={isTablet ? 30 : 23}
-                    style={[
-                      { marginRight: isSmartphonePortrait ? 0 : 15 },
-                      { color: selectedUpIndex === index ? COLORS.orange : COLORS.gray300 },
-                    ]}
-                  />
-                </TouchableOpacity>
+                    testID={`move-up-${index}`}
+                    onPress={() => moveWebviewUp(index)}
+                    onPressIn={() => setSelectedUpIndex(index)}
+                    onPressOut={() => setSelectedUpIndex(null)}
+                    style={styles.arrowButton}
+                  >
+                    <AntDesign
+                      name="up"
+                      size={isTablet ? 30 : 23}
+                      style={[
+                        { marginRight: isSmartphonePortrait ? 0 : 15 },
+                        { color: selectedUpIndex === index ? COLORS.orange : COLORS.gray300 },
+                      ]}
+                    />
+                  </TouchableOpacity>
                 <TouchableOpacity
+                  testID={`move-down-${index}`}
                   onPress={() => moveWebviewDown(index)}
                   onPressIn={() => setSelectedDownIndex(index)}
                   onPressOut={() => setSelectedDownIndex(null)}
@@ -299,6 +308,7 @@ export default function WebviewsManagementScreen({
                     isLandscape && styles.iconsContainerLandscape,
                   ]}>
                   <TouchableOpacity
+                    testID={`edit-button-${index}`}
                     onPress={() => openEditModal(channel)}
                     onPressIn={() => setSelectedPencilIndex(index)}
                     onPressOut={() => setSelectedPencilIndex(null)}
@@ -315,6 +325,7 @@ export default function WebviewsManagementScreen({
                   </TouchableOpacity>
                   {/* Delete a channel */}
                   <TouchableOpacity
+                    testID={`delete-button-${index}`}
                     onPress={() => openDeleteModal(channel)}
                     onPressIn={() => setSelectedBinIndex(index)}
                     onPressOut={() => setSelectedBinIndex(null)}
