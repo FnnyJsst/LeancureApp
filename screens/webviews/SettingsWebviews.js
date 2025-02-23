@@ -137,6 +137,7 @@ export default function SettingsWebviews({
           <TouchableOpacity
             style={styles.backButton}
             onPress={handleBackPress}
+            testID="back-button"
           >
             <Ionicons
               name="close-outline"
@@ -170,6 +171,7 @@ export default function SettingsWebviews({
               }
               description="Quit the app and go back to the home screen"
               onPress={handleQuitApp}
+              testID="quit-button"
             />
           </View>
           <View style={styles.titleContainer}>

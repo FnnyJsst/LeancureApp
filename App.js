@@ -178,7 +178,7 @@ export default function App() {
 
   // If the app is loading, show the loading screen
   if (isLoading) {
-    return <ScreenSaver />;
+    return <ScreenSaver testID="screen-saver" />;
   }
 
   /**
@@ -200,6 +200,7 @@ export default function App() {
                 navigate(screen);
               }
             }}
+            testID="app-menu"
           />
         );
 
@@ -271,6 +272,7 @@ export default function App() {
             onNavigate={navigate}
             onSettingsAccess={handleSettingsAccess}
             isMessagesHidden={isMessagesHidden}
+            testID="webview-screen"
           />
         );
 
@@ -278,6 +280,7 @@ export default function App() {
         return (
           <Login
             onNavigate={navigate}
+            testID="login-screen"
           />
         );
 

@@ -13,12 +13,19 @@ import { Text } from '../text/CustomText';
  * @param {string} props.description - The description of the card
  * @param {Function} props.onPress - The function to call when the card is pressed
  */
-export default function SettingsCard({ icon, title, description, onPress, iconBackgroundColor = COLORS.borderColor }) {
+export default function SettingsCard({ icon, title, description, onPress, iconBackgroundColor = COLORS.borderColor, testID }) {
 
   const { isSmartphone } = useDeviceType();
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={onPress}
+      role="button"
+      accessible={true}
+      accessibilityLabel={title}
+      testID={testID}
+    >
       <View style={styles.content}>
         <View style={[
           styles.iconContainer,
