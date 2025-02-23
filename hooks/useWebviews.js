@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from './useNavigation';
-import { useWebviewsPassword } from './useWebviewsPassword';
+// import { useWebviewsPassword } from './useWebviewsPassword';
+import { useWebviewsPassword } from '../hooks/useWebviewsPassword';
 import { SCREENS } from '../constants/screens';
 
 /**
