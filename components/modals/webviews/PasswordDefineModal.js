@@ -125,6 +125,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
                 secureTextEntry={true}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
+                testID="password-input"
                 icon={
                   <Ionicons
                     name="lock-closed-outline"
@@ -187,6 +188,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
         type={alertConfig.type}
         onClose={() => setAlertVisible(false)}
         onConfirm={handleAlertConfirm}
+        testID={testID}
       />
     </>
   );

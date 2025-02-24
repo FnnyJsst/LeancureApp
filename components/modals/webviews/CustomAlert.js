@@ -21,7 +21,7 @@ import { Text } from '../../text/CustomText';
  * @example
  * <CustomAlert visible={true} title="Alert" message="This is an alert" onClose={() => console.log('Alert closed')} onConfirm={() => console.log('Alert confirmed')} type="error" />
  */
-export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error' }) {
+export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error', testID }) {
   const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait } = useDeviceType();
 
   return (
@@ -30,6 +30,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
       transparent={true}
       visible={visible}
       statusBarTranslucent={true}
+      testID="custom-alert"
     >
       <View style={styles.modalContainer}>
         <View style={[
@@ -48,6 +49,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
                 color={COLORS.white}
                 width="22%"
                 onPress={onConfirm}
+                testID="alert-confirm-button"
               />
             ) : (
               <Button
@@ -56,6 +58,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
                 color={COLORS.white}
                 width="22%"
                 onPress={onClose}
+                testID="alert-close-button"
               />
             )}
           </View>

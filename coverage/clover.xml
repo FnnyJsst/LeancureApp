@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1740402909413" clover="3.2.0">
-  <project timestamp="1740402909413" name="All files">
-    <metrics statements="452" coveredstatements="336" conditionals="403" coveredconditionals="270" methods="128" coveredmethods="84" elements="983" coveredelements="690" complexity="0" loc="452" ncloc="452" packages="9" files="21" classes="21"/>
+<coverage generated="1740404992436" clover="3.2.0">
+  <project timestamp="1740404992436" name="All files">
+    <metrics statements="465" coveredstatements="372" conditionals="411" coveredconditionals="287" methods="129" coveredmethods="93" elements="1005" coveredelements="752" complexity="0" loc="465" ncloc="465" packages="9" files="22" classes="22"/>
     <package name="components.buttons">
-      <metrics statements="3" coveredstatements="3" conditionals="13" coveredconditionals="9" methods="1" coveredmethods="1"/>
+      <metrics statements="3" coveredstatements="3" conditionals="13" coveredconditionals="10" methods="1" coveredmethods="1"/>
       <file name="Button.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\components\buttons\Button.js">
-        <metrics statements="3" coveredstatements="3" conditionals="13" coveredconditionals="9" methods="1" coveredmethods="1"/>
-        <line num="34" count="77" type="stmt"/>
-        <line num="36" count="77" type="stmt"/>
-        <line num="63" count="2" type="stmt"/>
+        <metrics statements="3" coveredstatements="3" conditionals="13" coveredconditionals="10" methods="1" coveredmethods="1"/>
+        <line num="34" count="195" type="stmt"/>
+        <line num="36" count="195" type="stmt"/>
+        <line num="63" count="3" type="stmt"/>
       </file>
     </package>
     <package name="components.cards">
@@ -24,14 +24,14 @@
       <metrics statements="8" coveredstatements="5" conditionals="19" coveredconditionals="15" methods="4" coveredmethods="1"/>
       <file name="InputModal.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\components\inputs\InputModal.js">
         <metrics statements="8" coveredstatements="5" conditionals="19" coveredconditionals="15" methods="4" coveredmethods="1"/>
-        <line num="32" count="52" type="stmt"/>
-        <line num="35" count="52" type="stmt"/>
-        <line num="36" count="52" type="stmt"/>
-        <line num="38" count="52" type="stmt"/>
+        <line num="32" count="126" type="stmt"/>
+        <line num="35" count="126" type="stmt"/>
+        <line num="36" count="126" type="stmt"/>
+        <line num="38" count="126" type="stmt"/>
         <line num="57" count="0" type="stmt"/>
         <line num="58" count="0" type="stmt"/>
         <line num="62" count="0" type="stmt"/>
-        <line num="77" count="3" type="stmt"/>
+        <line num="77" count="4" type="stmt"/>
       </file>
     </package>
     <package name="components.modals.common">
@@ -49,7 +49,7 @@
       </file>
     </package>
     <package name="components.modals.webviews">
-      <metrics statements="139" coveredstatements="95" conditionals="152" coveredconditionals="103" methods="36" coveredmethods="20"/>
+      <metrics statements="139" coveredstatements="115" conditionals="152" coveredconditionals="110" methods="36" coveredmethods="26"/>
       <file name="AutoRefreshModal.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\components\modals\webviews\AutoRefreshModal.js">
         <metrics statements="10" coveredstatements="7" conditionals="24" coveredconditionals="19" methods="4" coveredmethods="2"/>
         <line num="22" count="1" type="stmt"/>
@@ -64,10 +64,10 @@
         <line num="117" count="1" type="stmt"/>
       </file>
       <file name="CustomAlert.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\components\modals\webviews\CustomAlert.js">
-        <metrics statements="3" coveredstatements="3" conditionals="11" coveredconditionals="7" methods="1" coveredmethods="1"/>
-        <line num="25" count="22" type="stmt"/>
-        <line num="27" count="22" type="stmt"/>
-        <line num="68" count="1" type="stmt"/>
+        <metrics statements="3" coveredstatements="3" conditionals="11" coveredconditionals="8" methods="1" coveredmethods="1"/>
+        <line num="25" count="59" type="stmt"/>
+        <line num="27" count="59" type="stmt"/>
+        <line num="71" count="2" type="stmt"/>
       </file>
       <file name="DeleteWebviewModal.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\components\modals\webviews\DeleteWebviewModal.js">
         <metrics statements="4" coveredstatements="4" conditionals="12" coveredconditionals="9" methods="2" coveredmethods="2"/>
@@ -162,41 +162,41 @@
         <line num="209" count="1" type="stmt"/>
       </file>
       <file name="PasswordDefineModal.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\components\modals\webviews\PasswordDefineModal.js">
-        <metrics statements="34" coveredstatements="12" conditionals="29" coveredconditionals="14" methods="9" coveredmethods="1"/>
-        <line num="27" count="22" type="stmt"/>
-        <line num="30" count="22" type="stmt"/>
-        <line num="31" count="22" type="stmt"/>
-        <line num="32" count="22" type="stmt"/>
-        <line num="33" count="22" type="stmt"/>
-        <line num="38" count="22" type="stmt"/>
-        <line num="47" count="22" type="cond" truecount="0" falsecount="1"/>
-        <line num="48" count="0" type="stmt"/>
-        <line num="49" count="0" type="stmt"/>
-        <line num="56" count="22" type="stmt"/>
-        <line num="58" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="59" count="0" type="stmt"/>
-        <line num="60" count="0" type="stmt"/>
-        <line num="64" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="65" count="0" type="stmt"/>
-        <line num="67" count="0" type="stmt"/>
-        <line num="75" count="22" type="stmt"/>
-        <line num="76" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="77" count="0" type="stmt"/>
-        <line num="78" count="0" type="stmt"/>
-        <line num="79" count="0" type="stmt"/>
-        <line num="80" count="0" type="stmt"/>
-        <line num="82" count="0" type="stmt"/>
-        <line num="89" count="22" type="stmt"/>
-        <line num="90" count="0" type="stmt"/>
-        <line num="91" count="0" type="stmt"/>
-        <line num="92" count="0" type="stmt"/>
-        <line num="95" count="22" type="stmt"/>
+        <metrics statements="34" coveredstatements="32" conditionals="29" coveredconditionals="20" methods="9" coveredmethods="7"/>
+        <line num="27" count="59" type="stmt"/>
+        <line num="30" count="59" type="stmt"/>
+        <line num="31" count="59" type="stmt"/>
+        <line num="32" count="59" type="stmt"/>
+        <line num="33" count="59" type="stmt"/>
+        <line num="38" count="59" type="stmt"/>
+        <line num="47" count="59" type="cond" truecount="1" falsecount="0"/>
+        <line num="48" count="7" type="stmt"/>
+        <line num="49" count="7" type="stmt"/>
+        <line num="56" count="59" type="stmt"/>
+        <line num="58" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="59" count="2" type="stmt"/>
+        <line num="60" count="2" type="stmt"/>
+        <line num="64" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="65" count="3" type="stmt"/>
+        <line num="67" count="2" type="stmt"/>
+        <line num="75" count="59" type="stmt"/>
+        <line num="76" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="77" count="2" type="stmt"/>
+        <line num="78" count="2" type="stmt"/>
+        <line num="79" count="2" type="stmt"/>
+        <line num="80" count="2" type="stmt"/>
+        <line num="82" count="2" type="stmt"/>
+        <line num="89" count="59" type="stmt"/>
+        <line num="90" count="3" type="stmt"/>
+        <line num="91" count="3" type="stmt"/>
+        <line num="92" count="3" type="stmt"/>
+        <line num="95" count="59" type="stmt"/>
         <line num="126" count="0" type="stmt"/>
         <line num="127" count="0" type="stmt"/>
-        <line num="158" count="0" type="stmt"/>
-        <line num="159" count="0" type="stmt"/>
-        <line num="188" count="0" type="stmt"/>
-        <line num="195" count="1" type="stmt"/>
+        <line num="159" count="1" type="stmt"/>
+        <line num="160" count="1" type="stmt"/>
+        <line num="189" count="2" type="stmt"/>
+        <line num="197" count="2" type="stmt"/>
       </file>
       <file name="ReadOnlyModal.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\components\modals\webviews\ReadOnlyModal.js">
         <metrics statements="9" coveredstatements="5" conditionals="14" coveredconditionals="10" methods="3" coveredmethods="1"/>
@@ -215,14 +215,14 @@
       <metrics statements="5" coveredstatements="5" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
       <file name="CustomText.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\components\text\CustomText.js">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
-        <line num="5" count="2" type="stmt"/>
-        <line num="6" count="768" type="stmt"/>
+        <line num="5" count="3" type="stmt"/>
+        <line num="6" count="937" type="stmt"/>
       </file>
       <file name="TitleModal.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\components\text\TitleModal.js">
         <metrics statements="3" coveredstatements="3" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
-        <line num="17" count="33" type="stmt"/>
-        <line num="19" count="33" type="stmt"/>
-        <line num="31" count="2" type="stmt"/>
+        <line num="17" count="77" type="stmt"/>
+        <line num="19" count="77" type="stmt"/>
+        <line num="31" count="3" type="stmt"/>
       </file>
     </package>
     <package name="constants">
@@ -233,27 +233,43 @@
       </file>
       <file name="style.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\constants\style.js">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="3" type="stmt"/>
-        <line num="12" count="3" type="stmt"/>
-        <line num="49" count="3" type="stmt"/>
-        <line num="86" count="3" type="stmt"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="12" count="4" type="stmt"/>
+        <line num="49" count="4" type="stmt"/>
+        <line num="86" count="4" type="stmt"/>
       </file>
     </package>
     <package name="hooks">
-      <metrics statements="162" coveredstatements="122" conditionals="56" coveredconditionals="22" methods="33" coveredmethods="28"/>
+      <metrics statements="175" coveredstatements="138" conditionals="64" coveredconditionals="31" methods="34" coveredmethods="31"/>
+      <file name="useDeviceType.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\hooks\useDeviceType.js">
+        <metrics statements="13" coveredstatements="13" conditionals="8" coveredconditionals="6" methods="1" coveredmethods="1"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="11" count="310" type="stmt"/>
+        <line num="12" count="310" type="stmt"/>
+        <line num="13" count="310" type="stmt"/>
+        <line num="16" count="310" type="stmt"/>
+        <line num="17" count="310" type="stmt"/>
+        <line num="18" count="310" type="stmt"/>
+        <line num="19" count="310" type="stmt"/>
+        <line num="22" count="310" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="310" type="cond" truecount="1" falsecount="1"/>
+        <line num="24" count="310" type="cond" truecount="2" falsecount="0"/>
+        <line num="25" count="310" type="cond" truecount="1" falsecount="1"/>
+        <line num="27" count="310" type="stmt"/>
+      </file>
       <file name="useNavigation.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\hooks\useNavigation.js">
-        <metrics statements="11" coveredstatements="8" conditionals="5" coveredconditionals="2" methods="4" coveredmethods="2"/>
+        <metrics statements="11" coveredstatements="11" conditionals="5" coveredconditionals="5" methods="4" coveredmethods="4"/>
         <line num="9" count="2" type="stmt"/>
-        <line num="11" count="30" type="stmt"/>
-        <line num="12" count="9" type="cond" truecount="2" falsecount="0"/>
-        <line num="13" count="1" type="stmt"/>
-        <line num="14" count="1" type="stmt"/>
+        <line num="11" count="35" type="stmt"/>
+        <line num="12" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="13" count="3" type="stmt"/>
+        <line num="14" count="3" type="stmt"/>
         <line num="16" count="8" type="stmt"/>
-        <line num="19" count="30" type="cond" truecount="0" falsecount="1"/>
-        <line num="20" count="0" type="stmt"/>
-        <line num="29" count="0" type="stmt"/>
-        <line num="30" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="34" count="30" type="stmt"/>
+        <line num="19" count="35" type="cond" truecount="1" falsecount="0"/>
+        <line num="20" count="3" type="stmt"/>
+        <line num="29" count="3" type="stmt"/>
+        <line num="30" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="34" count="35" type="stmt"/>
       </file>
       <file name="useTimeout.js" path="C:\Users\Leancure\Desktop\LeancureAppReactNative-main\hooks\useTimeout.js">
         <metrics statements="28" coveredstatements="23" conditionals="10" coveredconditionals="5" methods="4" coveredmethods="4"/>
