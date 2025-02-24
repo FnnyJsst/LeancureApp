@@ -21,7 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
  * @example
  * <PasswordDefineModal visible={visible} onClose={() => console.log('Modal closed')} onSubmitPassword={() => console.log('Password submitted')} onDisablePassword={() => console.log('Password disabled')} />
  */
-export default function PasswordDefineModal({ visible, onClose, onSubmitPassword, onDisablePassword }) {
+export default function PasswordDefineModal({ visible, onClose, onSubmitPassword, onDisablePassword, testID  }) {
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
@@ -100,6 +100,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
         visible={visible}
         onRequestClose={handleClose}
         statusBarTranslucent={true}
+        testID="password-define-modal"
       >
         <View style={[
           MODAL_STYLES.modalContainer,
@@ -158,6 +159,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
                   handleClose();
                 }}
                 width={isSmartphone ? '28%' : '32%'}
+                testID="disable-password-button"
               />
               <Button
                 title="Ok"
@@ -172,6 +174,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
                 color={COLORS.white}
                 onPress={handleClose}
                 width={isSmartphone ? '20%' : '22%'}
+                testID="close-password-button"
               />
             </View>
           </View>

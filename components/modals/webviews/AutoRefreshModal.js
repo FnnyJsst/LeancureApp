@@ -19,7 +19,7 @@ import { Text } from '../../text/CustomText';
  * @example
  * <AutoRefreshModal visible={visible} onClose={() => console.log('Modal closed')} onSelectOption={() => console.log('Option selected')} />
  */
-const AutoRefreshModal = ({ visible, onClose, onSelectOption }) => {
+const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID }) => {
 
   // We create a hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
@@ -49,6 +49,7 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption }) => {
       visible={visible}
       onRequestClose={onClose}
       statusBarTranslucent={true}
+      testID="auto-refresh-modal"
     >
       <View style={[
         styles.modalContainer,

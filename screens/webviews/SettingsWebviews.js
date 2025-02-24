@@ -41,6 +41,7 @@ export default function SettingsWebviews({
   handleSelectOption,
   isMessagesHidden,
   onToggleHideMessages,
+  testID,
 }) {
 
   // Device type variables
@@ -196,6 +197,7 @@ export default function SettingsWebviews({
                   description="Define the auto-refresh interval for the webviews"
                   icon={<Ionicons name="reload-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openModal}
+                  testID="open-auto-refresh-button"
                 />
               </View>
               <TouchableOpacity
@@ -226,6 +228,7 @@ export default function SettingsWebviews({
                   description="Access to webviews without the ability to modify them"
                   icon={<Ionicons name="eye-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openReadOnlyModal}
+                  testID="open-read-only-button"
                 />
               </View>
               <TouchableOpacity
@@ -248,6 +251,7 @@ export default function SettingsWebviews({
                   description="Define a password to access the settings"
                   icon={<Ionicons name="lock-closed-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openPasswordDefineModal}
+                  testID="open-password-button"
                 />
               </View>
               <TouchableOpacity
@@ -285,6 +289,7 @@ export default function SettingsWebviews({
                   }
                   description="Show or hide the message section of the app"
                   onPress={() => setHideMessagesModalVisible(true)}
+                  testID="open-hide-messages-button"
                 />
               </View>
               <TouchableOpacity
@@ -304,17 +309,20 @@ export default function SettingsWebviews({
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onSelectOption={handleSelectOption}
+        testID={testID}
       />
       <ReadOnlyModal
         visible={isReadOnlyModalVisible}
         onClose={closeReadOnlyModal}
         onToggleReadOnly={toggleReadOnly}
+        testID={testID}
       />
       <PasswordDefineModal
         visible={isPasswordDefineModalVisible}
         onClose={closePasswordDefineModal}
         onSubmitPassword={handlePasswordSubmit}
         onDisablePassword={disablePassword}
+        testID={testID}
       />
       <HideMessagesModal
         visible={hideMessagesModalVisible}

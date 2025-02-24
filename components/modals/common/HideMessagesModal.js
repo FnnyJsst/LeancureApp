@@ -14,7 +14,7 @@ import { Text } from '../../text/CustomText';
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onToggleHideMessages - The function to call when the hide messages mode is toggled
  */
-export default function HideMessagesModal({ visible, onClose, onToggleHideMessages }) {
+export default function HideMessagesModal({ visible, onClose, onToggleHideMessages, testID }) {
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
@@ -36,6 +36,7 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
       visible={visible}
       onRequestClose={onClose}
       statusBarTranslucent={true}
+      testID="hide-messages-modal"
     >
       <View style={styles.modalContainer}>
         <View style={[

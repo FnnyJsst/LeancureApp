@@ -17,7 +17,7 @@ import { Text } from '../../text/CustomText';
  * @example
  * <ReadOnly visible={visible} onClose={() => console.log('Modal closed')} onToggleReadOnly={() => console.log('Read-only mode toggled')} />
  */
-export default function ReadOnly({ visible, onClose, onToggleReadOnly }) {
+export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID }) {
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
@@ -47,6 +47,7 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly }) {
       visible={visible}
       onRequestClose={onClose}
       statusBarTranslucent={true}
+      testID="read-only-modal"
     >
       <View style={styles.modalContainer}>
         <View style={[
