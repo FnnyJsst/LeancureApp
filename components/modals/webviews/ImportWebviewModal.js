@@ -20,7 +20,7 @@ import { Text } from '../../text/CustomText';
  * @example
  * <ImportWebviewModal visible={visible} onClose={() => console.log('Modal closed')} onImport={() => console.log('Channels imported')} />
  */
-const ImportWebviewModal = ({ visible, onClose, onImport }) => {
+const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
 
   // State management for the URL, error and channels
   const [url, setUrl] = useState('');
@@ -146,6 +146,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
       visible={visible}
       onRequestClose={handleClose}
       statusBarTranslucent={true}
+      testID="import-modal"
     >
       <View style={MODAL_STYLES.modalContainer}>
         <View style={[
@@ -188,12 +189,14 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
               backgroundColor={COLORS.gray950}
               textColor={COLORS.gray300}
               width={isSmartphone ? '22%' : '25%'}
+              testID="cancel-button"
             />
             <Button
               title="Import"
               onPress={handleDownload}
               backgroundColor={COLORS.orange}
               width={isSmartphone ? '22%' : '25%'}
+              testID="import-button"
             />
           </View>
         </View>

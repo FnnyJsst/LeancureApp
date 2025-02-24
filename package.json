@@ -9,6 +9,7 @@
     "web": "expo start --web",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint --fix .",
+    "test:update": "jest --updateSnapshot",
     "test": "jest --coverage",
     "test:clear": "jest --clearCache",
     "test:watch": "jest --watch",

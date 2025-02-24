@@ -27,6 +27,7 @@ export default function Button({
   width,
   variant = 'default', // 'default' for a small button, 'large' for a large one
   style,
+  testID,
 }) {
 
   // Customized hook to determine the device type and orientation
@@ -46,6 +47,7 @@ export default function Button({
       ]}
       onPress={onPress}
       activeOpacity={0.8}
+      testID={testID}
     >
       <Text style={[
         styles.buttonText,

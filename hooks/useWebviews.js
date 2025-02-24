@@ -47,7 +47,7 @@ export function useWebviews(setCurrentScreen) {
       setSelectedWebviews(updatedWebviews);
       await saveSelectedWebviews(updatedWebviews);
     } catch (error) {
-      console.error('❌ Erreur lors de la sélection des canaux:', error);
+      console.error('Error while selecting channels:', error);
     }
   };
 
@@ -111,7 +111,7 @@ export function useWebviews(setCurrentScreen) {
       setSelectedWebviews(webviewsToSave);
       await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(webviewsToSave));
     } catch (error) {
-      console.error('❌ Erreur lors de la sauvegarde des webviews:', error);
+      console.error('Error while saving webviews:', error);
     }
   };
 

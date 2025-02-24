@@ -33,6 +33,7 @@ export default function WebviewsManagementScreen({
   isReadOnly,
   onNavigateToWebview,
   onImport,
+  testID,
 }) {
 
   // Customized hook to determine the device type and orientation
@@ -91,10 +92,12 @@ export default function WebviewsManagementScreen({
       try {
         await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(updatedWebviews));
       } catch (error) {
+
         throw error;
       }
     }
   };
+
 
   /**
    * @function moveWebviewUp
@@ -196,14 +199,14 @@ export default function WebviewsManagementScreen({
 
       {/* Modal to import channels */}
       <ImportWebviewModal
-        testID="import-modal"
         visible={isImportModalVisible}
         onClose={closeImportModal}
         onImport={onImport}
+        testID={testID}
       />
       {/* Modal to edit a channel */}
       <EditWebviewModal
-        testID="edit-modal"
+        testID={testID}
         visible={isEditModalVisible}
         onClose={closeEditModal}
         initialUrl={webviewToEdit?.href}
@@ -212,7 +215,7 @@ export default function WebviewsManagementScreen({
       />
       {/* Modal to delete a webview */}
       <DeleteWebviewModal
-        testID="delete-modal"
+        testID={testID}
         visible={isDeleteModalVisible}
         onClose={closeDeleteModal}
         handleDelete={() => handleDeleteWebview(webviewToDelete)}

@@ -16,7 +16,7 @@ import { Text } from '../../text/CustomText';
  * @example
  * <DeleteWebviewModal visible={visible} onClose={() => console.log('Modal closed')} handleDelete={() => console.log('Webview deleted')} />
  */
-export default function DeleteWebviewModal({ visible, onClose, handleDelete }) {
+export default function DeleteWebviewModal({ visible, onClose, handleDelete, testID }) {
 
   // Hook to determine the device type and orientation
   const { isSmartphonePortrait, isSmartphoneLandscape, isSmartphone, isTabletPortrait } = useDeviceType();
@@ -28,6 +28,7 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete }) {
       visible={visible}
       onRequestClose={onClose}
       statusBarTranslucent={true}
+      testID="delete-modal"
     >
       <View style={MODAL_STYLES.modalContainer}>
         <View style={[

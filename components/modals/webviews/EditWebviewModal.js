@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, StyleSheet } from 'react-native';
+import { Modal, View, StyleSheet, Text } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
@@ -20,7 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
  * @example
  * <EditWebviewModal visible={visible} onClose={() => console.log('Modal closed')} onSave={() => console.log('Channel saved')} initialUrl="https://www.google.com" initialTitle="Google" />
  */
-export default function EditWebviewModal({ visible, onClose, onSave, initialUrl, initialTitle }) {
+export default function EditWebviewModal({ visible, onClose, onSave, initialUrl, initialTitle, testID }) {
 
   // We create a hook to determine the device type and orientation
   const { isSmartphone, isTabletLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType();
@@ -30,6 +30,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
   const [title, setTitle] = useState(initialTitle || '');
   const [isTitleFocused, setIsTitleFocused] = useState(false);
   const [isUrlFocused, setIsUrlFocused] = useState(false);
+  const [error, setError] = useState('');
 
   /**
    * @function useEffect
@@ -39,20 +40,34 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
     if (visible) {
       setUrl(initialUrl || '');
       setTitle(initialTitle || '');
+      setError('');
     }
   }, [initialUrl, initialTitle, visible]);
+
+  const validateUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
 
   /**
    * @function handleOk
    * @description A function to handle the form submission
    */
   const handleOk = () => {
-    // We send the URL and title to the parent component
+    if (!title.trim()) {
+      setError('Title is required');
+      return;
+    }
+    if (!validateUrl(url)) {
+      setError('Please enter a valid URL');
+      return;
+    }
+    setError('');
     onSave(url, title);
-    // We reset the URL and title
-    setUrl('');
-    setTitle('');
-    // We close the modal
     onClose();
   };
 
@@ -63,6 +78,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
       visible={visible}
       onRequestClose={onClose}
       statusBarTranslucent={true}
+      testID="edit-modal"
     >
       <View style={MODAL_STYLES.modalContainer}>
         <View style={[
@@ -72,6 +88,9 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
           isTabletLandscape && styles.modalContentTabletLandscape,
         ]}>
           <TitleModal title="Edit a channel" />
+          {error && (
+            <Text style={styles.errorText}>{error}</Text>
+          )}
           <View style={[
             styles.inputContainer,
           ]}>
@@ -123,6 +142,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               color={COLORS.gray300}
               width="22%"
               onPress={onClose}
+              testID="cancel-button"
             />
             <Button
               title="Ok"
@@ -130,6 +150,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               color={COLORS.white}
               width="22%"
               onPress={handleOk}
+              testID="save-edit-button"
             />
           </View>
         </View>
@@ -178,4 +199,9 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.subtitleSmartphone,
     marginBottom: 10,
   },
+  errorText: {
+    color: COLORS.error,
+    marginBottom: 10,
+    textAlign: 'center',
+  }
 });
