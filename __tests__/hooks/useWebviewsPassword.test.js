@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react-native';
-import { useWebviewsPassword } from '../../hooks/useWebviewsPassword';
+import { useWebviewsPassword } from '../../hooks/useWebViewsPassword';
 import * as SecureStore from 'expo-secure-store';
 import { Alert } from 'react-native';
 import { SCREENS } from '../../constants/screens';
