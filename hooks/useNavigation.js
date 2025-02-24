@@ -10,7 +10,7 @@ export const useNavigation = (setCurrentScreen) => {
 
   const navigate = useCallback((screen) => {
     if (!SCREENS[screen]) {
-      console.warn(`Screen "${screen}" doesn't exist`);
+      console.warn(`Screen doesn't exist`);
       return;
     }
     setCurrentScreen(SCREENS[screen]);
