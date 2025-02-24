@@ -88,7 +88,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
 
     // Validate the URL
     if (!validateUrl(url)) {
-      setError('Invalid URL.');
+      setError('Invalid URL');
       return;
     }
 
@@ -189,14 +189,14 @@ const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
               backgroundColor={COLORS.gray950}
               textColor={COLORS.gray300}
               width={isSmartphone ? '22%' : '25%'}
-              testID="cancel-button"
+              testID="cancel-import-button"
             />
             <Button
               title="Import"
               onPress={handleDownload}
               backgroundColor={COLORS.orange}
               width={isSmartphone ? '22%' : '25%'}
-              testID="import-button"
+              testID="save-import-button"
             />
           </View>
         </View>
