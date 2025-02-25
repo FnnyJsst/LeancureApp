@@ -23,40 +23,42 @@ jest.mock('expo-secure-store', () => ({
   deleteItemAsync: jest.fn().mockResolvedValue(),
 }));
 
-// We mock authApi
+// We mock our api services
 jest.mock('../../services/api/authApi', () => ({
   loginApi: jest.fn(),
-  // fetchUserChannels: jest.fn(),
   clearSecureStorage: jest.fn().mockResolvedValue(),
 }));
 
-// Mock pour messageApi
 jest.mock('../../services/api/messageApi', () => ({
   fetchUserChannels: jest.fn(),
 }));
 
-// Mock pour expo-font
+// We mock expo-font and icons
 jest.mock('@expo/vector-icons', () => ({
   Ionicons: 'Ionicons',
 }));
 
 jest.mock('expo-font', () => ({
-  useFonts: () => [true],  // Simule que les polices sont chargées
+  useFonts: () => [true],
 }));
 
+// We start our test flow
 describe('Authentication Flow', () => {
-  // Fonction de navigation mockée
+
+  // We mock the navigation function
   const mockNavigate = jest.fn();
 
+  // We clear all mocks before each test
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Configuration des mocks pour simuler une connexion réussie
+    // We configure the mocks to simulate a successful connection
     loginApi.mockResolvedValue({
       success: true,
       accountApiKey: 'test-api-key'
     });
 
+    // We mock the fetchUserChannels function
     fetchUserChannels.mockResolvedValue({
       status: 'ok',
       privateGroups: [
@@ -75,48 +77,50 @@ describe('Authentication Flow', () => {
       ]
     });
 
+    // We mock the SecureStore getItemAsync function
     SecureStore.getItemAsync.mockResolvedValue(null);
   });
 
+  // Test #1
   it('should complete authentication flow with valid credentials', async () => {
-    // Rendu du vrai composant Login sans act()
+
     const { findByTestId, findByPlaceholderText } = render(
       <ErrorBoundary>
         <Login onNavigate={mockNavigate} testID="login-screen" />
       </ErrorBoundary>
     );
 
-    // Attendre que le composant Login soit rendu
+    // We wait for the Login component to be rendered
     const loginScreen = await findByTestId('login-screen');
     expect(loginScreen).toBeTruthy();
 
-    // Trouver les champs de saisie
+    // We find the input fields
     const contractInput = await findByPlaceholderText('Enter your contract number');
     const loginInput = await findByPlaceholderText('Enter your login');
     const passwordInput = await findByPlaceholderText('Enter your password');
 
-    // Remplir le formulaire avec des identifiants valides
+    // We fill the form with valid credentials
     fireEvent.changeText(contractInput, '12345');
     fireEvent.changeText(loginInput, 'testuser');
     fireEvent.changeText(passwordInput, 'password123');
 
-    // Trouver et soumettre le formulaire
+    // We find and submit the form
     const loginButton = await findByTestId('login-button');
     fireEvent.press(loginButton);
 
-    // Attendre que loginApi soit appelé avec un timeout plus long
+    // We wait for loginApi to be called with a timeout
     await waitFor(() => {
       expect(loginApi).toHaveBeenCalledWith('12345', 'testuser', 'password123');
     }, { timeout: 5000 });
 
-    // Attendre que fetchUserChannels soit appelé
+    // We wait for fetchUserChannels to be called
     await waitFor(() => {
       expect(fetchUserChannels).toHaveBeenCalledWith(
         '12345', 'testuser', 'password123', '', 'test-api-key'
       );
     }, { timeout: 5000 });
 
-    // Vérifier que les informations sont stockées dans SecureStore
+    // We wait for the user credentials to be stored in SecureStore
     await waitFor(() => {
       expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
         'userCredentials',
@@ -124,49 +128,49 @@ describe('Authentication Flow', () => {
       );
     }, { timeout: 5000 });
 
-    // Vérifier que la navigation a été appelée avec CHAT
+    // We wait for the navigation to be called with CHAT
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(SCREENS.CHAT);
     }, { timeout: 5000 });
   });
 
+  // Test #2
   it('should show error message with invalid credentials', async () => {
-    // Configurer le mock pour simuler un échec de connexion
+    // We configure the mock to simulate a failed connection
     loginApi.mockResolvedValue({
       success: false,
       message: 'Invalid credentials'
     });
 
-    // Rendu du vrai composant Login sans act()
     const { findByTestId, findByPlaceholderText, findByText } = render(
       <ErrorBoundary>
         <Login onNavigate={mockNavigate} testID="login-screen" />
       </ErrorBoundary>
     );
 
-    // Attendre que le composant Login soit rendu
+    // We wait for the Login component to be rendered
     const loginScreen = await findByTestId('login-screen');
     expect(loginScreen).toBeTruthy();
 
-    // Trouver les champs de saisie
+    // We find the input fields
     const contractInput = await findByPlaceholderText('Enter your contract number');
     const loginInput = await findByPlaceholderText('Enter your login');
     const passwordInput = await findByPlaceholderText('Enter your password');
 
-    // Remplir le formulaire avec des identifiants invalides
+    // We fill the form with invalid credentials
     fireEvent.changeText(contractInput, 'invalid');
     fireEvent.changeText(loginInput, 'invalid');
     fireEvent.changeText(passwordInput, 'invalid');
 
-    // Trouver et soumettre le formulaire
+    // We find and submit the form
     const loginButton = await findByTestId('login-button');
     fireEvent.press(loginButton);
 
-    // Vérifier que le message d'erreur est affiché avec un timeout plus long
+    // We wait for the error message to be displayed with a timeout
     const errorMessage = await findByText('Invalid credentials', {}, { timeout: 5000 });
     expect(errorMessage).toBeTruthy();
 
-    // Vérifier que la navigation n'a pas été appelée
+    // We wait for the navigation to not be called
     await waitFor(() => {
       expect(mockNavigate).not.toHaveBeenCalled();
     }, { timeout: 5000 });
