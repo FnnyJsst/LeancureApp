@@ -1,19 +1,24 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { SCREENS } from '../constants/screens';
 
 /**
  * Custom hook to handle navigation between screens
  * @param {Function} setCurrentScreen - A function to set the current screen
- * @returns {Object} - An object containing the navigate and goBack functions
+ * @returns {Object} - An object containing the navigate, goBack, and error functions
  */
 export const useNavigation = (setCurrentScreen) => {
+  const [error, setError] = useState(null);
 
   const navigate = useCallback((screen) => {
-    if (!SCREENS[screen]) {
-      console.warn(`Screen doesn't exist`);
-      return;
+    try {
+      if (!SCREENS[screen]) {
+        throw new Error(`Screen "${screen}" doesn't exist`);
+      }
+      setCurrentScreen(SCREENS[screen]);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
     }
-    setCurrentScreen(SCREENS[screen]);
   }, [setCurrentScreen]);
 
   const goBack = useCallback((defaultScreen = SCREENS.APP_MENU) => {
@@ -31,5 +36,5 @@ export const useNavigation = (setCurrentScreen) => {
     };
   }, [setCurrentScreen]);
 
-  return { navigate, goBack };
+  return { navigate, goBack, error };
 };

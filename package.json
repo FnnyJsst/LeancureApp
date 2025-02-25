@@ -10,14 +10,17 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint --fix .",
     "test:update": "jest --updateSnapshot",
-    "test": "jest --coverage",
+    "test": "jest --config jest.config.js --coverage",
     "test:clear": "jest --clearCache",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "build": "expo build"
+    "build": "expo build",
+    "test:integration": "jest -c jest.config.integration.js",
+    "test:integration:watch": "jest -c jest.config.integration.js --watch"
   },
   "dependencies": {
     "18": "^0.0.0",
+    "@react-native-async-storage/async-storage": "^2.1.1",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-native-community/netinfo": "11.3.1",
     "@react-native-voice/voice": "^3.2.4",
@@ -81,11 +84,5 @@
     "react-native-dotenv": "^3.4.11",
     "react-test-renderer": "^18.2.0"
   },
-  "private": true,
-  "jest": {
-    "preset": "jest-expo",
-    "transformIgnorePatterns": [
-      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)"
-    ]
-  }
+  "private": true
 }
