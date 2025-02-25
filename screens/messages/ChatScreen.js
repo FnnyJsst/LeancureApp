@@ -15,7 +15,7 @@ import { sendMessageApi } from '../../services/api/messageApi';
  * @param {Function} setIsExpanded - A function to set the isExpanded state
  * @param {Function} handleChatLogout - A function to handle logout
  */
-export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, handleChatLogout }) {
+export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, handleChatLogout, testID }) {
 
   // States related to the chat
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -135,7 +135,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID={testID}>
       <Header
         showMenuIcon={true}
         showBackButton={false}

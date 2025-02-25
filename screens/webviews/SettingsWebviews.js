@@ -148,7 +148,9 @@ export default function SettingsWebviews({
           </TouchableOpacity>
         </View>
 
-        <View style={[
+        <View
+          testID={testID}
+          style={[
           styles.pageContainer,
           isSmartphonePortrait && styles.pageContainerSmartphonePortrait,
         ]}>

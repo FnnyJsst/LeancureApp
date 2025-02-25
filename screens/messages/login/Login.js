@@ -22,7 +22,7 @@ import { Text } from '../../../components/text/CustomText';
  * @param {Object} props - The properties of the component
  * @param {Function} props.onNavigate - Function to navigate between screens
  */
-export default function Login({ onNavigate }) {
+export default function Login({ onNavigate, testID }) {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -209,7 +209,7 @@ export default function Login({ onNavigate }) {
         <>
             <GradientBackground>
                 <ScrollView>
-                    <View style={styles.container}>
+                    <View style={styles.container} testID="login-screen">
                         <View style={[isSmartphone && styles.formContainerSmartphone]}>
                             {isSimplifiedLogin ? (
                                 <SimplifiedLogin
@@ -304,6 +304,7 @@ export default function Login({ onNavigate }) {
                                                     isLoading={isLoading}
                                                     onPress={handleLogin}
                                                     width="100%"
+                                                    testID="login-button"
                                                 />
                                             </View>
                                         </View>

@@ -33,7 +33,7 @@ LogBox.ignoreLogs(['[expo-notifications]']);
  * @component App
  * @description The main component of the app
  */
-export default function App({ testID }) {
+export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
   // 1. Tous les hooks au début
   const [fontsLoaded] = useFonts({
     'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),         // 100
@@ -45,7 +45,7 @@ export default function App({ testID }) {
     'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),// 800
   });
 
-  const [currentScreen, setCurrentScreen] = useState(SCREENS.LOGIN);
+  const [currentScreen, setCurrentScreen] = useState(initialScreen);
   const [isLoading, setIsLoading] = useState(true);
   const [globalMessages, setGlobalMessages] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -241,6 +241,7 @@ export default function App({ testID }) {
             onHideMessages={hideMessages}
             isMessagesHidden={isMessagesHidden}
             onToggleHideMessages={hideMessages}
+            testID={testID}
           />
         );
 
@@ -294,6 +295,7 @@ export default function App({ testID }) {
             setIsExpanded={setIsExpanded}
             handleChatLogout={handleChatLogout}
             globalMessages={globalMessages}
+            testID="chat-container"
           />
         );
 

@@ -20,7 +20,7 @@ import { Text } from '../text/CustomText';
  * @example
  * <ChatWindow channel={channel} messages={channelMessages} onInputFocusChange={() => console.log('Input focused')} />
  */
-export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange, onMessageSent }) {
+export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange, onMessageSent, testID }) {
 
   const { isSmartphone } = useDeviceType();
   const scrollViewRef = useRef();

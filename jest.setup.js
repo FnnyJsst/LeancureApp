@@ -1,4 +1,5 @@
 import { jest, expect } from '@jest/globals';
+import { SCREENS } from './constants/screens';
 global.jest = jest;
 global.expect = expect;
 
@@ -9,6 +10,8 @@ jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
+
+
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(),
   setItemAsync: jest.fn(),

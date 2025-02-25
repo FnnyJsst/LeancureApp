@@ -18,13 +18,13 @@ import { Text } from '../text/CustomText';
  * <ButtonWithSpinner isLoading={true} title="Connecting..." />
  */
 
-export default function ButtonWithSpinner({ isLoading, title, ...props }) {
+export default function ButtonWithSpinner({ isLoading, title, testID, ...props }) {
   const { isSmartphone } = useDeviceType();
 
   return (
     <Button
       {...props}
-
+      testID={testID}
       title={
         isLoading ? (
           <View style={styles.button}>

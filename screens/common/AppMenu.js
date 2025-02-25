@@ -16,7 +16,7 @@ import HideMessagesModal from '../../components/modals/common/HideMessagesModal'
  *
  * @param {Function} onNavigate - A function to navigate to a screen
  */
-export default function AppMenu({ onNavigate }) {
+export default function AppMenu({ onNavigate, testID }) {
   const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
   const [isMessagesHidden, setIsMessagesHidden] = useState(false);
   const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
@@ -54,7 +54,7 @@ export default function AppMenu({ onNavigate }) {
   return (
     <>
       <GradientBackground>
-        <View style={styles.container}>
+        <View style={styles.container} testID="app-menu-screen">
           <Text style={[
             styles.title,
             isSmartphone && styles.titleSmartphone,
@@ -65,12 +65,14 @@ export default function AppMenu({ onNavigate }) {
                   title="Messages"
                   icon={<Ionicons name="mail-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
                   onPress={() => onNavigate(SCREENS.LOGIN)}
+                  testID="messages-button"
                 />
               )}
               <AppMenuCard
                 title="Webviews"
                 icon={<Ionicons name="tv-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
                 onPress={() => onNavigate(SCREENS.WEBVIEW)}
+                testID="webview-access-button"
               />
           </View>
           <TouchableOpacity style={styles.settingsContainer} onPress={() => onNavigate(SCREENS.COMMON_SETTINGS)}>
