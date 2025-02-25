@@ -15,7 +15,7 @@ import { COLORS } from '../../constants/style';
  * @example
  * <ParameterButton onPress={() => console.log('Button pressed')} />
  */
-export default function ParameterButton({ onPress }) {
+export default function ParameterButton({ onPress, testID }) {
 
   const { isSmartphone } = useDeviceType();
 
@@ -34,6 +34,7 @@ export default function ParameterButton({ onPress }) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
+        testID={testID}
         style={[styles.buttonContainer, isSmartphone && styles.buttonContainerSmartphone]}
         onPress={onPress}
         onPressIn={handlePressIn}

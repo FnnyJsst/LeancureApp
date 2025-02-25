@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
@@ -18,11 +18,13 @@ import { useNavigation } from './hooks/useNavigation';
 import * as SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
 import { useWebviews } from './hooks/useWebviews';
-import { useWebviewsPassword } from './hooks/useWebviewsPassword';
+import { useWebviewsPassword } from './hooks/useWebViewsPassword';
 import { LogBox } from 'react-native';
 import { useFonts } from 'expo-font';
 import CommonSettings from './screens/common/CommonSettings';
 import { useTimeout } from './hooks/useTimeout';
+import ErrorBoundary from './components/ErrorBoundary';
+import { Ionicons } from '@expo/vector-icons';
 // import { usePushNotifications } from './services/notifications/notificationService';
 
 LogBox.ignoreLogs(['[expo-notifications]']);
@@ -31,7 +33,7 @@ LogBox.ignoreLogs(['[expo-notifications]']);
  * @component App
  * @description The main component of the app
  */
-export default function App() {
+export default function App({ testID }) {
   // 1. Tous les hooks au début
   const [fontsLoaded] = useFonts({
     'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),         // 100
@@ -336,26 +338,33 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      {renderWebviewScreen()}
+    <ErrorBoundary>
+      <View style={styles.container} testID={testID || "app-root"}>
+        {renderWebviewScreen()}
 
-      <PasswordDefineModal
-        visible={isPasswordDefineModalVisible}
-        onClose={closePasswordDefineModal}
-        onSubmitPassword={handlePasswordSubmit}
-        onDisablePassword={disablePassword}
-      />
+        <PasswordDefineModal
+          visible={isPasswordDefineModalVisible}
+          onClose={closePasswordDefineModal}
+          onSubmitPassword={handlePasswordSubmit}
+          onDisablePassword={disablePassword}
+        />
 
-      <PasswordCheckModal
-        visible={passwordCheckModalVisible}
-        onClose={() => setPasswordCheckModalVisible(false)}
-        onSubmit={handlePasswordCheck}
-      />
+        <PasswordCheckModal
+          visible={passwordCheckModalVisible}
+          onClose={() => setPasswordCheckModalVisible(false)}
+          onSubmit={handlePasswordCheck}
+        />
 
-      <Sidebar
-        onLogout={handleChatLogout}
-      />
-    </View>
+        <Sidebar
+          onLogout={handleChatLogout}
+        />
+
+        <View accessible={true} testID="settings-button">
+          <Ionicons />
+          <Text>Settings</Text>
+        </View>
+      </View>
+    </ErrorBoundary>
   );
 }
 

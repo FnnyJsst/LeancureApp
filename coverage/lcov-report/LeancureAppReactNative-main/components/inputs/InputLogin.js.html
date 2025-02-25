@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">6.25% </span>
+                <span class="strong">56.25% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>1/16</span>
+                <span class='fraction'>9/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">61.11% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>11/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">40% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>2/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">6.25% </span>
+                <span class="strong">56.25% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>1/16</span>
+                <span class='fraction'>9/16</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -230,30 +230,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -261,9 +259,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -356,53 +356,53 @@ import { useDeviceType } from '../../hooks/useDeviceType';
  * @example
  * &lt;InputLogin placeholder="Placeholder" value="Value" onChangeText={() =&gt; console.log('Input changed')} secureTextEntry={true} iconName="iconName" iconLibrary="Ionicons" /&gt;
  */
-export default function <span class="fstat-no" title="function not covered" >InputLogin(</span>{
+export default function InputLogin({
     placeholder,
     value,
     onChangeText,
     secureTextEntry,
     iconName,
-    iconLibrary = <span class="branch-0 cbranch-no" title="branch not covered" >'Ionicons',</span>
+    iconLibrary = 'Ionicons',
 }) {
 &nbsp;
     // Get device type
-    const { isSmartphone } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
+    const { isSmartphone } = useDeviceType();
 &nbsp;
     // State management
-    const [showPassword, setShowPassword] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
-    const [isFocused, setIsFocused] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
+    const [showPassword, setShowPassword] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
 &nbsp;
     /**
      * @function renderIcon
      * @description A function to render the icon
      * @returns {React.ReactNode} The icon
      */
-    const renderIcon = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-        const iconProps = <span class="cstat-no" title="statement not covered" >{</span>
+    const renderIcon = () =&gt; {
+        const iconProps = {
             name: iconName,
             size: 20,
-            color: isFocused ? COLORS.orange : COLORS.gray600,
+            color: isFocused ? <span class="branch-0 cbranch-no" title="branch not covered" >COLORS.orange </span>: COLORS.gray600,
             style: styles.icon,
         };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        switch (iconLibrary) {</span>
+        switch (iconLibrary) {
             case 'Ionicons':
-<span class="cstat-no" title="statement not covered" >                return &lt;Ionicons {...iconProps} /&gt;;</span>
-            case 'FontAwesome':
+                return &lt;Ionicons {...iconProps} /&gt;;
+<span class="branch-1 cbranch-no" title="branch not covered" >            case 'FontAwesome':</span>
 <span class="cstat-no" title="statement not covered" >                return &lt;FontAwesome {...iconProps} /&gt;;</span>
-            case 'MaterialIcons':
+<span class="branch-2 cbranch-no" title="branch not covered" >            case 'MaterialIcons':</span>
 <span class="cstat-no" title="statement not covered" >                return &lt;MaterialIcons {...iconProps} /&gt;;</span>
-            case 'Feather':
+<span class="branch-3 cbranch-no" title="branch not covered" >            case 'Feather':</span>
 <span class="cstat-no" title="statement not covered" >                return &lt;Feather {...iconProps} /&gt;;</span>
-            default:
+<span class="branch-4 cbranch-no" title="branch not covered" >            default:</span>
 <span class="cstat-no" title="statement not covered" >                return &lt;Ionicons {...iconProps} /&gt;;</span>
         }
     };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return (</span>
+    return (
         &lt;View style={[
             styles.inputContainer,
-            isFocused &amp;&amp; styles.inputContainerFocused,
+            isFocused &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.inputContainerFocused,</span>
         ]}&gt;
             {renderIcon()}
             &lt;TextInput
@@ -424,7 +424,7 @@ export default function <span class="fstat-no" title="function not covered" >Inp
                     style={styles.eyeIcon}
                 &gt;
                     &lt;Ionicons
-                        name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                        name={showPassword ? <span class="branch-0 cbranch-no" title="branch not covered" >'eye-outline' </span>: 'eye-off-outline'}
                         size={20}
                         color={COLORS.gray600}
                     /&gt;
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-25T07:42:59.465Z
+                at 2025-02-25T09:28:52.790Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

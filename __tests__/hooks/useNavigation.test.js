@@ -125,4 +125,32 @@ describe('useNavigation', () => {
       expect(mockSetCurrentScreen).toHaveBeenCalledWith(SCREENS.APP_MENU);
     });
   });
+
+  it('should handle invalid screen navigation', () => {
+    const { result } = renderHook(() => useNavigation(mockSetCurrentScreen));
+
+    act(() => {
+      result.current.navigate('INVALID_SCREEN');
+    });
+
+    expect(result.current.error).toBe('Screen "INVALID_SCREEN" doesn\'t exist');
+    expect(mockSetCurrentScreen).not.toHaveBeenCalled();
+  });
+
+  it('should clear error on successful navigation', () => {
+    const { result } = renderHook(() => useNavigation(mockSetCurrentScreen));
+
+    // D'abord créer une erreur
+    act(() => {
+      result.current.navigate('INVALID_SCREEN');
+    });
+    expect(result.current.error).toBeTruthy();
+
+    // Puis faire une navigation valide
+    act(() => {
+      result.current.navigate('SETTINGS');
+    });
+    expect(result.current.error).toBeNull();
+    expect(mockSetCurrentScreen).toHaveBeenCalledWith(SCREENS.SETTINGS);
+  });
 });

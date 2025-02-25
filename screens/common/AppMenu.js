@@ -30,7 +30,7 @@ export default function AppMenu({ onNavigate }) {
           setIsMessagesHidden(JSON.parse(savedValue));
         }
       } catch (error) {
-        console.error('Error loading messages visibility:', error);
+        throw new Error('Error loading messages visibility:', error);
       }
     };
     loadMessagesVisibility();

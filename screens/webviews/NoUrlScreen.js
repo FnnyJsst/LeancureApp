@@ -18,6 +18,7 @@ export default function NoUrlScreen({
   onNavigate,
   handleSettingsAccess,
   isMessagesHidden,
+  testID,
 }) {
 
   const { isSmartphone } = useDeviceType();
@@ -55,7 +56,7 @@ export default function NoUrlScreen({
       </View>
 
       <View style={styles.buttonContainer}>
-        <ParameterButton onPress={() => handleSettingsAccess()} />
+        <ParameterButton onPress={() => handleSettingsAccess()} testID="settings-button" />
       </View>
     </View>
   );

@@ -21,6 +21,7 @@ export default function WebviewScreen({
   onNavigate,
   onSettingsAccess,
   isMessagesHidden,
+  testID,
 }) {
   const { isSmartphone } = useDeviceType();
   const webViewRef = useRef(null);
@@ -61,7 +62,7 @@ export default function WebviewScreen({
         style={styles.webview}
       />
       <View style={styles.buttonContainer}>
-        <ParameterButton onPress={onSettingsAccess} />
+        <ParameterButton onPress={onSettingsAccess} testID="settings-button" />
       </View>
     </View>
   );
