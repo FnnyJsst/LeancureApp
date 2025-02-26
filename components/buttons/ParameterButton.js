@@ -3,7 +3,7 @@ import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { COLORS } from '../../constants/style';
+import { COLORS, SIZES } from '../../constants/style';
 
 /**
  * @component ParameterButton
@@ -44,7 +44,7 @@ export default function ParameterButton({ onPress, testID }) {
           <Ionicons
             name="settings-outline"
             color={iconColor}
-            size={isSmartphone ? 22 : 24}
+            size={isSmartphone ? 22 : 30}
           />
         </View>
       </TouchableOpacity>
@@ -59,9 +59,9 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     backgroundColor: COLORS.charcoal,
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 55,
+    height: 55,
+    borderRadius: SIZES.borderRadius.xLarge,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,

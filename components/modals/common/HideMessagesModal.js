@@ -19,6 +19,11 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
 
+  // //This piece of code is only here for the V1 of the App to hide the messages section by default
+  //   React.useEffect(() => {
+  //     handleResponse(true);
+  //   }, []);
+
   /**
    * @function handleResponse
    * @description A function to handle the response to the hide messages question
@@ -27,7 +32,9 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
   const handleResponse = (response) => {
     onToggleHideMessages(response);
     onClose();
+
   };
+
 
   return (
     <Modal

@@ -444,10 +444,10 @@ const styles = StyleSheet.create({
   },
   text: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.textTablet,
+    fontSize: SIZES.fonts.subtitleTablet,
   },
   textSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
+    fontSize: SIZES.fonts.subtitleSmartphone,
   },
   addChannelText: {
     color: COLORS.gray300,

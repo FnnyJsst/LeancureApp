@@ -18,7 +18,7 @@ import { useNavigation } from './hooks/useNavigation';
 import * as SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
 import { useWebviews } from './hooks/useWebviews';
-import { useWebviewsPassword } from './hooks/useWebViewsPassword';
+import { useWebviewsPassword } from './hooks/useWebviewsPassword';
 import { LogBox } from 'react-native';
 import { useFonts } from 'expo-font';
 import CommonSettings from './screens/common/CommonSettings';
@@ -49,7 +49,7 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
   const [isLoading, setIsLoading] = useState(true);
   const [globalMessages, setGlobalMessages] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isMessagesHidden, setIsMessagesHidden] = useState(false);
+  const [isMessagesHidden, setIsMessagesHidden] = useState(true);
 
   const { navigate } = useNavigation(setCurrentScreen);
   const { timeoutInterval, handleTimeoutSelection, loadTimeoutInterval } = useTimeout();
@@ -98,6 +98,7 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
     }
   }, [isPasswordRequired, setPasswordCheckModalVisible, navigate]);
 
+  //THIS NEEDS TO BE UNCOMMENTED FOR V2
   const hideMessages = useCallback(async (shouldHide) => {
     try {
         await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
@@ -114,37 +115,64 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
     }
   }, [navigate, selectedWebviews]);
 
-  /**
-   * @function initializeApp
-   * @description Initializes the app when the component is mounted
-   */
+  //This piece of code is only here for the V1 of the App to hide the messages section by default AND TO BE REMOVED FOR V2
   useEffect(() => {
     const initializeApp = async () => {
-        try {
-            // Load the timeout interval
-            await loadTimeoutInterval();
-            // Get the isMessagesHidden value to hide or show the messages
-            const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
-            const isHidden = savedValue ? JSON.parse(savedValue) : false;
-            setIsMessagesHidden(isHidden);
-            // Load the selected channels
-            await loadSelectedChannels();
-            setIsLoading(false);
-            // If the messages are hidden, navigate to the webview or the no url screen
-            if (isHidden) {
-                navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-            // If the messages are not hidden, navigate to the app menu
-            } else {
-                navigate(SCREENS.APP_MENU);
-            }
-        } catch (error) {
-            console.error('Error initializing app:', error);
-            setIsLoading(false);
-        }
+      try {
+        // Load the timeout interval
+        await loadTimeoutInterval();
+
+        // Par défaut, on cache les messages
+        await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(true));
+        setIsMessagesHidden(true);
+
+        // Load the selected channels
+        await loadSelectedChannels();
+        setIsLoading(false);
+
+        // Navigation directe vers l'écran approprié
+        navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+
+      } catch (error) {
+        console.error('Error during app initialization:', error);
+      }
     };
 
     initializeApp();
-  }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews?.length]);
+  }, []);
+
+
+  // /**
+  //  * @function initializeApp
+  //  * @description Initializes the app when the component is mounted
+  //  */
+  // useEffect(() => {
+  //   const initializeApp = async () => {
+  //       try {
+  //           // Load the timeout interval
+  //           await loadTimeoutInterval();
+  //           // Get the isMessagesHidden value to hide or show the messages
+  //           const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
+  //           const isHidden = savedValue ? JSON.parse(savedValue) : false;
+  //           setIsMessagesHidden(isHidden);
+  //           // Load the selected channels
+  //           await loadSelectedChannels();
+  //           setIsLoading(false);
+  //           // If the messages are hidden, navigate to the webview or the no url screen
+  //           if (isHidden) {
+  //               navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+  //           // If the messages are not hidden, navigate to the app menu
+  //           } else {
+  //               navigate(SCREENS.APP_MENU);
+  //           }
+  //       } catch (error) {
+  //           console.error('Error initializing app:', error);
+  //           setIsLoading(false);
+  //       }
+  //   };
+
+  //   initializeApp();
+  // }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews?.length]);
 
   /**
    * @function handleTimeout
@@ -364,7 +392,6 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
 
         <View accessible={true} testID="settings-button">
           <Ionicons />
-          <Text>Settings</Text>
         </View>
       </View>
     </ErrorBoundary>

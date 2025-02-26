@@ -140,6 +140,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry={true}
+                testID="confirm-password-input"
                 icon={
                   <Ionicons
                     name="lock-closed-outline"
