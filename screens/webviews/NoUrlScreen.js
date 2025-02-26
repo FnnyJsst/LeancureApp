@@ -32,7 +32,7 @@ export default function NoUrlScreen({
   };
 
   return (
-    <View style={styles.pageContainer}>
+    <View style={styles.pageContainer} testID={testID}>
       {/* If messages are not hidden, display the back button so we can go back to the app menu */}
       {!isMessagesHidden && (
         <View style={styles.customHeaderContainer}>

@@ -215,6 +215,7 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
             setPasswordCheckModalVisible={setPasswordCheckModalVisible}
             handleSettingsAccess={handleSettingsAccess}
             isMessagesHidden={isMessagesHidden}
+            testID="no-url-screen"
           />
         );
 
