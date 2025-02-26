@@ -242,7 +242,7 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
             onHideMessages={hideMessages}
             isMessagesHidden={isMessagesHidden}
             onToggleHideMessages={hideMessages}
-            testID={testID}
+            testID="settings-webviews-screen"
           />
         );
 

@@ -132,7 +132,7 @@ export default function SettingsWebviews({
   };
 
   return (
-    <View>
+    <View testID={testID}>
       <ScrollView showsVerticalScrollIndicator={true}>
         <View style={styles.customHeaderContainer}>
           <TouchableOpacity
@@ -324,7 +324,7 @@ export default function SettingsWebviews({
         onClose={closePasswordDefineModal}
         onSubmitPassword={handlePasswordSubmit}
         onDisablePassword={disablePassword}
-        testID={testID}
+        testID="password-define-modal"
       />
       <HideMessagesModal
         visible={hideMessagesModalVisible}

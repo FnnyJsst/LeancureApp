@@ -5,6 +5,7 @@ import { SCREENS } from '../../constants/screens';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import * as SecureStore from 'expo-secure-store';
 import NoUrlScreen from '../../screens/webviews/NoUrlScreen';
+import SettingsWebviews from '../../screens/webviews/SettingsWebviews'
 
 // We mock LogBox to avoid console errors
 jest.mock('react-native/Libraries/LogBox/LogBox', () => ({
@@ -110,6 +111,14 @@ describe('Password Webviews Flow', () => {
 
   // Test #1
   it('should complete webviews flow with valid credentials', async () => {
+    // Mock pour handleSettingsAccess
+    const mockHandleSettingsAccess = jest.fn(() => {
+      mockNavigate(SCREENS.SETTINGS);
+    });
+
+    // Mock pour handlePasswordSubmit
+    const mockHandlePasswordSubmit = jest.fn();
+
     const { findByTestId } = render(
       <ErrorBoundary>
         <NoUrlScreen
@@ -118,7 +127,7 @@ describe('Password Webviews Flow', () => {
           isPasswordRequired={false}
           password=""
           setPasswordCheckModalVisible={() => {}}
-          handleSettingsAccess={() => {}}
+          handleSettingsAccess={mockHandleSettingsAccess}
           isMessagesHidden={false}
         />
       </ErrorBoundary>
@@ -127,5 +136,66 @@ describe('Password Webviews Flow', () => {
     // We wait for the NoUrlScreen to be rendered
     const noUrlScreen = await findByTestId('no-url-screen');
     expect(noUrlScreen).toBeTruthy();
+
+    //We press the button to access the webviews settings
+    const settingsButton = await findByTestId('settings-button');
+    fireEvent.press(settingsButton);
+
+    // We check that handleSettingsAccess has been called
+    expect(mockHandleSettingsAccess).toHaveBeenCalled();
+
+    // We check that the navigation has been called with SETTINGS
+    expect(mockNavigate).toHaveBeenCalledWith(SCREENS.SETTINGS);
+
+    // We render the SettingsWebviews screen
+    const { getByTestId, getByPlaceholderText, getByText } = render(
+      <ErrorBoundary>
+        <SettingsWebviews
+          testID="settings-webviews-screen"
+          onNavigate={mockNavigate}
+          selectedWebviews={[]}
+          refreshOption="manual"
+          handlePasswordSubmit={mockHandlePasswordSubmit}
+          isPasswordRequired={false}
+          disablePassword={() => {}}
+          isReadOnly={false}
+          toggleReadOnly={() => {}}
+          handleSelectOption={() => {}}
+          isMessagesHidden={false}
+          onToggleHideMessages={() => {}}
+          isPasswordDefineModalVisible={true}
+          onSubmitPassword={mockHandlePasswordSubmit}
+        />
+      </ErrorBoundary>
+    );
+
+    // We press the button to access the modal to define the password
+    const passwordButton = getByTestId('open-password-button');
+    fireEvent.press(passwordButton);
+
+    // We enter the password in the modal
+    const passwordInput = getByPlaceholderText('Enter a password (6+ chars)');
+    const confirmPasswordInput = getByPlaceholderText('Re-enter password');
+
+    fireEvent.changeText(passwordInput, 'password123');
+    fireEvent.changeText(confirmPasswordInput, 'password123');
+
+    // We submit the password
+    const submitButton = getByText('Ok');
+    fireEvent.press(submitButton);
+
+    // We confirm the alert
+    const confirmButton = getByTestId('alert-confirm-button');
+    fireEvent.press(confirmButton);
+
+    // We check that handlePasswordSubmit has been called with the correct password
+    expect(mockHandlePasswordSubmit).toHaveBeenCalledWith('password123');
+
+    // We go back to the NoUrlScreen
+    const backButton = getByTestId('back-button');
+    fireEvent.press(backButton);
+
+    // We check that the navigation has been called with NO_URL
+    expect(mockNavigate).toHaveBeenCalledWith(SCREENS.NO_URL);
   });
 });
