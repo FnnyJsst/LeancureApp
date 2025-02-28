@@ -119,15 +119,26 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // Load the timeout interval
-        await loadTimeoutInterval();
+        // Créons une promesse pour le temps minimum d'affichage du ScreenSaver
+        const minimumLoadingTime = new Promise(resolve => setTimeout(resolve, 3000));
 
-        // Par défaut, on cache les messages
-        await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(true));
-        setIsMessagesHidden(true);
+        // Exécutons toutes nos initialisations en parallèle
+        await Promise.all([
+          minimumLoadingTime,
+          (async () => {
+            // Load the timeout interval
+            await loadTimeoutInterval();
 
-        // Load the selected channels
-        await loadSelectedChannels();
+            // Par défaut, on cache les messages
+            await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(true));
+            setIsMessagesHidden(true);
+
+            // Load the selected channels
+            await loadSelectedChannels();
+          })()
+        ]);
+
+        // Une fois que tout est chargé ET que le temps minimum est écoulé
         setIsLoading(false);
 
         // Navigation directe vers l'écran approprié
@@ -135,6 +146,7 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
 
       } catch (error) {
         console.error('Error during app initialization:', error);
+        setIsLoading(false); // Important de gérer le loading même en cas d'erreur
       }
     };
 
