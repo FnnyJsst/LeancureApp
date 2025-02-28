@@ -51,7 +51,16 @@
     "extra": {
       "eas": {
         "projectId": "c0d7c103-e3ab-4ee8-9a7a-97cc31870324"
-      }
+      },
+      "apiUrl": "http://VOTRE_IP/ic.php"
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#000000",
+      "barStyle": "light-content"
+    },
+    "androidNavigationBar": {
+      "backgroundColor": "#000000",
+      "barStyle": "light-content"
     }
   }
 }
