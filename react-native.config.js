@@ -1,3 +1,8 @@
 module.exports = {
-  assets: ['./assets/fonts'],
+  project: {
+    android: {
+      packageName: "com.leancure.app"
+    }
+  },
+  assets: ['./assets/fonts']
 };

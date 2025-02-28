@@ -15,7 +15,6 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/logo.png",
           "color": "#ffffff",
           "mode": "default",
           "firebaseCloudMessaging": {
@@ -33,23 +32,26 @@
       [
         "expo-av",
         {
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+          "microphonePermission": "Autoriser $(PRODUCT_NAME) à accéder à votre microphone."
         }
       ],
       [
         "expo-dev-client",
         {
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone"
+          "microphonePermission": "Autoriser $(PRODUCT_NAME) à accéder à votre microphone."
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-file-system",
+      "expo-media-library"
     ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.fnnyjsst.react_native",
       "adaptiveIcon": {
-        "backgroundColor": "#e5e5e5e5e5e5"
+        "backgroundColor": "#e5e5e5"
       },
       "permissions": [
         "android.permission.INTERNET",
@@ -61,12 +63,7 @@
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE",
         "android.permission.RECORD_AUDIO"
-      ],
-      "useNextNotificationsApi": true,
-      "package": "com.fnnyjsst.react_native"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      ]
     },
     "assetBundlePatterns": [
       "**/*"
@@ -75,6 +72,7 @@
       "eas": {
         "projectId": "c0d7c103-e3ab-4ee8-9a7a-97cc31870324"
       }
-    }
+    },
+    "newArchEnabled": true
   }
 }

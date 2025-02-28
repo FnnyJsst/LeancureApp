@@ -19,70 +19,112 @@
     "test:integration:watch": "jest -c jest.config.integration.js --watch"
   },
   "dependencies": {
-    "18": "^0.0.0",
-    "@react-native-async-storage/async-storage": "^2.1.1",
-    "@react-native-community/masked-view": "^0.1.11",
-    "@react-native-community/netinfo": "11.3.1",
-    "@react-native-voice/voice": "^3.2.4",
-    "@react-navigation/drawer": "^6.7.2",
-    "@react-navigation/native": "^6.1.18",
-    "@react-navigation/native-stack": "^6.11.0",
-    "@react-navigation/stack": "^6.4.1",
+    "@react-native-community/netinfo": "11.4.1",
+    "@xmldom/xmldom": "^0.8.10",
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
     "crypto-js": "^4.2.0",
-    "deprecated-react-native-prop-types": "^5.0.0",
-    "emoji-mart-native": "^0.6.5-beta",
-    "expo": "~51.0.28",
-    "expo-app-loading": "^1.0.3",
-    "expo-av": "~14.0.7",
-    "expo-blur": "~13.0.2",
-    "expo-constants": "~16.0.2",
-    "expo-dev-client": "~4.0.29",
-    "expo-device": "~6.0.2",
-    "expo-document-picker": "~12.0.2",
-    "expo-file-system": "~17.0.1",
-    "expo-font": "~12.0.10",
-    "expo-image-picker": "~15.0.7",
-    "expo-linear-gradient": "~13.0.2",
-    "expo-media-library": "~16.0.5",
-    "expo-network": "~6.0.1",
-    "expo-notifications": "~0.28.19",
-    "expo-screen-orientation": "~7.0.5",
-    "expo-secure-store": "~13.0.2",
-    "expo-sharing": "~12.0.1",
-    "expo-speech": "~12.0.2",
-    "expo-splash-screen": "^0.27.5",
-    "expo-status-bar": "~1.12.1",
-    "expo-system-ui": "~3.0.7",
+    "expo": "^52.0.37",
+    "expo-av": "~15.0.2",
+    "expo-constants": "~17.0.7",
+    "expo-dev-client": "~5.0.12",
+    "expo-device": "~7.0.2",
+    "expo-document-picker": "~13.0.3",
+    "expo-file-system": "~18.0.11",
+    "expo-font": "~13.0.4",
+    "expo-image-picker": "^16.0.6",
+    "expo-linear-gradient": "~14.0.2",
+    "expo-media-library": "~17.0.6",
+    "expo-network": "~7.0.5",
+    "expo-notifications": "~0.29.13",
+    "expo-screen-orientation": "~8.0.4",
+    "expo-secure-store": "~14.0.1",
+    "expo-sharing": "~13.0.1",
+    "expo-status-bar": "~2.0.1",
+    "expo-system-ui": "~4.0.8",
+    "global": "latest",
     "htmlparser2": "^9.1.0",
     "jest": "^29.7.0",
-    "react": "18.2.0",
-    "react-native": "^0.74.5",
+    "react": "18.3.1",
+    "react-native": "0.76.7",
     "react-native-blob-util": "^0.21.2",
-    "react-native-dotenv": "^3.4.11",
-    "react-native-emoji-selector": "^0.2.0",
-    "react-native-gesture-handler": "~2.16.1",
-    "react-native-html-parser": "^0.1.0",
-    "react-native-linear-gradient": "^2.8.3",
-    "react-native-pdf": "^6.7.6",
-    "react-native-reanimated": "~3.10.1",
-    "react-native-safe-area-context": "4.10.5",
-    "react-native-screens": "3.31.1",
+    "react-native-screens": "~4.4.0",
     "react-native-switch": "^1.5.1",
-    "react-native-webview": "13.8.6",
-    "socket.io-client": "^4.8.1"
+    "react-native-webview": "13.12.5",
+    "rimraf": "^5.0.0",
+    "socket.io-client": "^4.8.1",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@babel/preset-env": "^7.23.8",
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.24.0",
+    "@babel/plugin-transform-class-properties": "^7.24.0",
+    "@babel/plugin-transform-optional-chaining": "^7.24.0",
+    "@eslint/config-array": "^0.19.2",
+    "@eslint/object-schema": "^2.0.0",
     "@react-native-community/eslint-config": "^3.2.0",
-    "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^12.4.1",
-    "eslint": "^8.57.1",
-    "jest-expo": "^49.0.0",
+    "eslint": "^9.0.0-alpha.0",
+    "jest-expo": "~52.0.5",
     "react-native-dotenv": "^3.4.11",
-    "react-test-renderer": "^18.2.0"
+    "react-test-renderer": "18.2.0"
   },
-  "private": true
+  "overrides": {
+    "glob": "^9.3.5",
+    "rimraf": "^5.0.0",
+    "@xmldom/xmldom": "^0.8.10",
+    "uuid": "^9.0.1",
+    "inflight": "^2.0.1",
+    "@babel/plugin-proposal-numeric-separator": "@babel/plugin-transform-numeric-separator@^7.24.0",
+    "@babel/plugin-proposal-optional-catch-binding": "@babel/plugin-transform-optional-catch-binding@^7.24.0",
+    "@babel/plugin-proposal-class-properties": "@babel/plugin-transform-class-properties@^7.24.0",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "@babel/plugin-transform-nullish-coalescing-operator@^7.24.0",
+    "@babel/plugin-proposal-export-namespace-from": "@babel/plugin-transform-export-namespace-from@^7.24.0",
+    "@babel/plugin-proposal-optional-chaining": "@babel/plugin-transform-optional-chaining@^7.24.0",
+    "@babel/plugin-proposal-object-rest-spread": "@babel/plugin-transform-object-rest-spread@^7.24.0",
+    "@babel/plugin-proposal-async-generator-functions": "@babel/plugin-transform-async-generator-functions@^7.24.0",
+    "stable": "^0.1.8",
+    "semver": "^7.5.4",
+    "@humanwhocodes/config-array": "@eslint/config-array@^0.19.2",
+    "@humanwhocodes/object-schema": "@eslint/object-schema@^2.0.0",
+    "sudo-prompt": "latest",
+    "@expo/prebuild-config": {
+      "semver": "^7.5.4",
+      "xml2js": "^0.5.0"
+    },
+    "@expo/config": {
+      "semver": "^7.5.4"
+    },
+    "@expo/config-plugins": {
+      "xml2js": "^0.5.0"
+    },
+    "@expo/image-utils": {
+      "semver": "^7.5.4"
+    }
+  },
+  "peerDependencies": {
+    "react": "18.3.1",
+    "react-test-renderer": "18.2.0"
+  },
+  "resolutions": {
+    "react": "18.3.1",
+    "react-test-renderer": "18.2.0",
+    "uuid": "^9.0.1",
+    "glob": "^9.3.5",
+    "rimraf": "^5.0.0",
+    "inflight": "^2.0.1",
+    "@xmldom/xmldom": "^0.8.10"
+  },
+  "config": {
+    "legacy-peer-deps": true
+  },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": ["react-native-switch"],
+        "listUnknownPackages": false
+      }
+    }
+  }
 }
