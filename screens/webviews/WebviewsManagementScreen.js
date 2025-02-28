@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 15,
     marginBottom: 5,
-    marginTop: 10,
+    marginTop: 20,
     paddingHorizontal: '2%',
   },
 });

@@ -1,0 +1,132 @@
+{
+  "name": "react_native",
+  "version": "1.0.0",
+  "main": "expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint --fix .",
+    "test:update": "jest --updateSnapshot",
+    "test": "jest --config jest.config.js --coverage",
+    "test:clear": "jest --clearCache",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "build": "expo build",
+    "test:integration": "jest -c jest.config.integration.js",
+    "test:integration:watch": "jest -c jest.config.integration.js --watch"
+  },
+  "dependencies": {
+    "@react-native-community/netinfo": "11.4.1",
+    "@xmldom/xmldom": "^0.8.10",
+    "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
+    "crypto-js": "^4.2.0",
+    "expo": "^50.0.0",
+    "expo-av": "~15.0.2",
+    "expo-constants": "~17.0.7",
+    "expo-dev-client": "~5.0.12",
+    "expo-device": "~7.0.2",
+    "expo-document-picker": "~13.0.3",
+    "expo-file-system": "~18.0.11",
+    "expo-font": "~13.0.4",
+    "expo-image-picker": "^16.0.6",
+    "expo-linear-gradient": "~14.0.2",
+    "expo-media-library": "~17.0.6",
+    "expo-network": "~7.0.5",
+    "expo-notifications": "~0.29.13",
+    "expo-screen-orientation": "~8.0.4",
+    "expo-secure-store": "~14.0.1",
+    "expo-sharing": "~13.0.1",
+    "expo-status-bar": "~2.0.1",
+    "expo-system-ui": "~4.0.8",
+    "global": "latest",
+    "htmlparser2": "^9.1.0",
+    "jest": "^29.7.0",
+    "react": "18.3.1",
+    "react-native": "0.76.7",
+    "react-native-blob-util": "^0.21.2",
+    "react-native-screens": "~4.4.0",
+    "react-native-switch": "^1.5.1",
+    "react-native-webview": "13.12.5",
+    "rimraf": "^5.0.0",
+    "socket.io-client": "^4.8.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/plugin-transform-class-properties": "^7.24.0",
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.24.0",
+    "@babel/plugin-transform-optional-chaining": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "@eslint/config-array": "^0.19.2",
+    "@eslint/object-schema": "^2.0.0",
+    "@react-native-community/eslint-config": "^3.2.0",
+    "@testing-library/react-native": "^12.4.1",
+    "eslint": "^9.0.0-alpha.0",
+    "jest-expo": "~52.0.5",
+    "react-native-dotenv": "^3.4.11",
+    "react-test-renderer": "18.2.0"
+  },
+  "overrides": {
+    "glob": "^9.3.5",
+    "rimraf": "^5.0.0",
+    "@xmldom/xmldom": "^0.8.10",
+    "uuid": "^9.0.1",
+    "inflight": "^2.0.1",
+    "@babel/plugin-proposal-numeric-separator": "@babel/plugin-transform-numeric-separator@^7.24.0",
+    "@babel/plugin-proposal-optional-catch-binding": "@babel/plugin-transform-optional-catch-binding@^7.24.0",
+    "@babel/plugin-proposal-class-properties": "@babel/plugin-transform-class-properties@^7.24.0",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "@babel/plugin-transform-nullish-coalescing-operator@^7.24.0",
+    "@babel/plugin-proposal-export-namespace-from": "@babel/plugin-transform-export-namespace-from@^7.24.0",
+    "@babel/plugin-proposal-optional-chaining": "@babel/plugin-transform-optional-chaining@^7.24.0",
+    "@babel/plugin-proposal-object-rest-spread": "@babel/plugin-transform-object-rest-spread@^7.24.0",
+    "@babel/plugin-proposal-async-generator-functions": "@babel/plugin-transform-async-generator-functions@^7.24.0",
+    "stable": "^0.1.8",
+    "semver": "^7.5.4",
+    "@humanwhocodes/config-array": "@eslint/config-array@^0.19.2",
+    "@humanwhocodes/object-schema": "@eslint/object-schema@^2.0.0",
+    "sudo-prompt": "latest",
+    "@expo/prebuild-config": {
+      "semver": "^7.5.4",
+      "xml2js": "^0.5.0"
+    },
+    "@expo/config": {
+      "semver": "^7.5.4"
+    },
+    "@expo/config-plugins": {
+      "xml2js": "^0.5.0"
+    },
+    "@expo/image-utils": {
+      "semver": "^7.5.4"
+    }
+  },
+  "peerDependencies": {
+    "react": "18.3.1",
+    "react-test-renderer": "18.2.0"
+  },
+  "resolutions": {
+    "react": "18.3.1",
+    "react-test-renderer": "18.2.0",
+    "uuid": "^9.0.1",
+    "glob": "^9.3.5",
+    "rimraf": "^5.0.0",
+    "inflight": "^2.0.1",
+    "@xmldom/xmldom": "^0.8.10"
+  },
+  "config": {
+    "legacy-peer-deps": true
+  },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "react-native-switch"
+        ],
+        "listUnknownPackages": false
+      }
+    }
+  }
+}

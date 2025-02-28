@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     height: 50,
     marginHorizontal: 'auto',
-    padding: 10,
+    paddingHorizontal: 10,
     width: '100%',
     backgroundColor: COLORS.gray950,
     borderRadius: SIZES.borderRadius.medium,

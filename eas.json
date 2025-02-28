@@ -22,7 +22,8 @@
         "gradleCommand": ":app:assembleRelease",
         "withoutCredentials": true,
         "env": {
-          "ANDROID_NDK_HOME": "/opt/android/ndk/25c"
+          "ANDROID_NDK_HOME": "/opt/android/ndk/25c",
+          "API_URL": "http://192.168.1.67/ic.php"
         }
       }
     },

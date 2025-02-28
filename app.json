@@ -5,6 +5,9 @@
     "version": "1.0.0",
     "orientation": "default",
     "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#FFFFFF"
+    },
     "plugins": [
       [
         "expo-image-picker",
@@ -29,18 +32,6 @@
         }
       ],
       "expo-secure-store",
-      [
-        "expo-av",
-        {
-          "microphonePermission": "Autoriser $(PRODUCT_NAME) à accéder à votre microphone."
-        }
-      ],
-      [
-        "expo-dev-client",
-        {
-          "microphonePermission": "Autoriser $(PRODUCT_NAME) à accéder à votre microphone."
-        }
-      ],
       "expo-font",
       "expo-file-system",
       "expo-media-library"
@@ -52,18 +43,7 @@
       "package": "com.fnnyjsst.react_native",
       "adaptiveIcon": {
         "backgroundColor": "#e5e5e5"
-      },
-      "permissions": [
-        "android.permission.INTERNET",
-        "android.permission.INTERNET",
-        "android.permission.ACCESS_NETWORK_STATE",
-        "android.permission.ACCESS_WIFI_STATE",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.VIBRATE",
-        "android.permission.RECORD_AUDIO"
-      ]
+      }
     },
     "assetBundlePatterns": [
       "**/*"
@@ -72,7 +52,6 @@
       "eas": {
         "projectId": "c0d7c103-e3ab-4ee8-9a7a-97cc31870324"
       }
-    },
-    "newArchEnabled": true
+    }
   }
 }
