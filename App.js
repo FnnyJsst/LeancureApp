@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Text, Alert } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
@@ -33,20 +33,8 @@ LogBox.ignoreLogs(['[expo-notifications]']);
  * @component App
  * @description The main component of the app
  */
-const AppWrapper = () => {
-  return (
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  );
-};
-
-export default AppWrapper;
-
-function App({ testID, initialScreen = SCREENS.LOGIN }) {
+export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
   // 1. Tous les hooks au début
-  const [fontError, setFontError] = useState(null);
-
   const [fontsLoaded] = useFonts({
     'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),         // 100
     'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),       // 300
@@ -131,17 +119,6 @@ function App({ testID, initialScreen = SCREENS.LOGIN }) {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        setIsLoading(true);
-
-        // Vérification de SecureStore
-        const testKey = 'test_key';
-        await SecureStore.setItemAsync(testKey, 'test_value');
-        const testValue = await SecureStore.getItemAsync(testKey);
-        if (testValue !== 'test_value') {
-          throw new Error('SecureStore not working properly');
-        }
-        await SecureStore.deleteItemAsync(testKey);
-
         // Load the timeout interval
         await loadTimeoutInterval();
 
@@ -151,23 +128,51 @@ function App({ testID, initialScreen = SCREENS.LOGIN }) {
 
         // Load the selected channels
         await loadSelectedChannels();
+        setIsLoading(false);
 
         // Navigation directe vers l'écran approprié
         navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+
       } catch (error) {
         console.error('Error during app initialization:', error);
-        Alert.alert(
-          'Erreur d\'initialisation',
-          'Une erreur est survenue lors du démarrage de l\'application. Veuillez réessayer.',
-          [{ text: 'OK' }]
-        );
-      } finally {
-        setIsLoading(false);
       }
     };
 
     initializeApp();
-  }, [loadTimeoutInterval, loadSelectedChannels, navigate, selectedWebviews]);
+  }, []);
+
+
+  // /**
+  //  * @function initializeApp
+  //  * @description Initializes the app when the component is mounted
+  //  */
+  // useEffect(() => {
+  //   const initializeApp = async () => {
+  //       try {
+  //           // Load the timeout interval
+  //           await loadTimeoutInterval();
+  //           // Get the isMessagesHidden value to hide or show the messages
+  //           const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
+  //           const isHidden = savedValue ? JSON.parse(savedValue) : false;
+  //           setIsMessagesHidden(isHidden);
+  //           // Load the selected channels
+  //           await loadSelectedChannels();
+  //           setIsLoading(false);
+  //           // If the messages are hidden, navigate to the webview or the no url screen
+  //           if (isHidden) {
+  //               navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+  //           // If the messages are not hidden, navigate to the app menu
+  //           } else {
+  //               navigate(SCREENS.APP_MENU);
+  //           }
+  //       } catch (error) {
+  //           console.error('Error initializing app:', error);
+  //           setIsLoading(false);
+  //       }
+  //   };
+
+  //   initializeApp();
+  // }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews?.length]);
 
   /**
    * @function handleTimeout
@@ -185,12 +190,8 @@ function App({ testID, initialScreen = SCREENS.LOGIN }) {
     return () => clearTimeout(timer);
   }, [timeoutInterval, currentScreen]);
 
-  if (!fontsLoaded && !fontError) {
-    return (
-      <View style={styles.container}>
-        <Text>Chargement des polices...</Text>
-      </View>
-    );
+  if (!fontsLoaded) {
+    return null;
   }
 
   /**
@@ -368,38 +369,38 @@ function App({ testID, initialScreen = SCREENS.LOGIN }) {
   };
 
   return (
-    <View style={styles.container} testID={testID || "app-root"}>
-      {renderWebviewScreen()}
+    <ErrorBoundary>
+      <View style={styles.container} testID={testID || "app-root"}>
+        {renderWebviewScreen()}
 
-      <PasswordDefineModal
-        visible={isPasswordDefineModalVisible}
-        onClose={closePasswordDefineModal}
-        onSubmitPassword={handlePasswordSubmit}
-        onDisablePassword={disablePassword}
-      />
+        <PasswordDefineModal
+          visible={isPasswordDefineModalVisible}
+          onClose={closePasswordDefineModal}
+          onSubmitPassword={handlePasswordSubmit}
+          onDisablePassword={disablePassword}
+        />
 
-      <PasswordCheckModal
-        visible={passwordCheckModalVisible}
-        onClose={() => setPasswordCheckModalVisible(false)}
-        onSubmit={handlePasswordCheck}
-      />
+        <PasswordCheckModal
+          visible={passwordCheckModalVisible}
+          onClose={() => setPasswordCheckModalVisible(false)}
+          onSubmit={handlePasswordCheck}
+        />
 
-      <Sidebar
-        onLogout={handleChatLogout}
-      />
+        <Sidebar
+          onLogout={handleChatLogout}
+        />
 
-      <View accessible={true} testID="settings-button">
-        <Ionicons name="settings-outline" size={24} color={COLORS.WHITE} />
+        <View accessible={true} testID="settings-button">
+          <Ionicons />
+        </View>
       </View>
-    </View>
+    </ErrorBoundary>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.WHITE,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: COLORS.gray950,
   },
 });

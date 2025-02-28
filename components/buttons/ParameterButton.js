@@ -44,7 +44,7 @@ export default function ParameterButton({ onPress, testID }) {
           <Ionicons
             name="settings-outline"
             color={iconColor}
-            size={isSmartphone ? 22 : 30}
+            size={isSmartphone ? 24 : 30}
           />
         </View>
       </TouchableOpacity>
@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   buttonContainerSmartphone: {
-    width: 30,
-    height: 30,
+    width: 45,
+    height: 45,
   },
   iconContainer: {
     justifyContent: 'center',
