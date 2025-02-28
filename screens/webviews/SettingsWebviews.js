@@ -269,15 +269,15 @@ export default function SettingsWebviews({
               </TouchableOpacity>
             </View>
           </View>
-          {/* <View style={styles.titleContainer}>
+          <View style={styles.titleContainer}>
             <Text style={styles.title}>Messages</Text>
-          </View> */}
-          {/* <View style={[
+          </View>
+          <View style={[
             styles.configContainer,
             isSmartphone && styles.configContainerSmartphone,
             isLandscape && styles.configContainerLandscape,
-          ]}> */}
-            {/* <View style={styles.rowContainer}>
+          ]}>
+            <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
                 <SettingsCard
                   title="Show/hide messages"
@@ -303,7 +303,7 @@ export default function SettingsWebviews({
                 </Text>
               </TouchableOpacity>
             </View>
-          </View> */}
+          </View>
         </View>
       </ScrollView>
       {/* Modals */}

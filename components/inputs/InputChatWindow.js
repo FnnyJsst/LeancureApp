@@ -140,12 +140,10 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
       return;
     }
 
-    // Si on n'a pas de message texte, on ne fait rien
     if (!message || !message.trim()) {
       return;
     }
 
-    // Envoi du message texte
     onSendMessage(message.trim());
     setMessage('');
   };
@@ -231,12 +229,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     backgroundColor: '#111111',
-    marginBottom: 0,
-    marginTop: -10,
+    marginBottom: -15,
+    marginTop: 0,
     borderRadius: 0,
     borderTopWidth: 0.5,
     borderTopColor: '#403430',
-    height: 70,
+    height: 60,
   },
   smartphoneContainer: {
     height: 60,

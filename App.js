@@ -116,75 +116,75 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
   }, [navigate, selectedWebviews]);
 
   //This piece of code is only here for the V1 of the App to hide the messages section by default AND TO BE REMOVED FOR V2
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        // Créons une promesse pour le temps minimum d'affichage du ScreenSaver
-        const minimumLoadingTime = new Promise(resolve => setTimeout(resolve, 3000));
-
-        // Exécutons toutes nos initialisations en parallèle
-        await Promise.all([
-          minimumLoadingTime,
-          (async () => {
-            // Load the timeout interval
-            await loadTimeoutInterval();
-
-            // Par défaut, on cache les messages
-            await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(true));
-            setIsMessagesHidden(true);
-
-            // Load the selected channels
-            await loadSelectedChannels();
-          })()
-        ]);
-
-        // Une fois que tout est chargé ET que le temps minimum est écoulé
-        setIsLoading(false);
-
-        // Navigation directe vers l'écran approprié
-        navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-
-      } catch (error) {
-        console.error('Error during app initialization:', error);
-        setIsLoading(false); // Important de gérer le loading même en cas d'erreur
-      }
-    };
-
-    initializeApp();
-  }, []);
-
-
-  // /**
-  //  * @function initializeApp
-  //  * @description Initializes the app when the component is mounted
-  //  */
   // useEffect(() => {
   //   const initializeApp = async () => {
-  //       try {
+  //     try {
+  //       // Créons une promesse pour le temps minimum d'affichage du ScreenSaver
+  //       const minimumLoadingTime = new Promise(resolve => setTimeout(resolve, 3000));
+
+  //       // Exécutons toutes nos initialisations en parallèle
+  //       await Promise.all([
+  //         minimumLoadingTime,
+  //         (async () => {
   //           // Load the timeout interval
   //           await loadTimeoutInterval();
-  //           // Get the isMessagesHidden value to hide or show the messages
-  //           const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
-  //           const isHidden = savedValue ? JSON.parse(savedValue) : false;
-  //           setIsMessagesHidden(isHidden);
+
+  //           // Par défaut, on cache les messages
+  //           await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(true));
+  //           setIsMessagesHidden(true);
+
   //           // Load the selected channels
   //           await loadSelectedChannels();
-  //           setIsLoading(false);
-  //           // If the messages are hidden, navigate to the webview or the no url screen
-  //           if (isHidden) {
-  //               navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-  //           // If the messages are not hidden, navigate to the app menu
-  //           } else {
-  //               navigate(SCREENS.APP_MENU);
-  //           }
-  //       } catch (error) {
-  //           console.error('Error initializing app:', error);
-  //           setIsLoading(false);
-  //       }
+  //         })()
+  //       ]);
+
+  //       // Une fois que tout est chargé ET que le temps minimum est écoulé
+  //       setIsLoading(false);
+
+  //       // Navigation directe vers l'écran approprié
+  //       navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+
+  //     } catch (error) {
+  //       console.error('Error during app initialization:', error);
+  //       setIsLoading(false); // Important de gérer le loading même en cas d'erreur
+  //     }
   //   };
 
   //   initializeApp();
-  // }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews?.length]);
+  // }, []);
+
+
+  /**
+   * @function initializeApp
+   * @description Initializes the app when the component is mounted
+   */
+  useEffect(() => {
+    const initializeApp = async () => {
+        try {
+            // Load the timeout interval
+            await loadTimeoutInterval();
+            // Get the isMessagesHidden value to hide or show the messages
+            const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
+            const isHidden = savedValue ? JSON.parse(savedValue) : false;
+            setIsMessagesHidden(isHidden);
+            // Load the selected channels
+            await loadSelectedChannels();
+            setIsLoading(false);
+            // If the messages are hidden, navigate to the webview or the no url screen
+            if (isHidden) {
+                navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+            // If the messages are not hidden, navigate to the app menu
+            } else {
+                navigate(SCREENS.APP_MENU);
+            }
+        } catch (error) {
+            console.error('Error initializing app:', error);
+            setIsLoading(false);
+        }
+    };
+
+    initializeApp();
+  }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews?.length]);
 
   /**
    * @function handleTimeout
