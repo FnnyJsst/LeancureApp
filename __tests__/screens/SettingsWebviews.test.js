@@ -26,7 +26,7 @@ describe('SettingsWebviews', () => {
   const mockProps = {
     onNavigate: jest.fn(),
     selectedWebviews: [],
-    refreshOption: 'manual',
+    refreshOption: 'never',
     handlePasswordSubmit: jest.fn(),
     isPasswordRequired: false,
     disablePassword: jest.fn(),

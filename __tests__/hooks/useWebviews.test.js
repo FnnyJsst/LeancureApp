@@ -32,7 +32,7 @@ describe('useWebviews', () => {
     expect(result.current.selectedWebviews).toEqual([]);
     expect(result.current.webViewUrl).toEqual('');
     expect(result.current.refreshInterval).toBeNull();
-    expect(result.current.refreshOption).toEqual('manual');
+    expect(result.current.refreshOption).toEqual('never');
     expect(result.current.isReadOnly).toEqual(false);
   });
 
@@ -117,7 +117,7 @@ describe('useWebviews', () => {
   it('should load refresh option correctly', () => {
     const { result } = renderHook(() => useWebviews(mockSetCurrentScreen));
 
-    expect(result.current.refreshOption).toEqual('manual');
+    expect(result.current.refreshOption).toEqual('never');
   });
 
   //Test #7 : We check that the selected webviews are loaded correctly

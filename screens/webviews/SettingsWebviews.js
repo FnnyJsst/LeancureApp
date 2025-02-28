@@ -359,6 +359,8 @@ const styles = StyleSheet.create({
   },
   configContainerSmartphone: {
     marginVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
   configContainerLandscape: {
     marginHorizontal: 50,
