@@ -240,34 +240,28 @@ export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
       console.log(`🚀 Starting app initialization (${VERSION})`);
 
       try {
-        // Initialisation commune
+        // 1. Initialisation de i18n silencieuse
         await initI18n();
-        console.log('✅ i18n initialized');
         setIsI18nInitialized(true);
 
         if (VERSION === 'v1') {
-          // Code spécifique V1
-          const minimumLoadingTime = new Promise(resolve =>
-            setTimeout(resolve, CONFIG.INITIALIZATION.LOADING_TIME)
-          );
+          // 2. Afficher le ScreenSaver pendant 3 secondes obligatoires
+          setIsLoading(true); // Force l'affichage du ScreenSaver
 
+          // 3. Initialisation en parallèle
           await Promise.all([
-            minimumLoadingTime,
+            new Promise(resolve => setTimeout(resolve, 3000)), // Timer fixe de 3 secondes
             (async () => {
               await loadTimeoutInterval();
-              await SecureStore.setItemAsync('isMessagesHidden',
-                JSON.stringify(CONFIG.INITIALIZATION.DEFAULT_MESSAGES_HIDDEN)
-              );
-              setIsMessagesHidden(CONFIG.INITIALIZATION.DEFAULT_MESSAGES_HIDDEN);
+              await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(true));
+              setIsMessagesHidden(true);
               await loadSelectedChannels();
             })()
           ]);
 
+          // 4. Une fois tout chargé ET les 3 secondes écoulées
           setIsLoading(false);
-          navigate(selectedWebviews?.length > 0 ?
-            CONFIG.NAVIGATION.DEFAULT_ROUTE :
-            CONFIG.NAVIGATION.FALLBACK_ROUTE
-          );
+          navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
         } else {
           // Code spécifique V2
           const [timeoutResult, savedMessagesValue, channelsResult] = await Promise.all([
@@ -303,16 +297,8 @@ export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
     initializeApp();
   }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews?.length]);
 
-  if (!fontsLoaded || !isI18nInitialized) {
-    console.log('⏳ Waiting for initialization...', { fontsLoaded, isI18nInitialized });
-    return (
-      <View style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color={COLORS.orange} />
-        <Text style={{ color: COLORS.white, marginTop: 10 }}>
-          {!fontsLoaded ? 'Loading fonts...' : 'Initializing...'}
-        </Text>
-      </View>
-    );
+  if (!fontsLoaded || !isI18nInitialized || isLoading) {
+    return <ScreenSaver testID="screen-saver" />;
   }
 
   /**
@@ -328,9 +314,9 @@ export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
   };
 
   // If the app is loading, show the loading screen
-  if (isLoading) {
-    return <ScreenSaver testID="screen-saver" />;
-  }
+  // if (isLoading) {
+  //   return <ScreenSaver testID="screen-saver" />;
+  // }
 
   /**
    * @function renderWebviewScreen

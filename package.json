@@ -52,6 +52,8 @@
   },
   "scripts": {
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "check-version": "node scripts/check-version.js",
+    "prebuild": "npm run check-version"
   }
 }

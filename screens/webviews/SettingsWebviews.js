@@ -11,6 +11,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS, FONTS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../../components/text/CustomText';
+import { VERSION } from '../../config/versioning/version';
 
 
 /**
@@ -269,41 +270,46 @@ export default function SettingsWebviews({
               </TouchableOpacity>
             </View>
           </View>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Messages</Text>
-          </View>
-          <View style={[
-            styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape,
-          ]}>
-            <View style={styles.rowContainer}>
-              <View style={styles.leftContent}>
-                <SettingsCard
-                  title="Show/hide messages"
-                  iconBackgroundColor={COLORS.borderColor}
-                  icon={
-                    <Ionicons
-                      name="remove-circle-outline"
-                      size={isSmartphone ? 22 : 28}
-                      color={COLORS.red}
-                    />
-                  }
-                  description="Show or hide the message section of the app"
-                  onPress={() => setHideMessagesModalVisible(true)}
-                  testID="open-hide-messages-button"
-                />
+          {/* Section Messages - Visible uniquement en V2 */}
+          {VERSION === 'v2' && (
+            <>
+              <View style={styles.titleContainer}>
+                <Text style={styles.title}>Messages</Text>
               </View>
-              <TouchableOpacity
-                style={styles.baseToggle}
-                onPress={() => setHideMessagesModalVisible(true)}
-              >
-                <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
-                  {isMessagesHidden ? 'Hide' : 'Show'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+              <View style={[
+                styles.configContainer,
+                isSmartphone && styles.configContainerSmartphone,
+                isLandscape && styles.configContainerLandscape,
+              ]}>
+                <View style={styles.rowContainer}>
+                  <View style={styles.leftContent}>
+                    <SettingsCard
+                      title="Show/hide messages"
+                      iconBackgroundColor={COLORS.borderColor}
+                      icon={
+                        <Ionicons
+                          name="remove-circle-outline"
+                          size={isSmartphone ? 22 : 28}
+                          color={COLORS.red}
+                        />
+                      }
+                      description="Show or hide the message section of the app"
+                      onPress={() => setHideMessagesModalVisible(true)}
+                      testID="open-hide-messages-button"
+                    />
+                  </View>
+                  <TouchableOpacity
+                    style={styles.baseToggle}
+                    onPress={() => setHideMessagesModalVisible(true)}
+                  >
+                    <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
+                      {isMessagesHidden ? 'Hide' : 'Show'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </>
+          )}
         </View>
       </ScrollView>
       {/* Modals */}
@@ -326,11 +332,14 @@ export default function SettingsWebviews({
         onDisablePassword={disablePassword}
         testID="password-define-modal"
       />
-      <HideMessagesModal
-        visible={hideMessagesModalVisible}
-        onClose={() => setHideMessagesModalVisible(false)}
-        onToggleHideMessages={handleToggleHideMessages}
-      />
+      {/* Modal HideMessages uniquement en V2 */}
+      {VERSION === 'v2' && (
+        <HideMessagesModal
+          visible={hideMessagesModalVisible}
+          onClose={() => setHideMessagesModalVisible(false)}
+          onToggleHideMessages={handleToggleHideMessages}
+        />
+      )}
     </View>
   );
 }
