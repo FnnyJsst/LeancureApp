@@ -14,7 +14,7 @@ export function useWebviews(setCurrentScreen) {
   const [selectedWebviews, setSelectedWebviews] = useState([]);
   const [webViewUrl, setWebviewUrl] = useState('');
   const [refreshInterval, setRefreshInterval] = useState(null);
-  const [refreshOption, setRefreshOption] = useState('manual');
+  const [refreshOption, setRefreshOption] = useState('never');
   const [isReadOnly, setIsReadOnly] = useState(false);
 
   const { navigate } = useNavigation(setCurrentScreen);

@@ -4,6 +4,7 @@ import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component ReadOnly
@@ -19,6 +20,7 @@ import { Text } from '../../text/CustomText';
  */
 export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID }) {
 
+  const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
 
@@ -62,20 +64,20 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
             <Text style={[
               styles.titleText,
               isSmartphone && styles.titleTextSmartphone,
-            ]}>Do you want to set channel management to read-only?</Text>
+            ]}>{t('modals.webview.readOnly.readOnly')}</Text>
           </View>
           <View style={[
             styles.buttonContainer,
             isSmartphone && styles.buttonContainerSmartphone,
           ]}>
             <Button
-              title="Yes"
+              title={t('buttons.yes')}
               backgroundColor={COLORS.orange}
               width={isSmartphone ? '20%' : '22%'}
               onPress={handleYes}
             />
             <Button
-              title="No"
+              title={t('buttons.no')}
               backgroundColor={COLORS.gray950}
               color={COLORS.gray300}
               width={isSmartphone ? '20%' : '22%'}

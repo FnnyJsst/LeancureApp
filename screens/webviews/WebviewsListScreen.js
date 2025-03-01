@@ -6,6 +6,7 @@ import Button from '../../components/buttons/Button';
 import CheckBox from '../../components/inputs/CheckBox';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../components/text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component WebviewsListScreen
@@ -21,6 +22,7 @@ import { Text } from '../../components/text/CustomText';
  */
 export default function WebviewsListScreen({ channels, selectedWebviews, onBack, onBackPress }) {
 
+  const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
 
@@ -92,7 +94,7 @@ export default function WebviewsListScreen({ channels, selectedWebviews, onBack,
             color={COLORS.white}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Import channels</Text>
+        <Text style={styles.headerTitle}>{t('buttons.importChannels')}</Text>
       </View>
       <View style={[styles.listContainer, isLandscape && styles.listContainerLandscape]}>
         <FlatList

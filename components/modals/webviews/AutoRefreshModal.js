@@ -6,6 +6,7 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component AutoRefreshModal
@@ -21,6 +22,7 @@ import { Text } from '../../text/CustomText';
  */
 const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID }) => {
 
+  const { t } = useTranslation();
   // We create a hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
 
@@ -29,17 +31,17 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID }) => {
 
   // Options for the auto-refresh modal
   const options = [
-    { label: 'Never', value: 'never' },
-    { label: 'Every minute', value: 'every minute' },
-    { label: 'Every 2 minutes', value: 'every 2 minutes' },
-    { label: 'Every 5 minutes', value: 'every 5 minutes' },
-    { label: 'Every 15 minutes', value: 'every 15 minutes' },
-    { label: 'Every 30 minutes', value: 'every 30 minutes' },
-    { label: 'Every hour', value: 'every hour' },
-    { label: 'Every 2 hours', value: 'every 2 hours' },
-    { label: 'Every 3 hours', value: 'every 3 hours' },
-    { label: 'Every 6 hours', value: 'every 6 hours' },
-    { label: 'Every day', value: 'every day' },
+    { label: t('modals.webview.refresh.never'), value: 'never' },
+    { label: t('modals.webview.refresh.every1min'), value: 'every minute' },
+    { label: t('modals.webview.refresh.every2min'), value: 'every 2 minutes' },
+    { label: t('modals.webview.refresh.every5min'), value: 'every 5 minutes' },
+    { label: t('modals.webview.refresh.every15min'), value: 'every 15 minutes' },
+    { label: t('modals.webview.refresh.every30min'), value: 'every 30 minutes' },
+    { label: t('modals.webview.refresh.every1h'), value: 'every hour' },
+    { label: t('modals.webview.refresh.every2h'), value: 'every 2 hours' },
+    { label: t('modals.webview.refresh.every3h'), value: 'every 3 hours' },
+    { label: t('modals.webview.refresh.every6h'), value: 'every 6 hours' },
+    { label: t('modals.webview.refresh.everyDay'), value: 'every day' },
   ];
 
   return (
@@ -62,7 +64,7 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID }) => {
             isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
           ]}>
           <ScrollView>
-            <TitleModal title="Refresh channels"/>
+            <TitleModal title={t('modals.webview.refresh.refreshChannels')}/>
             <View style={[
               styles.optionsContainer,
               isSmartphone && styles.optionsContainerSmartphone,
@@ -90,16 +92,16 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID }) => {
             </View>
             <View style={MODAL_STYLES.buttonContainer}>
               <Button
-                title="Close"
+                title={t('buttons.close')}
                 backgroundColor={COLORS.gray950}
                 textColor={COLORS.gray300}
-                width={isSmartphone ? '22%' : '25%'}
+                width={isSmartphone ? '23%' : '26%'}
                 onPress={onClose} />
               <Button
-                title="Set"
+                title={t('buttons.set')}
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
-                width={isSmartphone ? '22%' : '25%'}
+                width={isSmartphone ? '23%' : '26%'}
                 onPress={() => {
                   // We send the selected option to the parent component
                   onSelectOption(selectedOption);

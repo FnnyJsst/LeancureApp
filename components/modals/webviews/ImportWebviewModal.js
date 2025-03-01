@@ -7,6 +7,7 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component ImportWebviewModal
@@ -21,7 +22,7 @@ import { Text } from '../../text/CustomText';
  * <ImportWebviewModal visible={visible} onClose={() => console.log('Modal closed')} onImport={() => console.log('Channels imported')} />
  */
 const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
-
+  const { t } = useTranslation();
   // State management for the URL, error and channels
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
@@ -155,9 +156,9 @@ const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
             isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
             isTabletPortrait && styles.modalContentTabletPortrait,
           ]}>
-          <TitleModal title="Import channels"/>
+          <TitleModal title={t('modals.webview.import.importChannels')}/>
           <InputModal
-            placeholder="Enter an URL to import channels"
+            placeholder={t('modals.webview.import.importUrl')}
             value={url}
             onChangeText={handleUrlChange}
             // We set the secureTextEntry to false so the user can see the URL
@@ -184,18 +185,18 @@ const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
             MODAL_STYLES.buttonContainer,
           ]}>
             <Button
-              title="Cancel"
+              title={t('buttons.cancel')}
               onPress={handleClose}
               backgroundColor={COLORS.gray950}
               textColor={COLORS.gray300}
-              width={isSmartphone ? '22%' : '25%'}
+              width={isSmartphone ? '23%' : '26%'}
               testID="cancel-import-button"
             />
             <Button
-              title="Import"
+              title={t('buttons.import')}
               onPress={handleDownload}
               backgroundColor={COLORS.orange}
-              width={isSmartphone ? '22%' : '25%'}
+              width={isSmartphone ? '23%' : '26%'}
               testID="save-import-button"
             />
           </View>

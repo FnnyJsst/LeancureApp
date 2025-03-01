@@ -7,6 +7,7 @@ import CustomAlert from './CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component PasswordDefineModal
@@ -23,6 +24,7 @@ import { Ionicons } from '@expo/vector-icons';
  */
 export default function PasswordDefineModal({ visible, onClose, onSubmitPassword, onDisablePassword, testID  }) {
 
+  const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
 
@@ -56,15 +58,15 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
   const handleOkPress = () => {
     //Check if password is at least 6 characters
     if (password.length < 6) {
-      showAlert('Error', 'Password must contain at least 6 characters');
+      showAlert(t('errors.passwordTooShort'));
       return;
     }
 
     //Check if passwords match
     if (password === confirmPassword) {
-      showAlert('Success', 'Password has been set successfully', 'success');
+      showAlert(t('errors.success'), t('errors.passwordSuccess'), 'success');
     } else {
-      showAlert('Error', 'Passwords do not match');
+      showAlert(t('errors.passwordMismatch'), '');
     }
   };
 
@@ -113,13 +115,13 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
               isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
               isTabletPortrait && styles.modalContentTabletPortrait,
             ]}>
-            <TitleModal title="Enter password" />
+            <TitleModal title={t('modals.webview.password.enterPassword')} />
             <View style={[
               styles.inputContainer,
               isSmartphone && styles.inputContainerSmartphone,
             ]}>
               <InputModal
-                placeholder="Enter a password (6+ chars)"
+                placeholder={t('modals.webview.password.define')}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={true}
@@ -136,7 +138,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
                 }
               />
               <InputModal
-                placeholder="Re-enter password"
+                placeholder={t('modals.webview.password.confirm')}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry={true}
@@ -153,14 +155,14 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
             </View>
             <View style={MODAL_STYLES.buttonContainer}>
               <Button
-                title="Do not use"
+                title={t('buttons.doNotUse')}
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
                 onPress={() => {
                   onDisablePassword();
                   handleClose();
                 }}
-                width={isSmartphone ? '28%' : '32%'}
+                width={isSmartphone ? '32%' : '40%'}
                 testID="disable-password-button"
               />
               <Button

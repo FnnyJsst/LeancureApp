@@ -12,6 +12,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import Entypo from '@expo/vector-icons/Entypo';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component WebviewsManagementScreen
@@ -36,6 +37,7 @@ export default function WebviewsManagementScreen({
   testID,
 }) {
 
+  const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
   const { isTablet, isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
 
@@ -193,7 +195,7 @@ export default function WebviewsManagementScreen({
           styles.addChannelText,
           isSmartphone && styles.addChannelTextSmartphone,
         ]}>
-          Use the top right button to import channels
+          {t('screens.useButton')}
         </Text>
       )}
 
@@ -451,7 +453,7 @@ const styles = StyleSheet.create({
   },
   addChannelText: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.textTablet,
+    fontSize: SIZES.fonts.subtitleTablet,
     textAlign: 'center',
     marginBottom: 20,
     marginTop: 10,

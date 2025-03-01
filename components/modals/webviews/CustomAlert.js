@@ -5,6 +5,7 @@ import TitleModal from '../../../components/text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES,COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component CustomAlert
@@ -24,6 +25,7 @@ import { Text } from '../../text/CustomText';
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error', testID }) {
   const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait } = useDeviceType();
 
+  const { t } = useTranslation();
   return (
     <Modal
       animationType="fade"
@@ -54,7 +56,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
             ) : (
               <Button
                 title="Close"
-                backgroundColor={COLORS.buttonGray}
+                backgroundColor={COLORS.gray650}
                 color={COLORS.white}
                 width="22%"
                 onPress={onClose}

@@ -6,6 +6,7 @@ import InputModal from '../../inputs/InputModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 /**
  * @component EditWebviewModal
  * @description A component that renders a modal for editing a channel
@@ -21,7 +22,7 @@ import { Ionicons } from '@expo/vector-icons';
  * <EditWebviewModal visible={visible} onClose={() => console.log('Modal closed')} onSave={() => console.log('Channel saved')} initialUrl="https://www.google.com" initialTitle="Google" />
  */
 export default function EditWebviewModal({ visible, onClose, onSave, initialUrl, initialTitle, testID }) {
-
+  const { t } = useTranslation();
   // We create a hook to determine the device type and orientation
   const { isSmartphone, isTabletLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType();
 
@@ -59,11 +60,11 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
    */
   const handleOk = () => {
     if (!title.trim()) {
-      setError('Title is required');
+      setError(t('errors.titleRequired'));
       return;
     }
     if (!validateUrl(url)) {
-      setError('Please enter a valid URL');
+      setError(t('errors.invalidUrl'));
       return;
     }
     setError('');
@@ -87,7 +88,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
           isTabletLandscape && styles.modalContentTabletLandscape,
         ]}>
-          <TitleModal title="Edit a channel" />
+          <TitleModal title={t('modals.webview.edit.editChannel')} />
           {error && (
             <Text style={styles.errorText}>{error}</Text>
           )}
@@ -98,7 +99,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               value={title}
               // We update the title state
               onChangeText={setTitle}
-              placeholder="Enter channel title"
+              placeholder={t('modals.webview.edit.editTitle')}
               //No need to secure the title
               secureTextEntry={false}
               style={isSmartphone && styles.inputSmartphone}
@@ -120,7 +121,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               value={url}
               // We update the URL state
               onChangeText={setUrl}
-              placeholder="Enter channel URL"
+              placeholder={t('modals.webview.edit.editUrl')}
               //No need to secure the URL
               secureTextEntry={false}
               style={isSmartphone && styles.inputSmartphone}
@@ -137,7 +138,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
           </View>
           <View style={MODAL_STYLES.buttonContainer}>
             <Button
-              title="Cancel"
+              title={t('buttons.cancel')}
               backgroundColor={COLORS.gray950}
               color={COLORS.gray300}
               width="22%"
@@ -145,7 +146,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               testID="cancel-button"
             />
             <Button
-              title="Ok"
+              title={t('buttons.save')}
               backgroundColor={COLORS.orange}
               color={COLORS.white}
               width="22%"

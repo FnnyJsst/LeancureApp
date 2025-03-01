@@ -12,6 +12,8 @@ import { SIZES, COLORS, FONTS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../../components/text/CustomText';
 import { VERSION } from '../../config/versioning/version';
+import { useTranslation } from 'react-i18next';
+
 
 
 /**
@@ -52,6 +54,8 @@ export default function SettingsWebviews({
   const [isPasswordDefineModalVisible, setPasswordDefineModalVisible] = useState(false);
   const [isReadOnlyModalVisible, setReadOnlyModalVisible] = useState(false);
   const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
+
+  const { t } = useTranslation();
 
   /**
    * @function handleQuitApp
@@ -94,28 +98,24 @@ export default function SettingsWebviews({
    * @returns {string} - The formatted refresh option
    */
   const formatRefreshOption = (option) => {
-    // Check if the option is not null and is not 'never'
-    if (!option || option === 'never') {return 'never';}
-    // Extract the number and the unit
+    if (!option || option === 'never') {
+      return t('modals.webview.refresh.never');
+    }
+
     const match = option.match(/every (\d+) (\w+)/i);
-    // Check if the match is not null
     if (!match) {
-      if (option === 'every hour') {return '1h';}
-      if (option === 'every day') {return '24h';}
-      if (option === 'every minute') {return '1min';}
+      if (option === 'every hour') return t('modals.webview.refresh.every1h');
+      if (option === 'every day') return t('modals.webview.refresh.everyDay');
+      if (option === 'every minute') return t('modals.webview.refresh.every1min');
       return option;
     }
 
     const [_, number, unit] = match;
+    const key = unit.includes('hour')
+      ? `every${number}h`
+      : `every${number}min`;
 
-    // Format the option depending on the unit
-    if (unit.includes('hour')) {
-      return `${number}h`;
-    } else if (unit.includes('minute')) {
-      return `${number}min`;
-    }
-
-    return option;
+    return t(`modals.webview.refresh.${key}`);
   };
 
   /**
@@ -156,7 +156,9 @@ export default function SettingsWebviews({
           isSmartphonePortrait && styles.pageContainerSmartphonePortrait,
         ]}>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>App</Text>
+            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
+              {t('titles.app')}
+            </Text>
           </View>
           <View style={[
             styles.configContainer,
@@ -164,7 +166,7 @@ export default function SettingsWebviews({
             isLandscape && styles.configContainerLandscape,
           ]}>
             <SettingsCard
-              title="Quit app"
+              title={t('settings.webview.quit')}
               iconBackgroundColor={COLORS.burgundy}
               icon={
                 <Ionicons
@@ -173,13 +175,15 @@ export default function SettingsWebviews({
                   color={COLORS.red}
                 />
               }
-              description="Quit the app and go back to the home screen"
+              description={t('settings.webview.quitDescription')}
               onPress={handleQuitApp}
               testID="quit-button"
             />
           </View>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>Channels</Text>
+            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
+              {t('titles.channels')}
+            </Text>
           </View>
           <View style={[
             styles.configContainer,
@@ -187,8 +191,8 @@ export default function SettingsWebviews({
             isLandscape && styles.configContainerLandscape,
           ]}>
             <SettingsCard
-              title="Channels Management"
-              description="Access to imported channels"
+              title={t('settings.webview.management')}
+              description={t('settings.webview.managementDescription')}
               icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
               onPress={() => onNavigate(SCREENS.WEBVIEWS_MANAGEMENT)}
             />
@@ -196,8 +200,8 @@ export default function SettingsWebviews({
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
                 <SettingsCard
-                  title="Auto-refresh"
-                  description="Define the auto-refresh interval for the channels"
+                  title={t('settings.webview.autoRefresh')}
+                  description={t('settings.webview.autoRefreshDescription')}
                   icon={<Ionicons name="reload-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openModal}
                   testID="open-auto-refresh-button"
@@ -217,7 +221,9 @@ export default function SettingsWebviews({
             </View>
           </View>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>Security</Text>
+            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
+              {t('titles.security')}
+            </Text>
           </View>
           <View style={[
             styles.configContainer,
@@ -227,8 +233,8 @@ export default function SettingsWebviews({
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
                 <SettingsCard
-                  title="Read-only access"
-                  description="Access to channels without the ability to modify them"
+                  title={t('settings.webview.readOnly')}
+                  description={t('settings.webview.readOnlyDescription')}
                   icon={<Ionicons name="eye-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openReadOnlyModal}
                   testID="open-read-only-button"
@@ -242,7 +248,7 @@ export default function SettingsWebviews({
                   styles.text,
                   isSmartphone && styles.textSmartphone,
                 ]}>
-                  {isReadOnly ? 'Yes' : 'No'}
+                  {isReadOnly ? t('buttons.yes') : t('buttons.no')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -250,8 +256,8 @@ export default function SettingsWebviews({
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
                 <SettingsCard
-                  title="Password"
-                  description="Define a password to access the settings"
+                  title={t('settings.webview.password')}
+                  description={t('settings.webview.passwordDescription')}
                   icon={<Ionicons name="lock-closed-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openPasswordDefineModal}
                   testID="open-password-button"
@@ -265,7 +271,7 @@ export default function SettingsWebviews({
                   styles.text,
                   isSmartphone && styles.textSmartphone,
                 ]}>
-                  {isPasswordRequired ? 'Yes' : 'No'}
+                  {isPasswordRequired ? t('buttons.yes') : t('buttons.no')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -274,7 +280,7 @@ export default function SettingsWebviews({
           {VERSION === 'v2' && (
             <>
               <View style={styles.titleContainer}>
-                <Text style={styles.title}>Messages</Text>
+                <Text style={styles.title}>{t('titles.messages')}</Text>
               </View>
               <View style={[
                 styles.configContainer,
@@ -284,7 +290,7 @@ export default function SettingsWebviews({
                 <View style={styles.rowContainer}>
                   <View style={styles.leftContent}>
                     <SettingsCard
-                      title="Show/hide messages"
+                      title={t('settings.common.showHide')}
                       iconBackgroundColor={COLORS.borderColor}
                       icon={
                         <Ionicons
@@ -293,7 +299,7 @@ export default function SettingsWebviews({
                           color={COLORS.red}
                         />
                       }
-                      description="Show or hide the message section of the app"
+                      description={t('settings.common.showHideDescription')}
                       onPress={() => setHideMessagesModalVisible(true)}
                       testID="open-hide-messages-button"
                     />
@@ -303,7 +309,7 @@ export default function SettingsWebviews({
                     onPress={() => setHideMessagesModalVisible(true)}
                   >
                     <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
-                      {isMessagesHidden ? 'Hide' : 'Show'}
+                      {isMessagesHidden ? t('buttons.hide') : t('buttons.show')}
                     </Text>
                   </TouchableOpacity>
                 </View>

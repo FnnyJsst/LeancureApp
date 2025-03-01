@@ -7,6 +7,7 @@ import CustomAlert from './CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component PasswordCheckModal
@@ -23,6 +24,7 @@ import { Ionicons } from '@expo/vector-icons';
  */
 export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocused }) {
 
+  const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
 
@@ -43,8 +45,8 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
     // If the password is empty, we show an error message
     if (!password) {
       setAlertConfig({
-        title: 'Error',
-        message: 'Please enter a password',
+        title: t('errors.error'),
+        message: t('errors.enterPassword'),
         type: 'error',
       });
       setAlertVisible(true);
@@ -78,9 +80,9 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
             isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
             isTabletPortrait && styles.modalContentTabletPortrait,
           ]}>
-            <TitleModal title="Enter password" />
+            <TitleModal title={t('modals.webview.password.enterPassword')} />
             <InputModal
-              placeholder="Enter your password"
+              placeholder={t('modals.webview.password.enterYourPassword')}
               value={password}
               onChangeText={setPassword}
               secureTextEntry={true}
@@ -95,7 +97,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
             />
             <View style={MODAL_STYLES.buttonContainer}>
               <Button
-                title="Cancel"
+                title={t('buttons.close')}
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
                 onPress={handleClose}

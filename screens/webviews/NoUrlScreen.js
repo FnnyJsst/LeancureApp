@@ -6,6 +6,7 @@ import { SIZES, COLORS } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../../components/text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component NoUrlScreen
@@ -20,7 +21,7 @@ export default function NoUrlScreen({
   isMessagesHidden,
   testID,
 }) {
-
+  const { t } = useTranslation();
   const { isSmartphone } = useDeviceType();
 
   /**
@@ -52,7 +53,7 @@ export default function NoUrlScreen({
         <Text style={[
           styles.text,
           isSmartphone && styles.textSmartphone,
-        ]}>Please enter settings to import channels</Text>
+        ]}>{t('screens.enterSettings')}</Text>
       </View>
 
       <View style={styles.buttonContainer}>

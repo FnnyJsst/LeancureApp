@@ -86,8 +86,14 @@ export default {
       importChannels: "Import channels",
       importUrl: "Enter an URL to import channels",
       },
+      edit: {
+        editChannel: "Edit channel",
+        editTitle: "Enter channel title",
+        editUrl: "Enter channel URL",
+      },
       password: {
-        enter: "Enter your password",
+        enterPassword: "Enter password",
+        enterYourPassword: "Enter your password",
         define: "Enter a password (6+ chars)",
         confirm: "Re-enter password"
       },
@@ -105,6 +111,9 @@ export default {
         every6h: "Every 6 hours",
         everyDay: "Every day",
       },
+      readOnly: {
+        readOnly: "Do you want to set channel management to read-only?",
+      }
     },
 
     server: {
@@ -127,6 +136,8 @@ export default {
     no: "No",
     yes: "Yes",
     import: "Import",
+    importChannels: "Import channels",
+    doNotUse: "Do not use",
   },
 
   titles: {
@@ -138,6 +149,7 @@ export default {
     messages: "Messages",
     channels: "Channels",
     security: "Security",
+    app: "App",
   },
 
   settings: {
@@ -166,8 +178,14 @@ export default {
   },
   errors: {
     required: "This field is required",
+    titleRequired: "Title is required",
     invalidUrl: "Invalid URL",
     passwordMismatch: "Passwords do not match",
-    passwordTooShort: "Password must be at least 6 characters"
+    passwordTooShort: "Password must be at least 6 characters",
+    success: "Success",
+    passwordSuccess: "Password has been set successfully",
+    error: "Error",
+    enterPassword: "Please enter a password",
+
   }
 }

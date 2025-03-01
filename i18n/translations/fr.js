@@ -1,7 +1,7 @@
 // i18n/translations/fr.js
 export default {
   screens: {
-    enterSettings: "Veuillez entrer dans les paramètres pour importer les chaînes",
+    enterSettings: "Veuillez entrer dans les paramètres pour importer des chaînes",
     useButton: "Utilisez le bouton en haut à droite pour importer des chaînes"
   },
 
@@ -84,11 +84,17 @@ export default {
       channelTitle: "Entrez le titre de la chaîne",
       channelUrl: "Entrez l'URL de la chaîne",
       import: {
-        importChannels: "Importer les chaînes",
+        importChannels: "Importer ses chaînes",
         importUrl: "Entrez une URL pour importer des chaînes",
       },
+      edit: {
+        editChannel: "Modifier une chaîne",
+        editTitle: "Entrez le titre de la chaîne",
+        editUrl: "Entrez l'URL de la chaîne",
+      },
       password: {
-        enter: "Entrez votre mot de passe",
+        enterPassword: "Entrez un mot de passe",
+        enterYourPassword: "Entrez votre mot de passe",
         define: "Entrez un mot de passe (6+ caractères)",
         confirm: "Confirmez le mot de passe"
       },
@@ -106,6 +112,9 @@ export default {
         every6h: "Toutes les 6 heures",
         everyDay: "Tous les jours",
       },
+      readOnly: {
+        readOnly: "Voulez-vous définir la gestion des canaux en lecture seule ?",
+      }
     },
 
     server: {
@@ -128,11 +137,14 @@ export default {
     no: "Non",
     yes: "Oui",
     import: "Importer",
+    importChannels: "Importer des chaînes",
+    doNotUse: "Ne pas utiliser",
   },
 
   titles: {
     Welcome: "Bienvenue",
     contractNumber: "Numéro de contrat",
+    app: "Application",
     login: "Identifiant",
     password: "Mot de passe",
     stayConnected: "Rester connecté",
@@ -168,8 +180,13 @@ export default {
 
   errors: {
     required: "Ce champ est obligatoire",
+    titleRequired: "Le titre est obligatoire",
     invalidUrl: "URL invalide",
     passwordMismatch: "Les mots de passe ne correspondent pas",
-    passwordTooShort: "Le mot de passe doit contenir au moins 6 caractères"
+    passwordTooShort: "Le mot de passe doit contenir 6+ caractères",
+    success: "Succès",
+    passwordSuccess: "Le mot de passe a été défini avec succès",
+    error: "Erreur",
+    enterPassword: "Veuillez entrer un mot de passe",
   }
 }
