@@ -34,7 +34,8 @@
       "expo-secure-store",
       "expo-font",
       "expo-file-system",
-      "expo-media-library"
+      "expo-media-library",
+      "expo-localization"
     ],
     "ios": {
       "supportsTablet": true
