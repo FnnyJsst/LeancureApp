@@ -52,7 +52,7 @@ export default function NoUrlScreen({
         <Text style={[
           styles.text,
           isSmartphone && styles.textSmartphone,
-        ]}>Please enter settings to add an URL</Text>
+        ]}>Please enter settings to import channels</Text>
       </View>
 
       <View style={styles.buttonContainer}>

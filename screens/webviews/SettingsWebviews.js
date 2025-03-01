@@ -187,7 +187,7 @@ export default function SettingsWebviews({
           ]}>
             <SettingsCard
               title="Channels Management"
-              description="Access to imported webviews"
+              description="Access to imported channels"
               icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
               onPress={() => onNavigate(SCREENS.WEBVIEWS_MANAGEMENT)}
             />
@@ -196,7 +196,7 @@ export default function SettingsWebviews({
               <View style={styles.leftContent}>
                 <SettingsCard
                   title="Auto-refresh"
-                  description="Define the auto-refresh interval for the webviews"
+                  description="Define the auto-refresh interval for the channels"
                   icon={<Ionicons name="reload-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openModal}
                   testID="open-auto-refresh-button"
@@ -227,7 +227,7 @@ export default function SettingsWebviews({
               <View style={styles.leftContent}>
                 <SettingsCard
                   title="Read-only access"
-                  description="Access to webviews without the ability to modify them"
+                  description="Access to channels without the ability to modify them"
                   icon={<Ionicons name="eye-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openReadOnlyModal}
                   testID="open-read-only-button"

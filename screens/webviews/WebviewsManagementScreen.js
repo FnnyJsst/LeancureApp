@@ -193,7 +193,7 @@ export default function WebviewsManagementScreen({
           styles.addChannelText,
           isSmartphone && styles.addChannelTextSmartphone,
         ]}>
-          Use the top right button to add a channel
+          Use the top right button to import channels
         </Text>
       )}
 

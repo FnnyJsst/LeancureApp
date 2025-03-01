@@ -62,7 +62,7 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID }) => {
             isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
           ]}>
           <ScrollView>
-            <TitleModal title="Refresh view"/>
+            <TitleModal title="Refresh channels"/>
             <View style={[
               styles.optionsContainer,
               isSmartphone && styles.optionsContainerSmartphone,
