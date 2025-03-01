@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component DateBanner
@@ -18,6 +19,8 @@ export default function DateBanner({ date }) {
 
   // Hook to determine the device type
   const { isSmartphone } = useDeviceType();
+
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>

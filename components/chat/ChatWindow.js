@@ -9,7 +9,7 @@ import * as SecureStore from 'expo-secure-store';
 import { sendMessageApi, fetchMessageFile } from '../../services/api/messageApi';
 import DateBanner from './DateBanner';
 import { Text } from '../text/CustomText';
-
+import { useTranslation } from 'react-i18next';
 /**
  * @component ChatWindow
  * @description A component that renders the chat window in the chat screen
@@ -21,6 +21,8 @@ import { Text } from '../text/CustomText';
  * <ChatWindow channel={channel} messages={channelMessages} onInputFocusChange={() => console.log('Input focused')} />
  */
 export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange, onMessageSent, testID }) {
+
+  const { t } = useTranslation();
 
   const { isSmartphone } = useDeviceType();
   const scrollViewRef = useRef();
@@ -80,7 +82,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                   };
                 }
               } catch (fileError) {
-                setError(`Error loading file: ${fileError.message}`);
+                setError(`${t('errors.errorLoadingFile')} ${fileError.message}`);
               }
             })
           );
@@ -125,7 +127,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       if (!credentialsStr) {
-        setError('❌ No credentials found');
+        setError(t('errors.noCredentialsFound'));
         return;
       }
 
@@ -164,7 +166,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }
       }
     } catch (error) {
-      setError(`Error sending message: ${error.message}`);
+      setError(`${t('errors.errorSendingMessage')} ${error.message}`);
     }
   };
 
@@ -178,7 +180,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const formatDate = (timestamp) => {
     // If the timestamp is missing, we return today
     if (!timestamp) {
-      return 'Today'; // Default value
+      return t('dates.today'); // Default value
     }
 
     // If the timestamp is a string, we convert it to an integer
@@ -186,7 +188,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
     // If the timestamp is not a number, we return today
     if (isNaN(parsedTimestamp)) {
-      return 'Today'; // Default value
+      return t('dates.today'); // Default value
     }
 
     const date = new Date(parsedTimestamp);
@@ -197,9 +199,9 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
     // If the date is today, we return "Today"
     if (date.toDateString() === today.toDateString()) {
-      return 'Today';
+      return t('dates.today');
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
+      return t('dates.yesterday');
     }
 
     // If the date is not today or yesterday, we return the date in the format "day month year"
@@ -261,7 +263,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             styles.noChannelText,
             isSmartphone && styles.noChannelTextSmartphone,
           ]}>
-            Select a channel to start chatting
+            {t('screens.selectChannel')}
           </Text>
         </View>
       )}

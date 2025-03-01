@@ -10,6 +10,7 @@ import { Text } from '../../components/text/CustomText';
 import * as SecureStore from 'expo-secure-store';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
 import { VERSION } from '../../config/versioning/version';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @function AppMenu Component
@@ -18,6 +19,9 @@ import { VERSION } from '../../config/versioning/version';
  * @param {Function} onNavigate - A function to navigate to a screen
  */
 export default function AppMenu({ onNavigate, testID }) {
+
+  const { t } = useTranslation();
+
   const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
   const [isMessagesHidden, setIsMessagesHidden] = useState(VERSION === 'v1');
   const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
@@ -61,7 +65,7 @@ export default function AppMenu({ onNavigate, testID }) {
         {/* Messages card - Only shown in V2 when not hidden */}
         {VERSION === 'v2' && !isMessagesHidden && (
           <AppMenuCard
-            title="Messages"
+            title={t('buttons.messages')}
             icon={<Ionicons
               name="mail-outline"
               size={isSmartphone ? 24 : 30}
@@ -74,7 +78,7 @@ export default function AppMenu({ onNavigate, testID }) {
 
         {/* Webviews card - Always shown */}
         <AppMenuCard
-          title="Webviews"
+          title={t('buttons.webviews')}
           icon={<Ionicons
             name="tv-outline"
             size={isSmartphone ? 24 : 30}
@@ -94,7 +98,7 @@ export default function AppMenu({ onNavigate, testID }) {
           <Text style={[
             styles.title,
             isSmartphone && styles.titleSmartphone,
-          ]}>Welcome</Text>
+          ]}>{t('titles.welcome')}</Text>
 
           <View style={[
             styles.cardsContainer,

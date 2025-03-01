@@ -272,7 +272,7 @@ export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
 
           const isHidden = savedMessagesValue ?
             JSON.parse(savedMessagesValue) :
-            CONFIG.INITIALIZATION.DEFAULT_MESSAGES_HIDDEN;
+            // CONFIG.INITIALIZATION.DEFAULT_MESSAGES_HIDDEN;
 
           setIsMessagesHidden(isHidden);
           setIsLoading(false);
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.gray950,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   centerContent: {
     justifyContent: 'center',

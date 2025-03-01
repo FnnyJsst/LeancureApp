@@ -14,6 +14,7 @@ import GradientBackground from '../../../components/backgrounds/GradientBackgrou
 import { hashPassword } from '../../../utils/encryption';
 import { secureStore } from '../../../utils/encryption';
 import { Text } from '../../../components/text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component Login
@@ -23,6 +24,8 @@ import { Text } from '../../../components/text/CustomText';
  * @param {Function} props.onNavigate - Function to navigate between screens
  */
 export default function Login({ onNavigate, testID }) {
+
+    const { t } = useTranslation();
 
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -43,7 +46,7 @@ export default function Login({ onNavigate, testID }) {
      */
     const validateInputs = useCallback(() => {
         if (!contractNumber || !login || !password) {
-            return 'All fields are required';
+            return t('errors.fieldsRequired');
         }
         return null;
     }, [contractNumber, login, password]);
@@ -102,13 +105,13 @@ export default function Login({ onNavigate, testID }) {
                 if (channelsResponse.status === 'ok') {
                     onNavigate(SCREENS.CHAT);
                 } else {
-                    setError('Error loading channels');
+                    setError(t('errors.errorLoadingChannels'));
                 }
             } else {
-                setError('Invalid credentials');
+                setError(t('errors.invalidCredentials'));
             }
         } catch (loginError) {
-            setError('Login failed');
+            setError(t('errors.loginFailed'));
         } finally {
             setIsLoading(false);
         }
@@ -139,15 +142,15 @@ export default function Login({ onNavigate, testID }) {
                 if (channelsResponse.status === 'ok') {
                     onNavigate(SCREENS.CHAT);
                 } else {
-                    setError('Error loading channels');
+                    setError(t('errors.errorLoadingChannels'));
                     setIsSimplifiedLogin(false);
                 }
             } else {
-                setError('Invalid credentials');
+                setError(t('errors.invalidCredentials'));
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            setError('Login failed');
+            setError(t('errors.loginFailed'));
             setIsSimplifiedLogin(false);
         } finally {
             setIsLoading(false);
@@ -172,7 +175,7 @@ export default function Login({ onNavigate, testID }) {
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            console.error('Error saving simplified login info:', error);
+            console.error(t('errors.errorSavingLoginInfo'), error);
             throw error;
         }
     }, [isChecked, contractNumber, login, password]);
@@ -227,8 +230,8 @@ export default function Login({ onNavigate, testID }) {
                                         isLandscape && styles.loginContainerLandscape,
                                     ]}>
                                         <View style={styles.titleContainer}>
-                                            <Text style={[styles.title, isSmartphone && styles.titleSmartphone, isLandscape && styles.titleLandscape]}>Welcome</Text>
-                                            <Text style={[styles.subtitle, isSmartphone && styles.subtitleSmartphone, isLandscape && styles.subtitleLandscape]}>Sign in to your account</Text>
+                                            <Text style={[styles.title, isSmartphone && styles.titleSmartphone, isLandscape && styles.titleLandscape]}>{t('titles.welcome')}</Text>
+                                            <Text style={[styles.subtitle, isSmartphone && styles.subtitleSmartphone, isLandscape && styles.subtitleLandscape]}>{t('titles.signIn')}</Text>
                                         </View>
 
                                         <View style={styles.inputsContainer}>
@@ -237,10 +240,10 @@ export default function Login({ onNavigate, testID }) {
                                                     styles.inputTitle,
                                                     isSmartphone && styles.inputTitleSmartphone,
                                                     isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape,
-                                                ]}>Contract number</Text>
+                                                ]}>{t('titles.contractNumber')}</Text>
                                                 <View style={styles.inputWrapper}>
                                                     <InputLogin
-                                                        placeholder="Enter your contract number"
+                                                        placeholder={t('auth.contractNumber')}
                                                         value={contractNumber}
                                                         onChangeText={setContractNumber}
                                                         iconName="document-text-outline"
@@ -255,11 +258,11 @@ export default function Login({ onNavigate, testID }) {
                                                     isSmartphone && styles.inputTitleSmartphone,
                                                     isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape,
                                                 ]}>
-                                                    Login
+                                                    {t('titles.login')}
                                                 </Text>
                                                 <View style={styles.inputWrapper}>
                                                     <InputLogin
-                                                        placeholder="Enter your login"
+                                                        placeholder={t('auth.login')}
                                                         value={login}
                                                         onChangeText={setLogin}
                                                         iconName="person-outline"
@@ -272,11 +275,11 @@ export default function Login({ onNavigate, testID }) {
                                                     styles.inputTitle,
                                                     isSmartphone && styles.inputTitleSmartphone,
                                                     isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>
-                                                    Password
+                                                    {t('titles.password')}
                                                 </Text>
                                                 <View style={styles.inputWrapper}>
                                                     <InputLogin
-                                                        placeholder="Enter your password"
+                                                        placeholder={t('auth.password')}
                                                         value={password}
                                                         onChangeText={setPassword}
                                                         secureTextEntry
@@ -293,14 +296,14 @@ export default function Login({ onNavigate, testID }) {
                                                 <CheckBox
                                                     checked={isChecked}
                                                     onPress={() => setIsChecked(!isChecked)}
-                                                    label="Stay connected"
+                                                    label={t('auth.stayConnected')}
                                                 />
                                             </View>
 
                                             <View style={styles.buttonContainer}>
                                                 <ButtonWithSpinner
                                                     variant="large"
-                                                    title="Login"
+                                                    title={t('buttons.login')}
                                                     isLoading={isLoading}
                                                     onPress={handleLogin}
                                                     width="100%"
@@ -314,7 +317,7 @@ export default function Login({ onNavigate, testID }) {
                                         onPress={() => onNavigate(SCREENS.APP_MENU)}
                                     >
                                         <Text style={[styles.backLinkText, isSmartphone && styles.backLinkTextSmartphone]}>
-                                            Return to title screen
+                                            {t('buttons.returnToTitle')}
                                         </Text>
                                     </TouchableOpacity>
                                 </>

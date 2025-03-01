@@ -5,6 +5,7 @@ import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 import { Text } from '../../../components/text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component SimplifiedLogin
@@ -22,11 +23,12 @@ export default function SimplifiedLogin({
     handleLogin,
     isLoading,
 }) {
-  const { isSmartphone, isLandscape } = useDeviceType();
+    const { isSmartphone, isLandscape } = useDeviceType();
+    const { t } = useTranslation();
 
-  return (
-    <View>
-      <View style={[
+    return (
+        <View>
+            <View style={[
         styles.loginContainer,
         isSmartphone && styles.loginContainerSmartphone,
         isLandscape && styles.loginContainerLandscape,
@@ -35,7 +37,7 @@ export default function SimplifiedLogin({
           <Text style={[
             styles.welcomeText,
             isSmartphone && styles.welcomeTextSmartphone]}>
-            Welcome back
+            {t('titles.welcomeBack')}
           </Text>
         </View>
 
@@ -45,7 +47,7 @@ export default function SimplifiedLogin({
             styles.inputTitle,
             isSmartphone && styles.inputTitleSmartphone,
           ]}>
-            Contract number
+            {t('titles.contractNumber')}
           </Text>
           <View style={styles.inputWrapper}>
             <InputLogin
@@ -61,7 +63,7 @@ export default function SimplifiedLogin({
         <View style={styles.buttonContainer}>
           <ButtonWithSpinner
             variant="large"
-            title="Login"
+            title={t('buttons.login')}
             isLoading={isLoading}
             onPress={handleLogin}
             width="100%"
@@ -74,7 +76,7 @@ export default function SimplifiedLogin({
         onPress={onSwitchAccount}
       >
         <Text style={[styles.switchAccountText, isSmartphone && styles.switchAccountTextSmartphone]}>
-          Switch account
+          {t('buttons.switchAccount')}
         </Text>
       </TouchableOpacity>
     </View>

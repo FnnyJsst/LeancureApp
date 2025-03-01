@@ -4,6 +4,7 @@ import Button from './Button';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 
 /**
@@ -20,7 +21,7 @@ import { Text } from '../text/CustomText';
 
 export default function ButtonWithSpinner({ isLoading, title, testID, ...props }) {
   const { isSmartphone } = useDeviceType();
-
+  const { t } = useTranslation();
   return (
     <Button
       {...props}
@@ -29,7 +30,7 @@ export default function ButtonWithSpinner({ isLoading, title, testID, ...props }
         isLoading ? (
           <View style={styles.button}>
             <ActivityIndicator size="small" color={COLORS.white} />
-            <Text style={[styles.buttonText, isSmartphone && styles.buttonTextSmartphone]}>Connecting...</Text>
+            <Text style={[styles.buttonText, isSmartphone && styles.buttonTextSmartphone]}>{t('buttons.connecting')}</Text>
           </View>
         ) : (
           title

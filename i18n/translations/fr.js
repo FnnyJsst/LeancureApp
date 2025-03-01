@@ -2,11 +2,12 @@
 export default {
   screens: {
     enterSettings: "Veuillez entrer dans les paramètres pour importer des chaînes",
-    useButton: "Utilisez le bouton en haut à droite pour importer des chaînes"
+    useButton: "Utilisez le bouton en haut à droite pour importer des chaînes",
+    selectChannel: "Sélectionnez un canal pour commencer à discuter",
   },
 
   sidebar: {
-    search: "Rechercher un canal de discussion",
+    search: "Rechercher un canal",
     groups: "Groupes",
     settings: "Paramètres",
     loading: "Chargement..."
@@ -17,6 +18,7 @@ export default {
     contractNumber: "Entrez votre numéro de contrat",
     login: "Entrez votre identifiant",
     password: "Entrez votre mot de passe",
+    stayConnected: "Rester connecté",
   },
 
   messages: {
@@ -124,7 +126,7 @@ export default {
 
   buttons: {
     messages: "Messages",
-    webview: "Webview",
+    webviews: "Chaînes",
     save: "Enregistrer",
     cancel: "Annuler",
     delete: "Supprimer",
@@ -139,10 +141,12 @@ export default {
     import: "Importer",
     importChannels: "Importer des chaînes",
     doNotUse: "Ne pas utiliser",
+    connecting: "Connexion...",
+    switchAccount: "Changer de compte",
   },
 
   titles: {
-    Welcome: "Bienvenue",
+    welcome: "Bienvenue",
     contractNumber: "Numéro de contrat",
     app: "Application",
     login: "Identifiant",
@@ -151,6 +155,8 @@ export default {
     messages: "Messages",
     channels: "Canaux",
     security: "Sécurité",
+    signIn: "Connectez-vous à votre compte",
+    welcomeBack: "Bienvenue",
   },
 
   settings: {
@@ -188,5 +194,13 @@ export default {
     passwordSuccess: "Le mot de passe a été défini avec succès",
     error: "Erreur",
     enterPassword: "Veuillez entrer un mot de passe",
+    fieldsRequired: "Tous les champs doivent être renseignés",
+    errorLoadingChannels: "Erreur lors du chargement des canaux",
+    invalidCredentials: "Identifiants invalides",
+    loginFailed: "Connexion impossible",
+    errorSavingLoginInfo: "Erreur lors de l'enregistrement des informations de connexion :",
+    errorLoadingFile: "Erreur lors du chargement du fichier :",
+    noCredentialsFound: "Aucune information de connexion trouvée",
+    errorSendingMessage: "Erreur lors de l'envoi du message :",
   }
 }

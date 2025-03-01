@@ -2,7 +2,8 @@
 export default {
   screens: {
     enterSettings: "Please enter settings to import channels",
-    useButton: "Use the top right button to import channels"
+    useButton: "Use the top right button to import channels",
+    selectChannel: "Select a channel to start chatting",
   },
 
   sidebar: {
@@ -17,6 +18,7 @@ export default {
     contractNumber: "Enter your contract number",
     login: "Enter your login",
     password: "Enter your password",
+    stayConnected: "Stay connected",
   },
 
   messages: {
@@ -123,7 +125,7 @@ export default {
 
   buttons: {
     messages: "Messages",
-    webview: "Webview",
+    webviews: "Webviews",
     save: "Save",
     cancel: "Cancel",
     delete: "Delete",
@@ -138,10 +140,12 @@ export default {
     import: "Import",
     importChannels: "Import channels",
     doNotUse: "Do not use",
+    connecting: "Connecting...",
+    switchAccount: "Switch account",
   },
 
   titles: {
-    Welcome: "Welcome",
+    welcome: "Welcome",
     contractNumber: "Contract number",
     login: "Login",
     password: "Password",
@@ -150,6 +154,8 @@ export default {
     channels: "Channels",
     security: "Security",
     app: "App",
+    signIn: "Sign in to your account",
+    welcomeBack: "Welcome back",
   },
 
   settings: {
@@ -186,6 +192,13 @@ export default {
     passwordSuccess: "Password has been set successfully",
     error: "Error",
     enterPassword: "Please enter a password",
-
+    fieldsRequired: "All fields are required",
+    errorLoadingChannels: "Error loading channels",
+    invalidCredentials: "Invalid credentials",
+    loginFailed: "Login failed",
+    errorSavingLoginInfo: "Error saving login info:",
+    errorLoadingFile: "Error loading file:",
+    noCredentialsFound: "No credentials found",
+    errorSendingMessage: "Error sending message:",
   }
 }

@@ -8,6 +8,7 @@ import * as SecureStore from 'expo-secure-store';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../text/CustomText';
 import { clearSecureStorage } from '../../services/api/authApi';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component Sidebar
@@ -37,6 +38,8 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
 
   // Get the device type
   const { isSmartphone } = useDeviceType();
+
+  const { t } = useTranslation();
 
   /**
    * @function slideAnim
@@ -201,7 +204,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                 styles.searchInput,
                 isSmartphone && styles.searchInputSmartphone,
               ]}
-              placeholder="Search a channel"
+              placeholder={t('sidebar.search')}
               placeholderTextColor={COLORS.gray300}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -225,14 +228,14 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
               styles.menuText,
               isSmartphone && styles.menuTextSmartphone,
               showGroups && { color: COLORS.orange },
-            ]}>Groupes</Text>
+            ]}>{t('sidebar.groups')}</Text>
           </TouchableOpacity>
 
           {/* List of groups if showGroups is true */}
           {showGroups && (
             <View style={styles.groupsList}>
               {loading ? (
-                <Text style={styles.loadingText}>Loading...</Text>
+                <Text style={styles.loadingText}>{t('sidebar.loading')}</Text>
               ) : filteredGroups.map((group) => (
                 <View key={group.id} style={[
                   styles.groupItem,
@@ -303,7 +306,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
               styles.menuText,
               isSmartphone && styles.menuTextSmartphone,
               currentSection === 'settings' && { color: COLORS.orange },
-            ]}>Settings</Text>
+            ]}>{t('sidebar.settings')}</Text>
           </TouchableOpacity>
         </ScrollView>
 
