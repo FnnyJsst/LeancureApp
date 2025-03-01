@@ -26,15 +26,27 @@ import { useTimeout } from './hooks/useTimeout';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
+import { VERSION } from './config/versioning/version';
+import { V1_CONFIG } from './config/versioning/v1.config';
+import { V2_CONFIG } from './config/versioning/v2.config';
 // import { usePushNotifications } from './services/notifications/notificationService';
 
 LogBox.ignoreLogs(['[expo-notifications]']);
+
+console.log = (...args) => {
+  if (__DEV__) {
+    console.info(...args);
+  }
+};
+
+const CONFIG = VERSION === 'v1' ? V1_CONFIG : V2_CONFIG;
+
 
 /**
  * @component App
  * @description The main component of the app
  */
-export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
+export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
   // 1. Tous les hooks au début
   const [fontsLoaded] = useFonts({
     'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),         // 100
@@ -157,38 +169,55 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
   // }, []);
 
 
-  /**
-   * @function initializeApp
-   * @description Initializes the app when the component is mounted
-   */
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        // Initialiser i18n en premier
-        await initI18n();
-        setIsI18nInitialized(true);
+  // /**
+  //  * @function initializeApp
+  //  * @description Initializes the app when the component is mounted
+  //  */
+  // useEffect(() => {
+  //   const initializeApp = async () => {
+  //     console.log('🚀 Starting app initialization...');
 
-        // Votre code d'initialisation existant
-        await loadTimeoutInterval();
-        const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
-        const isHidden = savedValue ? JSON.parse(savedValue) : false;
-        setIsMessagesHidden(isHidden);
-        await loadSelectedChannels();
-        setIsLoading(false);
+  //     try {
+  //       // 1. Initialisation de i18n
+  //       console.log('📚 Initializing i18n...');
+  //       await initI18n();
+  //       console.log('✅ i18n initialized successfully');
+  //       setIsI18nInitialized(true);
 
-        if (isHidden) {
-          navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-        } else {
-          navigate(SCREENS.APP_MENU);
-        }
-      } catch (error) {
-        console.error('Error initializing app:', error);
-        setIsLoading(false);
-      }
-    };
+  //       // 2. Chargement parallèle des autres ressources
+  //       console.log('⚙️ Loading app configuration...');
+  //       const [timeoutResult, savedMessagesValue, channelsResult] = await Promise.all([
+  //         loadTimeoutInterval(),
+  //         SecureStore.getItemAsync('isMessagesHidden'),
+  //         loadSelectedChannels()
+  //       ]);
 
-    initializeApp();
-  }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews?.length]);
+  //       // 3. Traitement des résultats
+  //       const isHidden = savedMessagesValue ? JSON.parse(savedMessagesValue) : false;
+  //       setIsMessagesHidden(isHidden);
+
+  //       // 4. Finalisation
+  //       setIsLoading(false);
+  //       console.log('✅ App initialization completed');
+
+  //       // 5. Navigation
+  //       if (isHidden) {
+  //         navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+  //       } else {
+  //         navigate(SCREENS.APP_MENU);
+  //       }
+
+  //     } catch (error) {
+  //       console.error('❌ Error in app initialization:', error);
+  //       // En cas d'erreur, on assure un état cohérent
+  //       setIsI18nInitialized(true);
+  //       setIsLoading(false);
+  //       navigate(SCREENS.APP_MENU); // Navigation vers un écran sûr
+  //     }
+  //   };
+
+  //   initializeApp();
+  // }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews?.length]);
 
   /**
    * @function handleTimeout
@@ -206,10 +235,82 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
     return () => clearTimeout(timer);
   }, [timeoutInterval, currentScreen]);
 
+  useEffect(() => {
+    const initializeApp = async () => {
+      console.log(`🚀 Starting app initialization (${VERSION})`);
+
+      try {
+        // Initialisation commune
+        await initI18n();
+        console.log('✅ i18n initialized');
+        setIsI18nInitialized(true);
+
+        if (VERSION === 'v1') {
+          // Code spécifique V1
+          const minimumLoadingTime = new Promise(resolve =>
+            setTimeout(resolve, CONFIG.INITIALIZATION.LOADING_TIME)
+          );
+
+          await Promise.all([
+            minimumLoadingTime,
+            (async () => {
+              await loadTimeoutInterval();
+              await SecureStore.setItemAsync('isMessagesHidden',
+                JSON.stringify(CONFIG.INITIALIZATION.DEFAULT_MESSAGES_HIDDEN)
+              );
+              setIsMessagesHidden(CONFIG.INITIALIZATION.DEFAULT_MESSAGES_HIDDEN);
+              await loadSelectedChannels();
+            })()
+          ]);
+
+          setIsLoading(false);
+          navigate(selectedWebviews?.length > 0 ?
+            CONFIG.NAVIGATION.DEFAULT_ROUTE :
+            CONFIG.NAVIGATION.FALLBACK_ROUTE
+          );
+        } else {
+          // Code spécifique V2
+          const [timeoutResult, savedMessagesValue, channelsResult] = await Promise.all([
+            loadTimeoutInterval(),
+            SecureStore.getItemAsync('isMessagesHidden'),
+            loadSelectedChannels()
+          ]);
+
+          const isHidden = savedMessagesValue ?
+            JSON.parse(savedMessagesValue) :
+            CONFIG.INITIALIZATION.DEFAULT_MESSAGES_HIDDEN;
+
+          setIsMessagesHidden(isHidden);
+          setIsLoading(false);
+
+          if (isHidden) {
+            navigate(selectedWebviews?.length > 0 ?
+              CONFIG.NAVIGATION.DEFAULT_ROUTE :
+              CONFIG.NAVIGATION.FALLBACK_ROUTE
+            );
+          } else {
+            navigate(CONFIG.INITIAL_SCREEN);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error in app initialization:', error);
+        setIsI18nInitialized(true);
+        setIsLoading(false);
+        navigate(CONFIG.NAVIGATION.FALLBACK_ROUTE);
+      }
+    };
+
+    initializeApp();
+  }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews?.length]);
+
   if (!fontsLoaded || !isI18nInitialized) {
+    console.log('⏳ Waiting for initialization...', { fontsLoaded, isI18nInitialized });
     return (
       <View style={[styles.container, styles.centerContent]}>
         <ActivityIndicator size="large" color={COLORS.orange} />
+        <Text style={{ color: COLORS.white, marginTop: 10 }}>
+          {!fontsLoaded ? 'Loading fonts...' : 'Initializing...'}
+        </Text>
       </View>
     );
   }
@@ -250,6 +351,7 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
                 navigate(screen);
               }
             }}
+            isV2={VERSION === 'v2'}
             testID="app-menu"
           />
         );

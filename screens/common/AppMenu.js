@@ -9,46 +9,82 @@ import GradientBackground from '../../components/backgrounds/GradientBackground'
 import { Text } from '../../components/text/CustomText';
 import * as SecureStore from 'expo-secure-store';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
+import { VERSION } from '../../config/versioning/version';
 
 /**
  * @function AppMenu Component
- * @description Displays the app menu
+ * @description Displays the app menu with version-specific features
  *
  * @param {Function} onNavigate - A function to navigate to a screen
  */
 export default function AppMenu({ onNavigate, testID }) {
   const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
-  const [isMessagesHidden, setIsMessagesHidden] = useState(false);
+  const [isMessagesHidden, setIsMessagesHidden] = useState(VERSION === 'v1');
   const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
 
-  // Load the messages visibility
+  // Load the messages visibility - Only for V2
   useEffect(() => {
-    const loadMessagesVisibility = async () => {
-      try {
-        const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
-        if (savedValue !== null) {
-          setIsMessagesHidden(JSON.parse(savedValue));
+    if (VERSION === 'v2') {
+      const loadMessagesVisibility = async () => {
+        try {
+          const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
+          if (savedValue !== null) {
+            setIsMessagesHidden(JSON.parse(savedValue));
+          }
+        } catch (error) {
+          console.error('Error loading messages visibility:', error);
         }
-      } catch (error) {
-        throw new Error('Error loading messages visibility:', error);
-      }
-    };
-    loadMessagesVisibility();
+      };
+      loadMessagesVisibility();
+    }
   }, []);
-
 
   /**
    * @function handleHideMessages
-   * @description Handles the hide messages action. When the user hides the messages, he can only access the webviews
+   * @description Handles the hide messages action - Only for V2
    * @param {boolean} shouldHide - Whether the messages should be hidden
    */
   const handleHideMessages = async (shouldHide) => {
-    try {
-      await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
-      setIsMessagesHidden(shouldHide);
-    } catch (error) {
-      console.error('Error saving messages visibility:', error);
+    if (VERSION === 'v2') {
+      try {
+        await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
+        setIsMessagesHidden(shouldHide);
+      } catch (error) {
+        console.error('Error saving messages visibility:', error);
+      }
     }
+  };
+
+  const renderCards = () => {
+    return (
+      <>
+        {/* Messages card - Only shown in V2 when not hidden */}
+        {VERSION === 'v2' && !isMessagesHidden && (
+          <AppMenuCard
+            title="Messages"
+            icon={<Ionicons
+              name="mail-outline"
+              size={isSmartphone ? 24 : 30}
+              color={COLORS.orange}
+            />}
+            onPress={() => onNavigate(SCREENS.LOGIN)}
+            testID="messages-button"
+          />
+        )}
+
+        {/* Webviews card - Always shown */}
+        <AppMenuCard
+          title="Webviews"
+          icon={<Ionicons
+            name="tv-outline"
+            size={isSmartphone ? 24 : 30}
+            color={COLORS.orange}
+          />}
+          onPress={() => onNavigate(SCREENS.WEBVIEW)}
+          testID="webview-access-button"
+        />
+      </>
+    );
   };
 
   return (
@@ -59,30 +95,34 @@ export default function AppMenu({ onNavigate, testID }) {
             styles.title,
             isSmartphone && styles.titleSmartphone,
           ]}>Welcome</Text>
-          <View style={[styles.cardsContainer, isSmartphoneLandscape && styles.cardsContainerLandscape]}>
-              {!isMessagesHidden && (
-                <AppMenuCard
-                  title="Messages"
-                  icon={<Ionicons name="mail-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
-                  onPress={() => onNavigate(SCREENS.LOGIN)}
-                  testID="messages-button"
-                />
-              )}
-              <AppMenuCard
-                title="Webviews"
-                icon={<Ionicons name="tv-outline" size={isSmartphone ? 24 : 30} color={COLORS.orange} />}
-                onPress={() => onNavigate(SCREENS.WEBVIEW)}
-                testID="webview-access-button"
-              />
+
+          <View style={[
+            styles.cardsContainer,
+            isSmartphoneLandscape && styles.cardsContainerLandscape
+          ]}>
+            {renderCards()}
           </View>
-          <TouchableOpacity style={styles.settingsContainer} onPress={() => onNavigate(SCREENS.COMMON_SETTINGS)}>
-            <Ionicons name="settings-outline" size={isSmartphone ? 24 : 40} color={COLORS.borderColor} />
+
+          {/* Settings button - Comportement différent selon la version */}
+          <TouchableOpacity
+            style={styles.settingsContainer}
+            onPress={() => onNavigate(VERSION === 'v1' ? SCREENS.SETTINGS : SCREENS.COMMON_SETTINGS)}
+          >
+            <Ionicons
+              name="settings-outline"
+              size={isSmartphone ? 24 : 40}
+              color={COLORS.borderColor}
+            />
           </TouchableOpacity>
-          <HideMessagesModal
-            visible={hideMessagesModalVisible}
-            onClose={() => setHideMessagesModalVisible(false)}
-            onToggleHideMessages={handleHideMessages}
-          />
+
+          {/* Hide Messages Modal - Only for V2 */}
+          {VERSION === 'v2' && (
+            <HideMessagesModal
+              visible={hideMessagesModalVisible}
+              onClose={() => setHideMessagesModalVisible(false)}
+              onToggleHideMessages={handleHideMessages}
+            />
+          )}
         </View>
       </GradientBackground>
     </>
