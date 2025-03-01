@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Text, StatusBar, Platform } from 'react-native';
+import { View, StyleSheet, Text, StatusBar, Platform, ActivityIndicator } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
@@ -25,6 +25,7 @@ import CommonSettings from './screens/common/CommonSettings';
 import { useTimeout } from './hooks/useTimeout';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Ionicons } from '@expo/vector-icons';
+import { initI18n } from './i18n';
 // import { usePushNotifications } from './services/notifications/notificationService';
 
 LogBox.ignoreLogs(['[expo-notifications]']);
@@ -44,6 +45,8 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
     'Raleway-Bold': require('./assets/fonts/raleway.bold.ttf'),         // 700
     'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),// 800
   });
+
+  const [isI18nInitialized, setIsI18nInitialized] = useState(false);
 
   const [currentScreen, setCurrentScreen] = useState(initialScreen);
   const [isLoading, setIsLoading] = useState(true);
@@ -160,27 +163,28 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
    */
   useEffect(() => {
     const initializeApp = async () => {
-        try {
-            // Load the timeout interval
-            await loadTimeoutInterval();
-            // Get the isMessagesHidden value to hide or show the messages
-            const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
-            const isHidden = savedValue ? JSON.parse(savedValue) : false;
-            setIsMessagesHidden(isHidden);
-            // Load the selected channels
-            await loadSelectedChannels();
-            setIsLoading(false);
-            // If the messages are hidden, navigate to the webview or the no url screen
-            if (isHidden) {
-                navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-            // If the messages are not hidden, navigate to the app menu
-            } else {
-                navigate(SCREENS.APP_MENU);
-            }
-        } catch (error) {
-            console.error('Error initializing app:', error);
-            setIsLoading(false);
+      try {
+        // Initialiser i18n en premier
+        await initI18n();
+        setIsI18nInitialized(true);
+
+        // Votre code d'initialisation existant
+        await loadTimeoutInterval();
+        const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
+        const isHidden = savedValue ? JSON.parse(savedValue) : false;
+        setIsMessagesHidden(isHidden);
+        await loadSelectedChannels();
+        setIsLoading(false);
+
+        if (isHidden) {
+          navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+        } else {
+          navigate(SCREENS.APP_MENU);
         }
+      } catch (error) {
+        console.error('Error initializing app:', error);
+        setIsLoading(false);
+      }
     };
 
     initializeApp();
@@ -202,8 +206,12 @@ export default function App({ testID, initialScreen = SCREENS.LOGIN }) {
     return () => clearTimeout(timer);
   }, [timeoutInterval, currentScreen]);
 
-  if (!fontsLoaded) {
-    return null;
+  if (!fontsLoaded || !isI18nInitialized) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color={COLORS.orange} />
+      </View>
+    );
   }
 
   /**
@@ -415,5 +423,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.gray950,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
