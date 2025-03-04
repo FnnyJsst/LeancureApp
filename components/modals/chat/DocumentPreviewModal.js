@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { Webview } from 'react-native-webview';
+import { WebView } from 'react-native-webview';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { Ionicons } from '@expo/vector-icons';
@@ -47,14 +47,20 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
   /**
    * @function formatFileSize
    * @description Formate la taille du fichier avec l'unité appropriée
-   * @param {number} bytes - La taille en bytes
-   * @returns {string} - La taille formatée avec son unité
    */
-  const formatFileSize = (bytes) => {
-    if (!bytes) {return '0 Ko';}
+  const formatFileSize = () => {
+    // Estimer la taille à partir de base64 si non fournie
+    let calculatedSize = 0;
+
+    if (base64) {
+      // Convertir la longueur base64 en taille approximative
+      calculatedSize = Math.round(base64.length * 0.75);
+    }
+
+    if (!calculatedSize) return '0 Ko';
 
     const units = ['Ko', 'Mo', 'Go'];
-    let size = bytes / 1024; // Conversion directe en Ko
+    let size = calculatedSize / 1024; // Conversion en Ko
     let unitIndex = 0;
 
     while (size >= 1024 && unitIndex < units.length - 1) {
@@ -72,9 +78,8 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
   const renderPreview = () => {
     if (fileType?.includes('pdf')) {
       return (
-
         <View style={styles.previewContainer}>
-          <Webview
+          <WebView
             source={{
               html: `
                 <!DOCTYPE html>
@@ -159,8 +164,10 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         isLandscape && styles.modalContainerLandscape,
       ]}>
         <View style={[styles.modalContent, isLandscape && styles.modalContentLandscape]}>
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Ionicons name="close" size={24} color={COLORS.white} />
+          <TouchableOpacity style={styles.closeButtonContainer} onPress={onClose}>
+            <View style={styles.closeButton}>
+              <Ionicons name="close" size={24} color={COLORS.white} />
+            </View>
           </TouchableOpacity>
 
           <View style={styles.fileHeader}>
@@ -170,11 +177,15 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
               color={COLORS.white}
             />
             <View style={styles.fileInfo}>
-              <Text style={[styles.fileName, isSmartphone && styles.fileNameSmartphone]} numberOfLines={1}>
+              <Text
+                style={[styles.fileName, isSmartphone && styles.fileNameSmartphone]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
                 {fileName}
               </Text>
               <Text style={[styles.fileSize, isSmartphone && styles.fileSizeSmartphone]}>
-                {fileType?.includes('pdf') ? 'PDF' : 'Image'} • {formatFileSize(fileSize)}
+                {fileType?.includes('pdf') ? 'PDF' : 'Image'} • {formatFileSize()}
               </Text>
             </View>
           </View>
@@ -206,6 +217,10 @@ const styles = StyleSheet.create({
     paddingBottom: '5%',
     paddingTop: '5%',
   },
+  modalContainerSmartphoneLandscape: {
+    paddingBottom: '5%',
+    paddingTop: '5%',
+  },
   modalContent: {
     flex: 1,
     backgroundColor: COLORS.gray850,
@@ -221,11 +236,25 @@ const styles = StyleSheet.create({
     width: '32%',
     marginTop: '0%',
   },
-  closeButton: {
+  closeButtonContainer: {
     position: 'absolute',
-    top: 20,
-    right: 20,
-    zIndex: 1,
+    top: 10,
+    right: 10,
+    zIndex: 2,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButton: {
+    backgroundColor: 'rgba(50, 50, 50, 0.8)',
+    borderRadius: 20,
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.gray700,
   },
   previewContainer: {
     flex: 1,
