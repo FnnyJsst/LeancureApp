@@ -19,36 +19,73 @@ import * as Localization from 'expo-localization';
  * <DateBanner date="2024-01-01" />
  */
 export default function DateBanner({ date }) {
-
-  // Hook to determine the device type
   const { isSmartphone } = useDeviceType();
-
   const { t } = useTranslation();
-
-  // Récupérer la langue du système
   const locale = Localization.locale.split('-')[0] === 'fr' ? fr : enUS;
 
-  // Vérifier si la date est valide
+  console.log('📅 Date reçue dans DateBanner:', {
+    date,
+    type: typeof date,
+    isToday: date === t('dateTime.today'),
+    isYesterday: date === t('dates.yesterday'),
+    todayTranslation: t('dateTime.today'),
+    yesterdayTranslation: t('dates.yesterday')
+  });
+
+  // Vérification des dates spéciales
+  if (date === t('dateTime.today') || date === 'Aujourd\'hui' || date === 'Today') {
+    return (
+      <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
+        <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>{t('dateTime.today')}</Text>
+      </View>
+    );
+  }
+
+  if (date === t('dates.yesterday') || date === 'Hier' || date === 'Yesterday') {
+    return (
+      <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
+        <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>{t('dates.yesterday')}</Text>
+      </View>
+    );
+  }
+
   let formattedDate;
   try {
-    // Parser la date au format "February 13, 2025"
-    const dateObj = parse(date, 'MMMM d, yyyy', new Date());
+    // Si la date est au format "Month DD, YYYY"
+    if (typeof date === 'string' && date.includes(',')) {
+      console.log('🔄 Tentative de parsing de la date:', date);
+      const dateObj = parse(date, 'MMMM d, yyyy', new Date());
+      console.log('📅 Date parsée:', dateObj);
 
-    // Vérifier si la date est valide
-    if (isNaN(dateObj.getTime())) {
-      console.warn('Date invalide reçue:', date);
-      return null;
+      if (!isNaN(dateObj.getTime())) {
+        formattedDate = format(dateObj, 'EEEE, d MMMM yyyy', { locale });
+        console.log('✅ Date formatée avec succès:', formattedDate);
+      } else {
+        console.warn('❌ Date invalide après parsing:', date);
+        return null;
+      }
+    } else {
+      // Si la date est un timestamp
+      const dateObj = typeof date === 'number' ? new Date(date) : new Date(date);
+      console.log('🔄 Tentative de création de Date:', {
+        input: date,
+        result: dateObj
+      });
+
+      if (isNaN(dateObj.getTime())) {
+        console.warn('❌ Date invalide:', date);
+        return null;
+      }
+      formattedDate = format(dateObj, 'EEEE, d MMMM yyyy', { locale });
+      console.log('✅ Date formatée avec succès:', formattedDate);
     }
-
-    formattedDate = format(dateObj, 'EEEE, d MMMM yyyy', { locale });
   } catch (error) {
-    console.error('Erreur de formatage de date:', error);
+    console.error('❌ Erreur de formatage de date:', error);
     return null;
   }
 
   return (
     <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
-
       <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>{formattedDate}</Text>
     </View>
   );

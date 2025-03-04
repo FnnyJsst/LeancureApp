@@ -53,11 +53,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   useEffect(() => {
     if (channelMessages && credentials) {
-      console.log('📨 Messages reçus:', channelMessages.map(msg => ({
+      console.log('📨 Messages reçus dans ChatWindow:', channelMessages.map(msg => ({
         id: msg.id,
         type: msg.type,
         fileType: msg.fileType,
-        fileName: msg.fileName
+        fileName: msg.fileName,
+        // hasBase64: !!msg.base64
       })));
 
       const loadFiles = async () => {
@@ -67,6 +68,13 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           msg.fileType &&
           msg.fileType.toLowerCase() !== 'none'
         );
+
+        console.log('📥 Messages nécessitant des fichiers:', messagesNeedingFiles.map(msg => ({
+          id: msg.id,
+          type: msg.type,
+          fileType: msg.fileType,
+          fileName: msg.fileName
+        })));
 
         const batchSize = 3;
         const updatedMessages = [...channelMessages];
@@ -88,14 +96,27 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     base64: base64,
                     type: 'file',
                   };
+                  console.log('✅ Fichier chargé avec succès:', {
+                    id: msg.id,
+                    fileName: msg.fileName,
+                    fileType: msg.fileType
+                  });
                 }
               } catch (fileError) {
-                console.error('Erreur chargement fichier:', fileError);
+                console.error('❌ Erreur chargement fichier:', fileError);
                 setError(`${t('errors.errorLoadingFile')} ${fileError.message}`);
               }
             })
           );
         }
+
+        console.log('📤 Messages mis à jour:', updatedMessages.map(msg => ({
+          id: msg.id,
+          type: msg.type,
+          fileType: msg.fileType,
+          fileName: msg.fileName,
+          // hasBase64: !!msg.base64
+        })));
 
         setMessages(updatedMessages);
       };
@@ -216,7 +237,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const formatDate = (timestamp) => {
     // If the timestamp is missing, we return today
     if (!timestamp) {
-      return t('dates.today'); // Default value
+      return t('dateTime.today'); // Default value
     }
 
     // If the timestamp is a string, we convert it to an integer
@@ -224,7 +245,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
     // If the timestamp is not a number, we return today
     if (isNaN(parsedTimestamp)) {
-      return t('dates.today'); // Default value
+      return t('dateTime.today'); // Default value
     }
 
     const date = new Date(parsedTimestamp);
@@ -235,9 +256,9 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
     // If the date is today, we return "Today"
     if (date.toDateString() === today.toDateString()) {
-      return t('dates.today');
+      return t('dateTime.today');
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return t('dates.yesterday');
+      return t('dateTime.yesterday');
     }
 
     // If the date is not today or yesterday, we return the date in the format "day month year"

@@ -15,8 +15,8 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
 
 
 
-  console.log('🔢 Contract Number:', contractNumber);
-  console.log('🔑 Account API Key:', accountApiKey);
+  // console.log('🔢 Contract Number:', contractNumber);
+  // console.log('🔑 Account API Key:', accountApiKey);
 
   try {
     const body = createApiRequest({
@@ -100,15 +100,14 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     const timestamp = Date.now();
     const isFile = typeof messageContent === 'object';
 
-    // Ajout de logs détaillés
     console.log('📤 Envoi message - données:', {
-      type: typeof messageData,
-      isFile: typeof messageData === 'object',
-      fileDetails: typeof messageData === 'object' ? {
-        fileName: messageData.fileName,
-        fileType: messageData.fileType,
-        // hasBase64: !!messageData.base64,
-        hasUri: !!messageData.uri
+      channelId,
+      isFile,
+      fileDetails: isFile ? {
+        fileName: messageContent.fileName,
+        fileType: messageContent.fileType,
+        fileSize: messageContent.fileSize,
+        hasBase64: !!messageContent.base64
       } : null
     });
 
@@ -137,8 +136,13 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     console.log('📤 Requête envoyée:', {
       channelId,
       title: messageTitle,
-      details: typeof messageContent === 'string' ? messageContent : messageContent.fileName,
+      details: isFile ? messageContent.fileName : messageContent,
       isFile,
+      fileInfo: isFile ? {
+        fileType: messageContent.fileType,
+        fileName: messageContent.fileName,
+        fileSize: messageContent.fileSize
+      } : null
     });
 
     const apiUrl = await ENV.API_URL();
@@ -172,14 +176,6 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
           base64: messageContent.base64,
         }),
       };
-
-      console.log('📤 Message formaté pour affichage:', {
-        id: messageData.id,
-        type: messageData.type,
-        fileName: messageData.fileName,
-        fileType: messageData.fileType,
-        hasBase64: !!messageData.base64
-      });
 
       return {
         status: 'ok',
@@ -238,30 +234,24 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
               if (chId === channelId && channel.messages) {
                 channelMessages = await Promise.all(
                   Object.entries(channel.messages).map(async ([id, msg]) => {
-                    // console.log('📥 Message reçu:', msg);
-                    // console.log('📥 Structure d\'un message:', JSON.stringify(msg, null, 2));
-
                     const isOwnMessage = msg.accountapikey === userCredentials.accountApiKey;
                     const hasFile = msg.filename && msg.filetype && msg.filetype !== 'none';
+                    const isPDF = msg.filetype?.toLowerCase().includes('pdf');
+
+                    console.log('📥 Traitement message:', {
+                      id,
+                      type: hasFile ? 'file' : 'text',
+                      fileType: msg.filetype,
+                      isPDF,
+                      fileName: msg.filename
+                    });
 
                     let base64 = null;
                     if (hasFile) {
-                      console.log('📥 Tentative récupération fichier:', {
-                        messageId: msg.messageid,
-                        fileType: msg.filetype,
-                        fileName: msg.filename,
-                      });
-
                       base64 = await fetchMessageFile(msg.messageid, {
                         ...msg,
                         channelid: parseInt(channelId, 10),
                       }, userCredentials);
-
-                      console.log('📥 Résultat récupération fichier:', {
-                        messageId: msg.messageid,
-                        // hasBase64: !!base64,
-                        base64Length: base64?.length,
-                      });
                     }
 
                     return {
