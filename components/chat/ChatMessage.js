@@ -43,21 +43,17 @@ const formatFileSize = (bytes) => {
 };
 
 export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
-  // Ajout de logs détaillés pour le débogage
-  console.log('🔍 Détails du message:', {
-    id: message.id,
-    type: message.type,
-    fileType: message.fileType,
-    fileName: message.fileName,
-    hasBase64: !!message.base64,
-    isPDF: message.fileType?.toLowerCase().includes('pdf')
-  });
+  // console.log('🎯 Rendu ChatMessage:', {
+  //   messageType: message.type,
+  //   fileType: message.fileType,
+  //   fileName: message.fileName,
+  //   hasBase64: !!message.base64
+  // });
 
   // Vérification explicite pour les PDF
   if (message.type === 'file' && message.fileType?.toLowerCase().includes('pdf')) {
-    console.log('📄 PDF détecté:', {
+    console.log('📄 Rendu PDF détecté:', {
       fileName: message.fileName,
-      fileType: message.fileType,
       fileSize: message.fileSize
     });
   }
@@ -67,21 +63,19 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
   const messageTime = formatTimestamp(message.savedTimestamp);
 
   if (message.type === 'file') {
-    // Modifions la détection des PDF pour être plus permissive
-    const isPDF = message.fileType?.toLowerCase().includes('pdf') ||
-                  message.fileType?.toLowerCase() === 'application/pdf';
+    const isPDF = message.fileType?.toLowerCase().includes('pdf');
     const isImage = message.fileType?.toLowerCase().includes('image/') ||
-                    message.fileType?.toLowerCase().includes('jpeg') ||
-                    message.fileType?.toLowerCase().includes('jpg') ||
-                    message.fileType?.toLowerCase().includes('png');
+                message.fileType?.toLowerCase().includes('jpeg') ||
+                message.fileType?.toLowerCase().includes('jpg') ||
+                message.fileType?.toLowerCase().includes('png');
 
+    // Ajout de logs pour debug
     console.log('📄 Message fichier détecté:', {
       type: message.type,
       fileType: message.fileType,
       isPDF,
       isImage,
-      fileName: message.fileName,
-      hasBase64: !!message.base64
+      fileName: message.fileName
     });
 
     return (

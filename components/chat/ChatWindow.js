@@ -53,12 +53,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   useEffect(() => {
     if (channelMessages && credentials) {
-      console.log('📨 Messages reçus dans ChatWindow:', channelMessages.map(msg => ({
+      console.log('📨 Messages reçus:', channelMessages.map(msg => ({
         id: msg.id,
         type: msg.type,
         fileType: msg.fileType,
-        fileName: msg.fileName,
-        // hasBase64: !!msg.base64
+        fileName: msg.fileName
       })));
 
       const loadFiles = async () => {
@@ -68,13 +67,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           msg.fileType &&
           msg.fileType.toLowerCase() !== 'none'
         );
-
-        console.log('📥 Messages nécessitant des fichiers:', messagesNeedingFiles.map(msg => ({
-          id: msg.id,
-          type: msg.type,
-          fileType: msg.fileType,
-          fileName: msg.fileName
-        })));
 
         const batchSize = 3;
         const updatedMessages = [...channelMessages];
@@ -96,27 +88,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     base64: base64,
                     type: 'file',
                   };
-                  console.log('✅ Fichier chargé avec succès:', {
-                    id: msg.id,
-                    fileName: msg.fileName,
-                    fileType: msg.fileType
-                  });
                 }
               } catch (fileError) {
-                console.error('❌ Erreur chargement fichier:', fileError);
+                console.error('Erreur chargement fichier:', fileError);
                 setError(`${t('errors.errorLoadingFile')} ${fileError.message}`);
               }
             })
           );
         }
-
-        console.log('📤 Messages mis à jour:', updatedMessages.map(msg => ({
-          id: msg.id,
-          type: msg.type,
-          fileType: msg.fileType,
-          fileName: msg.fileName,
-          // hasBase64: !!msg.base64
-        })));
 
         setMessages(updatedMessages);
       };

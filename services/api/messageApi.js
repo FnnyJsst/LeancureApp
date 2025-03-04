@@ -15,8 +15,8 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
 
 
 
-  // console.log('🔢 Contract Number:', contractNumber);
-  // console.log('🔑 Account API Key:', accountApiKey);
+  console.log('🔢 Contract Number:', contractNumber);
+  console.log('🔑 Account API Key:', accountApiKey);
 
   try {
     const body = createApiRequest({
@@ -97,52 +97,44 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
  */
 export const sendMessageApi = async (channelId, messageContent, userCredentials) => {
   try {
+    console.log('🚀 DÉBUT ENVOI MESSAGE');
     const timestamp = Date.now();
+
     const isFile = typeof messageContent === 'object';
-
-    console.log('📤 Envoi message - données:', {
-      channelId,
-      isFile,
-      fileDetails: isFile ? {
-        fileName: messageContent.fileName,
-        fileType: messageContent.fileType,
-        fileSize: messageContent.fileSize,
-        hasBase64: !!messageContent.base64
-      } : null
-    });
-
     const messageTitle = isFile ? messageContent.fileName : messageContent.substring(0, 50);
 
+    // Simplifier le type de fichier pour les PDF
+    let fileType = isFile ? messageContent.fileType : null;
+    if (fileType === 'application/pdf') {
+      fileType = 'pdf';
+      console.log('🔄 Type de fichier simplifié: pdf');
+    }
+
+    // Utiliser createApiRequest comme les autres fonctions
     const body = createApiRequest({
       'amaiia_msg_srv': {
         'client': {
           'add_msg': {
             'channelid': parseInt(channelId, 10),
             'title': messageTitle,
-            'details': messageContent,
+            'details': isFile ? "" : messageContent,
             'enddatets': timestamp + 99999,
             'file': isFile ? {
               'base64': messageContent.base64,
-              'filetype': messageContent.fileType,
+              'filetype': fileType,
               'filename': messageContent.fileName,
-              'filesize': messageContent.fileSize,
+              'filesize': messageContent.fileSize || 0,
             } : null,
             'sentby': userCredentials.accountApiKey,
-          },
-        },
-      },
-    }, userCredentials.contractNumber);
+          }
+        }
+      }
+    }, userCredentials.contractNumber, userCredentials.accessToken || "");
 
-    console.log('📤 Requête envoyée:', {
+    console.log('📤 Requête envoyée via createApiRequest:', {
       channelId,
-      title: messageTitle,
-      details: isFile ? messageContent.fileName : messageContent,
+      fileType,
       isFile,
-      fileInfo: isFile ? {
-        fileType: messageContent.fileType,
-        fileName: messageContent.fileName,
-        fileSize: messageContent.fileSize
-      } : null
     });
 
     const apiUrl = await ENV.API_URL();
@@ -150,42 +142,45 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       timeout: 30000,
     });
 
-    // Log de la réponse
-    console.log('📤 Réponse du serveur:', {
-      status: response.status,
-      data: response.data
-    });
+    console.log('📦 Status de la réponse:', response.status);
+    console.log('📦 Aperçu de la réponse:', typeof response.data === 'string'
+      ? response.data.substring(0, 100)
+      : JSON.stringify(response.data).substring(0, 100));
 
     if (response.status === 200) {
-      const messageData = {
-        id: timestamp,
-        title: messageTitle,
-        message: messageContent,
-        savedTimestamp: timestamp,
-        endTimestamp: timestamp + 99999,
-        fileType: isFile ? messageContent.fileType : 'none',
-        login: userCredentials.login,
-        isOwnMessage: true,
-        isUnread: false,
-        username: 'Me',
-        ...(isFile && {
-          type: 'file',
-          fileName: messageContent.fileName,
-          fileSize: messageContent.fileSize,
-          fileType: messageContent.fileType,
-          base64: messageContent.base64,
-        }),
-      };
+      // Vérifier si la réponse contient une erreur PHP
+      if (typeof response.data === 'string' && response.data.includes('xdebug-error')) {
+        console.error('❌ Erreur PHP détectée dans la réponse');
+        throw new Error('Erreur serveur PHP');
+      }
 
       return {
         status: 'ok',
-        message: messageData,
+        message: {
+          id: timestamp,
+          title: messageTitle,
+          message: messageContent,
+          savedTimestamp: timestamp,
+          endTimestamp: timestamp + 99999,
+          fileType: isFile ? fileType : 'none',
+          login: userCredentials.login,
+          isOwnMessage: true,
+          isUnread: false,
+          username: 'Moi',
+          ...(isFile && {
+            type: 'file',
+            fileName: messageContent.fileName,
+            fileSize: messageContent.fileSize,
+            fileType: fileType,
+            base64: messageContent.base64,
+          }),
+        },
       };
     }
 
     throw new Error('Message not saved');
   } catch (error) {
-    console.error('🔴 Erreur sendMessageApi:', error);
+    console.error('❌ ERREUR:', error.message);
     throw error;
   }
 };
@@ -234,24 +229,30 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
               if (chId === channelId && channel.messages) {
                 channelMessages = await Promise.all(
                   Object.entries(channel.messages).map(async ([id, msg]) => {
+                    // console.log('📥 Message reçu:', msg);
+                    // console.log('📥 Structure d\'un message:', JSON.stringify(msg, null, 2));
+
                     const isOwnMessage = msg.accountapikey === userCredentials.accountApiKey;
                     const hasFile = msg.filename && msg.filetype && msg.filetype !== 'none';
-                    const isPDF = msg.filetype?.toLowerCase().includes('pdf');
-
-                    console.log('📥 Traitement message:', {
-                      id,
-                      type: hasFile ? 'file' : 'text',
-                      fileType: msg.filetype,
-                      isPDF,
-                      fileName: msg.filename
-                    });
 
                     let base64 = null;
                     if (hasFile) {
+                      console.log('📥 Tentative récupération fichier:', {
+                        messageId: msg.messageid,
+                        fileType: msg.filetype,
+                        fileName: msg.filename,
+                      });
+
                       base64 = await fetchMessageFile(msg.messageid, {
                         ...msg,
                         channelid: parseInt(channelId, 10),
                       }, userCredentials);
+
+                      console.log('📥 Résultat récupération fichier:', {
+                        messageId: msg.messageid,
+                        hasBase64: !!base64,
+                        base64Length: base64?.length,
+                      });
                     }
 
                     return {
