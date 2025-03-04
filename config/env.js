@@ -26,7 +26,7 @@ export const ENV = {
                     await SecureStore.deleteItemAsync('custom_api_url');
                 }
             } else {
-                console.log('ℹ️ Pas d\'URL personnalisée trouvée');
+                // console.log('ℹ️ Pas d\'URL personnalisée trouvée');
             }
 
             // console.log('✅ Utilisation de l\'URL par défaut:', DEFAULT_API_URL);

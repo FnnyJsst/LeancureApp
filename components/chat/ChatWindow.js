@@ -53,12 +53,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   useEffect(() => {
     if (channelMessages && credentials) {
-      console.log('📨 Messages reçus:', channelMessages.map(msg => ({
-        id: msg.id,
-        type: msg.type,
-        fileType: msg.fileType,
-        fileName: msg.fileName
-      })));
+      console.log('📋 MISE À JOUR MESSAGES - Nombre:', channelMessages.length, 'Premier ID:', channelMessages[0]?.id);
 
       const loadFiles = async () => {
         const messagesNeedingFiles = channelMessages.filter(msg =>
@@ -136,14 +131,13 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = async (messageData) => {
     try {
-      console.log('💬 Début sendMessage:', {
+      console.log('🔍 DÉBUT ENVOI - ID généré:', Date.now(), {
         type: typeof messageData,
         isObject: typeof messageData === 'object',
         content: typeof messageData === 'object' ? {
           fileName: messageData.fileName,
           fileType: messageData.fileType,
-          size: messageData.fileSize
-        } : 'text'
+        } : messageData.substring(0, 20)
       });
 
       // If we don't have any message data or any credentials, we return nothing
@@ -166,7 +160,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       // If the message is sent successfully, we create a new message object
       if (response.status === 'ok') {
         const currentTimestamp = Date.now();
-        // console.log('📤 Réponse API:', response);
+        console.log('📤 RÉPONSE API REÇUE - Message ID:', currentTimestamp);
 
         const newMessage = {
           id: currentTimestamp,
@@ -197,6 +191,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         });
 
         if (typeof onMessageSent === 'function') {
+          console.log('📢 APPEL onMessageSent avec ID:', newMessage.id);
           onMessageSent(newMessage);
         }
       }

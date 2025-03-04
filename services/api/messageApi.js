@@ -97,7 +97,7 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
  */
 export const sendMessageApi = async (channelId, messageContent, userCredentials) => {
   try {
-    console.log('🚀 DÉBUT ENVOI MESSAGE');
+    console.log('🌐 API ENVOI - Début avec ID:', Date.now());
     const timestamp = Date.now();
 
     const isFile = typeof messageContent === 'object';
@@ -131,10 +131,10 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       }
     }, userCredentials.contractNumber, userCredentials.accessToken || "");
 
-    console.log('📤 Requête envoyée via createApiRequest:', {
+    console.log('🌐 API ENVOI - Requête prête à envoyer:', {
       channelId,
-      fileType,
       isFile,
+      titre: messageTitle.substring(0, 15)
     });
 
     const apiUrl = await ENV.API_URL();
@@ -142,7 +142,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       timeout: 30000,
     });
 
-    console.log('📦 Status de la réponse:', response.status);
+    console.log('🌐 API ENVOI - Réponse reçue avec status:', response.status);
     console.log('📦 Aperçu de la réponse:', typeof response.data === 'string'
       ? response.data.substring(0, 100)
       : JSON.stringify(response.data).substring(0, 100));
@@ -248,11 +248,11 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
                         channelid: parseInt(channelId, 10),
                       }, userCredentials);
 
-                      console.log('📥 Résultat récupération fichier:', {
-                        messageId: msg.messageid,
-                        hasBase64: !!base64,
-                        base64Length: base64?.length,
-                      });
+                      // console.log('📥 Résultat récupération fichier:', {
+                      //   messageId: msg.messageid,
+                      //   hasBase64: !!base64,
+                      //   base64Length: base64?.length,
+                      // });
                     }
 
                     return {

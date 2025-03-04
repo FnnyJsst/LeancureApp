@@ -96,30 +96,24 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    */
   const handleNewMessage = async (message) => {
     try {
-      const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-      if (!credentialsStr || !selectedChannel) {
-        console.log('❌ Missing credentials or selectedChannel');
-        return;
-      }
+      console.log('🏆 PARENT - Message reçu, rafraîchissement prévu');
 
-      const credentials = JSON.parse(credentialsStr);
+      // Ne plus envoyer à l'API, car ChatWindow.js l'a déjà fait
+      // On se contente de rafraîchir la liste des messages
 
-      // We check if the message is not empty
-      if (!message || (typeof message === 'string' && !message.trim())) {
-        console.log('❌ Empty message');
-        return;
-      }
+      setTimeout(async () => {
+        const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+        if (!credentialsStr || !selectedChannel) {
+          console.log('❌ Missing credentials or selectedChannel');
+          return;
+        }
 
-      // We send the message to the API
-      const response = await sendMessageApi(selectedChannel.id, message, credentials);
+        const credentials = JSON.parse(credentialsStr);
+        console.log('🏆 PARENT - Rafraîchissement des messages');
+        const updatedMessages = await fetchChannelMessages(selectedChannel.id, credentials);
+        setChannelMessages(updatedMessages);
+      }, 1000);
 
-      if (response.status === 'ok') {
-        // We update the messages after a delay to ensure the user sees the new message
-        setTimeout(async () => {
-          const updatedMessages = await fetchChannelMessages(selectedChannel.id, credentials);
-          setChannelMessages(updatedMessages);
-        }, 1000);
-      }
     } catch (error) {
       console.error('Error handling message:', error);
     }

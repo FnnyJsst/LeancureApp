@@ -51,12 +51,12 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
   // });
 
   // Vérification explicite pour les PDF
-  if (message.type === 'file' && message.fileType?.toLowerCase().includes('pdf')) {
-    console.log('📄 Rendu PDF détecté:', {
-      fileName: message.fileName,
-      fileSize: message.fileSize
-    });
-  }
+  // if (message.type === 'file' && message.fileType?.toLowerCase().includes('pdf')) {
+  //   console.log('📄 Rendu PDF détecté:', {
+  //     fileName: message.fileName,
+  //     fileSize: message.fileSize
+  //   });
+  // }
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
