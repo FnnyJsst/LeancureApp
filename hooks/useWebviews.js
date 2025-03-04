@@ -93,7 +93,13 @@ export function useWebviews(setCurrentScreen) {
    */
   const saveRefreshOption = async (option) => {
     try {
-      await SecureStore.setItemAsync('refreshOption', option);
+      // Supprimons d'abord l'ancienne valeur
+      await SecureStore.deleteItemAsync('refreshOption');
+
+      // Sauvegardons la nouvelle valeur
+      await SecureStore.setItemAsync('refreshOption', option, {
+        keychainAccessible: SecureStore.WHEN_UNLOCKED
+      });
     } catch (error) {
       console.error('Failed to save refresh option', error);
     }
@@ -144,15 +150,22 @@ export function useWebviews(setCurrentScreen) {
    */
   const loadRefreshOption = useCallback(async () => {
     try {
-      const storedOption = await SecureStore.getItemAsync('refreshOption');
-      if (storedOption) {
-        setRefreshOption(storedOption);
-        setRefreshInterval(getIntervalInMilliseconds(storedOption));
-      }
+      // D'abord, supprimons l'ancienne valeur
+      await SecureStore.deleteItemAsync('refreshOption');
+
+      // Ensuite, définissons une valeur par défaut
+      const defaultOption = 'never';
+      await SecureStore.setItemAsync('refreshOption', defaultOption);
+
+      setRefreshOption(defaultOption);
+      setRefreshInterval(getIntervalInMilliseconds(defaultOption));
     } catch (error) {
       if (__DEV__) {
         console.error('Failed to load refresh option', error);
       }
+      // En cas d'erreur, on définit des valeurs par défaut
+      setRefreshOption('never');
+      setRefreshInterval(null);
     }
   }, [setRefreshOption, setRefreshInterval, getIntervalInMilliseconds]);
 

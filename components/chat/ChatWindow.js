@@ -53,18 +53,26 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   useEffect(() => {
     if (channelMessages && credentials) {
+      console.log('📨 Messages reçus:', channelMessages.map(msg => ({
+        id: msg.id,
+        type: msg.type,
+        fileType: msg.fileType,
+        fileName: msg.fileName
+      })));
+
       const loadFiles = async () => {
-        const messagesNeedingFiles = channelMessages.filter(msg => msg.type === 'file' && !msg.base64);
+        const messagesNeedingFiles = channelMessages.filter(msg =>
+          msg.type === 'file' &&
+          !msg.base64 &&
+          msg.fileType &&
+          msg.fileType.toLowerCase() !== 'none'
+        );
 
         const batchSize = 3;
         const updatedMessages = [...channelMessages];
 
         for (let i = 0; i < messagesNeedingFiles.length; i += batchSize) {
           const batch = messagesNeedingFiles.slice(i, i + batchSize);
-          console.log('📥 Traitement batch:', {
-            batchNumber: Math.floor(i / batchSize) + 1,
-            batchSize: batch.length,
-          });
           await Promise.all(
             batch.map(async (msg) => {
               try {
@@ -73,15 +81,16 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                   ...msg,
                 }, credentials);
 
-                // Mettre à jour le message dans le tableau original
                 const index = updatedMessages.findIndex(m => m.id === msg.id);
-                if (index !== -1) {
+                if (index !== -1 && base64) {
                   updatedMessages[index] = {
                     ...updatedMessages[index],
-                    base64: base64 || null,
+                    base64: base64,
+                    type: 'file',
                   };
                 }
               } catch (fileError) {
+                console.error('Erreur chargement fichier:', fileError);
                 setError(`${t('errors.errorLoadingFile')} ${fileError.message}`);
               }
             })
@@ -97,11 +106,20 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   // Function to open the document preview modal
   const openDocumentPreviewModal = (message) => {
+    if (!message) return;
+
+    console.log('Ouverture document:', {
+      type: message.type,
+      fileType: message.fileType,
+      fileName: message.fileName,
+      hasBase64: !!message.base64
+    });
+
     setIsDocumentPreviewModalVisible(true);
     setSelectedFileUrl(message.uri);
     setSelectedFileName(message.fileName);
     setSelectedFileSize(message.fileSize);
-    setSelectedFileType(message.fileType);
+    setSelectedFileType(message.fileType?.toLowerCase());
     setSelectedBase64(message.base64);
   };
 
@@ -118,6 +136,16 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = async (messageData) => {
     try {
+      console.log('💬 Début sendMessage:', {
+        type: typeof messageData,
+        isObject: typeof messageData === 'object',
+        content: typeof messageData === 'object' ? {
+          fileName: messageData.fileName,
+          fileType: messageData.fileType,
+          size: messageData.fileSize
+        } : 'text'
+      });
+
       // If we don't have any message data or any credentials, we return nothing
       if (!messageData ||
           (typeof messageData === 'string' && !messageData.trim()) ||
@@ -142,30 +170,38 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
         const newMessage = {
           id: currentTimestamp,
+          type: typeof messageData === 'object' ? 'file' : 'text',
           title: typeof messageData === 'string' ? messageData.substring(0, 50) : messageData.fileName,
           message: typeof messageData === 'string' ? messageData : messageData.fileName,
           savedTimestamp: currentTimestamp,
           endTimestamp: currentTimestamp + 99999,
-          fileType: typeof messageData === 'object' ? messageData.fileType : 'none',
+          fileType: typeof messageData === 'object' ? messageData.fileType.toLowerCase() : 'none',
           login: userCredentials.login,
           isOwnMessage: true,
           isUnread: false,
           username: 'Me',
           ...(typeof messageData === 'object' && {
-            type: 'file',
             fileName: messageData.fileName,
             fileSize: messageData.fileSize,
             base64: messageData.base64,
-            uri: messageData.uri,
+            uri: messageData.uri
           }),
         };
 
-        // If the onMessageSent function is defined, we call it to inform the parent component that a message has been sent
+        console.log('💬 Message créé:', {
+          id: newMessage.id,
+          type: newMessage.type,
+          fileType: newMessage.fileType,
+          fileName: newMessage.fileName,
+          hasBase64: !!newMessage.base64
+        });
+
         if (typeof onMessageSent === 'function') {
           onMessageSent(newMessage);
         }
       }
     } catch (error) {
+      console.error('🔴 Erreur sendMessage:', error);
       setError(`${t('errors.errorSendingMessage')} ${error.message}`);
     }
   };

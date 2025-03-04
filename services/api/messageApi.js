@@ -98,8 +98,20 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
 export const sendMessageApi = async (channelId, messageContent, userCredentials) => {
   try {
     const timestamp = Date.now();
-
     const isFile = typeof messageContent === 'object';
+
+    // Ajout de logs détaillés
+    console.log('📤 Envoi message - données:', {
+      type: typeof messageData,
+      isFile: typeof messageData === 'object',
+      fileDetails: typeof messageData === 'object' ? {
+        fileName: messageData.fileName,
+        fileType: messageData.fileType,
+        // hasBase64: !!messageData.base64,
+        hasUri: !!messageData.uri
+      } : null
+    });
+
     const messageTitle = isFile ? messageContent.fileName : messageContent.substring(0, 50);
 
     const body = createApiRequest({
@@ -131,36 +143,53 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
 
     const apiUrl = await ENV.API_URL();
     const response = await axios.post(apiUrl, body, {
-      timeout: 30000, // 30 secondes max
+      timeout: 30000,
+    });
+
+    // Log de la réponse
+    console.log('📤 Réponse du serveur:', {
+      status: response.status,
+      data: response.data
     });
 
     if (response.status === 200) {
+      const messageData = {
+        id: timestamp,
+        title: messageTitle,
+        message: messageContent,
+        savedTimestamp: timestamp,
+        endTimestamp: timestamp + 99999,
+        fileType: isFile ? messageContent.fileType : 'none',
+        login: userCredentials.login,
+        isOwnMessage: true,
+        isUnread: false,
+        username: 'Me',
+        ...(isFile && {
+          type: 'file',
+          fileName: messageContent.fileName,
+          fileSize: messageContent.fileSize,
+          fileType: messageContent.fileType,
+          base64: messageContent.base64,
+        }),
+      };
+
+      console.log('📤 Message formaté pour affichage:', {
+        id: messageData.id,
+        type: messageData.type,
+        fileName: messageData.fileName,
+        fileType: messageData.fileType,
+        hasBase64: !!messageData.base64
+      });
+
       return {
         status: 'ok',
-        message: {
-          id: timestamp,
-          title: messageTitle,
-          message: messageContent,
-          savedTimestamp: timestamp,
-          endTimestamp: timestamp + 99999,
-          fileType: isFile ? messageContent.fileType : 'none',
-          login: userCredentials.login,
-          isOwnMessage: true,
-          isUnread: false,
-          username: 'Me',
-          ...(isFile && {
-            type: 'file',
-            fileName: messageContent.fileName,
-            fileSize: messageContent.fileSize,
-            fileType: messageContent.fileType,
-            base64: messageContent.base64,
-          }),
-        },
+        message: messageData,
       };
     }
 
     throw new Error('Message not saved');
   } catch (error) {
+    console.error('🔴 Erreur sendMessageApi:', error);
     throw error;
   }
 };
@@ -230,7 +259,7 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
 
                       console.log('📥 Résultat récupération fichier:', {
                         messageId: msg.messageid,
-                        hasBase64: !!base64,
+                        // hasBase64: !!base64,
                         base64Length: base64?.length,
                       });
                     }
