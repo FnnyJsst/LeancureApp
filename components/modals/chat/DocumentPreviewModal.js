@@ -49,11 +49,12 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
    * @description Formate la taille du fichier avec l'unité appropriée
    */
   const formatFileSize = () => {
-    // Estimer la taille à partir de base64 si non fournie
-    let calculatedSize = 0;
+    // Si fileSize est fourni, l'utiliser
+    let calculatedSize = fileSize;
 
-    if (base64) {
-      // Convertir la longueur base64 en taille approximative
+    // Sinon, estimer la taille à partir du base64
+    if (!calculatedSize && base64) {
+      // La taille approximative en octets est la longueur de la chaîne base64 * 0.75
       calculatedSize = Math.round(base64.length * 0.75);
     }
 
