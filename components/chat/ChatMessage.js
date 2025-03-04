@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Image, Platform, Text as RNText } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
@@ -28,10 +28,10 @@ const formatTimestamp = (timestamp) => {
 };
 
 const formatFileSize = (bytes) => {
+  if (!bytes) {return '0 Ko';}
 
   const units = ['Ko', 'Mo', 'Go'];
-  // Commençons directement en Ko pour éviter d'afficher des valeurs trop petites
-  let size = Math.max(1, bytes / 1024);
+  let size = bytes / 1024; // Conversion directe en Ko
   let unitIndex = 0;
 
   while (size >= 1024 && unitIndex < units.length - 1) {
@@ -42,13 +42,21 @@ const formatFileSize = (bytes) => {
   return `${Math.round(size)} ${units[unitIndex]}`;
 };
 
-const calculateFileSize = (base64String) => {
-  if (!base64String) return 0;
-  // La taille du fichier décodé est approximativement 3/4 de la longueur de la chaîne base64
-  return Math.ceil(base64String.length * 0.75);
-};
-
 export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
+  // console.log('🎯 Rendu ChatMessage:', {
+  //   messageType: message.type,
+  //   fileType: message.fileType,
+  //   fileName: message.fileName,
+  //   hasBase64: !!message.base64
+  // });
+
+  // Vérification explicite pour les PDF
+  if (message.type === 'file' && message.fileType?.toLowerCase().includes('pdf')) {
+    console.log('📄 Rendu PDF détecté:', {
+      fileName: message.fileName,
+      fileSize: message.fileSize
+    });
+  }
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
@@ -61,6 +69,15 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                 message.fileType?.toLowerCase().includes('jpg') ||
                 message.fileType?.toLowerCase().includes('png');
 
+    // Ajout de logs pour debug
+    console.log('📄 Message fichier détecté:', {
+      type: message.type,
+      fileType: message.fileType,
+      isPDF,
+      isImage,
+      fileName: message.fileName
+    });
+
     return (
       <View style={styles.messageWrapper(isOwnMessage)}>
         <View style={[
@@ -70,7 +87,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
           <Text style={[
             styles.username,
             isSmartphone && styles.usernameSmartphone,
-          ]}>{message.username || 'Utilisateur'}</Text>
+          ]}>{message.username}</Text>
           <Text style={styles.timestamp}>{messageTime}</Text>
         </View>
 
@@ -86,6 +103,11 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
             <View style={styles.fileContainer}>
               <View style={styles.pdfPreviewContainer}>
                 <View style={styles.fileHeader}>
+                  <Ionicons
+                    name="document-text-outline"
+                    size={24}
+                    color={COLORS.white}
+                  />
                   <View style={styles.fileInfo}>
                     <Text style={styles.fileName} numberOfLines={1}>
                       {message.fileName}
@@ -94,51 +116,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                       PDF • {formatFileSize(message.fileSize)}
                     </Text>
                   </View>
-                </View>
-              </View>
-
-              <View style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                padding: 12,
-                backgroundColor: 'rgba(0,0,0,0.01)',
-                zIndex: 9999,
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center'
-              }}>
-                <Ionicons
-                  name="document-text-outline"
-                  size={24}
-                  color={COLORS.white}
-                  style={{ marginRight: 10 }}
-                />
-                <View style={{ flex: 1 }}>
-                  <RNText style={{
-                    color: '#FFFFFF',
-                    fontSize: 15,
-                    fontWeight: 'bold',
-                    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-                    textShadowOffset: { width: 0.5, height: 0.5 },
-                    textShadowRadius: 1,
-                    marginBottom: 3
-                  }} numberOfLines={1}>
-                    {message.fileName || "Document PDF"}
-                  </RNText>
-                  <RNText style={{
-                    color: '#FFFFFF',
-                    fontSize: 13,
-                    fontWeight: '300',
-                    opacity: 0.9,
-                    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-                    textShadowOffset: { width: 0.5, height: 0.5 },
-                    textShadowRadius: 1
-                  }}>
-                    PDF • {formatFileSize(100 * 1024)}
-                  </RNText>
                 </View>
               </View>
             </View>
@@ -271,7 +248,7 @@ const styles = StyleSheet.create({
   },
   fileContainer: {
     width: '100%',
-    minWidth: 250,
+    minWidth: 200,
     padding: 8,
   },
   fileHeader: {
