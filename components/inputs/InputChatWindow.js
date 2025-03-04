@@ -6,6 +6,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { Text } from '../text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component FilePreview
@@ -19,6 +20,7 @@ import { Text } from '../text/CustomText';
  * <FilePreview file={file} onRemove={() => console.log('File removed')} />
  */
 const  FilePreview = ({ file, onRemove }) => {
+
   return (
     <View style={styles.previewContainer}>
       <View style={styles.fileInfo}>
@@ -64,7 +66,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   const { isSmartphone } = useDeviceType();
   const [isFocused, setIsFocused] = useState(false);
 
-
+  const { t } = useTranslation();
   /**
    * @function formatFileSize
    * @description A function to format the file size
@@ -188,7 +190,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
               isSmartphone && styles.smartphoneInput,
               isFocused && styles.inputFocused,
             ]}
-            placeholder="Type your message here..."
+            placeholder={t('messages.typeMessage')}
             placeholderTextColor={COLORS.gray600}
             value={message}
             onChangeText={setMessage}

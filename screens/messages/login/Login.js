@@ -61,12 +61,10 @@ export default function Login({ onNavigate, testID }) {
             setIsLoading(true);
             setError('');
 
-            // Clean up the SecureStore in case of previous error
-            try {
-                await SecureStore.deleteItemAsync('userCredentials');
-            } catch (error) {
-                throw error;
-            }
+            // Nettoyer TOUTES les données SecureStore avant de commencer
+            await SecureStore.deleteItemAsync('userCredentials');
+            await SecureStore.deleteItemAsync('savedLoginInfo');
+            await SecureStore.deleteItemAsync('password');
 
             const validationError = validateInputs();
             if (validationError) {
@@ -85,7 +83,9 @@ export default function Login({ onNavigate, testID }) {
                     accountApiKey: loginResponse.accountApiKey,
                 };
 
-                await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+                // Utiliser une nouvelle clé unique pour éviter les conflits
+                const uniqueKey = `userCredentials_${Date.now()}`;
+                await SecureStore.setItemAsync(uniqueKey, JSON.stringify(credentials));
 
                 // Save the login info if the checkbox is checked
                 if (isChecked) {
@@ -110,7 +110,8 @@ export default function Login({ onNavigate, testID }) {
             } else {
                 setError(t('errors.invalidCredentials'));
             }
-        } catch (loginError) {
+        } catch (error) {
+            console.error('Erreur de SecureStore:', error);
             setError(t('errors.loginFailed'));
         } finally {
             setIsLoading(false);

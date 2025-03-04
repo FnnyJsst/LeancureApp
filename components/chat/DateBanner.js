@@ -4,6 +4,9 @@ import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
+import { format, parse } from 'date-fns';
+import { fr, enUS } from 'date-fns/locale';
+import * as Localization from 'expo-localization';
 
 /**
  * @component DateBanner
@@ -22,10 +25,31 @@ export default function DateBanner({ date }) {
 
   const { t } = useTranslation();
 
+  // Récupérer la langue du système
+  const locale = Localization.locale.split('-')[0] === 'fr' ? fr : enUS;
+
+  // Vérifier si la date est valide
+  let formattedDate;
+  try {
+    // Parser la date au format "February 13, 2025"
+    const dateObj = parse(date, 'MMMM d, yyyy', new Date());
+
+    // Vérifier si la date est valide
+    if (isNaN(dateObj.getTime())) {
+      console.warn('Date invalide reçue:', date);
+      return null;
+    }
+
+    formattedDate = format(dateObj, 'EEEE, d MMMM yyyy', { locale });
+  } catch (error) {
+    console.error('Erreur de formatage de date:', error);
+    return null;
+  }
+
   return (
     <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
 
-      <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>{date}</Text>
+      <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>{formattedDate}</Text>
     </View>
   );
 }
