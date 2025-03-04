@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES, FONTS } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
@@ -65,6 +65,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const { isSmartphone } = useDeviceType();
   const [isFocused, setIsFocused] = useState(false);
+  const [messageBeingSent, setMessageBeingSent] = useState(false);
 
   const { t } = useTranslation();
   /**
@@ -135,10 +136,17 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
    * @description A function to handle the send of the message
    */
   const handleSend = () => {
-    // Si on a un fichier sélectionné, on l'envoie
+    // Si on a un fichier sélectionné, on l'envoie avec le message
     if (selectedFile) {
-      onSendMessage(selectedFile);
+      // On ajoute le message au fichier si non vide
+      const fileWithMessage = {
+        ...selectedFile,
+        text: message.trim() || undefined // Ajouter le texte s'il existe
+      };
+
+      onSendMessage(fileWithMessage);
       setSelectedFile(null);
+      setMessage('');
       return;
     }
 
@@ -162,7 +170,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   return (
     <>
       <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
-        {/* We display the attach icon */}
+        {/* Bouton d'attachement */}
         <TouchableOpacity
           onPress={pickDocument}
           style={[
@@ -176,21 +184,25 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
             color={COLORS.gray300}
           />
         </TouchableOpacity>
-        {/* If we have a selected file, we display the file preview */}
-        {selectedFile ? (
-          <FilePreview
-            file={selectedFile}
-            onRemove={handleRemoveFile}
-          />
-        ) : (
-          // If we don't have a selected file, we display the input for the message
+
+        {/* Conteneur central */}
+        <View style={styles.centerContainer}>
+          {/* Les deux éléments l'un au-dessus de l'autre */}
+          {selectedFile && (
+            <FilePreview
+              file={selectedFile}
+              onRemove={handleRemoveFile}
+            />
+          )}
+
           <TextInput
             style={[
               styles.input,
               isSmartphone && styles.smartphoneInput,
               isFocused && styles.inputFocused,
+              selectedFile && styles.inputWithFile, // Style ajusté quand un fichier est présent
             ]}
-            placeholder={t('messages.typeMessage')}
+            placeholder={selectedFile ? "Ajouter un commentaire..." : t('messages.typeMessage')}
             placeholderTextColor={COLORS.gray600}
             value={message}
             onChangeText={setMessage}
@@ -203,8 +215,9 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
             allowFontScaling={false}
             maxFontSizeMultiplier={1}
           />
-        )}
+        </View>
 
+        {/* Bouton d'envoi */}
         <TouchableOpacity
           style={[
             styles.sendButton,
@@ -228,7 +241,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     padding: 10,
     backgroundColor: '#111111',
     marginBottom: -15,
@@ -237,6 +250,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.5,
     borderTopColor: '#403430',
     height: 60,
+  },
+  centerContainer: {
+    flex: 1,
+    marginRight: 10,
+    flexDirection: 'column',
   },
   smartphoneContainer: {
     height: 60,
@@ -255,10 +273,8 @@ const styles = StyleSheet.create({
     height: 32,
   },
   input: {
-    flex: 1,
     fontFamily: FONTS.regular,
     fontSize: SIZES.fonts.textTablet,
-    marginRight: 10,
     color: COLORS.gray300,
     backgroundColor: COLORS.gray900,
     borderRadius: SIZES.borderRadius.small,
@@ -301,12 +317,15 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   previewContainer: {
-    flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
-    padding: 8,
-    marginRight: 10,
+    alignItems: 'flex-start',
+    width: '50%',
+    padding: 4,
+    marginBottom: 6,
+    backgroundColor: COLORS.gray850,
+    borderRadius: SIZES.borderRadius.small,
     justifyContent: 'space-between',
+    height: 40,
   },
   fileInfo: {
     flexDirection: 'row',
@@ -323,5 +342,28 @@ const styles = StyleSheet.create({
   fileSize: {
     color: COLORS.gray600,
     fontSize: SIZES.fonts.xSmall,
+  },
+  inputContainer: {
+    flex: 1,
+    marginRight: 10,
+    flexDirection: 'column',
+  },
+  fileInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  fileName: {
+    color: COLORS.gray300,
+    fontSize: SIZES.fonts.small,
+    fontWeight: SIZES.fontWeight.medium,
+    flex: 1,
+    marginHorizontal: 8,
+  },
+  removeButton: {
+    padding: 2,
+  },
+  inputWithFile: {
+    height: 36,
   },
 });
