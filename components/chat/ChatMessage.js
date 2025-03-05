@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
@@ -46,7 +46,7 @@ const formatFileSize = (bytes) => {
  * <ChatMessage message={message} isOwnMessage={isOwnMessage} onFileClick={() => console.log('File clicked')} />
  */
 export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
-
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
   const { isSmartphone } = useDeviceType();
   const messageTime = formatTimestamp(message.savedTimestamp);
@@ -113,22 +113,34 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
             )}
 
             {isImage && message.base64 && (
-              <View style={styles.previewContainer}>
+              <View style={[
+                styles.imagePreviewContainer,
+                { height: Math.min(240, imageSize.height) }
+              ]}>
                 <Image
                   source={{
                     uri: `data:${message.fileType};base64,${message.base64}`,
                   }}
-                  style={styles.preview}
+                  style={[
+                    styles.preview,
+                    { height: Math.min(300, imageSize.height) }
+                  ]}
                   resizeMode="contain"
+                  onLoad={(event) => {
+                    const { width, height } = event.nativeEvent.source;
+                    const ratio = height / width;
+                    const newHeight = 200 * ratio;
+                    setImageSize({ width: 200, height: newHeight });
+                  }}
                 />
-                <View style={styles.fileHeader}>
+                <View style={styles.imageFileHeader}>
                   <Ionicons
                     name="image-outline"
                     size={25}
                     color={COLORS.white}
                   />
                   <View>
-                    <Text style={styles.fileName} numberOfLines={1}>
+                    <Text style={styles.pictureName} numberOfLines={1} ellipsizeMode="tail">
                       {message.fileName}
                     </Text>
                     <Text style={styles.fileSize}>
@@ -139,8 +151,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
               </View>
             )}
           </TouchableOpacity>
-          {message.text && (
-            <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>{message.text}</Text>
+          {message.text && message.text !== message.fileName && (
+            <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
+              {message.text}
+            </Text>
           )}
         </View>
       </View>
@@ -253,12 +267,15 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.medium,
   },
+  pictureName: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.textSmartphone,
+    fontWeight: SIZES.fontWeight.medium,
+    maxWidth: 150,
+  },
   fileSize: {
     color: COLORS.gray300,
     fontSize: SIZES.fonts.errorText,
-  },
-  pdfPreviewContainer: {
-    // paddingVertical: 4,
   },
   pdfPreviewWithText: {
     padding: 8,
@@ -269,6 +286,24 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.medium,
     overflow: 'hidden',
     position: 'relative',
+  },
+  imagePreviewContainer: {
+    width: 210,
+    borderRadius: SIZES.borderRadius.medium,
+    overflow: 'hidden',
+    position: 'relative',
+    alignSelf: 'center',
+  },
+  imageFileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   preview: {
     width: '100%',
@@ -296,6 +331,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   ownDarkContainer: {
-    backgroundColor: '#c14d00',
+    backgroundColor: '#cc5200',
   },
 });
