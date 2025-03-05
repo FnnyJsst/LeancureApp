@@ -87,7 +87,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
             }}
             style={[
               styles.fileContainer,
-              message.text && message.text !== message.fileName ? [
+              isPDF && message.text && message.text !== message.fileName ? [
                 styles.darkContainer,
                 isOwnMessage && styles.ownDarkContainer
               ] : null
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   imagePreviewContainer: {
-    width: 210,
+    width: 200,
     borderRadius: SIZES.borderRadius.medium,
     overflow: 'hidden',
     position: 'relative',
@@ -302,8 +302,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     position: 'absolute',
     bottom: 0,
-    left: 0,
-    right: 0,
+    width: '100%',
   },
   preview: {
     width: '100%',
