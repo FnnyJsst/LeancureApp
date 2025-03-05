@@ -139,10 +139,8 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
     if (selectedFile) {
       const fileWithMessage = {
         ...selectedFile,
-        messageText: message.trim() || undefined
+        messageText: message.trim() || null
       };
-
-      console.log('📤 Envoi du fichier avec message:', { ...fileWithMessage, base64: '...' });
 
       onSendMessage(fileWithMessage);
       setSelectedFile(null);
@@ -202,9 +200,9 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
               styles.input,
               isSmartphone && styles.smartphoneInput,
               isFocused && styles.inputFocused,
-              selectedFile && styles.inputWithFile, // Style ajusté quand un fichier est présent
+              selectedFile && styles.inputWithFile,
             ]}
-            placeholder={selectedFile ? "Ajouter un commentaire..." : t('messages.typeMessage')}
+            placeholder={t('messages.typeMessage')}
             placeholderTextColor={COLORS.gray600}
             value={message}
             onChangeText={setMessage}

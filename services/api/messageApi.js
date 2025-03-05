@@ -116,7 +116,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
           'add_msg': {
             'channelid': parseInt(channelId, 10),
             'title': messageTitle,
-            'details': messageContent.messageText || messageContent,
+            'details': messageContent.messageText || null,
             'enddatets': timestamp + 99999,
             'file': isFile ? {
               'base64': messageContent.base64,
@@ -262,7 +262,7 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
                       isUnread: msg.status === 'unread',
                       username: isOwnMessage ? 'Moi' : `${msg.firstname} ${msg.lastname}`,
                       type: hasFile ? 'file' : 'text',
-                      text: msg.message || msg.title || '',
+                      text: msg.message && msg.message !== msg.title ? msg.message : null,
                       ...(hasFile && {
                         fileName: msg.filename,
                         fileSize: msg.filesize,

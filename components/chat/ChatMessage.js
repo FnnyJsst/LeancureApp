@@ -21,27 +21,13 @@ const formatTimestamp = (timestamp) => {
   });
 };
 
-const formatFileSize = (fileSize, base64) => {
-  // Get the size or estimate from base64
-  let calculatedSize = fileSize || 0;
+const formatFileSize = (bytes) => {
+  if (bytes === 0) {return '0 B';}
 
-  // If no size but a base64, estimate the size
-  if (!calculatedSize && base64) {
-    calculatedSize = Math.floor(base64.length * 0.75); // Approximate size
-  }
-
-  if (!calculatedSize) return '0 Ko';
-
-  const units = ['Ko', 'Mo', 'Go'];
-  let size = calculatedSize / 1024; // Conversion to Ko
-  let unitIndex = 0;
-
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex++;
-  }
-
-  return `${Math.round(size)} ${units[unitIndex]}`;
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
 /**
@@ -63,12 +49,17 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
   const messageTime = formatTimestamp(message.savedTimestamp);
 
   if (message.type === 'file') {
-    console.log('📥 Message reçu dans ChatMessage:', { ...message, base64: '...' });
+    // console.log('📥 Message reçu dans ChatMessage:', { ...message, base64: '...' });
     const isPDF = message.fileType?.toLowerCase().includes('pdf');
     const isImage = message.fileType?.toLowerCase().includes('image/') ||
                 message.fileType?.toLowerCase().includes('jpeg') ||
                 message.fileType?.toLowerCase().includes('jpg') ||
                 message.fileType?.toLowerCase().includes('png');
+
+    const fileSizeInBytes = parseInt(message.fileSize, 10);
+
+    console.log('File size in bytes:', fileSizeInBytes);
+    console.log('Formatted file size:', formatFileSize(fileSizeInBytes));
 
     return (
       <View style={styles.messageWrapper(isOwnMessage)}>
@@ -89,11 +80,20 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
           styles.fileMessageContainer,
           message.isUnread && styles.unreadMessage,
         ]}>
-          <TouchableOpacity onPress={() => {
-            onFileClick(message);
-          }} style={[styles.fileContainer, styles.darkContainer]}>
+          <TouchableOpacity
+            onPress={() => {
+              onFileClick(message);
+            }}
+            style={[
+              styles.fileContainer,
+              message.text && message.text !== message.fileName && styles.darkContainer
+            ]}
+          >
             {isPDF && (
-              <View style={styles.pdfPreviewContainer}>
+              <View style={[
+                styles.pdfPreviewContainer,
+                message.text && message.text !== message.fileName && styles.pdfPreviewWithText
+              ]}>
                 <View style={styles.fileHeader}>
                   <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
                   <View style={styles.fileInfo}>
@@ -101,7 +101,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                       {message.fileName}
                     </Text>
                     <Text style={styles.fileSize}>
-                      PDF • {formatFileSize(message.fileSize, message.base64)}
+                      {message.fileType.toUpperCase()} • {formatFileSize(parseInt(message.fileSize, 10))}
                     </Text>
                   </View>
                 </View>
@@ -128,7 +128,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                       {message.fileName}
                     </Text>
                     <Text style={styles.fileSize}>
-                      Image • {formatFileSize(message.fileSize, message.base64)}
+                      {message.fileType.toUpperCase()} • {formatFileSize(fileSizeInBytes)}
                     </Text>
                   </View>
                 </View>
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.regular,
   },
   fileContainer: {
-    paddingVertical: 8,
+    paddingVertical: 4,
     alignItems: 'center',
   },
   fileHeader: {
@@ -254,13 +254,18 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.errorText,
   },
   pdfPreviewContainer: {
-    width: '93%',
+    width: '100%',
     borderRadius: SIZES.borderRadius.medium,
     overflow: 'hidden',
     position: 'relative',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  pdfPreviewWithText: {
+    padding: 8,
   },
   previewContainer: {
-    width: '93%',
+    width: '100%',
     height: 150,
     borderRadius: SIZES.borderRadius.medium,
     overflow: 'hidden',
@@ -287,5 +292,6 @@ const styles = StyleSheet.create({
     marginTop: -5,
     marginBottom: 5,
     marginHorizontal: 0,
+    paddingVertical: 8,
   },
 });
