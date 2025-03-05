@@ -106,7 +106,10 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     let fileType = isFile ? messageContent.fileType : null;
     if (fileType === 'application/pdf') {
       fileType = 'pdf';
-      // console.log('🔄 Type de fichier simplifié: pdf');
+    } else if (fileType === 'image/jpeg') {
+      fileType = 'jpg';
+    } else if (fileType === 'image/png') {
+      fileType = 'png';
     }
 
     // Utiliser createApiRequest comme les autres fonctions

@@ -61,9 +61,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
 
     const fileSizeInBytes = parseInt(message.fileSize, 10);
 
-    console.log('File size in bytes:', fileSizeInBytes);
-    console.log('Formatted file size:', formatFileSize(fileSizeInBytes));
-
     return (
       <View style={styles.messageWrapper(isOwnMessage)}>
         <View style={[
@@ -81,6 +78,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
           styles.messageContainer,
           isOwnMessage ? styles.ownMessage : styles.otherMessage,
           styles.fileMessageContainer,
+          isOwnMessage && styles.ownFileMessageContainer,
           message.isUnread && styles.unreadMessage,
         ]}>
           <TouchableOpacity
@@ -89,7 +87,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
             }}
             style={[
               styles.fileContainer,
-              message.text && message.text !== message.fileName && styles.darkContainer
+              message.text && message.text !== message.fileName ? [
+                styles.darkContainer,
+                isOwnMessage && styles.ownDarkContainer
+              ] : null
             ]}
           >
             {isPDF && (
@@ -99,7 +100,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
               ]}>
                 <View style={styles.fileHeader}>
                   <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
-                  <View style={styles.fileInfo}>
+                  <View>
                     <Text style={styles.fileName} numberOfLines={1}>
                       {message.fileName}
                     </Text>
@@ -126,7 +127,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                     size={25}
                     color={COLORS.white}
                   />
-                  <View style={styles.fileInfo}>
+                  <View>
                     <Text style={styles.fileName} numberOfLines={1}>
                       {message.fileName}
                     </Text>
@@ -257,12 +258,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.errorText,
   },
   pdfPreviewContainer: {
-    width: '100%',
-    borderRadius: SIZES.borderRadius.medium,
-    overflow: 'hidden',
-    position: 'relative',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    // paddingVertical: 4,
   },
   pdfPreviewWithText: {
     padding: 8,
@@ -287,14 +283,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 4,
     borderRadius: SIZES.borderRadius.xLarge,
-    padding: 15,
+    padding: 10,
+  },
+  ownFileMessageContainer: {
+    backgroundColor: COLORS.orange,
   },
   darkContainer: {
     backgroundColor: COLORS.gray950,
     borderRadius: SIZES.borderRadius.medium,
-    marginTop: -5,
     marginBottom: 5,
     marginHorizontal: 0,
     paddingVertical: 8,
+  },
+  ownDarkContainer: {
+    backgroundColor: '#c14d00',
   },
 });

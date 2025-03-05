@@ -21,8 +21,10 @@ import { useTranslation } from 'react-i18next';
  */
 const  FilePreview = ({ file, onRemove }) => {
 
+  const { isSmartphone, isLandscape } = useDeviceType();
+
   return (
-    <View style={styles.previewContainer}>
+    <View style={[styles.previewContainer, isSmartphone && styles.previewContainerSmartphone, isLandscape && styles.previewContainerLandscape]}>
       <View style={styles.fileInfo}>
         <Ionicons
           name="document-outline"
@@ -65,7 +67,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const { isSmartphone } = useDeviceType();
   const [isFocused, setIsFocused] = useState(false);
-  const [messageBeingSent, setMessageBeingSent] = useState(false);
 
   const { t } = useTranslation();
   /**
@@ -320,12 +321,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     width: '50%',
-    padding: 4,
+    padding: 3,
     marginBottom: 6,
-    backgroundColor: COLORS.gray850,
+    backgroundColor: COLORS.gray650,
     borderRadius: SIZES.borderRadius.small,
     justifyContent: 'space-between',
     height: 40,
+  },
+  previewContainerSmartphone: {
+    width: '90%',
+  },
+  previewContainerLandscape: {
+    width: '50%',
   },
   fileInfo: {
     flexDirection: 'row',
