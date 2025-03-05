@@ -136,13 +136,13 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
    * @description A function to handle the send of the message
    */
   const handleSend = () => {
-    // Si on a un fichier sélectionné, on l'envoie avec le message
     if (selectedFile) {
-      // On ajoute le message au fichier si non vide
       const fileWithMessage = {
         ...selectedFile,
-        text: message.trim() || undefined // Ajouter le texte s'il existe
+        messageText: message.trim() || undefined
       };
+
+      console.log('📤 Envoi du fichier avec message:', { ...fileWithMessage, base64: '...' });
 
       onSendMessage(fileWithMessage);
       setSelectedFile(null);
@@ -153,6 +153,8 @@ export default function InputChatWindow({ onSendMessage, onFocusChange }) {
     if (!message || !message.trim()) {
       return;
     }
+
+    // console.log('📤 Envoi du message texte:', message.trim());
 
     onSendMessage(message.trim());
     setMessage('');

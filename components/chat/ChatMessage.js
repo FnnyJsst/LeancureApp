@@ -58,11 +58,12 @@ const formatFileSize = (fileSize, base64) => {
  */
 export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
 
-  // Customized hook to determine the device type and orientation
+
   const { isSmartphone } = useDeviceType();
   const messageTime = formatTimestamp(message.savedTimestamp);
 
   if (message.type === 'file') {
+    console.log('📥 Message reçu dans ChatMessage:', { ...message, base64: '...' });
     const isPDF = message.fileType?.toLowerCase().includes('pdf');
     const isImage = message.fileType?.toLowerCase().includes('image/') ||
                 message.fileType?.toLowerCase().includes('jpeg') ||
@@ -102,6 +103,9 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                     <Text style={styles.fileSize}>
                       PDF • {formatFileSize(message.fileSize, message.base64)}
                     </Text>
+                    {message.text && (
+                      <Text style={styles.messageText}>{message.text}</Text>
+                    )}
                   </View>
                 </View>
               </View>

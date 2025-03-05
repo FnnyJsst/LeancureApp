@@ -53,7 +53,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   useEffect(() => {
     if (channelMessages && credentials) {
-      console.log('📋 MISE À JOUR MESSAGES - Nombre:', channelMessages.length, 'Premier ID:', channelMessages[0]?.id);
+      // console.log('📋 MISE À JOUR MESSAGES - Nombre:', channelMessages.length, 'Premier ID:', channelMessages[0]?.id);
 
       const loadFiles = async () => {
         const messagesNeedingFiles = channelMessages.filter(msg =>
@@ -103,13 +103,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const openDocumentPreviewModal = (message) => {
     if (!message) return;
 
-    console.log('Ouverture document:', {
-      type: message.type,
-      fileType: message.fileType,
-      fileName: message.fileName,
-      hasBase64: !!message.base64
-    });
-
     setIsDocumentPreviewModalVisible(true);
     setSelectedFileUrl(message.uri);
     setSelectedFileName(message.fileName);
@@ -131,16 +124,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = async (messageData) => {
     try {
-      console.log('🔍 DÉBUT ENVOI - ID généré:', Date.now(), {
-        type: typeof messageData,
-        isObject: typeof messageData === 'object',
-        content: typeof messageData === 'object' ? {
-          fileName: messageData.fileName,
-          fileType: messageData.fileType,
-        } : messageData.substring(0, 20)
-      });
+      console.log('📤 Tentative d\'envoi du message:', { ...messageData, base64: '...' });
 
-      // If we don't have any message data or any credentials, we return nothing
       if (!messageData ||
           (typeof messageData === 'string' && !messageData.trim()) ||
           messageData === undefined) {
@@ -153,20 +138,19 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         return;
       }
 
-      // We parse the credentials
       const userCredentials = JSON.parse(credentialsStr);
-      // We send the message to the API
       const response = await sendMessageApi(channel.id, messageData, userCredentials);
-      // If the message is sent successfully, we create a new message object
+
+      console.log('📤 Réponse de l\'API:', response);
+
       if (response.status === 'ok') {
         const currentTimestamp = Date.now();
-        console.log('📤 RÉPONSE API REÇUE - Message ID:', currentTimestamp);
 
         const newMessage = {
           id: currentTimestamp,
           type: typeof messageData === 'object' ? 'file' : 'text',
           title: typeof messageData === 'string' ? messageData.substring(0, 50) : messageData.fileName,
-          message: typeof messageData === 'string' ? messageData : messageData.fileName,
+          message: messageData.details,
           savedTimestamp: currentTimestamp,
           endTimestamp: currentTimestamp + 99999,
           fileType: typeof messageData === 'object' ? messageData.fileType.toLowerCase() : 'none',
@@ -178,25 +162,18 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             fileName: messageData.fileName,
             fileSize: messageData.fileSize,
             base64: messageData.base64,
-            uri: messageData.uri
+            uri: messageData.uri,
+            messageText: messageData.messageText,
           }),
         };
 
-        console.log('💬 Message créé:', {
-          id: newMessage.id,
-          type: newMessage.type,
-          fileType: newMessage.fileType,
-          fileName: newMessage.fileName,
-          hasBase64: !!newMessage.base64
-        });
+        console.log('📤 Nouveau message créé:', { ...newMessage, base64: '...' });
 
         if (typeof onMessageSent === 'function') {
-          console.log('📢 APPEL onMessageSent avec ID:', newMessage.id);
           onMessageSent(newMessage);
         }
       }
     } catch (error) {
-      console.error('🔴 Erreur sendMessage:', error);
       setError(`${t('errors.errorSendingMessage')} ${error.message}`);
     }
   };

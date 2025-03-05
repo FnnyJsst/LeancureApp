@@ -15,8 +15,8 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
 
 
 
-  console.log('🔢 Contract Number:', contractNumber);
-  console.log('🔑 Account API Key:', accountApiKey);
+  // console.log('🔢 Contract Number:', contractNumber);
+  // console.log('🔑 Account API Key:', accountApiKey);
 
   try {
     const body = createApiRequest({
@@ -97,7 +97,6 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
  */
 export const sendMessageApi = async (channelId, messageContent, userCredentials) => {
   try {
-    console.log('🌐 API ENVOI - Début avec ID:', Date.now());
     const timestamp = Date.now();
 
     const isFile = typeof messageContent === 'object';
@@ -107,7 +106,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     let fileType = isFile ? messageContent.fileType : null;
     if (fileType === 'application/pdf') {
       fileType = 'pdf';
-      console.log('🔄 Type de fichier simplifié: pdf');
+      // console.log('🔄 Type de fichier simplifié: pdf');
     }
 
     // Utiliser createApiRequest comme les autres fonctions
@@ -117,7 +116,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
           'add_msg': {
             'channelid': parseInt(channelId, 10),
             'title': messageTitle,
-            'details': isFile ? "" : messageContent,
+            'details': messageContent.messageText || messageContent,
             'enddatets': timestamp + 99999,
             'file': isFile ? {
               'base64': messageContent.base64,
@@ -131,21 +130,17 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       }
     }, userCredentials.contractNumber, userCredentials.accessToken || "");
 
-    console.log('🌐 API ENVOI - Requête prête à envoyer:', {
+    console.log('📤 Requête envoyée:', {
       channelId,
+      title: messageTitle,
+      details: messageContent.messageText || messageContent,
       isFile,
-      titre: messageTitle.substring(0, 15)
     });
 
     const apiUrl = await ENV.API_URL();
     const response = await axios.post(apiUrl, body, {
       timeout: 30000,
     });
-
-    console.log('🌐 API ENVOI - Réponse reçue avec status:', response.status);
-    console.log('📦 Aperçu de la réponse:', typeof response.data === 'string'
-      ? response.data.substring(0, 100)
-      : JSON.stringify(response.data).substring(0, 100));
 
     if (response.status === 200) {
       // Vérifier si la réponse contient une erreur PHP
@@ -159,7 +154,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
         message: {
           id: timestamp,
           title: messageTitle,
-          message: messageContent,
+          message: messageContent.messageText || messageContent,
           savedTimestamp: timestamp,
           endTimestamp: timestamp + 99999,
           fileType: isFile ? fileType : 'none',
@@ -237,11 +232,11 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
 
                     let base64 = null;
                     if (hasFile) {
-                      console.log('📥 Tentative récupération fichier:', {
-                        messageId: msg.messageid,
-                        fileType: msg.filetype,
-                        fileName: msg.filename,
-                      });
+                      // console.log('📥 Tentative récupération fichier:', {
+                      //   messageId: msg.messageid,
+                      //   fileType: msg.filetype,
+                      //   fileName: msg.filename,
+                      // });
 
                       base64 = await fetchMessageFile(msg.messageid, {
                         ...msg,
