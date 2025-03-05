@@ -5,6 +5,45 @@ import { Ionicons } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
 
+
+/**
+ * @function formatTimestamp
+ * @description Format the timestamp to display in the chat message
+ * @param {string} timestamp - The timestamp to format
+ * @returns {string} The formatted timestamp
+ */
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) {return '';}
+  const date = new Date(parseInt(timestamp, 10));
+  return date.toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+const formatFileSize = (fileSize, base64) => {
+  // Get the size or estimate from base64
+  let calculatedSize = fileSize || 0;
+
+  // If no size but a base64, estimate the size
+  if (!calculatedSize && base64) {
+    calculatedSize = Math.floor(base64.length * 0.75); // Approximate size
+  }
+
+  if (!calculatedSize) return '0 Ko';
+
+  const units = ['Ko', 'Mo', 'Go'];
+  let size = calculatedSize / 1024; // Conversion to Ko
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+
+  return `${Math.round(size)} ${units[unitIndex]}`;
+};
+
 /**
  * @component ChatMessage
  * @description A component that renders a message in the chat screen
@@ -17,46 +56,7 @@ import { Text } from '../text/CustomText';
  * @example
  * <ChatMessage message={message} isOwnMessage={isOwnMessage} onFileClick={() => console.log('File clicked')} />
  */
-
-const formatTimestamp = (timestamp) => {
-  if (!timestamp) {return '';}
-  const date = new Date(parseInt(timestamp, 10));
-  return date.toLocaleTimeString('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
-const formatFileSize = (bytes) => {
-  if (!bytes) {return '0 Ko';}
-
-  const units = ['Ko', 'Mo', 'Go'];
-  let size = bytes / 1024; // Conversion directe en Ko
-  let unitIndex = 0;
-
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex++;
-  }
-
-  return `${Math.round(size)} ${units[unitIndex]}`;
-};
-
 export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
-  // console.log('🎯 Rendu ChatMessage:', {
-  //   messageType: message.type,
-  //   fileType: message.fileType,
-  //   fileName: message.fileName,
-  //   hasBase64: !!message.base64
-  // });
-
-  // Vérification explicite pour les PDF
-  // if (message.type === 'file' && message.fileType?.toLowerCase().includes('pdf')) {
-  //   console.log('📄 Rendu PDF détecté:', {
-  //     fileName: message.fileName,
-  //     fileSize: message.fileSize
-  //   });
-  // }
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone } = useDeviceType();
@@ -68,15 +68,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                 message.fileType?.toLowerCase().includes('jpeg') ||
                 message.fileType?.toLowerCase().includes('jpg') ||
                 message.fileType?.toLowerCase().includes('png');
-
-    // Ajout de logs pour debug
-    console.log('📄 Message fichier détecté:', {
-      type: message.type,
-      fileType: message.fileType,
-      isPDF,
-      isImage,
-      fileName: message.fileName
-    });
 
     return (
       <View style={styles.messageWrapper(isOwnMessage)}>
@@ -91,21 +82,44 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
           <Text style={styles.timestamp}>{messageTime}</Text>
         </View>
 
-        <TouchableOpacity
-          onPress={() => onFileClick(message)}
-          style={[
-            styles.messageContainer,
-            isOwnMessage ? styles.ownMessage : styles.otherMessage,
-            styles.fileMessageContainer,
-          ]}
-        >
-          {isPDF && (
-            <View style={styles.fileContainer}>
+        <View style={[
+          styles.messageContainer,
+          isOwnMessage ? styles.ownMessage : styles.otherMessage,
+          styles.fileMessageContainer,
+          message.isUnread && styles.unreadMessage,
+        ]}>
+          <TouchableOpacity onPress={() => {
+            onFileClick(message);
+          }} style={styles.fileContainer}>
+            {isPDF && (
               <View style={styles.pdfPreviewContainer}>
                 <View style={styles.fileHeader}>
+                  <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
+                  <View style={styles.fileInfo}>
+                    <Text style={styles.fileName} numberOfLines={1}>
+                      {message.fileName}
+                    </Text>
+                    <Text style={styles.fileSize}>
+                      PDF • {formatFileSize(message.fileSize, message.base64)}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {isImage && message.base64 && (
+              <View style={styles.previewContainer}>
+                <Image
+                  source={{
+                    uri: `data:${message.fileType};base64,${message.base64}`,
+                  }}
+                  style={styles.preview}
+                  resizeMode="contain"
+                />
+                <View style={styles.fileHeader}>
                   <Ionicons
-                    name="document-text-outline"
-                    size={24}
+                    name="image-outline"
+                    size={25}
                     color={COLORS.white}
                   />
                   <View style={styles.fileInfo}>
@@ -113,41 +127,14 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                       {message.fileName}
                     </Text>
                     <Text style={styles.fileSize}>
-                      PDF • {formatFileSize(message.fileSize)}
+                      Image • {formatFileSize(message.fileSize, message.base64)}
                     </Text>
                   </View>
                 </View>
               </View>
-            </View>
-          )}
-
-          {isImage && message.base64 && (
-            <View style={styles.previewContainer}>
-              <Image
-                source={{
-                  uri: `data:${message.fileType};base64,${message.base64}`,
-                }}
-                style={styles.preview}
-                resizeMode="contain"
-              />
-              <View style={styles.fileHeader}>
-                <Ionicons
-                  name="image-outline"
-                  size={25}
-                  color={COLORS.white}
-                />
-                <View style={styles.fileInfo}>
-                  <Text style={styles.fileName} numberOfLines={1}>
-                    {message.fileName}
-                  </Text>
-                  <Text style={styles.fileSize}>
-                    Image • {formatFileSize(message.fileSize)}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          )}
-        </TouchableOpacity>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -247,19 +234,13 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.regular,
   },
   fileContainer: {
-    width: '100%',
-    minWidth: 200,
-    padding: 8,
+    paddingVertical: 8,
+    alignItems: 'center',
   },
   fileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
     gap: 10,
-  },
-  fileInfo: {
-    flex: 1,
-    marginRight: 8,
   },
   fileName: {
     color: COLORS.white,
@@ -268,22 +249,19 @@ const styles = StyleSheet.create({
   },
   fileSize: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.smallTextSmartphone,
-    marginTop: 2,
+    fontSize: SIZES.fonts.errorText,
   },
   pdfPreviewContainer: {
-    width: '100%',
-    minHeight: 60,
-    backgroundColor: COLORS.gray800,
+    width: '93%',
     borderRadius: SIZES.borderRadius.medium,
     overflow: 'hidden',
+    position: 'relative',
   },
   previewContainer: {
     width: '93%',
     height: 150,
     borderRadius: SIZES.borderRadius.medium,
     overflow: 'hidden',
-    backgroundColor: COLORS.overlayLight,
     position: 'relative',
   },
   preview: {
@@ -291,37 +269,8 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: SIZES.borderRadius.medium,
   },
-  previewContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: {
-    color: COLORS.white,
-    fontSize: SIZES.fonts.textSmartphone,
-    fontWeight: SIZES.fontWeight.regular,
-  },
   fileMessageContainer: {
-    padding: 0,
-    overflow: 'hidden',
+    padding: 8,
     backgroundColor: COLORS.gray850,
-  },
-  pdfPreviewContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: COLORS.gray850,
-    borderRadius: SIZES.borderRadius.medium,
-  },
-  pdfPreviewText: {
-    color: COLORS.white,
-    marginTop: 10,
-    fontSize: SIZES.fonts.textSmartphone,
-    fontWeight: SIZES.fontWeight.regular,
   },
 });

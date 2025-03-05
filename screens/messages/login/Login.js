@@ -61,10 +61,12 @@ export default function Login({ onNavigate, testID }) {
             setIsLoading(true);
             setError('');
 
-            // Nettoyer TOUTES les données SecureStore avant de commencer
-            await SecureStore.deleteItemAsync('userCredentials');
-            await SecureStore.deleteItemAsync('savedLoginInfo');
-            await SecureStore.deleteItemAsync('password');
+            // Clean up the SecureStore in case of previous error
+            try {
+                await SecureStore.deleteItemAsync('userCredentials');
+            } catch (error) {
+                throw error;
+            }
 
             const validationError = validateInputs();
             if (validationError) {
@@ -83,9 +85,7 @@ export default function Login({ onNavigate, testID }) {
                     accountApiKey: loginResponse.accountApiKey,
                 };
 
-                // Utiliser une nouvelle clé unique pour éviter les conflits
-                const uniqueKey = `userCredentials_${Date.now()}`;
-                await SecureStore.setItemAsync(uniqueKey, JSON.stringify(credentials));
+                await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
 
                 // Save the login info if the checkbox is checked
                 if (isChecked) {
@@ -105,18 +105,18 @@ export default function Login({ onNavigate, testID }) {
                 if (channelsResponse.status === 'ok') {
                     onNavigate(SCREENS.CHAT);
                 } else {
-                    setError(t('errors.errorLoadingChannels'));
+                    setError('Error loading channels');
                 }
             } else {
-                setError(t('errors.invalidCredentials'));
+                setError('Invalid credentials');
             }
-        } catch (error) {
-            console.error('Erreur de SecureStore:', error);
-            setError(t('errors.loginFailed'));
+        } catch (loginError) {
+            setError('Login failed');
         } finally {
             setIsLoading(false);
         }
     }, [contractNumber, login, password, isChecked, onNavigate, saveLoginInfo, validateInputs]);
+
 
     /**
      * @function handleSimplifiedLogin
