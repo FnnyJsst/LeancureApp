@@ -91,7 +91,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
         ]}>
           <TouchableOpacity onPress={() => {
             onFileClick(message);
-          }} style={styles.fileContainer}>
+          }} style={[styles.fileContainer, styles.darkContainer]}>
             {isPDF && (
               <View style={styles.pdfPreviewContainer}>
                 <View style={styles.fileHeader}>
@@ -103,9 +103,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
                     <Text style={styles.fileSize}>
                       PDF • {formatFileSize(message.fileSize, message.base64)}
                     </Text>
-                    {message.text && (
-                      <Text style={styles.messageText}>{message.text}</Text>
-                    )}
                   </View>
                 </View>
               </View>
@@ -138,6 +135,9 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
               </View>
             )}
           </TouchableOpacity>
+          {message.text && (
+            <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>{message.text}</Text>
+          )}
         </View>
       </View>
     );
@@ -161,7 +161,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
       <View style={[
         styles.messageContainer,
         isOwnMessage ? styles.ownMessage : styles.otherMessage,
-        styles.textMessageContainer,
         message.isUnread && styles.unreadMessage,
       ]}>
         <Text style={[
@@ -212,9 +211,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 4,
     borderRadius: SIZES.borderRadius.xLarge,
-  },
-  textMessageContainer: {
     padding: 15,
+
   },
   ownMessage: {
     alignSelf: 'flex-end',
@@ -274,7 +272,20 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.medium,
   },
   fileMessageContainer: {
-    padding: 8,
+    // padding: 8,
     backgroundColor: COLORS.gray850,
+    width: '100%',
+    minWidth: 50,
+    marginBottom: 10,
+    marginTop: 4,
+    borderRadius: SIZES.borderRadius.xLarge,
+    padding: 15,
+  },
+  darkContainer: {
+    backgroundColor: COLORS.gray950,
+    borderRadius: SIZES.borderRadius.medium,
+    marginTop: -5,
+    marginBottom: 5,
+    marginHorizontal: 0,
   },
 });
