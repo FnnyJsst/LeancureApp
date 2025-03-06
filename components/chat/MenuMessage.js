@@ -3,40 +3,31 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
+import { useTranslation } from 'react-i18next';
 
-const MenuMessage = ({ onDelete, onClose }) => {
+const MenuMessage = ({ onDelete, onClose, style }) => {
   const { isSmartphone } = useDeviceType();
+  const { t } = useTranslation();
   return (
-    <View style={styles.menuContainer}>
+    <View style={[styles.container, style]}>
       <TouchableOpacity
         style={[styles.menuItem, isSmartphone && styles.menuItemSmartphone]}
         onPress={onDelete}
       >
         <Ionicons name="trash-outline" size={isSmartphone ? 20 : 24} color={COLORS.white} />
-        <Text style={isSmartphone ? styles.menuTextSmartphone : styles.menuText}>Supprimer</Text>
+        <Text style={isSmartphone ? styles.menuTextSmartphone : styles.menuText}>{t('buttons.delete')}</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  menuContainer: {
+  container: {
     position: 'absolute',
-    top: '100%',
-    right: 20,
-    backgroundColor: COLORS.gray650,
-    padding: 6,
-    borderRadius: SIZES.borderRadius.large,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    backgroundColor: COLORS.gray850,
+    borderRadius: SIZES.borderRadius.medium,
+    padding: 8,
     zIndex: 1000,
-    minWidth: 100,
   },
   menuItem: {
     flexDirection: 'row',

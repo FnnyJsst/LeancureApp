@@ -44,11 +44,13 @@ const formatFileSize = (bytes) => {
  * @param {boolean} props.isOwnMessage - Whether the message is own
  * @param {Function} props.onFileClick - The function to call when the file is clicked
  * @param {Function} props.onDeleteMessage - The function to call when the message is deleted
+ * @param {boolean} props.canDelete - Whether the message can be deleted
+ * @param {string} props.userRights - The user rights for the message
  *
  * @example
- * <ChatMessage message={message} isOwnMessage={isOwnMessage} onFileClick={() => console.log('File clicked')} onDeleteMessage={() => console.log('Message deleted')} />
+ * <ChatMessage message={message} isOwnMessage={isOwnMessage} onFileClick={() => console.log('File clicked')} onDeleteMessage={() => console.log('Message deleted')} canDelete={true} userRights="3" />
  */
-export default function ChatMessage({ message, isOwnMessage, onFileClick, onDeleteMessage }) {
+export default function ChatMessage({ message, isOwnMessage, onFileClick, onDeleteMessage, canDelete, userRights }) {
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [menuMessageVisible, setMenuMessageVisible] = useState(false);
   const { t } = useTranslation();
@@ -59,7 +61,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
 
   const handleCloseMenu = () => {
     setMenuMessageVisible(false);
-    // Animer le retour à la position initiale
     Animated.spring(translateX, {
       toValue: 0,
       useNativeDriver: true,
@@ -70,38 +71,80 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
     if (onDeleteMessage) {
       onDeleteMessage(message.id);
     }
-    handleCloseMenu(); // Utiliser handleCloseMenu pour fermer le menu
+    handleCloseMenu();
   };
 
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: (_, gestureState) => {
-        return Math.abs(gestureState.dx) > 5;
+        // Pour les messages des autres avec droits admin
+        if (!isOwnMessage && userRights === "3") {
+          return gestureState.dx > 5; // Swipe vers la droite uniquement
+        }
+        // Pour nos propres messages
+        if (isOwnMessage) {
+          return gestureState.dx < -5; // Swipe vers la gauche uniquement
+        }
+        return false;
       },
       onPanResponderMove: (_, gestureState) => {
-        if (isOwnMessage) {
+        // Pour les messages des autres avec droits admin
+        if (!isOwnMessage && userRights === "3") {
+          // Limiter le swipe vers la droite entre 0 et 100
+          const newX = Math.min(Math.max(0, gestureState.dx), 100);
+          console.log("Moving other's message:", newX);
+          translateX.setValue(newX);
+        }
+        // Pour nos propres messages
+        else if (isOwnMessage) {
+          // Limiter le swipe vers la gauche entre -100 et 0
           const newX = Math.min(Math.max(gestureState.dx, -100), 0);
+          console.log("Moving own message:", newX);
           translateX.setValue(newX);
         }
       },
       onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dx < -50 && isOwnMessage) {
-          Animated.spring(translateX, {
-            toValue: -100,
-            useNativeDriver: true,
-          }).start();
-          setMenuMessageVisible(true);
-        } else {
-          Animated.spring(translateX, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
-          setMenuMessageVisible(false);
+        // Pour les messages des autres avec droits admin
+        if (!isOwnMessage && userRights === "3") {
+          if (gestureState.dx > 50) {
+            console.log("Showing menu for other's message");
+            Animated.spring(translateX, {
+              toValue: 100,
+              useNativeDriver: true,
+            }).start();
+            setMenuMessageVisible(true);
+          } else {
+            Animated.spring(translateX, {
+              toValue: 0,
+              useNativeDriver: true,
+            }).start();
+            setMenuMessageVisible(false);
+          }
         }
-      },
+        // Pour nos propres messages
+        else if (isOwnMessage) {
+          if (gestureState.dx < -50) {
+            console.log("Showing menu for own message");
+            Animated.spring(translateX, {
+              toValue: -100,
+              useNativeDriver: true,
+            }).start();
+            setMenuMessageVisible(true);
+          } else {
+            Animated.spring(translateX, {
+              toValue: 0,
+              useNativeDriver: true,
+            }).start();
+            setMenuMessageVisible(false);
+          }
+        }
+      }
     })
   ).current;
+
+  // Modifier le style du menu selon la direction du swipe
+  const menuStyle = !isOwnMessage ? { left: 0 } : { right: 0 };
 
   // Ajouter un effet pour réinitialiser la position quand le menu se ferme
   useEffect(() => {
@@ -126,11 +169,21 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
     return (
       <View style={styles.messageWrapper(isOwnMessage)}>
         {menuMessageVisible && (
-          <TouchableOpacity
-            style={styles.menuOverlay}
-            onPress={handleCloseMenu}
-            activeOpacity={1}
-          />
+          <>
+            <TouchableOpacity
+              style={styles.menuOverlay}
+              onPress={handleCloseMenu}
+              activeOpacity={1}
+            />
+            <MenuMessage
+              onDelete={handleDelete}
+              onClose={handleCloseMenu}
+              style={[
+                styles.menuMessageContainer,
+                isOwnMessage ? styles.menuRight : styles.menuLeft
+              ]}
+            />
+          </>
         )}
         <View style={[
           styles.messageHeader,
@@ -147,7 +200,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
           <Animated.View
             {...panResponder.panHandlers}
             style={[
-              { transform: [{ translateX }] }
+              styles.animatedContainer,
+              {
+                transform: [{ translateX }],
+              },
             ]}
           >
             <TouchableOpacity
@@ -179,7 +235,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                     <View style={styles.fileHeader}>
                       <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
                       <View>
-                        <Text style={styles.fileName} numberOfLines={1}>
+                        <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="tail">
                           {message.fileName}
                         </Text>
                         <Text style={styles.fileSize}>
@@ -236,19 +292,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
               )}
             </TouchableOpacity>
           </Animated.View>
-
-          {menuMessageVisible && (
-            <MenuMessage
-              onDelete={handleDelete}
-              onClose={() => {
-                handleCloseMenu();
-                Animated.spring(translateX, {
-                  toValue: 0,
-                  useNativeDriver: true,
-                }).start();
-              }}
-            />
-          )}
         </View>
       </View>
     );
@@ -257,11 +300,21 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   return (
     <View style={styles.messageWrapper(isOwnMessage)}>
       {menuMessageVisible && (
-        <TouchableOpacity
-          style={styles.menuOverlay}
-          onPress={handleCloseMenu}
-          activeOpacity={1}
-        />
+        <>
+          <TouchableOpacity
+            style={styles.menuOverlay}
+            onPress={handleCloseMenu}
+            activeOpacity={1}
+          />
+          <MenuMessage
+            onDelete={handleDelete}
+            onClose={handleCloseMenu}
+            style={[
+              styles.menuMessageContainer,
+              isOwnMessage ? styles.menuRight : styles.menuLeft
+            ]}
+          />
+        </>
       )}
       <View style={[
         styles.messageHeader,
@@ -278,7 +331,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
         <Animated.View
           {...panResponder.panHandlers}
           style={[
-            { transform: [{ translateX }] }
+            styles.animatedContainer,
+            {
+              transform: [{ translateX }],
+            },
           ]}
         >
           <TouchableOpacity
@@ -293,19 +349,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
             </Text>
           </TouchableOpacity>
         </Animated.View>
-
-        {menuMessageVisible && (
-          <MenuMessage
-            onDelete={handleDelete}
-            onClose={() => {
-              handleCloseMenu();
-              Animated.spring(translateX, {
-                toValue: 0,
-                useNativeDriver: true,
-              }).start();
-            }}
-          />
-        )}
       </View>
     </View>
   );
@@ -387,6 +430,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.medium,
+    maxWidth: 220,
   },
   pictureName: {
     color: COLORS.white,
@@ -397,6 +441,10 @@ const styles = StyleSheet.create({
   fileSize: {
     color: COLORS.gray300,
     fontSize: SIZES.fonts.errorText,
+  },
+  pdfPreviewContainer: {
+    // padding: 8,
+    width: '100%',
   },
   pdfPreviewWithText: {
     padding: 8,
@@ -447,18 +495,26 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     marginHorizontal: 0,
     paddingVertical: 8,
+    maxWidth: '100%',
   },
   ownDarkContainer: {
     backgroundColor: '#cc5200',
   },
   messageContentWrapper: {
     position: 'relative',
+    width: '100%',
   },
   menuMessageContainer: {
     position: 'absolute',
     top: '100%',
+    marginTop: -50,
+    zIndex: 9999,
+  },
+  menuLeft: {
+    left: 0,
+  },
+  menuRight: {
     right: 0,
-    zIndex: 1000,
   },
   menuOverlay: {
     position: 'absolute',
@@ -467,6 +523,10 @@ const styles = StyleSheet.create({
     right: -1000,
     bottom: -1000,
     backgroundColor: 'transparent',
-    zIndex: 999,
+    zIndex: 9998,
+  },
+  animatedContainer: {
+    width: '100%',
+    zIndex: 1,
   },
 });

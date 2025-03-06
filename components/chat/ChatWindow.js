@@ -36,24 +36,39 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [messages, setMessages] = useState([]);
   const [credentials, setCredentials] = useState(null);
   const [error, setError] = useState(null);
+  const [userRights, setUserRights] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   /**
    * @function useEffect
    * @description We use the useEffect hook to update the messages when the channel messages change
    */
   useEffect(() => {
-    const loadCredentials = async () => {
-      const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-      if (credentialsStr) {
-        setCredentials(JSON.parse(credentialsStr));
+    const loadUserData = async () => {
+      try {
+        const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+        const rightsStr = await SecureStore.getItemAsync('userRights');
+
+        // Parser les droits correctement
+        const rights = rightsStr ? JSON.parse(rightsStr) : null;
+
+        if (credentialsStr) {
+          const parsedCredentials = JSON.parse(credentialsStr);
+          setCredentials(parsedCredentials);
+          setUserRights(rights);
+        }
+      } catch (error) {
+        console.error("Erreur chargement données utilisateur:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
-    loadCredentials();
+
+    loadUserData();
   }, []);
 
   useEffect(() => {
-    if (channelMessages && credentials) {
-
+    if (!isLoading && channelMessages && credentials) {
       const loadFiles = async () => {
         const messagesNeedingFiles = channelMessages.filter(msg =>
           msg.type === 'file' &&
@@ -85,7 +100,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 }
               } catch (fileError) {
                 console.error('Erreur chargement fichier:', fileError);
-                setError(`${t('errors.errorLoadingFile')} ${fileError.message}`);
               }
             })
           );
@@ -96,7 +110,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       loadFiles();
     }
-  }, [channelMessages, credentials, channel]);
+  }, [channelMessages, credentials, channel, isLoading]);
 
   // Function to open the document preview modal
   const openDocumentPreviewModal = (message) => {
@@ -174,6 +188,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   const handleDeleteMessage = async (messageId) => {
     try {
+      // Vérifier si l'utilisateur a les droits de suppression (3) ou si c'est son propre message
+      const messageToDelete = messages.find(msg => msg.id === messageId);
+      const hasDeleteRights = userRights === "3";
+      const isOwnMessage = messageToDelete?.isOwnMessage;
+
+
+      if (!hasDeleteRights && !isOwnMessage) {
+        setError(t('errors.noDeletePermission'));
+        return;
+      }
+
       const response = await deleteMessageApi(messageId, credentials);
 
       if (response.status === 'ok') {
@@ -227,6 +252,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     });
   };
 
+  if (isLoading) {
+    return null; // ou un indicateur de chargement
+  }
+
   return (
     <View style={styles.container}>
       {channel ? (
@@ -237,9 +266,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
           >
             {(() => {
-
               return messages.reduce((acc, message, index) => {
-
                 const currentDate = formatDate(message.savedTimestamp);
                 const prevMessage = messages[index - 1];
                 const prevDate = prevMessage ? formatDate(prevMessage.savedTimestamp) : null;
@@ -260,6 +287,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     isOwnMessage={message.isOwnMessage}
                     onFileClick={openDocumentPreviewModal}
                     onDeleteMessage={handleDeleteMessage}
+                    canDelete={userRights === "3"}
+                    userRights={userRights}
                   />
                 );
 
