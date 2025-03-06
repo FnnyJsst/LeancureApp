@@ -139,12 +139,19 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         </View>
       );
     } else if (fileType?.includes('image')) {
+      console.log('Rendering image with:', {
+        fileType,
+        base64Length: base64?.length,
+        uri: `data:${fileType};base64,${base64?.substring(0, 50)}...`
+      });
+
       return (
         <View style={styles.imageWrapper}>
           <Image
             source={{ uri: `data:${fileType};base64,${base64}` }}
             style={styles.image}
             resizeMode="contain"
+            onError={(error) => console.log('Image loading error:', error.nativeEvent)}
           />
         </View>
       );
@@ -163,7 +170,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         isSmartphoneLandscape && styles.modalContainerSmartphoneLandscape,
         isLandscape && styles.modalContainerLandscape,
       ]}>
-        <View style={[styles.modalContent, isLandscape && styles.modalContentLandscape]}>
+        <View style={[styles.modalContent, isSmartphone && styles.modalContentSmartphone]}>
           <TouchableOpacity style={styles.closeButtonContainer} onPress={onClose}>
             <View style={styles.closeButton}>
               <Ionicons name="close" size={24} color={COLORS.white} />
@@ -232,6 +239,9 @@ const styles = StyleSheet.create({
     width: '50%',
     height: '50%',
   },
+  modalContentSmartphone: {
+    width: '90%',
+  },
   modalContentLandscape: {
     width: '32%',
     marginTop: '0%',
@@ -264,13 +274,17 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     flex: 1,
+    marginTop: 15,
     borderRadius: SIZES.borderRadius.medium,
     overflow: 'hidden',
     backgroundColor: COLORS.gray850,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   image: {
     width: '100%',
     height: '100%',
+    backgroundColor: 'transparent',
   },
   fileHeader: {
     flexDirection: 'row',

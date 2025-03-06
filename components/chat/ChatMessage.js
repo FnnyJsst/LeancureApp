@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 4,
     borderRadius: SIZES.borderRadius.xLarge,
-    padding: 15,
+    padding: 8,
 
   },
   ownMessage: {
@@ -248,13 +248,14 @@ const styles = StyleSheet.create({
       android: 'Roboto',
       ios: 'System',
     }),
+    marginHorizontal: 8,
+    marginVertical: 6,
   },
   messageTextSmartphone: {
     fontSize: SIZES.fonts.biggerTextSmartphone,
     fontWeight: SIZES.fontWeight.regular,
   },
   fileContainer: {
-    paddingVertical: 4,
     alignItems: 'center',
   },
   fileHeader: {
@@ -310,14 +311,12 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.medium,
   },
   fileMessageContainer: {
-    // padding: 8,
     backgroundColor: COLORS.gray850,
     width: '100%',
     minWidth: 50,
     marginBottom: 10,
     marginTop: 4,
     borderRadius: SIZES.borderRadius.xLarge,
-    padding: 10,
   },
   ownFileMessageContainer: {
     backgroundColor: COLORS.orange,

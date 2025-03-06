@@ -177,7 +177,7 @@ export default {
     },
     common: {
       showHide: "Show/hide messages",
-      showHideDescription: "Show or hide messages section of the app",
+      showHideDescription: "Show/hide messages section of the app",
       changeServer: "Change server address",
       changeServerDescription: "Change the server address of the app",
     }

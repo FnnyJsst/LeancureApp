@@ -322,12 +322,6 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
     // Extraction correcte du base64
     const base64Data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_base64?.data?.base64;
 
-    // console.log('📥 Réponse get_base64:', {
-    //   status: response.status,
-    //   hasData: !!response.data,
-    //   hasBase64: !!base64Data,
-    //   base64Length: base64Data?.length
-    // });
 
     if (!base64Data) {
       console.log('❌ Pas de base64 dans la réponse');
