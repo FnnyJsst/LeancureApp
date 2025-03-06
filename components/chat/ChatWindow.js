@@ -178,6 +178,18 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     }
   };
 
+  const handleDeleteMessage = async (messageId) => {
+    try {
+      // Appel API pour supprimer le message (à implémenter)
+      // const response = await deleteMessageApi(messageId, credentials);
+
+      // Mise à jour locale des messages
+      const updatedMessages = messages.filter(msg => msg.id !== messageId);
+      setMessages(updatedMessages);
+    } catch (error) {
+      setError(`${t('errors.errorDeletingMessage')} ${error.message}`);
+    }
+  };
 
   /**
    * @function formatDate
@@ -252,6 +264,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     message={message}
                     isOwnMessage={message.isOwnMessage}
                     onFileClick={openDocumentPreviewModal}
+                    onDeleteMessage={handleDeleteMessage}
                   />
                 );
 

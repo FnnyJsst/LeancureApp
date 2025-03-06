@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, TouchableOpacity, StyleSheet, Image, Platform, Alert, PanResponder, Animated } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
-
+import { useTranslation } from 'react-i18next';
+import MenuMessage from './MenuMessage';
 
 /**
  * @function formatTimestamp
@@ -41,15 +42,75 @@ const formatFileSize = (bytes) => {
  * @param {Object} props.message - The message to display
  * @param {boolean} props.isOwnMessage - Whether the message is own
  * @param {Function} props.onFileClick - The function to call when the file is clicked
+ * @param {Function} props.onDeleteMessage - The function to call when the message is deleted
  *
  * @example
- * <ChatMessage message={message} isOwnMessage={isOwnMessage} onFileClick={() => console.log('File clicked')} />
+ * <ChatMessage message={message} isOwnMessage={isOwnMessage} onFileClick={() => console.log('File clicked')} onDeleteMessage={() => console.log('Message deleted')} />
  */
-export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
+export default function ChatMessage({ message, isOwnMessage, onFileClick, onDeleteMessage }) {
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  const [menuMessageVisible, setMenuMessageVisible] = useState(false);
+  const { t } = useTranslation();
 
   const { isSmartphone } = useDeviceType();
   const messageTime = formatTimestamp(message.savedTimestamp);
+  const translateX = useRef(new Animated.Value(0)).current;
+
+  const handleCloseMenu = () => {
+    setMenuMessageVisible(false);
+    // Animer le retour à la position initiale
+    Animated.spring(translateX, {
+      toValue: 0,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleDelete = () => {
+    if (onDeleteMessage) {
+      onDeleteMessage(message.id);
+    }
+    handleCloseMenu(); // Utiliser handleCloseMenu pour fermer le menu
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dx) > 5;
+      },
+      onPanResponderMove: (_, gestureState) => {
+        if (isOwnMessage) {
+          const newX = Math.min(Math.max(gestureState.dx, -100), 0);
+          translateX.setValue(newX);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dx < -50 && isOwnMessage) {
+          Animated.spring(translateX, {
+            toValue: -100,
+            useNativeDriver: true,
+          }).start();
+          setMenuMessageVisible(true);
+        } else {
+          Animated.spring(translateX, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+          setMenuMessageVisible(false);
+        }
+      },
+    })
+  ).current;
+
+  // Ajouter un effet pour réinitialiser la position quand le menu se ferme
+  useEffect(() => {
+    if (!menuMessageVisible) {
+      Animated.spring(translateX, {
+        toValue: 0,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [menuMessageVisible]);
 
   if (message.type === 'file') {
     // console.log('📥 Message reçu dans ChatMessage:', { ...message, base64: '...' });
@@ -63,6 +124,13 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
 
     return (
       <View style={styles.messageWrapper(isOwnMessage)}>
+        {menuMessageVisible && (
+          <TouchableOpacity
+            style={styles.menuOverlay}
+            onPress={handleCloseMenu}
+            activeOpacity={1}
+          />
+        )}
         <View style={[
           styles.messageHeader,
           isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft,
@@ -74,87 +142,111 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
           <Text style={styles.timestamp}>{messageTime}</Text>
         </View>
 
-        <View style={[
-          styles.messageContainer,
-          isOwnMessage ? styles.ownMessage : styles.otherMessage,
-          styles.fileMessageContainer,
-          isOwnMessage && styles.ownFileMessageContainer,
-          message.isUnread && styles.unreadMessage,
-        ]}>
-          <TouchableOpacity
-            onPress={() => {
-              onFileClick(message);
-            }}
+        <View style={styles.messageContentWrapper}>
+          <Animated.View
+            {...panResponder.panHandlers}
             style={[
-              styles.fileContainer,
-              isPDF && message.text && message.text !== message.fileName ? [
-                styles.darkContainer,
-                isOwnMessage && styles.ownDarkContainer
-              ] : null
+              { transform: [{ translateX }] }
             ]}
           >
-            {isPDF && (
-              <View style={[
-                styles.pdfPreviewContainer,
-                message.text && message.text !== message.fileName && styles.pdfPreviewWithText
-              ]}>
-                <View style={styles.fileHeader}>
-                  <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
-                  <View>
-                    <Text style={styles.fileName} numberOfLines={1}>
-                      {message.fileName}
-                    </Text>
-                    <Text style={styles.fileSize}>
-                      {message.fileType.toUpperCase()} • {formatFileSize(parseInt(message.fileSize, 10))}
-                    </Text>
+            <TouchableOpacity
+              onPress={() => {
+                onFileClick(message);
+              }}
+              style={[
+                styles.messageContainer,
+                isOwnMessage ? styles.ownMessage : styles.otherMessage,
+                styles.fileMessageContainer,
+                isOwnMessage && styles.ownFileMessageContainer,
+                message.isUnread && styles.unreadMessage,
+              ]}
+            >
+              <TouchableOpacity
+                style={[
+                  styles.fileContainer,
+                  isPDF && message.text && message.text !== message.fileName ? [
+                    styles.darkContainer,
+                    isOwnMessage && styles.ownDarkContainer
+                  ] : null
+                ]}
+              >
+                {isPDF && (
+                  <View style={[
+                    styles.pdfPreviewContainer,
+                    message.text && message.text !== message.fileName && styles.pdfPreviewWithText
+                  ]}>
+                    <View style={styles.fileHeader}>
+                      <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
+                      <View>
+                        <Text style={styles.fileName} numberOfLines={1}>
+                          {message.fileName}
+                        </Text>
+                        <Text style={styles.fileSize}>
+                          {message.fileType.toUpperCase()} • {formatFileSize(parseInt(message.fileSize, 10))}
+                        </Text>
+                      </View>
+                    </View>
                   </View>
-                </View>
-              </View>
-            )}
+                )}
 
-            {isImage && message.base64 && (
-              <View style={[
-                styles.imagePreviewContainer,
-                { height: Math.min(240, imageSize.height) }
-              ]}>
-                <Image
-                  source={{
-                    uri: `data:${message.fileType};base64,${message.base64}`,
-                  }}
-                  style={[
-                    styles.preview,
-                    { height: Math.min(300, imageSize.height) }
-                  ]}
-                  resizeMode="contain"
-                  onLoad={(event) => {
-                    const { width, height } = event.nativeEvent.source;
-                    const ratio = height / width;
-                    const newHeight = 200 * ratio;
-                    setImageSize({ width: 200, height: newHeight });
-                  }}
-                />
-                <View style={styles.imageFileHeader}>
-                  <Ionicons
-                    name="image-outline"
-                    size={25}
-                    color={COLORS.white}
-                  />
-                  <View>
-                    <Text style={styles.pictureName} numberOfLines={1} ellipsizeMode="tail">
-                      {message.fileName}
-                    </Text>
-                    <Text style={styles.fileSize}>
-                      {message.fileType.toUpperCase()} • {formatFileSize(fileSizeInBytes)}
-                    </Text>
+                {isImage && message.base64 && (
+                  <View style={[
+                    styles.imagePreviewContainer,
+                    { height: Math.min(240, imageSize.height) }
+                  ]}>
+                    <Image
+                      source={{
+                        uri: `data:${message.fileType};base64,${message.base64}`,
+                      }}
+                      style={[
+                        styles.preview,
+                        { height: Math.min(300, imageSize.height) }
+                      ]}
+                      resizeMode="contain"
+                      onLoad={(event) => {
+                        const { width, height } = event.nativeEvent.source;
+                        const ratio = height / width;
+                        const newHeight = 200 * ratio;
+                        setImageSize({ width: 200, height: newHeight });
+                      }}
+                    />
+                    <View style={styles.imageFileHeader}>
+                      <Ionicons
+                        name="image-outline"
+                        size={25}
+                        color={COLORS.white}
+                      />
+                      <View>
+                        <Text style={styles.pictureName} numberOfLines={1} ellipsizeMode="tail">
+                          {message.fileName}
+                        </Text>
+                        <Text style={styles.fileSize}>
+                          {message.fileType.toUpperCase()} • {formatFileSize(fileSizeInBytes)}
+                        </Text>
+                      </View>
+                    </View>
                   </View>
-                </View>
-              </View>
-            )}
-          </TouchableOpacity>
-          {message.text && message.text !== message.fileName && (
-            <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
-              {message.text}
-            </Text>
+                )}
+              </TouchableOpacity>
+              {message.text && message.text !== message.fileName && (
+                <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
+                  {message.text}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </Animated.View>
+
+          {menuMessageVisible && (
+            <MenuMessage
+              onDelete={handleDelete}
+              onClose={() => {
+                handleCloseMenu();
+                Animated.spring(translateX, {
+                  toValue: 0,
+                  useNativeDriver: true,
+                }).start();
+              }}
+            />
           )}
         </View>
       </View>
@@ -163,7 +255,13 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
 
   return (
     <View style={styles.messageWrapper(isOwnMessage)}>
-      {/* Username and timestamp container */}
+      {menuMessageVisible && (
+        <TouchableOpacity
+          style={styles.menuOverlay}
+          onPress={handleCloseMenu}
+          activeOpacity={1}
+        />
+      )}
       <View style={[
         styles.messageHeader,
         isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft,
@@ -175,18 +273,39 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick }) {
         <Text style={styles.timestamp}>{messageTime}</Text>
       </View>
 
-      {/* Message bubble */}
-      <View style={[
-        styles.messageContainer,
-        isOwnMessage ? styles.ownMessage : styles.otherMessage,
-        message.isUnread && styles.unreadMessage,
-      ]}>
-        <Text style={[
-          styles.messageText,
-          isSmartphone && styles.messageTextSmartphone,
-        ]}>{message.text}</Text>
-      </View>
+      <View style={styles.messageContentWrapper}>
+        <Animated.View
+          {...panResponder.panHandlers}
+          style={[
+            { transform: [{ translateX }] }
+          ]}
+        >
+          <TouchableOpacity
+            style={[
+              styles.messageContainer,
+              isOwnMessage ? styles.ownMessage : styles.otherMessage,
+              message.isUnread && styles.unreadMessage,
+            ]}
+          >
+            <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
+              {message.text}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
 
+        {menuMessageVisible && (
+          <MenuMessage
+            onDelete={handleDelete}
+            onClose={() => {
+              handleCloseMenu();
+              Animated.spring(translateX, {
+                toValue: 0,
+                useNativeDriver: true,
+              }).start();
+            }}
+          />
+        )}
+      </View>
     </View>
   );
 }
@@ -330,5 +449,23 @@ const styles = StyleSheet.create({
   },
   ownDarkContainer: {
     backgroundColor: '#cc5200',
+  },
+  messageContentWrapper: {
+    position: 'relative',
+  },
+  menuMessageContainer: {
+    position: 'absolute',
+    top: '100%',
+    right: 0,
+    zIndex: 1000,
+  },
+  menuOverlay: {
+    position: 'absolute',
+    top: -1000,
+    left: -1000,
+    right: -1000,
+    bottom: -1000,
+    backgroundColor: 'transparent',
+    zIndex: 999,
   },
 });
