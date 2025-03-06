@@ -32,7 +32,7 @@ const  FilePreview = ({ file, onRemove }) => {
           color={COLORS.gray300}
         />
         <View style={styles.fileDetails}>
-          <Text style={styles.fileName} numberOfLines={1}>
+          <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="tail">
             {file.fileName}
           </Text>
           <Text style={styles.fileSize}>
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   previewContainerSmartphone: {
-    width: '90%',
+    width: '100%',
   },
   previewContainerLandscape: {
     width: '50%',
@@ -340,11 +340,13 @@ const styles = StyleSheet.create({
   },
   fileDetails: {
     marginLeft: 8,
+    maxWidth: 220,
   },
   fileName: {
     color: COLORS.gray300,
     fontSize: SIZES.fonts.small,
     fontWeight: SIZES.fontWeight.medium,
+
   },
   fileSize: {
     color: COLORS.gray600,
