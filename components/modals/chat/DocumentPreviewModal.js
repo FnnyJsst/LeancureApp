@@ -138,7 +138,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
           />
         </View>
       );
-    } else if (fileType?.includes('image')) {
+    } else if (fileType?.includes('jpg') || fileType?.includes('png') || fileType?.includes('jpeg')) {
       console.log('Rendering image with:', {
         fileType,
         base64Length: base64?.length,
@@ -170,7 +170,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         isSmartphoneLandscape && styles.modalContainerSmartphoneLandscape,
         isLandscape && styles.modalContainerLandscape,
       ]}>
-        <View style={[styles.modalContent, isSmartphone && styles.modalContentSmartphone]}>
+        <View style={[styles.modalContent, isSmartphone && styles.modalContentSmartphone, isSmartphoneLandscape && styles.modalContentSmartphoneLandscape]}>
           <TouchableOpacity style={styles.closeButtonContainer} onPress={onClose}>
             <View style={styles.closeButton}>
               <Ionicons name="close" size={24} color={COLORS.white} />
@@ -225,8 +225,8 @@ const styles = StyleSheet.create({
     paddingTop: '5%',
   },
   modalContainerSmartphoneLandscape: {
-    paddingBottom: '5%',
-    paddingTop: '5%',
+    // paddingBottom: '5%',
+    // paddingTop: '5%',
   },
   modalContent: {
     flex: 1,
@@ -241,6 +241,11 @@ const styles = StyleSheet.create({
   },
   modalContentSmartphone: {
     width: '90%',
+  },
+  modalContentSmartphoneLandscape: {
+    width: '40%',
+    height: '100%',
+    marginTop: '0%',
   },
   modalContentLandscape: {
     width: '32%',
