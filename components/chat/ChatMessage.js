@@ -6,6 +6,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
 import MenuMessage from './MenuMessage';
+import { deleteMessageApi } from '../../services/api/messageApi';
 
 /**
  * @function formatTimestamp

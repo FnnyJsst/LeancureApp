@@ -133,13 +133,6 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       }
     }, userCredentials.contractNumber, userCredentials.accessToken || "");
 
-    console.log('📤 Requête envoyée:', {
-      channelId,
-      title: messageTitle,
-      details: messageContent.messageText || messageContent,
-      isFile,
-    });
-
     const apiUrl = await ENV.API_URL();
     const response = await axios.post(apiUrl, body, {
       timeout: 30000,
@@ -179,6 +172,51 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     throw new Error('Message not saved');
   } catch (error) {
     console.error('❌ ERREUR:', error.message);
+    throw error;
+  }
+};
+
+/**
+ * @function deleteMessageApi
+ * @description Supprime un message via l'API
+ * @param {number} messageId - L'ID du message à supprimer
+ * @param {Object} userCredentials - Les credentials de l'utilisateur
+ * @returns {Promise<Object>} - Le résultat de la suppression
+ */
+export const deleteMessageApi = async (messageId, userCredentials) => {
+  try {
+    const timestamp = Date.now();
+
+    const body = createApiRequest({
+      'amaiia_msg_srv': {
+        'client': {
+          'delete_msg': {
+            'messageid': parseInt(messageId, 10)
+          }
+        }
+      }
+    }, userCredentials.contractNumber);
+
+    console.log('🗑️ Tentative de suppression du message:', {
+      messageId,
+      timestamp
+    });
+
+    const apiUrl = await ENV.API_URL();
+    const response = await axios.post(apiUrl, body, {
+      timeout: 10000, // 10 secondes max
+    });
+
+    if (response.status === 200) {
+      return {
+        status: 'ok',
+        message: 'Message supprimé avec succès'
+      };
+    }
+
+    throw new Error('Message non supprimé');
+  } catch (error) {
+    console.error('🔴 Erreur deleteMessageApi:', error);
     throw error;
   }
 };

@@ -139,11 +139,6 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         </View>
       );
     } else if (fileType?.includes('jpg') || fileType?.includes('png') || fileType?.includes('jpeg')) {
-      console.log('Rendering image with:', {
-        fileType,
-        base64Length: base64?.length,
-        uri: `data:${fileType};base64,${base64?.substring(0, 50)}...`
-      });
 
       return (
         <View style={styles.imageWrapper}>

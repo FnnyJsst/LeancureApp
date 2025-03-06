@@ -6,7 +6,7 @@ import ChatMessage from './ChatMessage';
 import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as SecureStore from 'expo-secure-store';
-import { sendMessageApi, fetchMessageFile } from '../../services/api/messageApi';
+import { sendMessageApi, fetchMessageFile, deleteMessageApi } from '../../services/api/messageApi';
 import DateBanner from './DateBanner';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
@@ -53,7 +53,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   useEffect(() => {
     if (channelMessages && credentials) {
-      // console.log('📋 MISE À JOUR MESSAGES - Nombre:', channelMessages.length, 'Premier ID:', channelMessages[0]?.id);
 
       const loadFiles = async () => {
         const messagesNeedingFiles = channelMessages.filter(msg =>
@@ -124,7 +123,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = async (messageData) => {
     try {
-      console.log('📤 Tentative d\'envoi du message:', { ...messageData, base64: '...' });
 
       if (!messageData ||
           (typeof messageData === 'string' && !messageData.trim()) ||
@@ -140,8 +138,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       const userCredentials = JSON.parse(credentialsStr);
       const response = await sendMessageApi(channel.id, messageData, userCredentials);
-
-      console.log('📤 Réponse de l\'API:', response);
 
       if (response.status === 'ok') {
         const currentTimestamp = Date.now();
@@ -167,8 +163,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           }),
         };
 
-        console.log('📤 Nouveau message créé:', { ...newMessage, base64: '...' });
-
         if (typeof onMessageSent === 'function') {
           onMessageSent(newMessage);
         }
@@ -180,13 +174,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   const handleDeleteMessage = async (messageId) => {
     try {
-      // Appel API pour supprimer le message (à implémenter)
-      // const response = await deleteMessageApi(messageId, credentials);
+      const response = await deleteMessageApi(messageId, credentials);
 
-      // Mise à jour locale des messages
-      const updatedMessages = messages.filter(msg => msg.id !== messageId);
-      setMessages(updatedMessages);
+      if (response.status === 'ok') {
+        const updatedMessages = messages.filter(msg => msg.id !== messageId);
+        setMessages(updatedMessages);
+      }
     } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
       setError(`${t('errors.errorDeletingMessage')} ${error.message}`);
     }
   };
