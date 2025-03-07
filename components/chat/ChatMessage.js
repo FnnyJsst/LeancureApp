@@ -1,12 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, TouchableOpacity, StyleSheet, Image, Platform, Alert, PanResponder, Animated } from 'react-native';
+import React, { useState} from 'react';
+import { View, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
 import MenuMessage from './MenuMessage';
-import { deleteMessageApi } from '../../services/api/messageApi';
 
 /**
  * @function formatTimestamp
@@ -23,6 +22,12 @@ const formatTimestamp = (timestamp) => {
   });
 };
 
+/**
+ * @function formatFileSize
+ * @description Format the file size to display in the chat message
+ * @param {number} bytes - The file size in bytes
+ * @returns {string} The formatted file size
+ */
 const formatFileSize = (bytes) => {
   if (bytes === 0) {return '0 B';}
 
@@ -30,7 +35,7 @@ const formatFileSize = (bytes) => {
   const sizes = ['B', 'Ko', 'Mo', 'Go'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  // Si la taille est en Ko, on ne fait pas la division supplémentaire
+  // If the size is in Ko, we don't do the additional division
   const size = bytes;
   return `${size} Ko`;
 };
@@ -44,52 +49,44 @@ const formatFileSize = (bytes) => {
  * @param {boolean} props.isOwnMessage - Whether the message is own
  * @param {Function} props.onFileClick - The function to call when the file is clicked
  * @param {Function} props.onDeleteMessage - The function to call when the message is deleted
- * @param {boolean} props.canDelete - Whether the message can be deleted
  * @param {string} props.userRights - The user rights for the message
  *
  * @example
  * <ChatMessage message={message} isOwnMessage={isOwnMessage} onFileClick={() => console.log('File clicked')} onDeleteMessage={() => console.log('Message deleted')} canDelete={true} userRights="3" />
  */
-export default function ChatMessage({ message, isOwnMessage, onFileClick, onDeleteMessage, canDelete, userRights }) {
+export default function ChatMessage({ message, isOwnMessage, onFileClick, onDeleteMessage, userRights }) {
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [menuMessageVisible, setMenuMessageVisible] = useState(false);
-  const { t } = useTranslation();
   const { isSmartphone } = useDeviceType();
   const messageTime = formatTimestamp(message.savedTimestamp);
 
+  /**
+   * @function handleLongPress
+   * @description Handle the long press event to allow the user to delete the message
+   */
   const handleLongPress = () => {
-    console.log('🔍 Long Press détecté:', {
-      isOwnMessage,
-      userRights,
-      canDelete,
-      username: message.username,
-      typeofRights: typeof userRights
-    });
 
-    // Convertir userRights en string pour la comparaison ou comparer avec le nombre
-    if (isOwnMessage || userRights === 3) {  // Changé de "3" à 3
-      console.log('✅ Affichage du menu autorisé');
+    // Allow the user to delete the message if it is own or if the user has admin rights
+    if (isOwnMessage || userRights === 3) {
       setMenuMessageVisible(true);
-    } else {
-      console.log('❌ Affichage du menu refusé:', {
-        isOwnMessage,
-        userRights,
-        condition: isOwnMessage || userRights === 3
-      });
     }
   };
 
+  /**
+   * @function handlePress
+   * @description Handle the press event to allow the user to open the file
+   */
   const handlePress = () => {
-    console.log('👆 Press simple détecté:', {
-      type: message.type,
-      isFile: message.type === 'file'
-    });
 
     if (message.type === 'file') {
       onFileClick(message);
     }
   };
 
+  /**
+   * @function handleDelete
+   * @description Handle the delete event to allow the user to delete the message
+   */
   const handleDelete = () => {
     if (onDeleteMessage) {
       onDeleteMessage(message.id);
@@ -97,8 +94,8 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
     setMenuMessageVisible(false);
   };
 
+  // If the message is a file, we display the file preview
   if (message.type === 'file') {
-    // console.log('📥 Message reçu dans ChatMessage:', { ...message, base64: '...' });
     const isPDF = message.fileType?.toLowerCase().includes('pdf');
     const isImage = message.fileType?.toLowerCase().includes('image/') ||
                 message.fileType?.toLowerCase().includes('jpeg') ||
