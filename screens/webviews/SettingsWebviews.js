@@ -6,7 +6,6 @@ import SettingsCard from '../../components/cards/SettingsCard';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnlyModal from '../../components/modals/webviews/ReadOnlyModal';
 import PasswordDefineModal from '../../components/modals/webviews/PasswordDefineModal';
-import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS, FONTS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
@@ -42,8 +41,6 @@ export default function SettingsWebviews({
   isReadOnly,
   toggleReadOnly,
   handleSelectOption,
-  isMessagesHidden,
-  onToggleHideMessages,
   testID,
 }) {
 
@@ -53,7 +50,6 @@ export default function SettingsWebviews({
   const [modalVisible, setModalVisible] = useState(false);
   const [isPasswordDefineModalVisible, setPasswordDefineModalVisible] = useState(false);
   const [isReadOnlyModalVisible, setReadOnlyModalVisible] = useState(false);
-  const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
 
   const { t } = useTranslation();
 
@@ -338,14 +334,6 @@ export default function SettingsWebviews({
         onDisablePassword={disablePassword}
         testID="password-define-modal"
       />
-      {/* Modal HideMessages uniquement en V2 */}
-      {VERSION === 'v2' && (
-        <HideMessagesModal
-          visible={hideMessagesModalVisible}
-          onClose={() => setHideMessagesModalVisible(false)}
-          onToggleHideMessages={handleToggleHideMessages}
-        />
-      )}
     </View>
   );
 }
