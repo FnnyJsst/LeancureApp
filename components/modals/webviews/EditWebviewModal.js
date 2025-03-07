@@ -141,7 +141,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               title={t('buttons.cancel')}
               backgroundColor={COLORS.gray950}
               color={COLORS.gray300}
-              width="22%"
+              width={isSmartphone ? '23%' : '26%'}
               onPress={onClose}
               testID="cancel-button"
             />
@@ -149,7 +149,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               title={t('buttons.save')}
               backgroundColor={COLORS.orange}
               color={COLORS.white}
-              width="22%"
+              width={isSmartphone ? '23%' : '26%'}
               onPress={handleOk}
               testID="save-edit-button"
             />
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     paddingTop: '10%',
   },
   modalContent: {
-    width: '60%',
+    width: '80%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     borderColor: '#403430',
   },
   modalContentTabletLandscape: {
-    width: '40%',
+    width: '50%',
   },
   modalContentSmartphonePortrait: {
     width: '95%',
