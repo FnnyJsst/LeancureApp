@@ -143,6 +143,7 @@ export default {
     doNotUse: "Ne pas utiliser",
     connecting: "Connexion...",
     switchAccount: "Changer de compte",
+    edit: "Modifier",
   },
 
   titles: {

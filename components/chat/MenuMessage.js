@@ -9,20 +9,30 @@ import { useTranslation } from 'react-i18next';
  * MenuMessage component
  * @param {Object} props - Props
  * @param {Function} props.onDelete - Fonction de suppression
+ * @param {Function} props.onEdit - Fonction d'édition
  * @param {Object} props.style - Style
  */
-const MenuMessage = ({ onDelete, style }) => {
+const MenuMessage = ({ onDelete, onEdit, style }) => {
   const { isSmartphone } = useDeviceType();
   const { t } = useTranslation();
   return (
     <View style={[styles.container, style]}>
       <TouchableOpacity
         style={[styles.menuItem, isSmartphone && styles.menuItemSmartphone]}
+        onPress={onEdit}
+      >
+        <Ionicons name="pencil-outline" size={isSmartphone ? 20 : 22} color={COLORS.white} />
+        <Text style={isSmartphone ? styles.menuTextSmartphone : styles.menuText}>{t('buttons.edit')}</Text>
+      </TouchableOpacity>
+      <View style={styles.separator} />
+      <TouchableOpacity
+        style={[styles.menuItem, isSmartphone && styles.menuItemSmartphone]}
         onPress={onDelete}
       >
-        <Ionicons name="trash-outline" size={isSmartphone ? 20 : 24} color={COLORS.white} />
-        <Text style={isSmartphone ? styles.menuTextSmartphone : styles.menuText}>{t('buttons.delete')}</Text>
+        <Ionicons name="trash-outline" size={isSmartphone ? 20 : 22} color={COLORS.red} />
+        <Text style={isSmartphone ? styles.deleteTextSmartphone : styles.deleteText}>{t('buttons.delete')}</Text>
       </TouchableOpacity>
+
     </View>
   );
 };
@@ -31,16 +41,22 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     backgroundColor: COLORS.gray650,
-    borderRadius: SIZES.borderRadius.medium,
-    padding: 8,
+    borderRadius: SIZES.borderRadius.large,
     zIndex: 1000,
   },
-  menuItem: {
+  _menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    paddingVertical: 2,
+    paddingHorizontal: 4,
+    margin: 6,
+  },
+  get menuItem() {
+    return this._menuItem;
+  },
+  set menuItem(value) {
+    this._menuItem = value;
   },
   menuText: {
     color: COLORS.white,
@@ -50,6 +66,20 @@ const styles = StyleSheet.create({
   menuTextSmartphone: {
     color: COLORS.white,
     fontSize: SIZES.fonts.textSmartphone,
+  },
+  deleteText: {
+    color: COLORS.red,
+    fontSize: SIZES.fonts.textTablet,
+    fontWeight: SIZES.fontWeight.light,
+  },
+  deleteTextSmartphone: {
+    color: COLORS.red,
+    fontSize: SIZES.fonts.textSmartphone,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: COLORS.gray600,
+    width: '100%',
   },
 });
 
