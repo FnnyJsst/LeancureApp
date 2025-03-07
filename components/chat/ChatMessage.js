@@ -4,7 +4,6 @@ import { COLORS, SIZES } from '../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
-import { useTranslation } from 'react-i18next';
 import MenuMessage from './MenuMessage';
 
 /**
@@ -54,7 +53,7 @@ const formatFileSize = (bytes) => {
  * @example
  * <ChatMessage message={message} isOwnMessage={isOwnMessage} onFileClick={() => console.log('File clicked')} onDeleteMessage={() => console.log('Message deleted')} canDelete={true} userRights="3" />
  */
-export default function ChatMessage({ message, isOwnMessage, onFileClick, onDeleteMessage, userRights }) {
+export default function ChatMessage({ message, isOwnMessage, onFileClick, onDeleteMessage, onEditMessage, userRights }) {
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [menuMessageVisible, setMenuMessageVisible] = useState(false);
   const { isSmartphone } = useDeviceType();
@@ -65,7 +64,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
    * @description Handle the long press event to allow the user to delete the message
    */
   const handleLongPress = () => {
-
     // Allow the user to delete the message if it is own or if the user has admin rights
     if (isOwnMessage || userRights === 3) {
       setMenuMessageVisible(true);
@@ -77,7 +75,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
    * @description Handle the press event to allow the user to open the file
    */
   const handlePress = () => {
-
     if (message.type === 'file') {
       onFileClick(message);
     }
@@ -90,6 +87,36 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   const handleDelete = () => {
     if (onDeleteMessage) {
       onDeleteMessage(message.id);
+    }
+    setMenuMessageVisible(false);
+  };
+
+  /**
+   * @function handleEdit
+   * @description Handle the edit event to allow the user to edit the message
+   */
+  const handleEdit = () => {
+    console.log('🖊️ handleEdit appelé avec:', {
+      messageId: message.id,
+      text: message.text,
+      type: message.type,
+      isOwnMessage: isOwnMessage
+    });
+
+    if (onEditMessage) {
+      console.log('✅ onEditMessage est défini, appel de la fonction');
+      onEditMessage({
+        id: message.id,
+        text: message.text || '',
+        type: message.type,
+        fileInfo: message.type === 'file' ? {
+          fileName: message.fileName,
+          fileType: message.fileType,
+          fileSize: message.fileSize
+        } : null
+      });
+    } else {
+      console.log('❌ onEditMessage n\'est pas défini');
     }
     setMenuMessageVisible(false);
   };
@@ -203,6 +230,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
             />
             <MenuMessage
               onDelete={handleDelete}
+              onEdit={isOwnMessage ? handleEdit : null}
               onClose={() => setMenuMessageVisible(false)}
               style={[
                 styles.menuMessageContainer,
@@ -240,6 +268,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
           />
           <MenuMessage
             onDelete={handleDelete}
+            onEdit={isOwnMessage ? handleEdit : null}
             onClose={() => setMenuMessageVisible(false)}
             style={[
               styles.menuMessageContainer,

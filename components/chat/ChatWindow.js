@@ -38,6 +38,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [error, setError] = useState(null);
   const [userRights, setUserRights] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingMessage, setEditingMessage] = useState(null);
 
   /**
    * @function useEffect
@@ -137,10 +138,24 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = async (messageData) => {
     try {
-
       if (!messageData ||
           (typeof messageData === 'string' && !messageData.trim()) ||
           messageData === undefined) {
+        return;
+      }
+
+      // Si c'est une édition
+      if (messageData.isEditing) {
+        console.log('📝 Envoi du message édité:', messageData);
+        // TODO: Ajouter l'appel API pour modifier le message
+        // Pour l'instant, on met à jour localement
+        const updatedMessages = messages.map(msg =>
+          msg.id === messageData.messageId
+            ? { ...msg, text: messageData.text }
+            : msg
+        );
+        setMessages(updatedMessages);
+        setEditingMessage(null);
         return;
       }
 
@@ -209,6 +224,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       console.error('Erreur lors de la suppression:', error);
       setError(`${t('errors.errorDeletingMessage')} ${error.message}`);
     }
+  };
+
+  const handleEditMessage = async (messageToEdit) => {
+    console.log('✏️ Message à éditer dans ChatWindow:', messageToEdit);
+    setEditingMessage(messageToEdit);
   };
 
   /**
@@ -287,6 +307,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     isOwnMessage={message.isOwnMessage}
                     onFileClick={openDocumentPreviewModal}
                     onDeleteMessage={handleDeleteMessage}
+                    onEditMessage={handleEditMessage}
                     canDelete={userRights === "3"}
                     userRights={userRights}
                   />
@@ -300,6 +321,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           <InputChatWindow
             onSendMessage={sendMessage}
             onFocusChange={onInputFocusChange}
+            editingMessage={editingMessage}
           />
         </>
       ) : (

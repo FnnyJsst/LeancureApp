@@ -24,6 +24,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [channelMessages, setChannelMessages] = useState([]);
   const [unreadChannels, setUnreadChannels] = useState({});
+  const [editingMessage, setEditingMessage] = useState(null);
 
   /**
    * @function useEffect
@@ -126,6 +127,11 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    */
   const handleInputFocusChange = async (isFocused) => {
     setIsInputFocused(isFocused);
+  };
+
+  const handleEditMessage = (messageToEdit) => {
+    console.log('📝 Message à éditer reçu dans ChatScreen:', messageToEdit);
+    setEditingMessage(messageToEdit);
   };
 
   return (
