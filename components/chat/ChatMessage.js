@@ -54,107 +54,48 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [menuMessageVisible, setMenuMessageVisible] = useState(false);
   const { t } = useTranslation();
-
   const { isSmartphone } = useDeviceType();
   const messageTime = formatTimestamp(message.savedTimestamp);
-  const translateX = useRef(new Animated.Value(0)).current;
 
-  const handleCloseMenu = () => {
-    setMenuMessageVisible(false);
-    Animated.spring(translateX, {
-      toValue: 0,
-      useNativeDriver: true,
-    }).start();
+  const handleLongPress = () => {
+    console.log('🔍 Long Press détecté:', {
+      isOwnMessage,
+      userRights,
+      canDelete,
+      username: message.username,
+      typeofRights: typeof userRights
+    });
+
+    // Convertir userRights en string pour la comparaison ou comparer avec le nombre
+    if (isOwnMessage || userRights === 3) {  // Changé de "3" à 3
+      console.log('✅ Affichage du menu autorisé');
+      setMenuMessageVisible(true);
+    } else {
+      console.log('❌ Affichage du menu refusé:', {
+        isOwnMessage,
+        userRights,
+        condition: isOwnMessage || userRights === 3
+      });
+    }
+  };
+
+  const handlePress = () => {
+    console.log('👆 Press simple détecté:', {
+      type: message.type,
+      isFile: message.type === 'file'
+    });
+
+    if (message.type === 'file') {
+      onFileClick(message);
+    }
   };
 
   const handleDelete = () => {
     if (onDeleteMessage) {
       onDeleteMessage(message.id);
     }
-    handleCloseMenu();
+    setMenuMessageVisible(false);
   };
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        // Pour les messages des autres avec droits admin
-        if (!isOwnMessage && userRights === "3") {
-          return gestureState.dx > 5; // Swipe vers la droite uniquement
-        }
-        // Pour nos propres messages
-        if (isOwnMessage) {
-          return gestureState.dx < -5; // Swipe vers la gauche uniquement
-        }
-        return false;
-      },
-      onPanResponderMove: (_, gestureState) => {
-        // Pour les messages des autres avec droits admin
-        if (!isOwnMessage && userRights === "3") {
-          // Limiter le swipe vers la droite entre 0 et 100
-          const newX = Math.min(Math.max(0, gestureState.dx), 100);
-          console.log("Moving other's message:", newX);
-          translateX.setValue(newX);
-        }
-        // Pour nos propres messages
-        else if (isOwnMessage) {
-          // Limiter le swipe vers la gauche entre -100 et 0
-          const newX = Math.min(Math.max(gestureState.dx, -100), 0);
-          console.log("Moving own message:", newX);
-          translateX.setValue(newX);
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        // Pour les messages des autres avec droits admin
-        if (!isOwnMessage && userRights === "3") {
-          if (gestureState.dx > 50) {
-            console.log("Showing menu for other's message");
-            Animated.spring(translateX, {
-              toValue: 100,
-              useNativeDriver: true,
-            }).start();
-            setMenuMessageVisible(true);
-          } else {
-            Animated.spring(translateX, {
-              toValue: 0,
-              useNativeDriver: true,
-            }).start();
-            setMenuMessageVisible(false);
-          }
-        }
-        // Pour nos propres messages
-        else if (isOwnMessage) {
-          if (gestureState.dx < -50) {
-            console.log("Showing menu for own message");
-            Animated.spring(translateX, {
-              toValue: -100,
-              useNativeDriver: true,
-            }).start();
-            setMenuMessageVisible(true);
-          } else {
-            Animated.spring(translateX, {
-              toValue: 0,
-              useNativeDriver: true,
-            }).start();
-            setMenuMessageVisible(false);
-          }
-        }
-      }
-    })
-  ).current;
-
-  // Modifier le style du menu selon la direction du swipe
-  const menuStyle = !isOwnMessage ? { left: 0 } : { right: 0 };
-
-  // Ajouter un effet pour réinitialiser la position quand le menu se ferme
-  useEffect(() => {
-    if (!menuMessageVisible) {
-      Animated.spring(translateX, {
-        toValue: 0,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [menuMessageVisible]);
 
   if (message.type === 'file') {
     // console.log('📥 Message reçu dans ChatMessage:', { ...message, base64: '...' });
@@ -166,18 +107,106 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
 
     const fileSizeInBytes = parseInt(message.fileSize, 10);
 
+    const messageContent = (
+      <TouchableOpacity
+        onLongPress={handleLongPress}
+        onPress={handlePress}
+        delayLongPress={500}
+        style={[
+          styles.messageContainer,
+          isOwnMessage ? styles.ownMessage : styles.otherMessage,
+          styles.fileMessageContainer,
+          isOwnMessage && styles.ownFileMessageContainer,
+          message.isUnread && styles.unreadMessage,
+        ]}
+      >
+        <View
+          style={[
+            styles.fileContainer,
+            isPDF && message.text && message.text !== message.fileName ? [
+              styles.darkContainer,
+              isOwnMessage && styles.ownDarkContainer
+            ] : null
+          ]}
+        >
+          {isPDF && (
+            <View style={[
+              styles.pdfPreviewContainer,
+              message.text && message.text !== message.fileName && styles.pdfPreviewWithText
+            ]}>
+              <View style={styles.fileHeader}>
+                <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
+                <View>
+                  <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="tail">
+                    {message.fileName}
+                  </Text>
+                  <Text style={styles.fileSize}>
+                    {message.fileType.toUpperCase()} • {formatFileSize(parseInt(message.fileSize, 10))}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {isImage && message.base64 && (
+            <View style={[
+              styles.imagePreviewContainer,
+              { height: Math.min(240, imageSize.height) }
+            ]}>
+              <Image
+                source={{
+                  uri: `data:${message.fileType};base64,${message.base64}`,
+                }}
+                style={[
+                  styles.preview,
+                  { height: Math.min(300, imageSize.height) }
+                ]}
+                resizeMode="contain"
+                onLoad={(event) => {
+                  const { width, height } = event.nativeEvent.source;
+                  const ratio = height / width;
+                  const newHeight = 200 * ratio;
+                  setImageSize({ width: 200, height: newHeight });
+                }}
+              />
+              <View style={styles.imageFileHeader}>
+                <Ionicons
+                  name="image-outline"
+                  size={25}
+                  color={COLORS.white}
+                />
+                <View>
+                  <Text style={styles.pictureName} numberOfLines={1} ellipsizeMode="tail">
+                    {message.fileName}
+                  </Text>
+                  <Text style={styles.fileSize}>
+                    {message.fileType.toUpperCase()} • {formatFileSize(fileSizeInBytes)}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+        </View>
+        {message.text && message.text !== message.fileName && (
+          <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
+            {message.text}
+          </Text>
+        )}
+      </TouchableOpacity>
+    );
+
     return (
       <View style={styles.messageWrapper(isOwnMessage)}>
         {menuMessageVisible && (
           <>
             <TouchableOpacity
               style={styles.menuOverlay}
-              onPress={handleCloseMenu}
+              onPress={() => setMenuMessageVisible(false)}
               activeOpacity={1}
             />
             <MenuMessage
               onDelete={handleDelete}
-              onClose={handleCloseMenu}
+              onClose={() => setMenuMessageVisible(false)}
               style={[
                 styles.menuMessageContainer,
                 isOwnMessage ? styles.menuRight : styles.menuLeft
@@ -197,101 +226,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
         </View>
 
         <View style={styles.messageContentWrapper}>
-          <Animated.View
-            {...panResponder.panHandlers}
-            style={[
-              styles.animatedContainer,
-              {
-                transform: [{ translateX }],
-              },
-            ]}
-          >
-            <TouchableOpacity
-              onPress={() => {
-                onFileClick(message);
-              }}
-              style={[
-                styles.messageContainer,
-                isOwnMessage ? styles.ownMessage : styles.otherMessage,
-                styles.fileMessageContainer,
-                isOwnMessage && styles.ownFileMessageContainer,
-                message.isUnread && styles.unreadMessage,
-              ]}
-            >
-              <TouchableOpacity
-                style={[
-                  styles.fileContainer,
-                  isPDF && message.text && message.text !== message.fileName ? [
-                    styles.darkContainer,
-                    isOwnMessage && styles.ownDarkContainer
-                  ] : null
-                ]}
-              >
-                {isPDF && (
-                  <View style={[
-                    styles.pdfPreviewContainer,
-                    message.text && message.text !== message.fileName && styles.pdfPreviewWithText
-                  ]}>
-                    <View style={styles.fileHeader}>
-                      <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
-                      <View>
-                        <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="tail">
-                          {message.fileName}
-                        </Text>
-                        <Text style={styles.fileSize}>
-                          {message.fileType.toUpperCase()} • {formatFileSize(parseInt(message.fileSize, 10))}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                )}
-
-                {isImage && message.base64 && (
-                  <View style={[
-                    styles.imagePreviewContainer,
-                    { height: Math.min(240, imageSize.height) }
-                  ]}>
-                    <Image
-                      source={{
-                        uri: `data:${message.fileType};base64,${message.base64}`,
-                      }}
-                      style={[
-                        styles.preview,
-                        { height: Math.min(300, imageSize.height) }
-                      ]}
-                      resizeMode="contain"
-                      onLoad={(event) => {
-                        const { width, height } = event.nativeEvent.source;
-                        const ratio = height / width;
-                        const newHeight = 200 * ratio;
-                        setImageSize({ width: 200, height: newHeight });
-                      }}
-                    />
-                    <View style={styles.imageFileHeader}>
-                      <Ionicons
-                        name="image-outline"
-                        size={25}
-                        color={COLORS.white}
-                      />
-                      <View>
-                        <Text style={styles.pictureName} numberOfLines={1} ellipsizeMode="tail">
-                          {message.fileName}
-                        </Text>
-                        <Text style={styles.fileSize}>
-                          {message.fileType.toUpperCase()} • {formatFileSize(fileSizeInBytes)}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                )}
-              </TouchableOpacity>
-              {message.text && message.text !== message.fileName && (
-                <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
-                  {message.text}
-                </Text>
-              )}
-            </TouchableOpacity>
-          </Animated.View>
+          {messageContent}
         </View>
       </View>
     );
@@ -303,12 +238,12 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
         <>
           <TouchableOpacity
             style={styles.menuOverlay}
-            onPress={handleCloseMenu}
+            onPress={() => setMenuMessageVisible(false)}
             activeOpacity={1}
           />
           <MenuMessage
             onDelete={handleDelete}
-            onClose={handleCloseMenu}
+            onClose={() => setMenuMessageVisible(false)}
             style={[
               styles.menuMessageContainer,
               isOwnMessage ? styles.menuRight : styles.menuLeft
@@ -328,27 +263,20 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
       </View>
 
       <View style={styles.messageContentWrapper}>
-        <Animated.View
-          {...panResponder.panHandlers}
+        <TouchableOpacity
+          onLongPress={handleLongPress}
+          onPress={handlePress}
+          delayLongPress={500} // 500ms pour l'appui long
           style={[
-            styles.animatedContainer,
-            {
-              transform: [{ translateX }],
-            },
+            styles.messageContainer,
+            isOwnMessage ? styles.ownMessage : styles.otherMessage,
+            message.isUnread && styles.unreadMessage,
           ]}
         >
-          <TouchableOpacity
-            style={[
-              styles.messageContainer,
-              isOwnMessage ? styles.ownMessage : styles.otherMessage,
-              message.isUnread && styles.unreadMessage,
-            ]}
-          >
-            <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
-              {message.text}
-            </Text>
-          </TouchableOpacity>
-        </Animated.View>
+          <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
+            {message.text}
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -524,9 +452,5 @@ const styles = StyleSheet.create({
     bottom: -1000,
     backgroundColor: 'transparent',
     zIndex: 9998,
-  },
-  animatedContainer: {
-    width: '100%',
-    zIndex: 1,
   },
 });

@@ -5,7 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { useTranslation } from 'react-i18next';
 
-const MenuMessage = ({ onDelete, onClose, style }) => {
+/**
+ * MenuMessage component
+ * @param {Object} props - Props
+ * @param {Function} props.onDelete - Fonction de suppression
+ * @param {Object} props.style - Style
+ */
+const MenuMessage = ({ onDelete, style }) => {
   const { isSmartphone } = useDeviceType();
   const { t } = useTranslation();
   return (
@@ -24,7 +30,7 @@ const MenuMessage = ({ onDelete, onClose, style }) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    backgroundColor: COLORS.gray850,
+    backgroundColor: COLORS.gray650,
     borderRadius: SIZES.borderRadius.medium,
     padding: 8,
     zIndex: 1000,
