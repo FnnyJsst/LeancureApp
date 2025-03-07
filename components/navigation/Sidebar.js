@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity, Animated, StyleSheet, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
@@ -101,14 +101,12 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
             throw new Error('Erreur lors du chargement des canaux');
           }
         } catch (error) {
-          console.error('🔴 Erreur:', error);
           if (error.message.includes('Could not decrypt')) {
             await clearSecureStorage();
             if (onNavigate) {onNavigate(SCREENS.LOGIN);}
           }
         }
       } catch (error) {
-        console.error('🔴 Erreur globale:', error);
         await clearSecureStorage();
         if (onNavigate) {onNavigate(SCREENS.LOGIN);}
       } finally {
@@ -134,16 +132,32 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     loadUserInfo();
   }, []);
 
-  /**
-   * @function filteredGroups
-   * @description A function to filter the groups
-   */
-  const filteredGroups = groups.map(group => ({
-    ...group,
-    channels: group.channels?.filter(channel =>
-      channel.title.toLowerCase().includes(searchQuery.toLowerCase())
-    ),
-  })).filter(group => group.channels?.length > 0);
+  // Remplacer la fonction filteredGroups par un useMemo
+  const filteredGroups = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return groups; // Retourner tous les groupes si pas de recherche
+    }
+
+    return groups.map(group => ({
+      ...group,
+      channels: group.channels?.filter(channel => {
+        const searchLower = searchQuery.toLowerCase();
+        const titleMatch = channel.title.toLowerCase().includes(searchLower);
+        return titleMatch;
+      }),
+    })).filter(group => group.channels?.length > 0);
+  }, [groups, searchQuery]); // Dépendances : recalcule uniquement si groups ou searchQuery change
+
+  // Ajouter des stats de recherche (optionnel)
+  const searchStats = useMemo(() => {
+    const totalChannels = filteredGroups.reduce((acc, group) =>
+      acc + (group.channels?.length || 0), 0);
+
+    return {
+      totalChannels,
+      totalGroups: filteredGroups.length
+    };
+  }, [filteredGroups]);
 
   /**
    * @function handleGroupsClick
@@ -209,6 +223,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
+
           </View>
 
           {/* Group button */}
@@ -523,5 +538,10 @@ const styles = StyleSheet.create({
     padding: 4,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  searchStats: {
+    color: COLORS.gray300,
+    fontSize: SIZES.fonts.smallTextSmartphone,
+    marginLeft: 8,
   },
 });
