@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
  */
 const  FilePreview = ({ file, onRemove }) => {
 
-  const { isSmartphone, isLandscape } = useDeviceType();
+  const { isSmartphone } = useDeviceType();
 
   return (
     <View style={[styles.previewContainer, isSmartphone && styles.previewContainerSmartphone]}>
@@ -35,7 +35,9 @@ const  FilePreview = ({ file, onRemove }) => {
           </Text>
         </View>
       </View>
-      <TouchableOpacity onPress={onRemove}>
+      <TouchableOpacity
+        onPress={onRemove}
+        style={styles.removeButton}>
         <Ionicons
           name="close-circle"
           size={24}
@@ -49,12 +51,9 @@ const  FilePreview = ({ file, onRemove }) => {
 /**
  * @component InputChatWindow
  * @description A component that renders the input of the chat
- *
- * @param {Object} props - The properties of the component
+ * @param {Object} props.onSendMessage - The function to call when the message is sent
  * @param {Function} props.onFocusChange - The function to call when the input is focused
- *
- * @example
- * <InputChatWindow onSendMessage={() => console.log('Message sent')} onFocusChange={() => console.log('Input focused')} />
+ * @param {Object} props.editingMessage - The message to edit
  */
 export default function InputChatWindow({ onSendMessage, onFocusChange, editingMessage = null }) {
 
@@ -88,20 +87,41 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        // We allow all types of files
-        type: '*/*',
-        // We allow only one file to be picked
+        // We allow only the following file types
+        type: [
+          'application/pdf',
+          'text/csv',
+          'image/jpeg',
+          'image/png',
+          'image/jpg'
+        ],
         multiple: false,
       });
 
       if (result.assets && result.assets.length > 0) {
         const file = result.assets[0];
+
+        // Additional file type verification
+        const allowedTypes = [
+          'application/pdf',
+          'text/csv',
+          'image/jpeg',
+          'image/png',
+          'image/jpg'
+        ];
+
+        if (!allowedTypes.includes(file.mimeType)) {
+          alert(t('errors.fileTypeNotAllowed'));
+          return;
+        }
+
         const fileSize = formatFileSize(file.size);
 
         // We store the file in base64 format
         const base64 = await FileSystem.readAsStringAsync(file.uri, {
           encoding: FileSystem.EncodingType.Base64,
         });
+
         // We store the file in the selectedFile state
         setSelectedFile({
           type: 'file',
@@ -113,7 +133,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
         });
       }
     } catch (pickDocumentError) {
-      throw pickDocumentError;
+      alert(t('errors.filePickError'));
     }
   };
 
@@ -129,17 +149,16 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
     onFocusChange(false);
   };
 
-  // Effet pour gérer le message en cours d'édition
+  // Effect to handle the editing of the message
   useEffect(() => {
     if (editingMessage) {
-      console.log('🖊️ Message en édition:', editingMessage); // Log pour debug
       setMessage(editingMessage.text || '');
       setIsEditing(true);
-      // Si c'est un message avec fichier, on garde une référence
+      // If the message has a file, we keep a reference
       if (editingMessage.type === 'file' && editingMessage.fileInfo) {
         setSelectedFile({
           ...editingMessage.fileInfo,
-          readOnly: true // Le fichier ne peut pas être modifié
+          readOnly: true // The file cannot be modified
         });
       }
     } else {
@@ -155,21 +174,18 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
   const handleSend = () => {
     if (!message.trim() && !selectedFile) return;
 
+    // If the message is being edited, we send the edited message
     if (isEditing && editingMessage) {
-      console.log('✏️ Envoi du message modifié:', {
-        text: message.trim(),
-        messageId: editingMessage.id
-      }); // Log pour debug
 
       onSendMessage({
         text: message.trim(),
         isEditing: true,
         messageId: editingMessage.id,
         type: editingMessage.type,
-        fileInfo: editingMessage.fileInfo // On préserve les infos du fichier original
+        fileInfo: editingMessage.fileInfo
       });
     } else {
-      // Mode création normal
+      // If the message is not being edited, we send the message
       if (selectedFile && !selectedFile.readOnly) {
         onSendMessage({
           ...selectedFile,
@@ -182,7 +198,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
       }
     }
 
-    // Réinitialisation après envoi
+    // We reset the input
     setMessage('');
     setSelectedFile(null);
     setIsEditing(false);
@@ -255,7 +271,10 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
                 }}
                 style={styles.cancelEditIcon}
               >
-                <Ionicons name="close-circle" size={20} color={COLORS.gray300} />
+                <Ionicons
+                  name="close-circle"
+                  size={isSmartphone ? 20 : 24}
+                  color={COLORS.gray300} />
               </TouchableOpacity>
             )}
           </View>
@@ -286,12 +305,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     padding: 10,
-    backgroundColor: '#111111',
+    backgroundColor: COLORS.gray950,
     marginBottom: -15,
     marginTop: 0,
     borderRadius: 0,
     borderTopWidth: 0.5,
-    borderTopColor: '#403430',
+    borderTopColor: COLORS.borderColor,
     height: 60,
   },
   centerContainer: {
@@ -303,7 +322,7 @@ const styles = StyleSheet.create({
     height: 60,
   },
   attachButton: {
-    backgroundColor: '#111111',
+    backgroundColor: COLORS.gray950,
     borderRadius: SIZES.borderRadius.small,
     width: 36,
     height: 36,
@@ -330,7 +349,7 @@ const styles = StyleSheet.create({
     paddingRight: 35,
   },
   inputFocused: {
-    borderColor: COLORS.orange + '50',
+    borderColor: COLORS.orange,
     shadowColor: COLORS.orange,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.2,
@@ -341,13 +360,13 @@ const styles = StyleSheet.create({
     height: 36,
   },
   sendButton: {
-    width: 45,
-    height: 45,
+    width: 50,
+    height: 42,
     backgroundColor: COLORS.gray900,
     borderRadius: SIZES.borderRadius.small,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 0,
+    padding: 4,
   },
   sendButtonActive: {
     backgroundColor: COLORS.charcoal,
@@ -364,8 +383,8 @@ const styles = StyleSheet.create({
   previewContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    width: '50%',
-    padding: 3,
+    width: '40%',
+    padding: 2,
     marginBottom: 6,
     backgroundColor: COLORS.gray650,
     borderRadius: SIZES.borderRadius.small,
@@ -378,40 +397,28 @@ const styles = StyleSheet.create({
   fileInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 2,
   },
   fileDetails: {
     marginLeft: 8,
     maxWidth: 220,
   },
-  fileName: {
-    color: COLORS.gray300,
-    fontSize: SIZES.fonts.small,
-    fontWeight: SIZES.fontWeight.medium,
-
-  },
   fileSize: {
     color: COLORS.gray600,
     fontSize: SIZES.fonts.xSmall,
-  },
-  inputContainer: {
-    flex: 1,
-    marginRight: 10,
-    flexDirection: 'column',
+    marginLeft: 8,
   },
   fileInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    padding: 2,
   },
   fileName: {
     color: COLORS.gray300,
-    fontSize: SIZES.fonts.small,
     fontWeight: SIZES.fontWeight.medium,
     flex: 1,
     marginHorizontal: 8,
-  },
-  removeButton: {
-    padding: 2,
   },
   inputWithFile: {
     height: 36,
@@ -428,9 +435,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 8,
     top: '50%',
-    transform: [{ translateY: -10 }],
+    transform: [{ translateY: -12 }],
   },
   attachButtonDisabled: {
     opacity: 0.5
-  }
+  },
+  removeButton: {
+    alignSelf: 'center',
+    marginRight: 5,
+  },
 });
