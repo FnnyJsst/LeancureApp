@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Webview } from 'react-native-webview';
+import { WebView } from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
 import { SCREENS } from '../../constants/screens';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -20,7 +20,6 @@ export default function WebviewScreen({
   url,
   onNavigate,
   onSettingsAccess,
-  isMessagesHidden,
   testID,
 }) {
   const { isSmartphone } = useDeviceType();
@@ -41,22 +40,7 @@ export default function WebviewScreen({
 
   return (
     <View style={styles.container}>
-      {/* If messages are not hidden, display the back button so we can go back to the app menu */}
-      {!isMessagesHidden && (
-        <View style={styles.customHeaderContainer}>
-          <TouchableOpacity
-            style={[styles.backButton, isSmartphone && styles.backButtonSmartphone]}
-            onPress={() => onNavigate(SCREENS.APP_MENU)}
-          >
-            <Ionicons
-              name="close-outline"
-              size={isSmartphone ? 20 : 24}
-              color={COLORS.white}
-            />
-          </TouchableOpacity>
-        </View>
-      )}
-      <Webview
+      <WebView
         ref={webViewRef}
         source={{ uri: url }}
         style={styles.webview}

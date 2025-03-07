@@ -125,7 +125,7 @@ export default function WebviewsListScreen({ channels, selectedWebviews, onBack,
           backgroundColor={COLORS.orange}
           color={COLORS.white}
           onPress={handleImportWebviews}
-          width="90%"
+          width="80%"
         />
       </View>
     </View>
