@@ -23,7 +23,7 @@ import { Text } from '../../text/CustomText';
  *
  */
 export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64 }) {
-  const { isSmartphone, isSmartphoneLandscape, isLandscape } = useDeviceType();
+  const { isSmartphone, isSmartphoneLandscape, isLandscape, isTabletLandscape } = useDeviceType();
   const [error, setError] = useState(null);
 
   /**
@@ -165,7 +165,12 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         isSmartphoneLandscape && styles.modalContainerSmartphoneLandscape,
         isLandscape && styles.modalContainerLandscape,
       ]}>
-        <View style={[styles.modalContent, isSmartphone && styles.modalContentSmartphone, isSmartphoneLandscape && styles.modalContentSmartphoneLandscape]}>
+        <View
+          style={[
+          styles.modalContent,
+          isSmartphone && styles.modalContentSmartphone,
+          isLandscape && styles.modalContentLandscape
+        ]}>
           <TouchableOpacity style={styles.closeButtonContainer} onPress={onClose}>
             <View style={styles.closeButton}>
               <Ionicons name="close" size={24} color={COLORS.white} />
@@ -237,13 +242,9 @@ const styles = StyleSheet.create({
   modalContentSmartphone: {
     width: '90%',
   },
-  modalContentSmartphoneLandscape: {
+  modalContentLandscape: {
     width: '40%',
     height: '100%',
-    marginTop: '0%',
-  },
-  modalContentLandscape: {
-    width: '32%',
     marginTop: '0%',
   },
   closeButtonContainer: {

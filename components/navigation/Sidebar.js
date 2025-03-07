@@ -305,7 +305,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           )}
 
           {/* Settings button */}
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[
               styles.menuItem,
               currentSection === 'settings' && styles.selectedItem,
@@ -322,7 +322,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
               isSmartphone && styles.menuTextSmartphone,
               currentSection === 'settings' && { color: COLORS.orange },
             ]}>{t('sidebar.settings')}</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </ScrollView>
 
         {/* User profile banner */}
