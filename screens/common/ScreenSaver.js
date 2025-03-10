@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Image, StyleSheet, StatusBar, Animated } from 'react-native';
 import { COLORS } from '../../constants/style';
 
@@ -12,29 +12,45 @@ import { COLORS } from '../../constants/style';
  * <ScreenSaver />
  */
 export default function ScreenSaver() {
-  // Créer une valeur d'animation pour l'opacité
-  const fadeAnim = new Animated.Value(0);
+  console.log('🎨 Rendu du ScreenSaver');
+  // Utiliser useRef pour éviter de recréer l'animation à chaque rendu
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    console.log('🎬 Démarrage de l\'animation du ScreenSaver');
     // Animation d'entrée en fondu
-    Animated.sequence([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-      // Maintenir l'image visible pendant 4 secondes
-      Animated.delay(4000),
-    ]).start();
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => {
+      console.log('✨ Animation du ScreenSaver terminée');
+    });
+
+    return () => {
+      console.log('🔚 Nettoyage du ScreenSaver');
+      fadeAnim.setValue(0);
+    };
   }, []);
 
   return (
-    <View style={styles.splashContainer}>
+    <View style={styles.container}>
       <StatusBar hidden={true} />
-      <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
+      <Animated.View
+        style={[
+          styles.content,
+          {
+            opacity: fadeAnim,
+            backgroundColor: COLORS.gray900,
+          }
+        ]}
+      >
         <Image
           source={require('../../assets/images/screensaver_anim.png')}
-          style={styles.splashImage}
+          style={styles.image}
+          resizeMode="contain"
+          onLoad={() => console.log('🖼️ Image du ScreenSaver chargée')}
+          onError={(error) => console.log('❌ Erreur de chargement de l\'image:', error)}
         />
       </Animated.View>
     </View>
@@ -42,28 +58,24 @@ export default function ScreenSaver() {
 }
 
 const styles = StyleSheet.create({
-  splashContainer: {
+  container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: COLORS.gray900,
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 999, // S'assurer qu'il est au-dessus de tout
+    elevation: 999, // Pour Android
+    zIndex: 999, // Pour iOS
   },
-  imageContainer: {
+  content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
-    height: '100%',
   },
-  splashImage: {
-    width: '50%',
-    height: '25%',
-    resizeMode: 'contain',
+  image: {
+    width: '80%',
+    height: '80%',
   },
 });

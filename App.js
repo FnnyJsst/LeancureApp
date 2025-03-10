@@ -5,7 +5,7 @@ import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
 import WebviewsManagementScreen from './screens/webviews/WebviewsManagementScreen';
 import WebviewsListScreen from './screens/webviews/WebviewsListScreen';
-import WebviewScreen from './screens/webviews/WebviewScreen';
+import WebViewScreen from './screens/webviews/WebViewScreen';
 import PasswordDefineModal from './components/modals/webviews/PasswordDefineModal';
 import PasswordCheckModal from './components/modals/webviews/PasswordCheckModal';
 import { SCREENS } from './constants/screens';
@@ -23,28 +23,25 @@ import { initI18n } from './i18n';
  * @description The main component of the app
  */
 export default function App({ testID }) {
+  // 1. Tous les useState au début
+  const [isLoading, setIsLoading] = useState(true);
+  const [isI18nInitialized, setIsI18nInitialized] = useState(false);
+  const [currentScreen, setCurrentScreen] = useState(SCREENS.NO_URL);
+  const [showSplash, setShowSplash] = useState(true);
 
-  // Fonts used in the app
+  // 2. Hooks personnalisés
   const [fontsLoaded] = useFonts({
-    'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),         // 100
-    'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),       // 300
-    'Raleway-Regular': require('./assets/fonts/raleway.regular.ttf'),   // 400
-    'Raleway-Medium': require('./assets/fonts/raleway.medium.ttf'),     // 500
-    'Raleway-SemiBold': require('./assets/fonts/raleway.semibold.ttf'), // 600
-    'Raleway-Bold': require('./assets/fonts/raleway.bold.ttf'),         // 700
-    'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),// 800
+    'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),
+    'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),
+    'Raleway-Regular': require('./assets/fonts/raleway.regular.ttf'),
+    'Raleway-Medium': require('./assets/fonts/raleway.medium.ttf'),
+    'Raleway-SemiBold': require('./assets/fonts/raleway.semibold.ttf'),
+    'Raleway-Bold': require('./assets/fonts/raleway.bold.ttf'),
+    'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),
   });
 
-  // Initialization of translations
-  const [isI18nInitialized, setIsI18nInitialized] = useState(false);
-
-  const [currentScreen, setCurrentScreen] = useState(SCREENS.NO_URL);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Importation of the navigation hook
+  // 3. Hooks de navigation et autres hooks personnalisés
   const { navigate } = useNavigation(setCurrentScreen);
-
-  // Importation of the webviews hooks
   const {
     channels,
     selectedWebviews,
@@ -64,7 +61,6 @@ export default function App({ testID }) {
     navigateToWebview,
   } = useWebviews(setCurrentScreen);
 
-  // Importation of the password hooks
   const {
     password,
     isPasswordRequired,
@@ -78,11 +74,7 @@ export default function App({ testID }) {
     closePasswordDefineModal,
   } = useWebviewsPassword(navigate);
 
-
-  /**
-   * @function handleSettingsAccess
-   * @description Handles the settings access with password check
-   */
+  // 4. useCallback
   const handleSettingsAccess = useCallback(() => {
     if (isPasswordRequired) {
       setPasswordCheckModalVisible(true);
@@ -91,36 +83,35 @@ export default function App({ testID }) {
     }
   }, [isPasswordRequired, setPasswordCheckModalVisible, navigate]);
 
-  /**
-   * @function initializeApp
-   * @description Initializes the app
-   */
+  // Simple useEffect pour le splash screen
+  useEffect(() => {
+    console.log('🎬 Démarrage du splash screen');
+    const timer = setTimeout(() => {
+      console.log('⏱️ Timer terminé, désactivation du splash screen');
+      setShowSplash(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // useEffect pour l'initialisation
   useEffect(() => {
     const initializeApp = async () => {
+      console.log('🚀 Début initialisation app');
+      try {
+        console.log('🌍 Initialisation i18n...');
+        await initI18n();
+        setIsI18nInitialized(true);
+        console.log('✅ i18n initialisé');
 
-    try {
-      // Translation initialization
-      await initI18n();
-      setIsI18nInitialized(true);
+        console.log('📱 Chargement des channels...');
+        await loadSelectedChannels();
+        console.log('✅ Channels chargés');
 
-      // Force the display of the ScreenSaver
-      setIsLoading(true);
-
-      // We wait 3 seconds and then we load the selected channels
-        await Promise.all([
-          new Promise(resolve => setTimeout(resolve, 3000)),
-          (async () => {
-            await loadSelectedChannels();
-          })()
-        ]);
-
-      // We hide the ScreenSaver and we navigate to the webview or the no url screen
-        setIsLoading(false);
         navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-
+        setIsLoading(false);
+        console.log('✅ Initialisation terminée');
       } catch (error) {
-        // If there is an error, we navigate to the no url screen
-        console.error('❌ Error in app initialization:', error);
+        console.error('❌ Erreur lors de l\'initialisation:', error);
         setIsI18nInitialized(true);
         setIsLoading(false);
         navigate(SCREENS.NO_URL);
@@ -128,12 +119,15 @@ export default function App({ testID }) {
     };
 
     initializeApp();
-  }, [loadSelectedChannels, navigate, selectedWebviews?.length]);
+  }, []);
 
-  // If the fonts are not loaded, the ScreenSaver is displayed
-  if (!fontsLoaded || !isI18nInitialized || isLoading) {
+  // Condition de rendu du ScreenSaver
+  if (showSplash || isLoading || !fontsLoaded || !isI18nInitialized) {
+    console.log('🎨 Affichage du ScreenSaver');
     return <ScreenSaver testID="screen-saver" />;
   }
+
+  // console.log('🎨 Affichage de l\'app principale');
 
   /**
    * @function handleImportWebviews
@@ -146,11 +140,6 @@ export default function App({ testID }) {
       handleSelectChannels(newWebviews);
     }
   };
-
-  // If the app is loading, show the loading screen
-  if (isLoading) {
-    return <ScreenSaver testID="screen-saver" />;
-  }
 
   /**
    * @function renderWebviewScreen
@@ -221,7 +210,7 @@ export default function App({ testID }) {
 
       case SCREENS.WEBVIEW:
         return (
-          <WebviewScreen
+          <WebViewScreen
             url={webViewUrl}
             onNavigate={navigate}
             onSettingsAccess={handleSettingsAccess}
@@ -239,6 +228,10 @@ export default function App({ testID }) {
     <ErrorBoundary>
       <View style={styles.container} testID={testID || "app-root"}>
         {renderWebviewScreen()}
+
+        {(showSplash || isLoading || !fontsLoaded || !isI18nInitialized) && (
+          <ScreenSaver testID="screen-saver" />
+        )}
 
         <PasswordDefineModal
           visible={isPasswordDefineModalVisible}
@@ -266,6 +259,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.gray950,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  screenSaverContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    elevation: 999,
   },
   centerContent: {
     justifyContent: 'center',
