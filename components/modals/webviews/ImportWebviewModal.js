@@ -17,11 +17,8 @@ import { useTranslation } from 'react-i18next';
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onImport - The function to call when the channels are imported
- *
- * @example
- * <ImportWebviewModal visible={visible} onClose={() => console.log('Modal closed')} onImport={() => console.log('Channels imported')} />
  */
-const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
+const ImportWebviewModal = ({ visible, onClose, onImport }) => {
   const { t } = useTranslation();
   // State management for the URL, error and channels
   const [url, setUrl] = useState('');
