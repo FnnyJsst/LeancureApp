@@ -115,8 +115,8 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     // Utiliser createApiRequest comme les autres fonctions
     const body = createApiRequest({
       'amaiia_msg_srv': {
-        'client': {
-          'add_msg': {
+        'message': {
+          'add': {
             'channelid': parseInt(channelId, 10),
             'title': messageTitle,
             'details': messageContent.messageText || null,
@@ -189,8 +189,8 @@ export const deleteMessageApi = async (messageId, userCredentials) => {
 
     const body = createApiRequest({
       'amaiia_msg_srv': {
-        'client': {
-          'delete_msg': {
+        'message': {
+          'delete': {
             'messageid': parseInt(messageId, 10)
           }
         }
@@ -345,7 +345,7 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
 
     const body = createApiRequest({
       'amaiia_msg_srv': {
-        'client': {
+        'message': {
           'get_base64': {
             'messageid': parseInt(messageId, 10),
             'channelid': parseInt(msg.channelid, 10),

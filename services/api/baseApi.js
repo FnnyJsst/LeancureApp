@@ -1,7 +1,7 @@
 import CryptoJS from 'crypto-js';
 /**
  * Create an API request object
- * @param {string} saltPath - The salt path, ex : "amaiia_msg_srv/client/add_msg/1713024000000/"
+ * @param {string} saltPath - The salt path, ex : "amaiia_msg_srv/message/add/1713024000000/"
  * @param {string} contractNumber - The contract number
  * @returns {Object} - The API request object
  */
