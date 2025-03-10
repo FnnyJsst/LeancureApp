@@ -60,15 +60,12 @@ export function useWebviews(setCurrentScreen) {
   const getIntervalInMilliseconds = useCallback((value) => {
     switch (value) {
       case 'every minute': return 60000;
-      case 'every 2 minutes': return 120000;
       case 'every 5 minutes': return 300000;
       case 'every 15 minutes': return 900000;
       case 'every 30 minutes': return 1800000;
       case 'every hour': return 3600000;
       case 'every 2 hours': return 7200000;
-      case 'every 3 hours': return 10800000;
       case 'every 6 hours': return 21600000;
-      case 'every day': return 86400000;
       default: return null;
     }
   }, []);

@@ -10,7 +10,6 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS, FONTS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../../components/text/CustomText';
-import { VERSION } from '../../config/versioning/version';
 import { useTranslation } from 'react-i18next';
 
 
@@ -114,19 +113,6 @@ export default function SettingsWebviews({
     return t(`modals.webview.refresh.${key}`);
   };
 
-  /**
-   * @function handleToggleHideMessages
-   * @description Handles the toggle hide messages action
-   * @param {boolean} value - The value to toggle
-   */
-  const handleToggleHideMessages = async (value) => {
-    try {
-      setHideMessagesModalVisible(false);
-      await onToggleHideMessages(value);
-    } catch (error) {
-      throw error;
-    }
-  };
 
   return (
     <View testID={testID}>
@@ -272,46 +258,6 @@ export default function SettingsWebviews({
               </TouchableOpacity>
             </View>
           </View>
-          {/* Section Messages - Visible uniquement en V2 */}
-          {VERSION === 'v2' && (
-            <>
-              <View style={styles.titleContainer}>
-                <Text style={styles.title}>{t('titles.messages')}</Text>
-              </View>
-              <View style={[
-                styles.configContainer,
-                isSmartphone && styles.configContainerSmartphone,
-                isLandscape && styles.configContainerLandscape,
-              ]}>
-                <View style={styles.rowContainer}>
-                  <View style={styles.leftContent}>
-                    <SettingsCard
-                      title={t('settings.common.showHide')}
-                      iconBackgroundColor={COLORS.borderColor}
-                      icon={
-                        <Ionicons
-                          name="remove-circle-outline"
-                          size={isSmartphone ? 22 : 28}
-                          color={COLORS.red}
-                        />
-                      }
-                      description={t('settings.common.showHideDescription')}
-                      onPress={() => setHideMessagesModalVisible(true)}
-                      testID="open-hide-messages-button"
-                    />
-                  </View>
-                  <TouchableOpacity
-                    style={styles.baseToggle}
-                    onPress={() => setHideMessagesModalVisible(true)}
-                  >
-                    <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
-                      {isMessagesHidden ? t('buttons.hide') : t('buttons.show')}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </>
-          )}
         </View>
       </ScrollView>
       {/* Modals */}

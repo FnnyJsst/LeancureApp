@@ -52,14 +52,14 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
               title="Cancel"
               backgroundColor={COLORS.gray650}
               color={COLORS.white}
-              width="22%"
+              width={isSmartphone ? '23%' : '26%'}
               onPress={onClose}
             />
             <Button
               title="Delete"
               backgroundColor={COLORS.orange}
               color={COLORS.white}
-              width="22%"
+              width={isSmartphone ? '23%' : '26%'}
               onPress={() => handleDelete()}
             />
           </View>

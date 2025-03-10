@@ -33,15 +33,12 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID }) => {
   const options = [
     { label: t('modals.webview.refresh.never'), value: 'never' },
     { label: t('modals.webview.refresh.every1min'), value: 'every minute' },
-    { label: t('modals.webview.refresh.every2min'), value: 'every 2 minutes' },
     { label: t('modals.webview.refresh.every5min'), value: 'every 5 minutes' },
     { label: t('modals.webview.refresh.every15min'), value: 'every 15 minutes' },
     { label: t('modals.webview.refresh.every30min'), value: 'every 30 minutes' },
     { label: t('modals.webview.refresh.every1h'), value: 'every hour' },
     { label: t('modals.webview.refresh.every2h'), value: 'every 2 hours' },
-    { label: t('modals.webview.refresh.every3h'), value: 'every 3 hours' },
     { label: t('modals.webview.refresh.every6h'), value: 'every 6 hours' },
-    { label: t('modals.webview.refresh.everyDay'), value: 'every day' },
   ];
 
   return (
