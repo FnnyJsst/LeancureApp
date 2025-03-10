@@ -265,6 +265,7 @@ export default function SettingsWebviews({
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onSelectOption={handleSelectOption}
+        currentOption={refreshOption}
         testID={testID}
       />
       <ReadOnlyModal

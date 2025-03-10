@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
@@ -16,18 +16,26 @@ import { useTranslation } from 'react-i18next';
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onSelectOption - The function to call when the option is selected
+ * @param {string} props.currentOption - The current selected option
  *
  * @example
- * <AutoRefreshModal visible={visible} onClose={() => console.log('Modal closed')} onSelectOption={() => console.log('Option selected')} />
+ * <AutoRefreshModal visible={visible} onClose={() => console.log('Modal closed')} onSelectOption={() => console.log('Option selected')} currentOption="every 5 minutes" />
  */
-const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID }) => {
+const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOption }) => {
 
   const { t } = useTranslation();
   // We create a hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
 
   // State used to store the selected option
-  const [selectedOption, setSelectedOption] = useState('never');
+  const [selectedOption, setSelectedOption] = useState(currentOption || 'never');
+
+  // Mettre à jour selectedOption quand currentOption change
+  useEffect(() => {
+    if (currentOption) {
+      setSelectedOption(currentOption);
+    }
+  }, [currentOption]);
 
   // Options for the auto-refresh modal
   const options = [
