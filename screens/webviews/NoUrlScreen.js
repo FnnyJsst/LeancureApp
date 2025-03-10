@@ -13,15 +13,17 @@ import { useTranslation } from 'react-i18next';
  * @description Screen displayed when the user hasn't imported any channels
  * @param {Function} onNavigate - A function to navigate to a screen
  * @param {Function} handleSettingsAccess - A function to handle the settings access
- * @param {boolean} isMessagesHidden - A boolean indicating if messages are hidden
  */
 export default function NoUrlScreen({
   onNavigate,
   handleSettingsAccess,
-  isMessagesHidden,
   testID,
 }) {
+
+  // Translation
   const { t } = useTranslation();
+
+  // Device type variables
   const { isSmartphone } = useDeviceType();
 
   /**
@@ -34,8 +36,6 @@ export default function NoUrlScreen({
 
   return (
     <View style={styles.pageContainer} testID={testID}>
-      {/* If messages are not hidden, display the back button so we can go back to the app menu */}
-      {!isMessagesHidden && (
         <View style={styles.customHeaderContainer}>
           <TouchableOpacity
             style={[styles.backButton, isSmartphone && styles.backButtonSmartphone]}
@@ -48,7 +48,6 @@ export default function NoUrlScreen({
             />
           </TouchableOpacity>
         </View>
-      )}
       <View style={styles.textContainer}>
         <Text style={[
           styles.text,
@@ -70,7 +69,6 @@ const styles = StyleSheet.create({
   customHeaderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
     paddingHorizontal: 15,
   },
   backButton: {
@@ -78,16 +76,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
-    marginTop: 10,
   },
   backButtonSmartphone: {
     width: 40,
     height: 40,
-  },
-  headerTitle: {
-    color: COLORS.white,
-    fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: SIZES.fontWeight.bold,
   },
   textContainer: {
     flex: 1,

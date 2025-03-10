@@ -25,10 +25,6 @@ export const useNavigation = (setCurrentScreen) => {
     const screenHierarchy = {
       [SCREENS.WEBVIEWS_MANAGEMENT]: SCREENS.SETTINGS,
       [SCREENS.WEBVIEWS_LIST]: SCREENS.NO_URL,
-      [SCREENS.ACCOUNT]: SCREENS.CHAT,
-      [SCREENS.SETTINGS_MESSAGE]: SCREENS.CHAT,
-      [SCREENS.CHAT]: SCREENS.APP_MENU,
-      [SCREENS.SETTINGS]: SCREENS.APP_MENU,
     };
 
     return (currentScreen) => {

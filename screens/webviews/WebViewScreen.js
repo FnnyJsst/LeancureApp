@@ -1,28 +1,21 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
-import { SCREENS } from '../../constants/screens';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
-import { useDeviceType } from '../../hooks/useDeviceType';
 
 /**
  * @component WebviewScreen
  * @description Displays a web page when the user has imported a channel
  * @param {string} url - The url of the web page
- * @param {Function} onNavigate - A function to navigate to a screen
  * @param {Function} onSettingsAccess - A function to handle the settings access
- * @param {boolean} isMessagesHidden - A boolean to hide the header
  */
 export default function WebviewScreen({
   url,
-  onNavigate,
   onSettingsAccess,
-  testID,
 }) {
-  const { isSmartphone } = useDeviceType();
+
   const webViewRef = useRef(null);
 
   useEffect(() => {
@@ -57,36 +50,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.gray900,
   },
-  customHeaderContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 15,
-  },
-  backButton: {
-    backgroundColor: COLORS.charcoal,
-    width: 30,
-    height: 30,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-    marginTop: 10,
-  },
-  backButtonSmartphone: {
-    width: 40,
-    height: 40,
-  },
-  headerTitle: {
-    color: COLORS.white,
-    fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: SIZES.fontWeight.bold,
-  },
   webview: {
     flex: 1,
   },
@@ -96,6 +59,5 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1,
-    padding: 15,
   },
 });

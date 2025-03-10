@@ -12,8 +12,6 @@ import { SCREENS } from '../../constants/screens';
 import { Text } from '../../components/text/CustomText';
 import { useTranslation } from 'react-i18next';
 
-
-
 /**
  * @component SettingsWebviews
  * @description Displays the settings for the webviews
@@ -27,8 +25,6 @@ import { useTranslation } from 'react-i18next';
  * @param {boolean} isReadOnly - A boolean to indicate if the user is read only
  * @param {Function} toggleReadOnly - A function to toggle the read only mode
  * @param {Function} handleSelectOption - A function to handle the select option
- * @param {boolean} isMessagesHidden - A boolean to indicate if messages are hidden
- * @param {Function} onToggleHideMessages - A function to toggle the hide messages mode
  */
 export default function SettingsWebviews({
   onNavigate,

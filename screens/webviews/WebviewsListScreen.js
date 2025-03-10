@@ -15,14 +15,12 @@ import { useTranslation } from 'react-i18next';
  * @param {Array} selectedWebviews - The list of selected channels
  * @param {Function} onBack - A function to navigate to a screen
  * @param {Function} onBackPress - A function to navigate to a screen
- * @returns {JSX.Element} - A JSX element
- *
- * @example
- * <WebviewsListScreen channels={channels} selectedWebviews={selectedWebviews} onBack={onBack} onBackPress={onBackPress} />
  */
 export default function WebviewsListScreen({ channels, selectedWebviews, onBack, onBackPress }) {
 
+  // Translation
   const { t } = useTranslation();
+
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
 

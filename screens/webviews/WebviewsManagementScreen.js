@@ -37,7 +37,9 @@ export default function WebviewsManagementScreen({
   testID,
 }) {
 
+  // Translation
   const { t } = useTranslation();
+
   // Customized hook to determine the device type and orientation
   const { isTablet, isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
 
@@ -94,12 +96,10 @@ export default function WebviewsManagementScreen({
       try {
         await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(updatedWebviews));
       } catch (error) {
-
         throw error;
       }
     }
   };
-
 
   /**
    * @function moveWebviewUp
@@ -215,7 +215,7 @@ export default function WebviewsManagementScreen({
         initialTitle={webviewToEdit?.title}
         onSave={(newUrl, newTitle) => handleEditWebviewModal(webviewToEdit, newUrl, newTitle)}
       />
-      {/* Modal to delete a webview */}
+      {/* Modal to delete a channel */}
       <DeleteWebviewModal
         testID={testID}
         visible={isDeleteModalVisible}
@@ -270,7 +270,6 @@ export default function WebviewsManagementScreen({
                   <View style={[
                     styles.arrowContainer,
                     isSmartphone && styles.arrowContainerSmartphone,
-                    isLandscape && styles.arrowContainerLandscape,
                   ]}>
                   <TouchableOpacity
                     testID={`move-up-${index}`}
@@ -414,9 +413,6 @@ const styles = StyleSheet.create({
   arrowContainer: {
     flexDirection: 'row',
     marginRight: 30,
-  },
-  arrowContainerLandscape: {
-    // marginRight: 10,
   },
   arrowContainerSmartphone: {
     marginRight: 5,
