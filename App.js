@@ -23,13 +23,13 @@ import { initI18n } from './i18n';
  * @description The main component of the app
  */
 export default function App({ testID }) {
-  // 1. Tous les useState au début
+
   const [isLoading, setIsLoading] = useState(true);
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
   const [currentScreen, setCurrentScreen] = useState(SCREENS.NO_URL);
   const [showSplash, setShowSplash] = useState(true);
 
-  // 2. Hooks personnalisés
+  // Loading of fonts
   const [fontsLoaded] = useFonts({
     'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),
     'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),
@@ -40,7 +40,7 @@ export default function App({ testID }) {
     'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),
   });
 
-  // 3. Hooks de navigation et autres hooks personnalisés
+  // Personalized hooks
   const { navigate } = useNavigation(setCurrentScreen);
   const {
     channels,
@@ -74,7 +74,10 @@ export default function App({ testID }) {
     closePasswordDefineModal,
   } = useWebviewsPassword(navigate);
 
-  // 4. useCallback
+  /**
+   * @function handleSettingsAccess
+   * @description Handles the access to the settings with or without password
+   */
   const handleSettingsAccess = useCallback(() => {
     if (isPasswordRequired) {
       setPasswordCheckModalVisible(true);
@@ -83,51 +86,50 @@ export default function App({ testID }) {
     }
   }, [isPasswordRequired, setPasswordCheckModalVisible, navigate]);
 
-  // Simple useEffect pour le splash screen
+  /**
+   * @function handleSplashScreen
+   * @description Handles the splash screen
+   */
   useEffect(() => {
-    console.log('🎬 Démarrage du splash screen');
     const timer = setTimeout(() => {
-      console.log('⏱️ Timer terminé, désactivation du splash screen');
       setShowSplash(false);
     }, 3000);
     return () => clearTimeout(timer);
   }, []);
 
-  // useEffect pour l'initialisation
+  /**
+   * @function initializeApp
+   * @description Initializes the app
+   */
   useEffect(() => {
     const initializeApp = async () => {
-      console.log('🚀 Début initialisation app');
       try {
-        console.log('🌍 Initialisation i18n...');
         await initI18n();
+        // Set the i18n initialization to use translations
         setIsI18nInitialized(true);
-        console.log('✅ i18n initialisé');
 
-        console.log('📱 Chargement des channels...');
+        // Load the channels of the user
         await loadSelectedChannels();
-        console.log('✅ Channels chargés');
 
+        // Navigate to the webview screen if there are channels, otherwise to the no url screen
         navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
         setIsLoading(false);
-        console.log('✅ Initialisation terminée');
       } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation:', error);
         setIsI18nInitialized(true);
         setIsLoading(false);
         navigate(SCREENS.NO_URL);
+        throw new Error(`Error while initializing the app: ${error}`);
       }
     };
 
     initializeApp();
   }, []);
 
-  // Condition de rendu du ScreenSaver
+  // Condition to render the ScreenSaver
   if (showSplash || isLoading || !fontsLoaded || !isI18nInitialized) {
-    console.log('🎨 Affichage du ScreenSaver');
     return <ScreenSaver testID="screen-saver" />;
   }
 
-  // console.log('🎨 Affichage de l\'app principale');
 
   /**
    * @function handleImportWebviews
@@ -225,6 +227,7 @@ export default function App({ testID }) {
 
 
   return (
+    // {/* Error boundary is used to catch errors in the app */}
     <ErrorBoundary>
       <View style={styles.container} testID={testID || "app-root"}>
         {renderWebviewScreen()}
@@ -258,7 +261,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.gray950,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight / 2 : 0,
   },
   screenSaverContainer: {
     position: 'absolute',

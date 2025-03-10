@@ -77,6 +77,7 @@ export default function InputModal({
 const styles = StyleSheet.create({
   inputContainer: {
     width: '100%',
+    alignItems: 'center',
   },
   inputWrapper: {
     height: 50,
@@ -102,6 +103,8 @@ const styles = StyleSheet.create({
   },
   inputSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
+    height: 45,
+
   },
   inputFocused: {
     borderColor: COLORS.orange + '50',
@@ -111,7 +114,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   inputSmartphonePortrait: {
-    width: '95%',
+    width: '100%',
   },
   eyeIcon: {
     marginRight: 10,

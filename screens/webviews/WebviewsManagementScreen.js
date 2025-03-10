@@ -464,9 +464,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 15,
     marginBottom: 5,
-    marginTop: 20,
     paddingHorizontal: '2%',
   },
 });

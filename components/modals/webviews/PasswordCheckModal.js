@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, View, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import InputModal from '../../inputs/InputModal';
@@ -18,9 +18,7 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onSubmit - The function to call when the password is submitted
  * @param {boolean} props.isFocused - Whether the input is focused
- *
- * @example
- * <PasswordCheckModal visible={visible} onClose={() => console.log('Modal closed')} onSubmit={() => console.log('Password submitted')} isFocused={true} />
+
  */
 export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocused }) {
 
@@ -36,6 +34,13 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
     message: '',
     type: 'error',
   });
+
+  // Réinitialiser le password quand la modal se ferme
+  useEffect(() => {
+    if (!visible) {
+      setPassword('');
+    }
+  }, [visible]);
 
   /**
    * @function handleSubmit
@@ -61,6 +66,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
    */
   const handleClose = () => {
     setPassword('');
+    setShowPassword(false);
     onClose();
   };
 
@@ -101,7 +107,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
                 onPress={handleClose}
-                width="22%"
+                width={isSmartphone ? '23%' : '26%'}
               />
               <Button
                 title="Ok"
@@ -132,9 +138,14 @@ const styles = StyleSheet.create({
     width: '95%',
   },
   modalContentSmartphoneLandscape: {
-    width: '45%',
+    width: '50%',
   },
   modalContentTabletPortrait: {
     width: '65%',
   },
+  // inputContainer: {
+  //   width: '100%',
+  //   alignItems: 'center',
+  //   // paddingHorizontal: 20,
+  // },
 });

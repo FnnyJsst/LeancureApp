@@ -73,14 +73,14 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
             <Button
               title={t('buttons.yes')}
               backgroundColor={COLORS.orange}
-              width={isSmartphone ? '20%' : '22%'}
+              width={isSmartphone ? '23%' : '26%'}
               onPress={handleYes}
             />
             <Button
               title={t('buttons.no')}
               backgroundColor={COLORS.gray950}
               color={COLORS.gray300}
-              width={isSmartphone ? '20%' : '22%'}
+              width={isSmartphone ? '23%' : '26%'}
               onPress={handleNo}
             />
           </View>

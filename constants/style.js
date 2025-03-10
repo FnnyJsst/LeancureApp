@@ -104,6 +104,7 @@ export const MODAL_STYLES = {
     justifyContent: 'flex-end',
     gap: 15,
     marginTop: 10,
+    width: '100%',
   },
 };
 

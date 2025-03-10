@@ -150,6 +150,7 @@ export default {
     channels: "Channels",
     security: "Security",
     app: "App",
+    version: "Version",
   },
 
   settings: {

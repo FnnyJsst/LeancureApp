@@ -4,31 +4,22 @@ import { COLORS } from '../../constants/style';
 
 /**
  * @component ScreenSaver
- * @description Displays the screen saver
- *
- * @returns {JSX.Element} - A JSX element
- *
- * @example
- * <ScreenSaver />
+ * @description Displays the screen saver when the app is loading
  */
 export default function ScreenSaver() {
-  console.log('🎨 Rendu du ScreenSaver');
-  // Utiliser useRef pour éviter de recréer l'animation à chaque rendu
+
+  // Use ref to avoid recreating the animation on each render
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    console.log('🎬 Démarrage de l\'animation du ScreenSaver');
-    // Animation d'entrée en fondu
+    // Start the animation of the ScreenSaver
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 500,
       useNativeDriver: true,
-    }).start(() => {
-      console.log('✨ Animation du ScreenSaver terminée');
     });
 
     return () => {
-      console.log('🔚 Nettoyage du ScreenSaver');
       fadeAnim.setValue(0);
     };
   }, []);
@@ -49,8 +40,6 @@ export default function ScreenSaver() {
           source={require('../../assets/images/screensaver_anim.png')}
           style={styles.image}
           resizeMode="contain"
-          onLoad={() => console.log('🖼️ Image du ScreenSaver chargée')}
-          onError={(error) => console.log('❌ Erreur de chargement de l\'image:', error)}
         />
       </Animated.View>
     </View>
@@ -66,8 +55,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    elevation: 999, // Pour Android
-    zIndex: 999, // Pour iOS
+    elevation: 999, // For Android
+    zIndex: 999, // For iOS
   },
   content: {
     flex: 1,

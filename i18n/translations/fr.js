@@ -95,7 +95,7 @@ export default {
       password: {
         enterPassword: "Entrez un mot de passe",
         enterYourPassword: "Entrez votre mot de passe",
-        define: "Entrez un mot de passe (6+ caractères)",
+        define: "Entrez un mot de passe (6+ car)",
         confirm: "Confirmez le mot de passe"
       },
       refresh: {
@@ -151,6 +151,7 @@ export default {
     messages: "Messages",
     channels: "Canaux",
     security: "Sécurité",
+    version: "Version",
   },
 
   settings: {

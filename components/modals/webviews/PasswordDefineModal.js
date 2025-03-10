@@ -162,7 +162,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
                   onDisablePassword();
                   handleClose();
                 }}
-                width={isSmartphone ? '32%' : '40%'}
+                width={isSmartphone ? '34%' : '40%'}
                 testID="disable-password-button"
               />
               <Button
@@ -170,14 +170,14 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
                 onPress={handleOkPress}
-                width={isSmartphone ? '20%' : '22%'}
+                width={isSmartphone ? '23%' : '26%'}
               />
               <Button
                 title="Close"
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
                 onPress={handleClose}
-                width={isSmartphone ? '20%' : '22%'}
+                width={isSmartphone ? '23%' : '26%'}
                 testID="close-password-button"
               />
             </View>
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
 
   //Content styles
   modalContentSmartphone: {
-    width: '95%',
+    width: '90%',
     padding: 15,
   },
   modalContentSmartphoneLandscape: {

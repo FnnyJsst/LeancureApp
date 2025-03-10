@@ -255,6 +255,11 @@ export default function SettingsWebviews({
             </View>
           </View>
         </View>
+        <View style={styles.titleContainer}>
+          <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
+            {t('titles.version') + ' 1.0.0'}
+          </Text>
+        </View>
       </ScrollView>
       {/* Modals */}
       <AutoRefreshModal
@@ -335,7 +340,7 @@ const styles = StyleSheet.create({
   customHeaderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
+    // paddingVertical: 15,
     paddingHorizontal: 15,
   },
   backButton: {
@@ -358,5 +363,13 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: COLORS.gray700,
     marginVertical: 12,
+  },
+  version: {
+    color: COLORS.gray300,
+    fontFamily: FONTS.medium,
+    fontSize: SIZES.fonts.smallTextTablet,
+  },
+  versionSmartphone: {
+    fontSize: SIZES.fonts.smallTextSmartphone,
   },
 });

@@ -37,8 +37,14 @@ export function useWebviews(setCurrentScreen) {
     closePasswordDefineModal,
   } = useWebviewsPassword(navigate);
 
-  const toggleReadOnly = useCallback((value) => {
-    setIsReadOnly(value !== undefined ? value : !isReadOnly);
+  const toggleReadOnly = useCallback(async (value) => {
+    const newValue = value !== undefined ? value : !isReadOnly;
+    setIsReadOnly(newValue);
+    try {
+      await SecureStore.setItemAsync('isReadOnly', JSON.stringify(newValue));
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde du mode lecture seule:', error);
+    }
   }, [isReadOnly]);
 
   const handleSelectChannels = async (selectedChannels) => {
@@ -154,6 +160,22 @@ export function useWebviews(setCurrentScreen) {
   }, [setRefreshOption, setRefreshInterval, getIntervalInMilliseconds]);
 
   /**
+   * @function loadReadOnlyState
+   * @description Loads the read-only state from AsyncStorage
+   * @returns {void}
+   */
+  const loadReadOnlyState = useCallback(async () => {
+    try {
+      const storedValue = await SecureStore.getItemAsync('isReadOnly');
+      if (storedValue !== null) {
+        setIsReadOnly(JSON.parse(storedValue));
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du mode lecture seule:', error);
+    }
+  }, []);
+
+  /**
    * @function navigateToChannelsList
    * @description Navigates to the channels list screen
    * @param {Array} extractedChannels - The extracted channels
@@ -212,7 +234,8 @@ export function useWebviews(setCurrentScreen) {
     loadSelectedChannels();
     loadPasswordFromSecureStore();
     loadRefreshOption();
-  }, [loadSelectedChannels, loadPasswordFromSecureStore, loadRefreshOption]);
+    loadReadOnlyState();
+  }, [loadSelectedChannels, loadPasswordFromSecureStore, loadRefreshOption, loadReadOnlyState]);
 
   return {
     channels,

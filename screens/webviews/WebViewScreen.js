@@ -18,18 +18,18 @@ export default function WebviewScreen({
 
   const webViewRef = useRef(null);
 
-  useEffect(() => {
-    // Lock orientation to landscape when entering WebviewScreen
-    const lockLandscape = async () => {
-      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-    };
-    lockLandscape();
+  // useEffect(() => {
+  //   // Lock orientation to landscape when entering WebviewScreen
+  //   const lockLandscape = async () => {
+  //     await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+  //   };
+  //   lockLandscape();
 
-    // Unlock orientation when leaving WebviewScreen
-    return () => {
-      ScreenOrientation.unlockAsync();
-    };
-  }, []);
+  //   // Unlock orientation when leaving WebviewScreen
+  //   return () => {
+  //     ScreenOrientation.unlockAsync();
+  //   };
+  // }, []);
 
   return (
     <View style={styles.container}>
