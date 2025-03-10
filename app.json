@@ -9,32 +9,8 @@
       "backgroundColor": "#FFFFFF"
     },
     "plugins": [
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "L'application souhaite accéder à vos photos."
-        }
-      ],
-      [
-        "expo-notifications",
-        {
-          "color": "#ffffff",
-          "mode": "default",
-          "firebaseCloudMessaging": {
-            "enabled": true
-          }
-        }
-      ],
-      [
-        "expo-document-picker",
-        {
-          "iCloudContainerEnvironment": "Production"
-        }
-      ],
       "expo-secure-store",
       "expo-font",
-      "expo-file-system",
-      "expo-media-library",
       "expo-localization"
     ],
     "ios": {
@@ -62,6 +38,7 @@
     "androidNavigationBar": {
       "backgroundColor": "#000000",
       "barStyle": "light-content"
-    }
+    },
+    "developmentClient": true
   }
 }

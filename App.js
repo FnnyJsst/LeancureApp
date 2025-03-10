@@ -17,6 +17,7 @@ import { useFonts } from 'expo-font';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 /**
  * @component App
@@ -123,6 +124,28 @@ export default function App({ testID }) {
     };
 
     initializeApp();
+  }, []);
+
+  // Ajouter un useEffect pour verrouiller l'orientation
+  useEffect(() => {
+    const lockOrientation = async () => {
+      try {
+        await ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.LANDSCAPE
+        );
+      } catch (error) {
+        console.error('Erreur lors du verrouillage de l\'orientation:', error);
+      }
+    };
+
+    lockOrientation();
+
+    // Optionnel : déverrouiller lors du nettoyage
+    return () => {
+      ScreenOrientation.unlockAsync().catch(error => {
+        console.error('Erreur lors du déverrouillage de l\'orientation:', error);
+      });
+    };
   }, []);
 
   // Condition to render the ScreenSaver
