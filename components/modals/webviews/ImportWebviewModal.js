@@ -8,6 +8,7 @@ import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../text/CustomText';
 import { useTranslation } from 'react-i18next';
+import CustomAlert from './CustomAlert';
 
 /**
  * @component ImportWebviewModal
@@ -24,6 +25,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isLowResTablet } = useDeviceType();
@@ -80,13 +82,13 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
    */
   const handleDownload = () => {
     if (!url) {
-      setError('Please enter an URL');
+      setError(t('errors.enterUrl'));
       return;
     }
 
     // Validate the URL
     if (!validateUrl(url)) {
-      setError('Invalid URL');
+      setError(t('errors.invalidUrl'));
       return;
     }
 
@@ -112,18 +114,18 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
           const extractedChannels = parseHtml(data);
           // If no channels are found, set the error message
           if (extractedChannels.length === 0) {
-            setError('No channels found at this URL');
+            setError(t('errors.noChannelsFound'));
             return;
           }
           // Import the channels
           onImport(extractedChannels);
           onClose();
         } else {
-          setError('Invalid response format');
+          setError(t('errors.invalidResponseFormat'));
         }
       })
       .catch(fetchError => {
-        setError(`Error during the download of channels: ${fetchError.message}`);
+        setError(t('errors.errorDuringDownload'));
       });
   };
 

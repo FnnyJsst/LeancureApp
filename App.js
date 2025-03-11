@@ -24,13 +24,13 @@ import * as ScreenOrientation from 'expo-screen-orientation';
  * @description The main component of the app
  */
 export default function App({ testID }) {
-
+  // 1. Tous les useState au début
   const [isLoading, setIsLoading] = useState(true);
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
   const [currentScreen, setCurrentScreen] = useState(SCREENS.NO_URL);
   const [showSplash, setShowSplash] = useState(true);
 
-  // Loading of fonts
+  // 2. Chargement des polices
   const [fontsLoaded] = useFonts({
     'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),
     'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),
@@ -41,7 +41,7 @@ export default function App({ testID }) {
     'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),
   });
 
-  // Personalized hooks
+  // 3. Hooks personnalisés
   const { navigate } = useNavigation(setCurrentScreen);
   const {
     channels,
@@ -75,10 +75,7 @@ export default function App({ testID }) {
     closePasswordDefineModal,
   } = useWebviewsPassword(navigate);
 
-  /**
-   * @function handleSettingsAccess
-   * @description Handles the access to the settings with or without password
-   */
+  // 4. Tous les useCallback
   const handleSettingsAccess = useCallback(() => {
     if (isPasswordRequired) {
       setPasswordCheckModalVisible(true);
@@ -87,10 +84,13 @@ export default function App({ testID }) {
     }
   }, [isPasswordRequired, setPasswordCheckModalVisible, navigate]);
 
-  /**
-   * @function handleSplashScreen
-   * @description Handles the splash screen
-   */
+  const handleImportWebviews = useCallback((newWebviews) => {
+    if (newWebviews && newWebviews.length > 0) {
+      handleSelectChannels(newWebviews);
+    }
+  }, [handleSelectChannels]);
+
+  // 5. Tous les useEffect
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
@@ -98,35 +98,31 @@ export default function App({ testID }) {
     return () => clearTimeout(timer);
   }, []);
 
-  /**
-   * @function initializeApp
-   * @description Initializes the app
-   */
   useEffect(() => {
     const initializeApp = async () => {
       try {
         await initI18n();
-        // Set the i18n initialization to use translations
         setIsI18nInitialized(true);
 
-        // Load the channels of the user
-        await loadSelectedChannels();
+        const loadedChannels = await loadSelectedChannels();
+        if (Array.isArray(loadedChannels)) {
+          navigate(loadedChannels.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+        } else {
+          navigate(SCREENS.NO_URL);
+        }
 
-        // Navigate to the webview screen if there are channels, otherwise to the no url screen
-        navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
         setIsLoading(false);
       } catch (error) {
+        console.error('Erreur d\'initialisation:', error);
         setIsI18nInitialized(true);
         setIsLoading(false);
         navigate(SCREENS.NO_URL);
-        throw new Error(`Error while initializing the app: ${error}`);
       }
     };
 
     initializeApp();
-  }, []);
+  }, [loadSelectedChannels, navigate]);
 
-  // Ajouter un useEffect pour verrouiller l'orientation
   useEffect(() => {
     const lockOrientation = async () => {
       try {
@@ -139,8 +135,6 @@ export default function App({ testID }) {
     };
 
     lockOrientation();
-
-    // Optionnel : déverrouiller lors du nettoyage
     return () => {
       ScreenOrientation.unlockAsync().catch(error => {
         console.error('Erreur lors du déverrouillage de l\'orientation:', error);
@@ -148,32 +142,14 @@ export default function App({ testID }) {
     };
   }, []);
 
-  // Condition to render the ScreenSaver
+  // 6. Condition de rendu du ScreenSaver
   if (showSplash || isLoading || !fontsLoaded || !isI18nInitialized) {
     return <ScreenSaver testID="screen-saver" />;
   }
 
-
-  /**
-   * @function handleImportWebviews
-   * @description Handles the import of channels
-   * @param {Array} newWebviews - The selected channels
-   * @returns {void}
-   */
-  const handleImportWebviews = (newWebviews) => {
-    if (newWebviews && newWebviews.length > 0) {
-      handleSelectChannels(newWebviews);
-    }
-  };
-
-  /**
-   * @function renderWebviewScreen
-   * @description Renders the screens in the webviews section
-   * @returns {JSX.Element} - The screen
-   */
+  // 7. Fonction de rendu des écrans (déplacée avant le return final)
   const renderWebviewScreen = () => {
     switch (currentScreen) {
-
       case SCREENS.NO_URL:
         return (
           <NoUrlScreen
@@ -248,16 +224,11 @@ export default function App({ testID }) {
     }
   };
 
-
+  // 8. Return final
   return (
-    // {/* Error boundary is used to catch errors in the app */}
     <ErrorBoundary>
       <View style={styles.container} testID={testID || "app-root"}>
         {renderWebviewScreen()}
-
-        {(showSplash || isLoading || !fontsLoaded || !isI18nInitialized) && (
-          <ScreenSaver testID="screen-saver" />
-        )}
 
         <PasswordDefineModal
           visible={isPasswordDefineModalVisible}

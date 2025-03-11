@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * @component SettingsWebviews
  * @description Displays the settings for the webviews
+ *
  * @param {Function} onNavigate - A function to navigate to a screen
  * @param {Function} onSettingsAccess - A function to handle the settings access
  * @param {Array} selectedWebviews - The list of selected channels
@@ -40,7 +41,7 @@ export default function SettingsWebviews({
 }) {
 
   // Device type variables
-  const { isSmartphone, isLandscape, isSmartphonePortrait } = useDeviceType();
+  const { isSmartphone } = useDeviceType();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [isPasswordDefineModalVisible, setPasswordDefineModalVisible] = useState(false);
@@ -130,8 +131,7 @@ export default function SettingsWebviews({
         <View
           testID={testID}
           style={[
-          styles.pageContainer,
-          isSmartphonePortrait && styles.pageContainerSmartphonePortrait,
+          styles.pageContainer
         ]}>
           <View style={styles.titleContainer}>
             <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
@@ -140,8 +140,7 @@ export default function SettingsWebviews({
           </View>
           <View style={[
             styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape,
+            isSmartphone && styles.configContainerSmartphone
           ]}>
             <SettingsCard
               title={t('settings.webview.quit')}
@@ -165,8 +164,7 @@ export default function SettingsWebviews({
           </View>
           <View style={[
             styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape,
+            isSmartphone && styles.configContainerSmartphone
           ]}>
             <SettingsCard
               title={t('settings.webview.management')}
@@ -205,8 +203,7 @@ export default function SettingsWebviews({
           </View>
           <View style={[
             styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape,
+            isSmartphone && styles.configContainerSmartphone
           ]}>
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
@@ -291,9 +288,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 15,
   },
-  pageContainerSmartphonePortrait: {
-    paddingHorizontal: 4,
-  },
   settingsContentContainer: {
     flex: 1,
   },
@@ -302,7 +296,7 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.xLarge,
     paddingVertical: 12,
     paddingHorizontal: 15,
-    marginHorizontal: 15,
+    marginHorizontal: 50,
     alignSelf: 'center',
     marginVertical: 12,
     width: '95%',
@@ -311,9 +305,6 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     paddingHorizontal: 14,
     paddingVertical: 10,
-  },
-  configContainerLandscape: {
-    marginHorizontal: 50,
   },
   rowContainer: {
     flexDirection: 'row',

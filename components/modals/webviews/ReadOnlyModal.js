@@ -10,13 +10,9 @@ import { useTranslation } from 'react-i18next';
  * @component ReadOnly
  * @description A component that renders a modal for setting the read-only mode
  *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onToggleReadOnly - The function to call when the read-only mode is toggled
- *
- * @example
- * <ReadOnly visible={visible} onClose={() => console.log('Modal closed')} onToggleReadOnly={() => console.log('Read-only mode toggled')} />
  */
 export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID }) {
 
@@ -113,7 +109,6 @@ const styles = StyleSheet.create({
     width: '50%',
   },
 
-  //Title styles
   titleContainer: {
     marginBottom: 20,
   },

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { Alert } from 'react-native';
 import { SCREENS } from '../constants/screens';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @function useWebviewsPassword
@@ -10,6 +11,8 @@ import { SCREENS } from '../constants/screens';
  * @returns {object} - The password state and functions
  */
 export const useWebviewsPassword = (navigate) => {
+
+  const { t } = useTranslation();
 
   const [password, setPassword] = useState(null);
   const [isPasswordRequired, setIsPasswordRequired] = useState(false);
@@ -61,7 +64,7 @@ export const useWebviewsPassword = (navigate) => {
         await SecureStore.setItemAsync('isPasswordRequired', JSON.stringify(passwordData.isRequired));
       }
     } catch (error) {
-      console.error('Failed to save password', error);
+      console.error(t('errors.errorSavingPassword'), error);
     }
   };
 
@@ -82,7 +85,7 @@ export const useWebviewsPassword = (navigate) => {
         setIsPasswordRequired(JSON.parse(storedIsRequired));
       }
     } catch (error) {
-      console.error('Failed to load password', error);
+      console.error(t('errors.errorLoadingPassword'), error);
     }
   };
 
@@ -96,7 +99,7 @@ export const useWebviewsPassword = (navigate) => {
       setPasswordCheckModalVisible(false);
       navigate(SCREENS.SETTINGS);
     } else {
-      Alert.alert('Incorrect password');
+      Alert.alert(t('errors.incorrectPassword'));
     }
   };
 

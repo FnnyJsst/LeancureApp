@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
-    padding: 30,
+    padding: 15,
   },
   listContainerLandscape: {
     paddingHorizontal: 50,
@@ -166,9 +166,8 @@ const styles = StyleSheet.create({
   customHeaderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingTop: 15,
     paddingHorizontal: 15,
-    marginBottom: 20,
   },
   backButton: {
     backgroundColor: '#271E1E',

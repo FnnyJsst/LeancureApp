@@ -52,7 +52,7 @@ export default function NoUrlScreen({
         <Text style={[
           styles.text,
           isSmartphone && styles.textSmartphone,
-        ]}></Text>
+        ]}>{t('screens.enterSettings')}</Text>
       </View>
 
       <View style={styles.buttonContainer}>

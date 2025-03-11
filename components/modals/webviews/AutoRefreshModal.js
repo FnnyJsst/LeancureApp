@@ -130,7 +130,7 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOpt
 };
 
 const styles = StyleSheet.create({
-  //Container styles
+
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -141,7 +141,6 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
   },
 
-  //Content styles
   modalContent: {
     width: '40%',
     padding: 20,
@@ -154,7 +153,6 @@ const styles = StyleSheet.create({
     width: '45%',
   },
 
-  //Options container styles
   optionsContainer: {
     marginTop: 15,
     gap: 6,
@@ -164,7 +162,6 @@ const styles = StyleSheet.create({
     gap: 2,
   },
 
-  //Radio styles
   radioContainer: {
     flexDirection: 'row',
     marginBottom: 10,

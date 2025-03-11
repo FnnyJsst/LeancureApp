@@ -4,6 +4,7 @@ import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES, SIZES } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component DeleteWebviewModal
@@ -18,6 +19,8 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
 
   // Hook to determine the device type and orientation
   const { isSmartphone, isLowResTablet } = useDeviceType();
+
+  const { t } = useTranslation();
 
   return (
     <Modal
@@ -41,18 +44,18 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
             <Text style={[
               styles.title,
               isSmartphone && styles.titleSmartphone,
-            ]}>Are you sure you want to delete this channel?</Text>
+            ]}>{t('settings.webview.deleteChannel')}</Text>
           </View>
           <View style={MODAL_STYLES.buttonContainer}>
             <Button
-              title="Cancel"
+              title={t('buttons.cancel')}
               backgroundColor={COLORS.gray650}
               color={COLORS.white}
               width={isSmartphone ? '23%' : '26%'}
               onPress={onClose}
             />
             <Button
-              title="Delete"
+              title={t('buttons.delete')}
               backgroundColor={COLORS.orange}
               color={COLORS.white}
               width={isSmartphone ? '23%' : '26%'}

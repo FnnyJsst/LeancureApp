@@ -39,6 +39,6 @@
       "backgroundColor": "#000000",
       "barStyle": "light-content"
     },
-    "developmentClient": true
+    "developmentClient":  {}
   }
 }

@@ -138,6 +138,7 @@ export default {
     import: "Import",
     importChannels: "Import channels",
     doNotUse: "Do not use",
+    ok: "Ok",
   },
 
   titles: {
@@ -169,6 +170,7 @@ export default {
       readOnlyDescription: "Access to channels without the ability to modify them",
       password: "Password",
       passwordDescription: "Define a password to access the settings",
+      deleteChannel: "Are you sure you want to delete this channel?",
     },
     common: {
       showHide: "Show/hide messages",
@@ -187,6 +189,19 @@ export default {
     passwordSuccess: "Password has been set successfully",
     error: "Error",
     enterPassword: "Please enter a password",
-
+    enterUrl: "Please enter an URL",
+    noChannelsFound: "No channels found at this URL",
+    invalidResponseFormat: "Invalid response format",
+    errorDuringDownload: "Error during the download of channels",
+    screenNotFound: "Screen not found",
+    errorSavingReadOnlyMode: "Error saving read-only mode",
+    errorSelectingChannels: "Error selecting channels",
+    errorSavingRefreshOption: "Error saving refresh option",
+    errorSavingWebviews: "Error saving webviews",
+    errorLoadingChannels: "Error loading channels",
+    errorLoadingRefreshOption: "Error loading refresh option",
+    errorSavingPassword: "Error saving password",
+    errorLoadingPassword: "Error loading password",
+    incorrectPassword: "Incorrect password",
   }
 }

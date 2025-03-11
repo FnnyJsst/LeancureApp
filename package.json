@@ -10,6 +10,7 @@
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
     "crypto-js": "^4.2.0",
+    "eslint": "^8.57.1",
     "expo": "~50.0.20",
     "expo-constants": "~15.4.6",
     "expo-dev-client": "~3.3.12",
@@ -46,5 +47,8 @@
     "ios": "expo run:ios",
     "check-version": "node scripts/check-version.js",
     "prebuild": "npm run check-version"
+  },
+  "overrides": {
+    "@expo/config-plugins": "7.8.0"
   }
 }

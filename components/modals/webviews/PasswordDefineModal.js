@@ -8,13 +8,11 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { SIZES } from '../../../constants/style';
 
 /**
  * @component PasswordDefineModal
  * @description A component that renders a modal for setting a password
  *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onSubmitPassword - The function to call when the password is submitted

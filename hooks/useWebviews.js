@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from './useNavigation';
 import { useWebviewsPassword } from './useWebviewsPassword';
 import { SCREENS } from '../constants/screens';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @function useWebviews
@@ -10,6 +11,9 @@ import { SCREENS } from '../constants/screens';
  * @returns {Object} - The webviews state
  */
 export function useWebviews(setCurrentScreen) {
+
+  const { t } = useTranslation();
+
   const [channels, setChannels] = useState([]);
   const [selectedWebviews, setSelectedWebviews] = useState([]);
   const [webViewUrl, setWebviewUrl] = useState('');
@@ -20,21 +24,7 @@ export function useWebviews(setCurrentScreen) {
   const { navigate } = useNavigation(setCurrentScreen);
 
   const {
-    password,
-    setPassword,
-    isPasswordRequired,
-    setIsPasswordRequired,
-    isPasswordDefineModalVisible,
-    setPasswordDefineModalVisible,
-    passwordCheckModalVisible,
-    setPasswordCheckModalVisible,
-    handlePasswordSubmit,
-    handlePasswordCheck,
-    disablePassword,
     loadPasswordFromSecureStore,
-    savePasswordInSecureStore,
-    openPasswordDefineModal,
-    closePasswordDefineModal,
   } = useWebviewsPassword(navigate);
 
   const toggleReadOnly = useCallback(async (value) => {
@@ -43,7 +33,7 @@ export function useWebviews(setCurrentScreen) {
     try {
       await SecureStore.setItemAsync('isReadOnly', JSON.stringify(newValue));
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde du mode lecture seule:', error);
+      throw new Error(t('errors.errorSavingReadOnlyMode'), error);
     }
   }, [isReadOnly]);
 
@@ -53,7 +43,7 @@ export function useWebviews(setCurrentScreen) {
       setSelectedWebviews(updatedWebviews);
       await saveSelectedWebviews(updatedWebviews);
     } catch (error) {
-      console.error('Error while selecting channels:', error);
+      throw new Error(t('errors.errorSelectingChannels'), error);
     }
   };
 
@@ -80,7 +70,6 @@ export function useWebviews(setCurrentScreen) {
    * @function handleSelectOption
    * @description Handles the selection of the refresh option
    * @param {string} option - The option to select
-   * @returns {void}
    */
   const handleSelectOption = (option) => {
     setRefreshOption(option);
@@ -92,13 +81,12 @@ export function useWebviews(setCurrentScreen) {
    * @function saveRefreshOption
    * @description Saves the refresh option in AsyncStorage
    * @param {string} option - The option to save
-   * @returns {void}
    */
   const saveRefreshOption = async (option) => {
     try {
       await SecureStore.setItemAsync('refreshOption', option);
     } catch (error) {
-      console.error('Failed to save refresh option', error);
+      throw new Error(t('errors.errorSavingRefreshOption'), error);
     }
   };
 
@@ -106,7 +94,6 @@ export function useWebviews(setCurrentScreen) {
    * @function saveSelectedWebviews
    * @description Saves the channels selected by the user in AsyncStorage
    * @param {Array} channels - The channels to save
-   * @returns {void}
    */
   const saveSelectedWebviews = async (webviews) => {
     try {
@@ -114,36 +101,42 @@ export function useWebviews(setCurrentScreen) {
       setSelectedWebviews(webviewsToSave);
       await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(webviewsToSave));
     } catch (error) {
-      console.error('Error while saving webviews:', error);
+      throw new Error(t('errors.errorSavingWebviews'), error);
     }
   };
 
   /**
    * @function loadSelectedChannels
    * @description Loads the selected channels from the SecureStore
-   * @returns {void}
    */
   const loadSelectedChannels = useCallback(async () => {
     try {
       const storedChannels = await SecureStore.getItemAsync('selectedWebviews');
+      let parsedChannels = [];
+
       if (storedChannels) {
-        const parsedChannels = JSON.parse(storedChannels);
-        setSelectedWebviews(parsedChannels);
-        if (parsedChannels.length > 0) {
-          setWebviewUrl(parsedChannels[0].href);
+        try {
+          parsedChannels = JSON.parse(storedChannels) || [];
+        } catch (e) {
+          console.error('Erreur de parsing des channels:', e);
         }
       }
-    } catch (error) {
-      if (__DEV__) {
-        console.error('Failed to load channels', error);
+
+      setSelectedWebviews(parsedChannels);
+      if (parsedChannels.length > 0) {
+        setWebviewUrl(parsedChannels[0].href);
       }
+
+      return parsedChannels;
+    } catch (error) {
+      console.error('Erreur de chargement des channels:', error);
+      return [];
     }
-  }, [setSelectedWebviews, setWebviewUrl]);
+  }, []);
 
   /**
    * @function loadRefreshOption
    * @description Loads the refresh option from AsyncStorage
-   * @returns {void}
    */
   const loadRefreshOption = useCallback(async () => {
     try {
@@ -154,7 +147,7 @@ export function useWebviews(setCurrentScreen) {
       }
     } catch (error) {
       if (__DEV__) {
-        console.error('Failed to load refresh option', error);
+        throw new Error(t('errors.errorLoadingRefreshOption'), error);
       }
     }
   }, [setRefreshOption, setRefreshInterval, getIntervalInMilliseconds]);
@@ -162,7 +155,6 @@ export function useWebviews(setCurrentScreen) {
   /**
    * @function loadReadOnlyState
    * @description Loads the read-only state from AsyncStorage
-   * @returns {void}
    */
   const loadReadOnlyState = useCallback(async () => {
     try {
@@ -171,7 +163,7 @@ export function useWebviews(setCurrentScreen) {
         setIsReadOnly(JSON.parse(storedValue));
       }
     } catch (error) {
-      console.error('Erreur lors du chargement du mode lecture seule:', error);
+      throw new Error('Erreur lors du chargement du mode lecture seule:', error);
     }
   }, []);
 
@@ -179,47 +171,61 @@ export function useWebviews(setCurrentScreen) {
    * @function navigateToChannelsList
    * @description Navigates to the channels list screen
    * @param {Array} extractedChannels - The extracted channels
-   * @returns {void}
    */
   const navigateToChannelsList = (extractedChannels) => {
-    console.log('🔄 Navigation vers la liste des canaux');
     setChannels(extractedChannels);
-    // if (SCREENS.WEBVIEWS_LIST) {
     navigate(SCREENS.WEBVIEWS_LIST);
-    // } else {
-    //     console.error('❌ Screen WEBVIEWS_LIST non défini');
-    // }
   };
 
   /**
    * @function navigateToWebview
    * @description Navigates to the web view screen
    * @param {string} url - The URL to navigate to
-   * @returns {void}
    */
   const navigateToWebview = (url) => {
-    console.log('🔄 Navigation vers la webview:', url);
     setWebviewUrl(url);
     if (SCREENS.WEBVIEW) {
         navigate(SCREENS.WEBVIEW);
     } else {
-        console.error('❌ Screen WEBVIEW non défini');
+        throw new Error(t('errors.screenNotFound'), SCREENS.WEBVIEW);
     }
   };
 
   /**
    * @function useEffect
    * @description Loads the selected channels from the SecureStore when user opens the app
-   * @returns {void}
    */
   useEffect(() => {
-    loadSelectedChannels();
-  }, [loadSelectedChannels]);
+    const initializeWebviews = async () => {
+      try {
+        // Charger d'abord les options de base
+        await loadRefreshOption();
+        await loadReadOnlyState();
+        await loadPasswordFromSecureStore();
+
+        // Ensuite charger les webviews
+        const storedChannels = await SecureStore.getItemAsync('selectedWebviews');
+        if (storedChannels) {
+          const parsedChannels = JSON.parse(storedChannels);
+          setSelectedWebviews(parsedChannels || []);
+          if (parsedChannels && parsedChannels.length > 0) {
+            setWebviewUrl(parsedChannels[0].href);
+          }
+        } else {
+          setSelectedWebviews([]);
+        }
+      } catch (error) {
+        console.error('Erreur d\'initialisation des webviews:', error);
+        setSelectedWebviews([]);
+      }
+    };
+
+    initializeWebviews();
+  }, [loadRefreshOption, loadReadOnlyState, loadPasswordFromSecureStore]);
 
   /**
    * @function useEffect
    * @description Loads the interval chosen by the user in the settings to refresh the webviews
-   * @returns {void}
    */
   useEffect(() => {
     if (refreshInterval) {
@@ -229,13 +235,6 @@ export function useWebviews(setCurrentScreen) {
       return () => clearInterval(interval);
     }
   }, [refreshInterval]);
-
-  useEffect(() => {
-    loadSelectedChannels();
-    loadPasswordFromSecureStore();
-    loadRefreshOption();
-    loadReadOnlyState();
-  }, [loadSelectedChannels, loadPasswordFromSecureStore, loadRefreshOption, loadReadOnlyState]);
 
   return {
     channels,

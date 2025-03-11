@@ -5,6 +5,7 @@ import TitleModal from '../../../components/text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES,COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component CustomAlert
@@ -18,8 +19,10 @@ import { Text } from '../../text/CustomText';
  * @param {string} props.type - The type of the alert
  */
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error', testID }) {
+
   const { isSmartphone, isLowResTablet } = useDeviceType();
 
+  const { t } = useTranslation();
   return (
     <Modal
       animationType="fade"
@@ -38,7 +41,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
           <View style={styles.buttonContainer}>
             {type === 'success' ? (
               <Button
-                title="OK"
+                title={t('buttons.ok')}
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
                 width={isSmartphone ? '23%' : '26%'}
@@ -47,7 +50,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
               />
             ) : (
               <Button
-                title="Close"
+                title={t('buttons.close')}
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
                 width={isSmartphone ? '23%' : '26%'}

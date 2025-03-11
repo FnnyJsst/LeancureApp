@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
  * @param {string} props.initialTitle - The initial title of the channel
  */
 export default function EditWebviewModal({ visible, onClose, onSave, initialUrl, initialTitle, testID }) {
+
   const { t } = useTranslation();
   // We create a hook to determine the device type and orientation
   const { isSmartphone, isLowResTablet } = useDeviceType();
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,
     borderWidth: 1,
-    borderColor: '#403430',
+    borderColor: COLORS.borderColor,
   },
   modalContentLowResTablet: {
     width: '60%',

@@ -139,6 +139,7 @@ export default {
     import: "Importer",
     importChannels: "Importer des chaînes",
     doNotUse: "Ne pas utiliser",
+    ok: "Ok",
   },
 
   titles: {
@@ -170,6 +171,7 @@ export default {
       readOnlyDescription: "Accès aux canaux sans possibilité de modification",
       password: "Mot de passe",
       passwordDescription: "Définir un mot de passe pour accéder aux paramètres",
+      deleteChannel: "Êtes-vous sûr de vouloir supprimer ce canal ?",
     },
     common: {
       showHide: "Afficher/masquer les messages",
@@ -189,5 +191,19 @@ export default {
     passwordSuccess: "Le mot de passe a été défini avec succès",
     error: "Erreur",
     enterPassword: "Veuillez entrer un mot de passe",
+    enterUrl: "Veuillez entrer une URL",
+    noChannelsFound: "Aucun canal trouvé à cette URL",
+    invalidResponseFormat: "Format de réponse invalide",
+    errorDuringDownload: "Erreur lors du téléchargement des canaux",
+    screenNotFound: "Écran non trouvé",
+    errorSavingReadOnlyMode: "Erreur lors de la sauvegarde du mode lecture seule",
+    errorSelectingChannels: "Erreur lors de la sélection des canaux",
+    errorSavingRefreshOption: "Erreur lors de la sauvegarde de l'option d'actualisation",
+    errorSavingWebviews: "Erreur lors de la sauvegarde des canaux",
+    errorLoadingChannels: "Erreur lors du chargement des canaux",
+    errorLoadingRefreshOption: "Erreur lors du chargement de l'option d'actualisation",
+    errorSavingPassword: "Erreur lors de la sauvegarde du mot de passe",
+    errorLoadingPassword: "Erreur lors du chargement du mot de passe",
+    incorrectPassword: "Mot de passe incorrect",
   }
 }

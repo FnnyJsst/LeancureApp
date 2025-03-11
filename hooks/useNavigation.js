@@ -12,7 +12,7 @@ export const useNavigation = (setCurrentScreen) => {
   const navigate = useCallback((screen) => {
     try {
       if (!SCREENS[screen]) {
-        throw new Error(`Screen "${screen}" doesn't exist`);
+        throw new Error(`${t('errors.screenNotFound')} "${screen}"`);
       }
       setCurrentScreen(SCREENS[screen]);
       setError(null);

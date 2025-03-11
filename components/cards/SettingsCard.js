@@ -7,7 +7,6 @@ import { Text } from '../text/CustomText';
  * @component SettingsCard
  * @description A component that renders the cards used in the settings screen
  *
- * @param {Object} props - The properties of the component
  * @param {ReactNode} props.icon - The icon of the card
  * @param {string} props.title - The title of the card
  * @param {string} props.description - The description of the card

@@ -8,16 +8,12 @@ import { Ionicons } from '@expo/vector-icons';
  * @component InputModal
  * @description A component that renders an input used in all the modals
  *
- * @param {Object} props - The properties of the component
  * @param {string} props.placeholder - The placeholder of the input
  * @param {string} props.value - The value of the input
  * @param {Function} props.onChangeText - The function to call when the input is changed
  * @param {Object} props.style - The style of the input
  * @param {boolean} props.secureTextEntry - Whether the input is secure
  * @param {ReactNode} props.icon - The icon of the input
- *
- * @example
- * <InputModal placeholder="Placeholder" value="Value" onChangeText={() => console.log('Input changed')} />
  */
 export default function InputModal({
   placeholder,
