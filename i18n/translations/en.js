@@ -203,5 +203,9 @@ export default {
     errorSavingPassword: "Error saving password",
     errorLoadingPassword: "Error loading password",
     incorrectPassword: "Incorrect password",
+  },
+  alerts: {
+    information: 'Information',
+    allChannelsAlreadyImported: 'All channels from this URL have already been imported.'
   }
 }

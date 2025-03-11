@@ -205,5 +205,10 @@ export default {
     errorSavingPassword: "Erreur lors de la sauvegarde du mot de passe",
     errorLoadingPassword: "Erreur lors du chargement du mot de passe",
     incorrectPassword: "Mot de passe incorrect",
+  },
+
+  alerts: {
+    information: 'Information',
+    allChannelsAlreadyImported: 'Toutes les chaînes de cette URL ont déjà été importées.'
   }
 }

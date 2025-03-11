@@ -205,6 +205,7 @@ export default function WebviewsManagementScreen({
         onClose={closeImportModal}
         onImport={onImport}
         testID={testID}
+        selectedWebviews={selectedWebviews}
       />
       {/* Modal to edit a channel */}
       <EditWebviewModal
