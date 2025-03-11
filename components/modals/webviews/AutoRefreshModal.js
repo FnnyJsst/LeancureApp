@@ -45,7 +45,11 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOpt
     { label: t('modals.webview.refresh.every6h'), value: 'every 6 hours' },
   ];
 
-  // Fonction pour rendre chaque option
+  /**
+   * @description Render the item of the flatlist
+   * @param {Object} item - The item of the flatlist
+   * @returns {React.ReactNode} - The item of the flatlist
+   */
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={[

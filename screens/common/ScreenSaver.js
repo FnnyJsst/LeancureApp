@@ -17,7 +17,7 @@ export default function ScreenSaver() {
       toValue: 1,
       duration: 500,
       useNativeDriver: true,
-    });
+    }).start();
 
     return () => {
       fadeAnim.setValue(0);
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    width: '80%',
-    height: '80%',
+    width: '40%',
+    height: '40%',
   },
 });

@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
-import * as ScreenOrientation from 'expo-screen-orientation';
 import { COLORS, SIZES } from '../../constants/style';
 
 /**
@@ -18,25 +17,22 @@ export default function WebviewScreen({
 
   const webViewRef = useRef(null);
 
-  // useEffect(() => {
-  //   // Lock orientation to landscape when entering WebviewScreen
-  //   const lockLandscape = async () => {
-  //     await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-  //   };
-  //   lockLandscape();
-
-  //   // Unlock orientation when leaving WebviewScreen
-  //   return () => {
-  //     ScreenOrientation.unlockAsync();
-  //   };
-  // }, []);
-
   return (
     <View style={styles.container}>
       <WebView
         ref={webViewRef}
         source={{ uri: url }}
         style={styles.webview}
+        cacheEnabled={true}
+        cacheMode="LOAD_CACHE_ELSE_NETWORK"
+        domStorageEnabled={true}
+        javaScriptEnabled={true}
+        androidLayerType="hardware"
+        renderToHardwareTextureAndroid={true}
+        onShouldStartLoadWithRequest={(request) => {
+          // Limit unnecessary loads
+          return true;
+        }}
       />
       <View style={styles.buttonContainer}>
         <ParameterButton onPress={onSettingsAccess} testID="settings-button" />
