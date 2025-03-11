@@ -19,7 +19,7 @@ import { Text } from '../../text/CustomText';
 export default function DeleteWebviewModal({ visible, onClose, handleDelete, testID }) {
 
   // Hook to determine the device type and orientation
-  const { isSmartphonePortrait, isSmartphoneLandscape, isSmartphone, isTabletPortrait } = useDeviceType();
+  const { isSmartphoneLandscape, isSmartphone } = useDeviceType();
 
   return (
     <Modal
@@ -33,14 +33,11 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
       <View style={MODAL_STYLES.modalContainer}>
         <View style={[
           MODAL_STYLES.content,
-          isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-          isTabletPortrait && styles.modalContentTabletPortrait,
         ]}>
           <View style={[
             styles.titleContainer,
             isSmartphone && styles.titleContainerSmartphone,
-            isTabletPortrait && styles.titleContainerTabletPortrait,
           ]}>
             <Text style={[
               styles.title,
@@ -70,14 +67,8 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
 }
 
 const styles = StyleSheet.create({
-  modalContentSmartphonePortrait: {
-    width: '95%',
-  },
   modalContentSmartphoneLandscape: {
     width: '55%',
-  },
-  modalContentTabletPortrait: {
-    width: '60%',
   },
   titleContainerSmartphone: {
     display: 'flex',

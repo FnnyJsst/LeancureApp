@@ -17,14 +17,11 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} props.onSave - The function to call when the channel is saved
  * @param {string} props.initialUrl - The initial URL of the channel
  * @param {string} props.initialTitle - The initial title of the channel
- *
- * @example
- * <EditWebviewModal visible={visible} onClose={() => console.log('Modal closed')} onSave={() => console.log('Channel saved')} initialUrl="https://www.google.com" initialTitle="Google" />
  */
 export default function EditWebviewModal({ visible, onClose, onSave, initialUrl, initialTitle, testID }) {
   const { t } = useTranslation();
   // We create a hook to determine the device type and orientation
-  const { isSmartphone, isTabletLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType();
+  const { isSmartphone, isTabletLandscape, isSmartphoneLandscape } = useDeviceType();
 
   // State management for form inputs
   const [url, setUrl] = useState(initialUrl || '');
@@ -84,9 +81,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
       <View style={MODAL_STYLES.modalContainer}>
         <View style={[
           styles.modalContent,
-          isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-          isTabletLandscape && styles.modalContentTabletLandscape,
         ]}>
           <TitleModal title={t('modals.webview.edit.editChannel')} />
           {error && (
@@ -165,18 +160,12 @@ const styles = StyleSheet.create({
     paddingTop: '10%',
   },
   modalContent: {
-    width: '80%',
+    width: '50%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,
     borderWidth: 1,
     borderColor: '#403430',
-  },
-  modalContentTabletLandscape: {
-    width: '50%',
-  },
-  modalContentSmartphonePortrait: {
-    width: '95%',
   },
   modalContentSmartphoneLandscape: {
     width: '60%',

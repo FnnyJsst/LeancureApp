@@ -16,22 +16,31 @@ export const useDeviceType = () => {
   const heightInches = height / (PixelRatio.get() * 160);
   const diagonalInches = Math.sqrt(Math.pow(widthInches, 2) + Math.pow(heightInches, 2));
 
-  // Détection plus robuste des tablettes
-  const isTablet = (() => {
-    // Critères multiples pour la détection
-    const minimumTabletDiagonal = 6.5; // 6.5 pouces minimum pour une tablette
-    const aspectRatio = Math.max(width, height) / Math.min(width, height);
-
-    // Ajout d'une condition spéciale pour les tablettes basse résolution
-    const isLowResTablet = width >= 600 && height >= 800 && pixelDensity < 2;
+  // Détection explicite des tablettes basse résolution d'abord
+  const isLowResTablet = (() => {
+    const minWidth = 550;  // Réduit de 600 à 550 pour les anciennes tablettes
+    const minHeight = 700; // Réduit de 800 à 700 pour les anciennes tablettes
+    const maxDensity = 2;  // Densité maximale pour les écrans basse résolution
 
     return (
-      // Condition originale
+      Math.min(width, height) >= minWidth &&
+      Math.max(width, height) >= minHeight &&
+      pixelDensity < maxDensity
+    );
+  })();
+
+  // Détection plus robuste des tablettes
+  const isTablet = (() => {
+    const minimumTabletDiagonal = 6.5;
+    const aspectRatio = Math.max(width, height) / Math.min(width, height);
+
+    return (
+      // Vérifier d'abord si c'est une tablette basse résolution
+      isLowResTablet ||
+      // Sinon utiliser les critères standards
       (diagonalInches >= minimumTabletDiagonal &&
-      aspectRatio <= 1.6 &&
-      Math.min(width, height) >= 400) ||
-      // OU condition pour tablettes basse résolution
-      isLowResTablet
+       aspectRatio <= 1.6 &&
+       Math.min(width, height) >= 400)
     );
   })();
 
@@ -58,6 +67,7 @@ export const useDeviceType = () => {
     isSmallTablet: isTablet && diagonalInches < 8,
     isMediumTablet: isTablet && diagonalInches >= 8 && diagonalInches < 10,
     isLargeTablet: isTablet && diagonalInches >= 10,
+    isLowResTablet,
   };
 
   return {
@@ -67,6 +77,7 @@ export const useDeviceType = () => {
     isPortrait,
     isLandscape,
     screenInfo,
+    isLowResTablet,
 
     // Derived properties
     isSmartphonePortrait,

@@ -18,15 +18,12 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onSubmitPassword - The function to call when the password is submitted
  * @param {Function} props.onDisablePassword - The function to call when the password is disabled
- *
- * @example
- * <PasswordDefineModal visible={visible} onClose={() => console.log('Modal closed')} onSubmitPassword={() => console.log('Password submitted')} onDisablePassword={() => console.log('Password disabled')} />
  */
 export default function PasswordDefineModal({ visible, onClose, onSubmitPassword, onDisablePassword, testID  }) {
 
   const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone } = useDeviceType();
 
   // State management for the password and the alert
   const [password, setPassword] = useState('');
@@ -107,13 +104,10 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
         <View style={[
           MODAL_STYLES.modalContainer,
           isSmartphone && MODAL_STYLES.modalContainerSmartphone,
-          isSmartphoneLandscape && MODAL_STYLES.modalContainerSmartphoneLandscape,
         ]}>
           <View style={[
               MODAL_STYLES.content,
               isSmartphone && styles.modalContentSmartphone,
-              isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-              isTabletPortrait && styles.modalContentTabletPortrait,
             ]}>
             <TitleModal title={t('modals.webview.password.enterPassword')} />
             <View style={[
@@ -202,20 +196,10 @@ const styles = StyleSheet.create({
   modalContainerSmartphone: {
     paddingBottom: 'auto',
   },
-
   //Content styles
   modalContentSmartphone: {
-    width: '90%',
-    padding: 15,
-  },
-  modalContentSmartphoneLandscape: {
     width: '50%',
   },
-  modalContentTabletPortrait: {
-    width: '60%',
-    padding: 20,
-  },
-
   //Input styles
   inputContainer: {
     gap: 15,

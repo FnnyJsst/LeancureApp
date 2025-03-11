@@ -41,7 +41,7 @@ export default function WebviewsManagementScreen({
   const { t } = useTranslation();
 
   // Customized hook to determine the device type and orientation
-  const { isTablet, isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
+  const { isTablet, isSmartphone } = useDeviceType();
 
   const [isImportModalVisible, setImportModalVisible] = useState(false);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
@@ -282,7 +282,7 @@ export default function WebviewsManagementScreen({
                       name="up"
                       size={isTablet ? 30 : 23}
                       style={[
-                        { marginRight: isSmartphonePortrait ? 0 : 15 },
+                        { marginRight: 15 },
                         { color: selectedUpIndex === index ? COLORS.orange : COLORS.gray300 },
                       ]}
                     />
@@ -298,8 +298,8 @@ export default function WebviewsManagementScreen({
                     name="down"
                     size={isTablet ? 30 : 23}
                     style={[
-                      { marginLeft: isSmartphonePortrait ? 0 : 15 },
-                      { marginRight: isSmartphonePortrait ? 0 : 15 },
+                      { marginLeft: 15 },
+                      { marginRight: 15 },
                       { color: selectedDownIndex === index ? COLORS.orange : COLORS.gray300 },
                     ]}
                   />
@@ -309,7 +309,6 @@ export default function WebviewsManagementScreen({
                   <View style={[
                     styles.iconsContainer,
                     isSmartphone && styles.iconsContainerSmartphone,
-                    isLandscape && styles.iconsContainerLandscape,
                   ]}>
                   <TouchableOpacity
                     testID={`edit-button-${index}`}
@@ -322,7 +321,7 @@ export default function WebviewsManagementScreen({
                       name="pencil"
                       size={isTablet ? 40 : 29}
                       style={[
-                        { marginRight: isSmartphonePortrait ? 0 : 15 },
+                        { marginRight: 15 },
                         { color: isTablet && selectedPencilIndex === index ? COLORS.orange : COLORS.gray300 },
                       ]}
                     />
@@ -422,14 +421,11 @@ const styles = StyleSheet.create({
   },
   iconsContainer: {
     flexDirection: 'row',
-    marginRight: 10,
+    marginRight: 50,
     height: 45,
     width: 90,
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  iconsContainerLandscape: {
-    marginRight: 50,
   },
   iconsContainerSmartphone: {
     marginRight: 0,

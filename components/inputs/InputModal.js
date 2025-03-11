@@ -29,7 +29,7 @@ export default function InputModal({
 }) {
 
   // We create a hook to determine the device type
-  const { isSmartphone, isSmartphonePortrait } = useDeviceType();
+  const { isSmartphone } = useDeviceType();
 
   // We create a state to store if the input is focused
   const [isFocused, setIsFocused] = useState(false);
@@ -42,7 +42,6 @@ export default function InputModal({
         isFocused && styles.inputFocused,
         style,
         isSmartphone && styles.inputSmartphone,
-        isSmartphonePortrait && styles.inputSmartphonePortrait,
       ]}>
         {icon && React.cloneElement(icon, {
           color: isFocused ? COLORS.orange : COLORS.gray300,
@@ -104,7 +103,6 @@ const styles = StyleSheet.create({
   inputSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
     height: 45,
-
   },
   inputFocused: {
     borderColor: COLORS.orange + '50',
@@ -112,9 +110,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.2,
     elevation: 1,
-  },
-  inputSmartphonePortrait: {
-    width: '100%',
   },
   eyeIcon: {
     marginRight: 10,

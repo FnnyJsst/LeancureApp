@@ -5,7 +5,6 @@ import TitleModal from '../../../components/text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES,COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
-import { useTranslation } from 'react-i18next';
 
 /**
  * @component CustomAlert
@@ -18,14 +17,10 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} props.onClose - The function to call when the alert is closed
  * @param {Function} props.onConfirm - The function to call when the alert is confirmed
  * @param {string} props.type - The type of the alert
- *
- * @example
- * <CustomAlert visible={true} title="Alert" message="This is an alert" onClose={() => console.log('Alert closed')} onConfirm={() => console.log('Alert confirmed')} type="error" />
  */
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error', testID }) {
-  const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone } = useDeviceType();
 
-  const { t } = useTranslation();
   return (
     <Modal
       animationType="fade"
@@ -37,9 +32,6 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
       <View style={styles.modalContainer}>
         <View style={[
           styles.modalContent,
-          isSmartphonePortrait && styles.modalContentSmartphonePortrait,
-          isLandscape && styles.modalContentLandscape,
-          isTabletPortrait && styles.modalContentTabletPortrait,
         ]}>
           <TitleModal title={title} />
           <Text style={[styles.message, isSmartphone && styles.messageSmartphone]}>{message}</Text>
@@ -78,18 +70,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 1)',
   },
   modalContent: {
-    width: '60%',
+    width: '40%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
-  },
-  modalContentLandscape: {
-    width: '40%',
-  },
-  modalContentSmartphonePortrait: {
-    width: '80%',
   },
   message: {
     color: COLORS.gray300,

@@ -26,7 +26,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
   const [isFocused, setIsFocused] = useState(false);
 
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone } = useDeviceType();
 
   /**
    * @function validateUrl
@@ -150,8 +150,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
         <View style={[
             MODAL_STYLES.content,
             isSmartphone && styles.modalContentSmartphone,
-            isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-            isTabletPortrait && styles.modalContentTabletPortrait,
           ]}>
           <TitleModal title={t('modals.webview.import.importChannels')}/>
           <InputModal
@@ -206,15 +204,8 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
 
 const styles = StyleSheet.create({
   modalContentSmartphone: {
-    width: '95%',
-  },
-  modalContentSmartphoneLandscape: {
     width: '50%',
   },
-  modalContentTabletPortrait: {
-    width: '60%',
-  },
-
   errorContainer: {
     alignItems: 'flex-start',
     paddingHorizontal: '5%',

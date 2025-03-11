@@ -24,7 +24,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
 
   const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone } = useDeviceType();
 
   // State for the password and the alert
   const [password, setPassword] = useState('');
@@ -83,8 +83,6 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
           <View style={[
             MODAL_STYLES.content,
             isSmartphone && styles.modalContentSmartphone,
-            isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-            isTabletPortrait && styles.modalContentTabletPortrait,
           ]}>
             <TitleModal title={t('modals.webview.password.enterPassword')} />
             <InputModal
@@ -133,19 +131,8 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
 }
 
 const styles = StyleSheet.create({
-  //Content styles
+
   modalContentSmartphone: {
-    width: '95%',
-  },
-  modalContentSmartphoneLandscape: {
     width: '50%',
-  },
-  modalContentTabletPortrait: {
-    width: '65%',
-  },
-  // inputContainer: {
-  //   width: '100%',
-  //   alignItems: 'center',
-  //   // paddingHorizontal: 20,
-  // },
+  }
 });
