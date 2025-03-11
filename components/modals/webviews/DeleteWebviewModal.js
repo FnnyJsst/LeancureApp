@@ -13,13 +13,11 @@ import { Text } from '../../text/CustomText';
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.handleDelete - The function to call when the webview is deleted
- * @example
- * <DeleteWebviewModal visible={visible} onClose={() => console.log('Modal closed')} handleDelete={() => console.log('Webview deleted')} />
  */
 export default function DeleteWebviewModal({ visible, onClose, handleDelete, testID }) {
 
   // Hook to determine the device type and orientation
-  const { isSmartphoneLandscape, isSmartphone } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
 
   return (
     <Modal
@@ -33,7 +31,8 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
       <View style={MODAL_STYLES.modalContainer}>
         <View style={[
           MODAL_STYLES.content,
-          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+          isSmartphone && styles.modalContentSmartphone,
+          isLowResTablet && styles.modalContentLowResTablet,
         ]}>
           <View style={[
             styles.titleContainer,
@@ -67,7 +66,10 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
 }
 
 const styles = StyleSheet.create({
-  modalContentSmartphoneLandscape: {
+  modalContentSmartphone: {
+    width: '55%',
+  },
+  modalContentLowResTablet: {
     width: '55%',
   },
   titleContainerSmartphone: {

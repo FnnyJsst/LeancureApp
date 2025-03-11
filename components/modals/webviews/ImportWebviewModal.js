@@ -13,12 +13,12 @@ import { useTranslation } from 'react-i18next';
  * @component ImportWebviewModal
  * @description A component that renders a modal for importing channels
  *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onImport - The function to call when the channels are imported
  */
 const ImportWebviewModal = ({ visible, onClose, onImport }) => {
+
   const { t } = useTranslation();
   // State management for the URL, error and channels
   const [url, setUrl] = useState('');
@@ -26,7 +26,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
   const [isFocused, setIsFocused] = useState(false);
 
   // Customized hook to determine the device type and orientation
-  const { isSmartphone } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
 
   /**
    * @function validateUrl
@@ -150,6 +150,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
         <View style={[
             MODAL_STYLES.content,
             isSmartphone && styles.modalContentSmartphone,
+            isLowResTablet && styles.modalContentLowResTablet,
           ]}>
           <TitleModal title={t('modals.webview.import.importChannels')}/>
           <InputModal
@@ -205,6 +206,9 @@ const ImportWebviewModal = ({ visible, onClose, onImport }) => {
 const styles = StyleSheet.create({
   modalContentSmartphone: {
     width: '50%',
+  },
+  modalContentLowResTablet: {
+    width: '60%',
   },
   errorContainer: {
     alignItems: 'flex-start',

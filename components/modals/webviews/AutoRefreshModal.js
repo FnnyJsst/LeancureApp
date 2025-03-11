@@ -12,20 +12,16 @@ import { useTranslation } from 'react-i18next';
  * @component AutoRefreshModal
  * @description A component that renders a modal for auto-refresh options
  *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onSelectOption - The function to call when the option is selected
  * @param {string} props.currentOption - The current selected option
- *
- * @example
- * <AutoRefreshModal visible={visible} onClose={() => console.log('Modal closed')} onSelectOption={() => console.log('Option selected')} currentOption="every 5 minutes" />
  */
 const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOption }) => {
 
   const { t } = useTranslation();
   // We create a hook to determine the device type and orientation
-  const { isSmartphone, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
 
   // State used to store the selected option
   const [selectedOption, setSelectedOption] = useState(currentOption || 'never');
@@ -65,8 +61,6 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOpt
         <View style={[
             styles.modalContent,
             isSmartphone && styles.modalContentSmartphone,
-            isTabletLandscape && styles.modalContentTabletLandscape,
-            isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
           ]}>
           <ScrollView>
             <TitleModal title={t('modals.webview.refresh.refreshChannels')}/>
@@ -100,13 +94,13 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOpt
                 title={t('buttons.close')}
                 backgroundColor={COLORS.gray950}
                 textColor={COLORS.gray300}
-                width={isSmartphone ? '23%' : '26%'}
+                width={isSmartphone ? '23%' : isLowResTablet ? '30%' : '26%'}
                 onPress={onClose} />
               <Button
                 title={t('buttons.set')}
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
-                width={isSmartphone ? '23%' : '26%'}
+                width={isSmartphone ? '23%' : isLowResTablet ? '30%' : '26%'}
                 onPress={() => {
                   // We send the selected option to the parent component
                   onSelectOption(selectedOption);
@@ -128,7 +122,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.backgroundModal,
-    paddingBottom: '10%',
   },
   modalContainerSmartphone: {
     paddingBottom: 0,
@@ -136,7 +129,7 @@ const styles = StyleSheet.create({
 
   //Content styles
   modalContent: {
-    width: '55%',
+    width: '40%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,
@@ -144,12 +137,6 @@ const styles = StyleSheet.create({
     borderColor: COLORS.borderColor,
   },
   modalContentSmartphone: {
-    width: '90%',
-  },
-  modalContentTabletLandscape: {
-    width: '40%',
-  },
-  modalContentSmartphoneLandscape: {
     width: '45%',
   },
 

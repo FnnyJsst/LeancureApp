@@ -1,4 +1,4 @@
-import { useWindowDimensions, PixelRatio, Platform } from 'react-native';
+import { useWindowDimensions, PixelRatio } from 'react-native';
 
 /**
  * Custom hook to determine the device type and orientation
@@ -11,16 +11,16 @@ export const useDeviceType = () => {
   const { width, height } = useWindowDimensions();
   const pixelDensity = PixelRatio.get();
 
-  // Calcul plus précis de la taille réelle en pouces
+  // We calculate the diagonal in inches to determine the device size
   const widthInches = width / (PixelRatio.get() * 160);
   const heightInches = height / (PixelRatio.get() * 160);
   const diagonalInches = Math.sqrt(Math.pow(widthInches, 2) + Math.pow(heightInches, 2));
 
-  // Détection explicite des tablettes basse résolution d'abord
+  // Explicit detection of low resolution tablets first
   const isLowResTablet = (() => {
-    const minWidth = 550;  // Réduit de 600 à 550 pour les anciennes tablettes
-    const minHeight = 700; // Réduit de 800 à 700 pour les anciennes tablettes
-    const maxDensity = 2;  // Densité maximale pour les écrans basse résolution
+    const minWidth = 550;
+    const minHeight = 700;
+    const maxDensity = 2;
 
     return (
       Math.min(width, height) >= minWidth &&
@@ -29,33 +29,27 @@ export const useDeviceType = () => {
     );
   })();
 
-  // Détection plus robuste des tablettes
+  // Detection of
   const isTablet = (() => {
     const minimumTabletDiagonal = 6.5;
     const aspectRatio = Math.max(width, height) / Math.min(width, height);
 
     return (
-      // Vérifier d'abord si c'est une tablette basse résolution
+      // We first check if it's a low resolution tablet
       isLowResTablet ||
-      // Sinon utiliser les critères standards
+      // Then we use the standard criteria
       (diagonalInches >= minimumTabletDiagonal &&
        aspectRatio <= 1.6 &&
        Math.min(width, height) >= 400)
     );
   })();
 
+  // If a device is not a tablet, it's a smartphone
   const isSmartphone = !isTablet;
+
+  // We determine the orientation of the device
   const isPortrait = height > width;
   const isLandscape = width > height;
-
-  // Dimensions utiles pour le style
-  const screenInfo = {
-    width,
-    height,
-    pixelDensity,
-    diagonalInches,
-    aspectRatio: width / height,
-  };
 
   // Derived device types
   const isSmartphonePortrait = isSmartphone && isPortrait;
@@ -63,20 +57,12 @@ export const useDeviceType = () => {
   const isSmartphoneLandscape = isSmartphone && isLandscape;
   const isTabletLandscape = isTablet && isLandscape;
 
-  const deviceSize = {
-    isSmallTablet: isTablet && diagonalInches < 8,
-    isMediumTablet: isTablet && diagonalInches >= 8 && diagonalInches < 10,
-    isLargeTablet: isTablet && diagonalInches >= 10,
-    isLowResTablet,
-  };
-
   return {
     // Base properties
     isTablet,
     isSmartphone,
     isPortrait,
     isLandscape,
-    screenInfo,
     isLowResTablet,
 
     // Derived properties
@@ -84,8 +70,5 @@ export const useDeviceType = () => {
     isTabletPortrait,
     isSmartphoneLandscape,
     isTabletLandscape,
-
-    // Device size properties
-    deviceSize,
   };
 };

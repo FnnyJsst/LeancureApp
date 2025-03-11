@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 export default function EditWebviewModal({ visible, onClose, onSave, initialUrl, initialTitle, testID }) {
   const { t } = useTranslation();
   // We create a hook to determine the device type and orientation
-  const { isSmartphone, isTabletLandscape, isSmartphoneLandscape } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
 
   // State management for form inputs
   const [url, setUrl] = useState(initialUrl || '');
@@ -81,7 +81,8 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
       <View style={MODAL_STYLES.modalContainer}>
         <View style={[
           styles.modalContent,
-          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+          isSmartphone && styles.modalContentSmartphone,
+          isLowResTablet && styles.modalContentLowResTablet,
         ]}>
           <TitleModal title={t('modals.webview.edit.editChannel')} />
           {error && (
@@ -167,7 +168,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#403430',
   },
-  modalContentSmartphoneLandscape: {
+  modalContentLowResTablet: {
+    width: '60%',
+  },
+  modalContentSmartphone: {
     width: '60%',
   },
   inputContainer: {

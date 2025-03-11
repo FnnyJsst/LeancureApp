@@ -13,18 +13,16 @@ import { useTranslation } from 'react-i18next';
  * @component PasswordCheckModal
  * @description A component that renders a modal for checking the password
  *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onSubmit - The function to call when the password is submitted
  * @param {boolean} props.isFocused - Whether the input is focused
-
  */
 export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocused }) {
 
   const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
-  const { isSmartphone } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
 
   // State for the password and the alert
   const [password, setPassword] = useState('');
@@ -83,6 +81,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
           <View style={[
             MODAL_STYLES.content,
             isSmartphone && styles.modalContentSmartphone,
+            isLowResTablet && styles.modalContentLowResTablet,
           ]}>
             <TitleModal title={t('modals.webview.password.enterPassword')} />
             <InputModal
@@ -134,5 +133,8 @@ const styles = StyleSheet.create({
 
   modalContentSmartphone: {
     width: '50%',
-  }
+  },
+  modalContentLowResTablet: {
+    width: '60%',
+  },
 });

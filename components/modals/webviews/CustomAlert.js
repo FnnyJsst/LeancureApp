@@ -10,7 +10,6 @@ import { Text } from '../../text/CustomText';
  * @component CustomAlert
  * @description A component that renders a custom alert
  *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the alert is visible
  * @param {string} props.title - The title of the alert
  * @param {string} props.message - The message of the alert
@@ -19,7 +18,7 @@ import { Text } from '../../text/CustomText';
  * @param {string} props.type - The type of the alert
  */
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error', testID }) {
-  const { isSmartphone } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
 
   return (
     <Modal
@@ -32,6 +31,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
       <View style={styles.modalContainer}>
         <View style={[
           styles.modalContent,
+          isLowResTablet && styles.modalContentLowResTablet,
         ]}>
           <TitleModal title={title} />
           <Text style={[styles.message, isSmartphone && styles.messageSmartphone]}>{message}</Text>
@@ -76,6 +76,9 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.xLarge,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
+  },
+  modalContentLowResTablet: {
+    width: '50%',
   },
   message: {
     color: COLORS.gray300,

@@ -8,6 +8,7 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { SIZES } from '../../../constants/style';
 
 /**
  * @component PasswordDefineModal
@@ -23,7 +24,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
 
   const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
-  const { isSmartphone } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
 
   // State management for the password and the alert
   const [password, setPassword] = useState('');
@@ -107,6 +108,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
         ]}>
           <View style={[
               MODAL_STYLES.content,
+              isLowResTablet && styles.modalContentLowResTablet,
               isSmartphone && styles.modalContentSmartphone,
             ]}>
             <TitleModal title={t('modals.webview.password.enterPassword')} />
@@ -192,7 +194,9 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
 }
 
 const styles = StyleSheet.create({
-  //Container styles
+  modalContentLowResTablet: {
+    width: '50%',
+  },
   modalContainerSmartphone: {
     paddingBottom: 'auto',
   },
