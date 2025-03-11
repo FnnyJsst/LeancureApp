@@ -22,7 +22,7 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
 
   const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
 
   /**
    * @function handleYes
@@ -54,9 +54,8 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
       <View style={styles.modalContainer}>
         <View style={[
           styles.modalContent,
-          isSmartphonePortrait && styles.modalContentSmartphonePortrait,
-          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-          isTabletPortrait && styles.modalContentTabletPortrait,
+          isSmartphone && styles.modalContentSmartphone,
+          isLowResTablet && styles.modalContentLowResTablet,
         ]}>
           <View style={[
             styles.titleContainer,
@@ -91,7 +90,7 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
 }
 
 const styles = StyleSheet.create({
-  //Container styles
+
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -107,14 +106,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.borderColor,
   },
-  modalContentSmartphonePortrait: {
-    width: '95%',
-  },
-  modalContentSmartphoneLandscape: {
-    width: '50%',
-  },
-  modalContentTabletPortrait: {
+  modalContentLowResTablet: {
     width: '60%',
+  },
+  modalContentSmartphone: {
+    width: '50%',
   },
 
   //Title styles
@@ -132,7 +128,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.biggerTextSmartphone,
   },
 
-  //Button styles
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',

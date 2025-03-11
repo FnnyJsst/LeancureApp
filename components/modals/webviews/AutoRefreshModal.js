@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Modal, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
@@ -45,6 +45,28 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOpt
     { label: t('modals.webview.refresh.every6h'), value: 'every 6 hours' },
   ];
 
+  // Fonction pour rendre chaque option
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={[
+        styles.radioContainer,
+        isSmartphone && styles.radioContainerSmartphone,
+      ]}
+      onPress={() => setSelectedOption(item.value)}
+    >
+      <Ionicons
+        name={selectedOption === item.value ? 'radio-button-on-outline' : 'radio-button-off-outline'}
+        size={isSmartphone ? 20 : 24}
+        color={selectedOption === item.value ? COLORS.orange : COLORS.gray600}
+        style={styles.radioIcon}
+      />
+      <Text style={[
+        styles.radioText,
+        isSmartphone && styles.radioTextSmartphone
+      ]}>{item.label}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <Modal
       animationType="slide"
@@ -59,56 +81,44 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOpt
         isSmartphone && styles.modalContainerSmartphone,
       ]}>
         <View style={[
-            styles.modalContent,
-            isSmartphone && styles.modalContentSmartphone,
-          ]}>
-          <ScrollView>
-            <TitleModal title={t('modals.webview.refresh.refreshChannels')}/>
-            <View style={[
+          styles.modalContent,
+          isSmartphone && styles.modalContentSmartphone,
+        ]}>
+          <TitleModal title={t('modals.webview.refresh.refreshChannels')}/>
+
+          <FlatList
+            data={options}
+            renderItem={renderItem}
+            keyExtractor={item => item.value}
+            contentContainerStyle={[
               styles.optionsContainer,
               isSmartphone && styles.optionsContainerSmartphone,
-            ]}>
-            {options.map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.radioContainer,
-                  isSmartphone && styles.radioContainerSmartphone,
-                ]}
-                onPress={() => setSelectedOption(option.value)}
-              >
-                <Ionicons
-                  name={selectedOption === option.value ? 'radio-button-on-outline' : 'radio-button-off-outline'}
-                  size={isSmartphone ? 20 : 24}
-                  color={selectedOption === option.value ? COLORS.orange : COLORS.gray600}
-                  style={styles.radioIcon}
-                />
-                <Text style={[
-                  styles.radioText,
-                  isSmartphone && styles.radioTextSmartphone]}>{option.label}</Text>
-              </TouchableOpacity>
-            ))}
-            </View>
-            <View style={MODAL_STYLES.buttonContainer}>
-              <Button
-                title={t('buttons.close')}
-                backgroundColor={COLORS.gray950}
-                textColor={COLORS.gray300}
-                width={isSmartphone ? '23%' : isLowResTablet ? '30%' : '26%'}
-                onPress={onClose} />
-              <Button
-                title={t('buttons.set')}
-                backgroundColor={COLORS.orange}
-                color={COLORS.white}
-                width={isSmartphone ? '23%' : isLowResTablet ? '30%' : '26%'}
-                onPress={() => {
-                  // We send the selected option to the parent component
-                  onSelectOption(selectedOption);
-                  onClose();
-                }}
-              />
-            </View>
-          </ScrollView>
+            ]}
+            showsVerticalScrollIndicator={false}
+            initialNumToRender={8}
+            maxToRenderPerBatch={8}
+            removeClippedSubviews={true}
+          />
+
+          <View style={MODAL_STYLES.buttonContainer}>
+            <Button
+              title={t('buttons.close')}
+              backgroundColor={COLORS.gray950}
+              textColor={COLORS.gray300}
+              width={isSmartphone ? '23%' : isLowResTablet ? '30%' : '26%'}
+              onPress={onClose}
+            />
+            <Button
+              title={t('buttons.set')}
+              backgroundColor={COLORS.orange}
+              color={COLORS.white}
+              width={isSmartphone ? '23%' : isLowResTablet ? '30%' : '26%'}
+              onPress={() => {
+                onSelectOption(selectedOption);
+                onClose();
+              }}
+            />
+          </View>
         </View>
       </View>
     </Modal>
