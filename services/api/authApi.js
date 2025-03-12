@@ -49,9 +49,12 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
         'amaiia_msg_srv': {
           'client': {
             'get_account_links': {
-              'accountinfos': {
-                'accountapikey': accountApiKey,
+            'accountinfos': {
+              'accountapikey': accountApiKey,
               },
+            'returnmessages': false,
+            'resultsperchannel': 0,
+            'orderby': 'ASC'
             },
           },
         },

@@ -386,6 +386,9 @@ const styles = StyleSheet.create({
     loginContainerLandscape: {
         width: '55%',
     },
+    loginContainerLandscapeSmartphone: {
+        marginTop: 0,
+    },
     inputsContainer: {
         width: '100%',
         gap: 20,

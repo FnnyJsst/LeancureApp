@@ -26,6 +26,10 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
             'accountinfos': {
               'accountapikey': accountApiKey,
             },
+            'returnmessages': true,
+            'returnimgsmin': true,
+            'resultsperchannel': 0,
+            'orderby': 'ASC'
           },
         },
       },
@@ -191,7 +195,8 @@ export const deleteMessageApi = async (messageId, userCredentials) => {
       'amaiia_msg_srv': {
         'message': {
           'delete': {
-            'messageid': parseInt(messageId, 10)
+            'messageid': parseInt(messageId, 10),
+            'accountapikey': userCredentials.accountApiKey
           }
         }
       }
@@ -244,6 +249,10 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
             'accountinfos': {
               'accountapikey': userCredentials.accountApiKey,
             },
+            'returnmessages': true,
+            'returnimgsmin': true,
+            'resultsperchannel': 0,
+            'orderby': 'ASC'
           },
         },
       },
@@ -251,7 +260,7 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
 
     const apiUrl = await ENV.API_URL();
     const response = await axios.post(apiUrl, body);
-    // console.log('📥 Structure complète des messages:', JSON.stringify(response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data?.private?.groups, null, 2));
+    console.log('📥 Structure complète des messages:', JSON.stringify(response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data?.private?.groups, null, 2));
 
 
     if (response.status === 200) {
@@ -340,7 +349,7 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
     // });
 
     const timestamp = Date.now();
-    const saltPath = `amaiia_msg_srv/client/get_base64/${timestamp}/`;
+    const saltPath = `amaiia_msg_srv/message/get_base64/${timestamp}/`;
     createSignature(saltPath, userCredentials.contractNumber);
 
     const body = createApiRequest({
@@ -349,16 +358,19 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
           'get_base64': {
             'messageid': parseInt(messageId, 10),
             'channelid': parseInt(msg.channelid, 10),
+            'accountapikey': userCredentials.accountApiKey
           },
         },
       },
     }, userCredentials.contractNumber);
 
+    console.log(body);
+
     const apiUrl = await ENV.API_URL();
     const response = await axios.post(apiUrl, body);
 
     // Extraction correcte du base64
-    const base64Data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_base64?.data?.base64;
+    const base64Data = response.data?.cmd?.[0]?.amaiia_msg_srv?.message?.get_base64?.data?.base64;
 
 
     if (!base64Data) {
