@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ENV } from '../../config/env';
 import { createApiRequest, createSignature } from './baseApi';
+import CryptoJS from 'crypto-js';
 
 /**
  * @function fetchUserChannels
@@ -42,7 +43,7 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
       throw urlError;
     }
 
-    console.log('🔗 URL API pour les channels:', apiUrl);
+    // console.log('🔗 URL API pour les channels:', apiUrl);
 
     try {
       const response = await axios({
@@ -145,7 +146,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     if (response.status === 200) {
       // Vérifier si la réponse contient une erreur PHP
       if (typeof response.data === 'string' && response.data.includes('xdebug-error')) {
-        console.error('❌ Erreur PHP détectée dans la réponse');
+        // console.error('❌ Erreur PHP détectée dans la réponse');
         throw new Error('Erreur serveur PHP');
       }
 
@@ -235,10 +236,6 @@ export const deleteMessageApi = async (messageId, userCredentials) => {
  */
 export const fetchChannelMessages = async (channelId, userCredentials) => {
   try {
-    // console.log('📥 Récupération messages - Credentials:', {
-    //   accountApiKey: userCredentials.accountApiKey,
-    //   login: userCredentials.login
-    // });
 
     const timestamp = Date.now();
 
@@ -260,7 +257,7 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
 
     const apiUrl = await ENV.API_URL();
     const response = await axios.post(apiUrl, body);
-    console.log('📥 Structure complète des messages:', JSON.stringify(response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data?.private?.groups, null, 2));
+    // console.log('📥 Structure complète des messages:', JSON.stringify(response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data?.private?.groups, null, 2));
 
 
     if (response.status === 200) {
@@ -274,30 +271,13 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
               if (chId === channelId && channel.messages) {
                 channelMessages = await Promise.all(
                   Object.entries(channel.messages).map(async ([id, msg]) => {
-                    // console.log('📥 Message reçu:', msg);
-                    // console.log('📥 Structure d\'un message:', JSON.stringify(msg, null, 2));
 
                     const isOwnMessage = msg.accountapikey === userCredentials.accountApiKey;
                     const hasFile = msg.filename && msg.filetype && msg.filetype !== 'none';
 
                     let base64 = null;
                     if (hasFile) {
-                      // console.log('📥 Tentative récupération fichier:', {
-                      //   messageId: msg.messageid,
-                      //   fileType: msg.filetype,
-                      //   fileName: msg.filename,
-                      // });
-
-                      base64 = await fetchMessageFile(msg.messageid, {
-                        ...msg,
-                        channelid: parseInt(channelId, 10),
-                      }, userCredentials);
-
-                      // console.log('📥 Résultat récupération fichier:', {
-                      //   messageId: msg.messageid,
-                      //   hasBase64: !!base64,
-                      //   base64Length: base64?.length,
-                      // });
+                      base64 = msg.img_minimized;
                     }
 
                     return {
@@ -342,11 +322,6 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
  */
 export const fetchMessageFile = async (messageId, msg, userCredentials) => {
   try {
-    // console.log('📥 Début fetchMessageFile:', {
-    //   messageId,
-    //   channelId: msg.channelid,
-    //   credentials: !!userCredentials
-    // });
 
     const timestamp = Date.now();
     const saltPath = `amaiia_msg_srv/message/get_base64/${timestamp}/`;
@@ -364,7 +339,6 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
       },
     }, userCredentials.contractNumber);
 
-    console.log(body);
 
     const apiUrl = await ENV.API_URL();
     const response = await axios.post(apiUrl, body);
@@ -381,6 +355,73 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
     return base64Data;
   } catch (error) {
     console.error('🔴 Erreur fetchMessageFile:', error);
+    return null;
+  }
+};
+
+export const fetchHighQualityFile = async (messageId, msg, userCredentials) => {
+  try {
+    const timestamp = Date.now();
+    // Exactement comme dans Postman
+    const saltPath = `amaiia_msg_srv/message/get_base64/${timestamp}/`;
+    const hash = CryptoJS.HmacSHA256(saltPath, userCredentials.contractNumber);
+    const hashHex = hash.toString(CryptoJS.enc.Hex);
+
+    // Structure exacte de la requête Postman
+    const body = {
+      "api-version": "2",
+      "api-contract-number": userCredentials.contractNumber,
+      "api-signature": hashHex,
+      "api-signature-hash": "sha256",
+      "api-signature-timestamp": timestamp,
+      "client-type": "mobile",
+      "client-login": "admin",
+      "client-token": userCredentials.accessToken,
+      "cmd": [
+        {
+          "amaiia_msg_srv": {
+            "message": {
+              "get_base64": {
+                "messageid": parseInt(messageId, 10),
+                "channelid": parseInt(msg.channelid, 10),
+                "accountapikey": userCredentials.accountApiKey
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    console.log('📤 Requête envoyée:', {
+      url: await ENV.API_URL(),
+      body: JSON.stringify(body, null, 2)
+    });
+
+    const apiUrl = await ENV.API_URL();
+    const response = await axios.post(apiUrl, body);
+
+    // Vérifions d'abord la structure complète de la réponse
+    const base64Data = response.data?.cmd?.[0]?.amaiia_msg_srv?.message?.get_base64?.base64;
+
+    if (!base64Data) {
+      console.log('❌ Structure de la réponse:', {
+        hasCmd: !!response.data?.cmd,
+        hasFirstCmd: !!response.data?.cmd?.[0],
+        hasAmaiia: !!response.data?.cmd?.[0]?.amaiia_msg_srv,
+        hasMessage: !!response.data?.cmd?.[0]?.amaiia_msg_srv?.message,
+        hasGetBase64: !!response.data?.cmd?.[0]?.amaiia_msg_srv?.message?.get_base64,
+        hasBase64: !!response.data?.cmd?.[0]?.amaiia_msg_srv?.message?.get_base64?.base64
+      });
+      return null;
+    }
+
+    return base64Data;
+  } catch (error) {
+    console.error('🔴 Erreur fetchHighQualityFile:', {
+      message: error.message,
+      response: error.response?.data,
+      request: error.config
+    });
     return null;
   }
 };

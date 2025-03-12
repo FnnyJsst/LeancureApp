@@ -39,7 +39,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [userRights, setUserRights] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [editingMessage, setEditingMessage] = useState(null);
-
+  const [selectedMessageId, setSelectedMessageId] = useState(null);
   /**
    * @function useEffect
    * @description We use the useEffect hook to update the messages when the channel messages change
@@ -123,6 +123,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     setSelectedFileSize(message.fileSize);
     setSelectedFileType(message.fileType?.toLowerCase());
     setSelectedBase64(message.base64);
+    setSelectedMessageId(message.id);
   };
 
   // Function to close the document preview modal
@@ -323,6 +324,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             onFocusChange={onInputFocusChange}
             editingMessage={editingMessage}
           />
+
+          <DocumentPreviewModal
+            visible={isDocumentPreviewModalVisible}
+            onClose={closeDocumentPreviewModal}
+            fileName={selectedFileName}
+            fileSize={selectedFileSize}
+            fileType={selectedFileType}
+            base64={selectedBase64}
+            messageId={selectedMessageId}
+            channelId={channel.id}
+          />
         </>
       ) : (
         <View style={styles.noChannelContainer}>
@@ -334,16 +346,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           </Text>
         </View>
       )}
-      {/* If the document preview modal is visible, we display it */}
-      <DocumentPreviewModal
-        visible={isDocumentPreviewModalVisible}
-        onClose={closeDocumentPreviewModal}
-        fileUrl={selectedFileUrl}
-        fileName={selectedFileName}
-        fileSize={selectedFileSize}
-        fileType={selectedFileType}
-        base64={selectedBase64}
-      />
     </View>
   );
 }

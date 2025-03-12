@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { COLORS, SIZES } from '../../../constants/style';
@@ -8,6 +8,9 @@ import Button from '../../../components/buttons/Button';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Text } from '../../text/CustomText';
+import { fetchHighQualityFile, fetchMessageFile } from '../../../services/api/messageApi';
+import * as SecureStore from 'expo-secure-store';
+import { ActivityIndicator } from 'react-native';
 
 /**
  * @component DocumentPreviewModal
@@ -22,9 +25,44 @@ import { Text } from '../../text/CustomText';
  * @param {string} props.base64 - The base64 of the file
  *
  */
-export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64 }) {
+export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64: initialBase64, messageId, channelId }) {
   const { isSmartphone, isSmartphoneLandscape, isLandscape, isTabletLandscape } = useDeviceType();
   const [error, setError] = useState(null);
+  const [highQualityBase64, setHighQualityBase64] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const isImageType = fileType?.toLowerCase().match(/jpg|jpeg|png|gif/);
+
+    const loadHighQualityImage = async () => {
+      if (!visible || !messageId || !channelId) return;
+
+      try {
+        setIsLoading(true);
+        const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+        if (!credentialsStr) throw new Error('No credentials found');
+
+        const credentials = JSON.parse(credentialsStr);
+
+        const highQualityData = await fetchMessageFile(messageId, {
+          channelid: channelId
+        }, credentials);
+
+        if (highQualityData) {
+          console.log('✅ Image HD reçue, longueur:', highQualityData.length);
+          setHighQualityBase64(highQualityData);
+        }
+      } catch (err) {
+        console.error('🔴 Erreur chargement image HD:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (visible && isImageType && messageId && channelId) {
+      loadHighQualityImage();
+    }
+  }, [visible, messageId, channelId, fileType]);
 
   /**
    * @function handleDownload
@@ -34,7 +72,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
     try {
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
-      await FileSystem.writeAsStringAsync(fileUri, base64, {
+      await FileSystem.writeAsStringAsync(fileUri, initialBase64, {
         encoding: FileSystem.EncodingType.Base64,
       });
       await Sharing.shareAsync(fileUri);
@@ -52,9 +90,9 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
     // Estimer la taille à partir de base64 si non fournie
     let calculatedSize = 0;
 
-    if (base64) {
+    if (initialBase64) {
       // Convertir la longueur base64 en taille approximative
-      calculatedSize = Math.round(base64.length * 0.75);
+      calculatedSize = Math.round(initialBase64.length * 0.75);
     }
 
     if (!calculatedSize) return '0 Ko';
@@ -108,7 +146,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                     <div id="viewer"></div>
                     <script>
                       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
-                      const loadingTask = pdfjsLib.getDocument({data: atob('${base64}')});
+                      const loadingTask = pdfjsLib.getDocument({data: atob('${initialBase64}')});
                       loadingTask.promise.then(function(pdf) {
                         pdf.getPage(1).then(function(page) {
                           const canvas = document.createElement('canvas');
@@ -138,16 +176,61 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
           />
         </View>
       );
-    } else if (fileType?.includes('jpg') || fileType?.includes('png') || fileType?.includes('jpeg')) {
+    } else if (fileType?.toLowerCase().match(/jpg|jpeg|png|gif/)) {
+      const mimeType = fileType.includes('jpg') || fileType.includes('jpeg')
+        ? 'image/jpeg'
+        : 'image/png';
+
+      // Ajout de logs détaillés pour le debug
+      console.log('🎨 Préparation rendu image:', {
+        mimeType,
+        base64Length: {
+          high: highQualityBase64?.length,
+          initial: initialBase64?.length
+        },
+        base64Preview: {
+          high: highQualityBase64?.substring(0, 50),
+          initial: initialBase64?.substring(0, 50)
+        }
+      });
+
+      const imageSource = {
+        uri: `data:${mimeType};base64,${highQualityBase64 || initialBase64}`,
+        // Ajout de propriétés pour forcer le rendu
+        cache: 'reload',
+        timestamp: Date.now()
+      };
+
+      console.log('🖼️ Source image:', {
+        uri: imageSource.uri.substring(0, 50) + '...',
+        hasData: !!(highQualityBase64 || initialBase64)
+      });
 
       return (
         <View style={styles.imageWrapper}>
           <Image
-            source={{ uri: `data:${fileType};base64,${base64}` }}
+            source={imageSource}
             style={styles.image}
             resizeMode="contain"
-            onError={(error) => console.log('Image loading error:', error.nativeEvent)}
+            onLoadStart={() => console.log('🔄 Début chargement image')}
+            onLoadEnd={() => console.log('✅ Fin chargement image')}
+            onError={(error) => {
+              console.error('🔴 Erreur chargement image:', {
+                error: error.nativeEvent,
+                sourceLength: imageSource.uri.length,
+                mimeType
+              });
+              setError('Erreur de chargement de l\'image');
+            }}
           />
+          {isLoading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color={COLORS.orange} />
+            </View>
+          )}
+          {error && (
+            <Text style={styles.errorText}>{error}</Text>
+          )}
         </View>
       );
     }
@@ -316,4 +399,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  errorText: {
+    color: COLORS.red,
+    marginTop: 10,
+  }
 });

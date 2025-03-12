@@ -163,7 +163,8 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
           messages={channelMessages}
           isExpanded={isExpanded}
           onInputFocusChange={handleInputFocusChange}
-          onMessageSent={handleNewMessage}
+          onMessageSent={handleNewMessage
+          }
         />
       </View>
     </View>
