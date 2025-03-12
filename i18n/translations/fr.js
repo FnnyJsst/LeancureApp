@@ -203,5 +203,10 @@ export default {
     errorLoadingFile: "Erreur lors du chargement du fichier :",
     noCredentialsFound: "Aucune information de connexion trouvée",
     errorSendingMessage: "Erreur lors de l'envoi du message :",
+    errorSavingPassword: "Erreur lors de la sauvegarde du mot de passe",
+    errorLoadingPassword: "Erreur lors du chargement du mot de passe",
+    incorrectPassword: "Mot de passe incorrect",
+    errorCleaningPassword: "Erreur lors du nettoyage du mot de passe",
+    incorrectPassword: "Mot de passe incorrect",
   }
 }

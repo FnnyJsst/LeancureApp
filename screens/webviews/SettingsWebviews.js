@@ -11,7 +11,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS, FONTS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../../components/text/CustomText';
-import { VERSION } from '../../config/versioning/version';
+// import { VERSION } from '../../config/versioning/version';
 import { useTranslation } from 'react-i18next';
 
 
@@ -277,7 +277,7 @@ export default function SettingsWebviews({
             </View>
           </View>
           {/* Section Messages - Visible uniquement en V2 */}
-          {VERSION === 'v2' && (
+          {/* {VERSION === 'v2' && ( */}
             <>
               <View style={styles.titleContainer}>
                 <Text style={styles.title}>{t('titles.messages')}</Text>
@@ -315,7 +315,7 @@ export default function SettingsWebviews({
                 </View>
               </View>
             </>
-          )}
+          {/* )} */}
         </View>
       </ScrollView>
       {/* Modals */}
@@ -339,13 +339,13 @@ export default function SettingsWebviews({
         testID="password-define-modal"
       />
       {/* Modal HideMessages uniquement en V2 */}
-      {VERSION === 'v2' && (
+      {/* {VERSION === 'v2' && ( */}
         <HideMessagesModal
           visible={hideMessagesModalVisible}
           onClose={() => setHideMessagesModalVisible(false)}
           onToggleHideMessages={handleToggleHideMessages}
         />
-      )}
+      {/* )} */}
     </View>
   );
 }

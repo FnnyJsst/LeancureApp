@@ -5,7 +5,7 @@ import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
 import WebviewsManagementScreen from './screens/webviews/WebviewsManagementScreen';
 import WebviewsListScreen from './screens/webviews/WebviewsListScreen';
-import WebviewScreen from './screens/webviews/WebviewScreen';
+import WebviewScreen from './screens/webviews/WebViewScreen';
 import Login from './screens/messages/login/Login';
 import PasswordDefineModal from './components/modals/webviews/PasswordDefineModal';
 import PasswordCheckModal from './components/modals/webviews/PasswordCheckModal';
@@ -18,7 +18,7 @@ import { useNavigation } from './hooks/useNavigation';
 import * as SecureStore from 'expo-secure-store';
 import Sidebar from './components/navigation/Sidebar';
 import { useWebviews } from './hooks/useWebviews';
-import { useWebviewsPassword } from './hooks/useWebviewsPassword';
+import { useWebviewsPassword } from './hooks/useWebViewsPassword';
 import { LogBox } from 'react-native';
 import { useFonts } from 'expo-font';
 import CommonSettings from './screens/common/CommonSettings';
@@ -26,9 +26,9 @@ import { useTimeout } from './hooks/useTimeout';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
-import { VERSION } from './config/versioning/version';
-import { V1_CONFIG } from './config/versioning/v1.config';
-import { V2_CONFIG } from './config/versioning/v2.config';
+// import { VERSION } from './config/versioning/version';
+// import { V1_CONFIG } from './config/versioning/v1.config';
+// import { V2_CONFIG } from './config/versioning/v2.config';
 // import { usePushNotifications } from './services/notifications/notificationService';
 
 LogBox.ignoreLogs(['[expo-notifications]']);
@@ -39,45 +39,44 @@ console.log = (...args) => {
   }
 };
 
-const CONFIG = VERSION === 'v1' ? V1_CONFIG : V2_CONFIG;
+// const CONFIG = VERSION === 'v1' ? V1_CONFIG : V2_CONFIG;
 
 
 /**
  * @component App
  * @description The main component of the app
  */
-export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
-  // 1. Tous les hooks au début
+export default function App({ testID, initialScreen }) {
+  // 1. TOUS les états d'abord, regroupés
   const [fontsLoaded] = useFonts({
-    'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),         // 100
-    'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),       // 300
-    'Raleway-Regular': require('./assets/fonts/raleway.regular.ttf'),   // 400
-    'Raleway-Medium': require('./assets/fonts/raleway.medium.ttf'),     // 500
-    'Raleway-SemiBold': require('./assets/fonts/raleway.semibold.ttf'), // 600
-    'Raleway-Bold': require('./assets/fonts/raleway.bold.ttf'),         // 700
-    'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),// 800
+    'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),
+    'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),
+    'Raleway-Regular': require('./assets/fonts/raleway.regular.ttf'),
+    'Raleway-Medium': require('./assets/fonts/raleway.medium.ttf'),
+    'Raleway-SemiBold': require('./assets/fonts/raleway.semibold.ttf'),
+    'Raleway-Bold': require('./assets/fonts/raleway.bold.ttf'),
+    'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),
   });
-
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
-
   const [currentScreen, setCurrentScreen] = useState(initialScreen);
   const [isLoading, setIsLoading] = useState(true);
   const [globalMessages, setGlobalMessages] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isMessagesHidden, setIsMessagesHidden] = useState(true);
+  const [isMessagesHidden, setIsMessagesHidden] = useState(false);
+  const [appInitialized, setAppInitialized] = useState(false);
 
+  // 2. Navigation hook
   const { navigate } = useNavigation(setCurrentScreen);
+
+  // 3. Timeout hook
   const { timeoutInterval, handleTimeoutSelection, loadTimeoutInterval } = useTimeout();
 
-  // const expoPushToken = usePushNotifications();
-
-  // Webviews hooks
+  // 4. Webviews hook
   const {
     channels,
     selectedWebviews,
-    setSelectedWebviews,
     webViewUrl,
-    setRefreshInterval,
+    refreshInterval,
     refreshOption,
     isReadOnly,
     toggleReadOnly,
@@ -91,7 +90,7 @@ export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
     navigateToWebview,
   } = useWebviews(setCurrentScreen);
 
-  // Password hooks
+  // 5. Password hook
   const {
     password,
     isPasswordRequired,
@@ -105,6 +104,7 @@ export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
     closePasswordDefineModal,
   } = useWebviewsPassword(navigate);
 
+  // 6. Callbacks
   const handleSettingsAccess = useCallback(() => {
     if (isPasswordRequired) {
       setPasswordCheckModalVisible(true);
@@ -113,190 +113,90 @@ export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
     }
   }, [isPasswordRequired, setPasswordCheckModalVisible, navigate]);
 
-  //THIS NEEDS TO BE UNCOMMENTED FOR V2
   const hideMessages = useCallback(async (shouldHide) => {
     try {
-        await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
-        setIsMessagesHidden(shouldHide);
-        if (shouldHide) {
-            setIsLoading(true);
-            setTimeout(() => {
-                setIsLoading(false);
-                navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-            }, 3000);
-        }
+      await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
+      setIsMessagesHidden(shouldHide);
+      if (shouldHide) {
+        setIsLoading(true);
+        setTimeout(() => {
+          setIsLoading(false);
+          navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+        }, 3000);
+      }
     } catch (error) {
-        console.error('Erreur lors de la sauvegarde du paramètre hideMessages:', error);
+      console.error('Erreur lors de la sauvegarde du paramètre hideMessages:', error);
     }
   }, [navigate, selectedWebviews]);
 
-  //This piece of code is only here for the V1 of the App to hide the messages section by default AND TO BE REMOVED FOR V2
-  // useEffect(() => {
-  //   const initializeApp = async () => {
-  //     try {
-  //       // Créons une promesse pour le temps minimum d'affichage du ScreenSaver
-  //       const minimumLoadingTime = new Promise(resolve => setTimeout(resolve, 3000));
-
-  //       // Exécutons toutes nos initialisations en parallèle
-  //       await Promise.all([
-  //         minimumLoadingTime,
-  //         (async () => {
-  //           // Load the timeout interval
-  //           await loadTimeoutInterval();
-
-  //           // Par défaut, on cache les messages
-  //           await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(true));
-  //           setIsMessagesHidden(true);
-
-  //           // Load the selected channels
-  //           await loadSelectedChannels();
-  //         })()
-  //       ]);
-
-  //       // Une fois que tout est chargé ET que le temps minimum est écoulé
-  //       setIsLoading(false);
-
-  //       // Navigation directe vers l'écran approprié
-  //       navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-
-  //     } catch (error) {
-  //       console.error('Error during app initialization:', error);
-  //       setIsLoading(false); // Important de gérer le loading même en cas d'erreur
-  //     }
-  //   };
-
-  //   initializeApp();
-  // }, []);
-
-
-  // /**
-  //  * @function initializeApp
-  //  * @description Initializes the app when the component is mounted
-  //  */
-  // useEffect(() => {
-  //   const initializeApp = async () => {
-  //     console.log('🚀 Starting app initialization...');
-
-  //     try {
-  //       // 1. Initialisation de i18n
-  //       console.log('📚 Initializing i18n...');
-  //       await initI18n();
-  //       console.log('✅ i18n initialized successfully');
-  //       setIsI18nInitialized(true);
-
-  //       // 2. Chargement parallèle des autres ressources
-  //       console.log('⚙️ Loading app configuration...');
-  //       const [timeoutResult, savedMessagesValue, channelsResult] = await Promise.all([
-  //         loadTimeoutInterval(),
-  //         SecureStore.getItemAsync('isMessagesHidden'),
-  //         loadSelectedChannels()
-  //       ]);
-
-  //       // 3. Traitement des résultats
-  //       const isHidden = savedMessagesValue ? JSON.parse(savedMessagesValue) : false;
-  //       setIsMessagesHidden(isHidden);
-
-  //       // 4. Finalisation
-  //       setIsLoading(false);
-  //       console.log('✅ App initialization completed');
-
-  //       // 5. Navigation
-  //       if (isHidden) {
-  //         navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-  //       } else {
-  //         navigate(SCREENS.APP_MENU);
-  //       }
-
-  //     } catch (error) {
-  //       console.error('❌ Error in app initialization:', error);
-  //       // En cas d'erreur, on assure un état cohérent
-  //       setIsI18nInitialized(true);
-  //       setIsLoading(false);
-  //       navigate(SCREENS.APP_MENU); // Navigation vers un écran sûr
-  //     }
-  //   };
-
-  //   initializeApp();
-  // }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews?.length]);
-
-  /**
-   * @function handleTimeout
-   * @description Handles the timeout
-   */
-  useEffect(() => {
-    let timer;
-    if (timeoutInterval && currentScreen !== SCREENS.APP_MENU && currentScreen !== SCREENS.LOGIN) {
-      timer = setTimeout(() => {
-        setCurrentScreen(SCREENS.APP_MENU);
-        setGlobalMessages([]);
-        setIsExpanded(false);
-      }, timeoutInterval);
-    }
-    return () => clearTimeout(timer);
-  }, [timeoutInterval, currentScreen]);
-
+  // 7. Effet d'initialisation principal
   useEffect(() => {
     const initializeApp = async () => {
-      console.log(`🚀 Starting app initialization (${VERSION})`);
-
       try {
-        // 1. Initialisation de i18n silencieuse
+        // 1. Initialiser i18n
         await initI18n();
+        console.log('i18n initialized');
         setIsI18nInitialized(true);
 
-        if (VERSION === 'v1') {
-          // 2. Afficher le ScreenSaver pendant 3 secondes obligatoires
-          setIsLoading(true); // Force l'affichage du ScreenSaver
+        // 2. Charger les données du SecureStore
+        try {
+          await loadSelectedChannels();
+          await loadTimeoutInterval();
 
-          // 3. Initialisation en parallèle
-          await Promise.all([
-            new Promise(resolve => setTimeout(resolve, 3000)), // Timer fixe de 3 secondes
-            (async () => {
-              await loadTimeoutInterval();
-              await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(true));
-              setIsMessagesHidden(true);
-              await loadSelectedChannels();
-            })()
-          ]);
+          // Vérifier la valeur de isMessagesHidden dans le SecureStore
+          const storedMessagesHidden = await SecureStore.getItemAsync('isMessagesHidden');
 
-          // 4. Une fois tout chargé ET les 3 secondes écoulées
-          setIsLoading(false);
-          navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-        } else {
-          // Code spécifique V2
-          const [timeoutResult, savedMessagesValue, channelsResult] = await Promise.all([
-            loadTimeoutInterval(),
-            SecureStore.getItemAsync('isMessagesHidden'),
-            loadSelectedChannels()
-          ]);
-
-          const isHidden = savedMessagesValue ?
-            JSON.parse(savedMessagesValue) :
-            // CONFIG.INITIALIZATION.DEFAULT_MESSAGES_HIDDEN;
-
-          setIsMessagesHidden(isHidden);
-          setIsLoading(false);
-
-          if (isHidden) {
-            navigate(selectedWebviews?.length > 0 ?
-              CONFIG.NAVIGATION.DEFAULT_ROUTE :
-              CONFIG.NAVIGATION.FALLBACK_ROUTE
-            );
+          if (storedMessagesHidden === null) {
+            // Première utilisation : messages visibles par défaut
+            await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(false));
+            setIsMessagesHidden(false);
+            setIsLoading(false);
+            navigate(SCREENS.APP_MENU);
           } else {
-            navigate(CONFIG.INITIAL_SCREEN);
+            // Valeur existante
+            const isHidden = JSON.parse(storedMessagesHidden);
+            setIsMessagesHidden(isHidden);
+            setIsLoading(false);
+
+            if (isHidden) {
+              // Si messages cachés, diriger vers WEBVIEW ou NO_URL
+              navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+            } else {
+              // Si messages visibles, diriger vers APP_MENU
+              navigate(SCREENS.APP_MENU);
+            }
           }
+
+        } catch (error) {
+          if (error.message.includes('Could not decrypt')) {
+            await SecureStore.deleteItemAsync('selectedWebviews');
+            await SecureStore.deleteItemAsync('password');
+            await SecureStore.deleteItemAsync('isPasswordRequired');
+            await SecureStore.deleteItemAsync('refreshOption');
+            await SecureStore.deleteItemAsync('isReadOnly');
+            await SecureStore.deleteItemAsync('isMessagesHidden');
+
+            // En cas d'erreur de décryptage, réinitialiser à l'état par défaut
+            setIsMessagesHidden(false);
+            navigate(SCREENS.APP_MENU);
+          }
+          console.error('Erreur de chargement des données:', error);
         }
+
       } catch (error) {
-        console.error('❌ Error in app initialization:', error);
+        console.error('Erreur d\'initialisation:', error);
         setIsI18nInitialized(true);
         setIsLoading(false);
-        navigate(CONFIG.NAVIGATION.FALLBACK_ROUTE);
+        // En cas d'erreur générale, aller vers APP_MENU avec messages visibles
+        setIsMessagesHidden(false);
+        navigate(SCREENS.APP_MENU);
       }
     };
 
     initializeApp();
-  }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews?.length]);
+  }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews]);
 
+  // 8. Rendu conditionnel pour le ScreenSaver
   if (!fontsLoaded || !isI18nInitialized || isLoading) {
     return <ScreenSaver testID="screen-saver" />;
   }
@@ -312,11 +212,6 @@ export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
       handleSelectChannels(newWebviews);
     }
   };
-
-  // If the app is loading, show the loading screen
-  // if (isLoading) {
-  //   return <ScreenSaver testID="screen-saver" />;
-  // }
 
   /**
    * @function renderWebviewScreen
@@ -337,7 +232,7 @@ export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
                 navigate(screen);
               }
             }}
-            isV2={VERSION === 'v2'}
+            // isV2={VERSION === 'v2'}
             testID="app-menu"
           />
         );
@@ -359,7 +254,7 @@ export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
         return (
           <SettingsWebviews
             selectedWebviews={selectedWebviews}
-            setRefreshInterval={setRefreshInterval}
+            setRefreshInterval={refreshInterval}
             getIntervalInMilliseconds={getIntervalInMilliseconds}
             saveRefreshOption={saveRefreshOption}
             handleSelectOption={handleSelectOption}
@@ -387,7 +282,7 @@ export default function App({ testID, initialScreen = CONFIG.INITIAL_SCREEN }) {
           <WebviewsManagementScreen
             onImport={navigateToChannelsList}
             selectedWebviews={selectedWebviews}
-            setSelectedWebviews={setSelectedWebviews}
+            setSelectedWebviews={selectedWebviews}
             saveSelectedWebviews={saveSelectedWebviews}
             onNavigate={navigate}
             onNavigateToWebview={navigateToWebview}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { Alert } from 'react-native';
 import { SCREENS } from '../constants/screens';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @function useWebviewsPassword
@@ -10,6 +11,8 @@ import { SCREENS } from '../constants/screens';
  * @returns {object} - The password state and functions
  */
 export const useWebviewsPassword = (navigate) => {
+
+  const { t } = useTranslation();
 
   const [password, setPassword] = useState(null);
   const [isPasswordRequired, setIsPasswordRequired] = useState(false);
@@ -35,6 +38,7 @@ export const useWebviewsPassword = (navigate) => {
    * @param {string} enteredPassword - The password entered by the user
    */
   const handlePasswordSubmit = (enteredPassword) => {
+    // We save the password and the isPasswordRequired state in the SecureStore
     setPassword(enteredPassword);
     setIsPasswordRequired(true);
     savePasswordInSecureStore({
@@ -42,6 +46,7 @@ export const useWebviewsPassword = (navigate) => {
       password: enteredPassword,
       isRequired: true,
     });
+    // We close the modal
     closePasswordDefineModal();
   };
 
@@ -52,6 +57,7 @@ export const useWebviewsPassword = (navigate) => {
    */
   const savePasswordInSecureStore = async (passwordData) => {
     try {
+      // If the password is null, we delete the password and the isPasswordRequired state in the SecureStore
       if (passwordData.password === null) {
 
         await SecureStore.deleteItemAsync('password');
@@ -61,7 +67,7 @@ export const useWebviewsPassword = (navigate) => {
         await SecureStore.setItemAsync('isPasswordRequired', JSON.stringify(passwordData.isRequired));
       }
     } catch (error) {
-      console.error('Failed to save password', error);
+      throw new Error(t('errors.errorSavingPassword'), error);
     }
   };
 
@@ -82,7 +88,22 @@ export const useWebviewsPassword = (navigate) => {
         setIsPasswordRequired(JSON.parse(storedIsRequired));
       }
     } catch (error) {
-      console.error('Failed to load password', error);
+      console.error(t('errors.errorLoadingPassword'), error);
+
+      // Si l'erreur est liée au décryptage, réinitialiser les données
+      if (error.message.includes('Could not decrypt')) {
+        try {
+          // Supprimer les données corrompues
+          await SecureStore.deleteItemAsync('password');
+          await SecureStore.deleteItemAsync('isPasswordRequired');
+
+          // Réinitialiser l'état
+          setPassword(null);
+          setIsPasswordRequired(false);
+        } catch (cleanupError) {
+          console.error(t('errors.errorCleaningPassword'), cleanupError);
+        }
+      }
     }
   };
 
@@ -96,7 +117,7 @@ export const useWebviewsPassword = (navigate) => {
       setPasswordCheckModalVisible(false);
       navigate(SCREENS.SETTINGS);
     } else {
-      Alert.alert('Incorrect password');
+      Alert.alert(t('errors.incorrectPassword'));
     }
   };
 

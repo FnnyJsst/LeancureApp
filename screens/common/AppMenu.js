@@ -9,7 +9,7 @@ import GradientBackground from '../../components/backgrounds/GradientBackground'
 import { Text } from '../../components/text/CustomText';
 import * as SecureStore from 'expo-secure-store';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
-import { VERSION } from '../../config/versioning/version';
+// import { VERSION } from '../../config/versioning/version';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -23,12 +23,12 @@ export default function AppMenu({ onNavigate, testID }) {
   const { t } = useTranslation();
 
   const { isSmartphone, isSmartphoneLandscape } = useDeviceType();
-  const [isMessagesHidden, setIsMessagesHidden] = useState(VERSION === 'v1');
+  const [isMessagesHidden, setIsMessagesHidden] = useState(false);
   const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
 
   // Load the messages visibility - Only for V2
   useEffect(() => {
-    if (VERSION === 'v2') {
+    // if (VERSION === 'v2') {
       const loadMessagesVisibility = async () => {
         try {
           const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
@@ -40,7 +40,7 @@ export default function AppMenu({ onNavigate, testID }) {
         }
       };
       loadMessagesVisibility();
-    }
+    // }
   }, []);
 
   /**
@@ -49,21 +49,22 @@ export default function AppMenu({ onNavigate, testID }) {
    * @param {boolean} shouldHide - Whether the messages should be hidden
    */
   const handleHideMessages = async (shouldHide) => {
-    if (VERSION === 'v2') {
+    // if (VERSION === 'v2') {
       try {
         await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
         setIsMessagesHidden(shouldHide);
       } catch (error) {
         console.error('Error saving messages visibility:', error);
       }
-    }
+    // }
   };
 
   const renderCards = () => {
     return (
       <>
         {/* Messages card - Only shown in V2 when not hidden */}
-        {VERSION === 'v2' && !isMessagesHidden && (
+        {/* {VERSION === 'v2' && !isMessagesHidden && ( */}
+        {!isMessagesHidden && (
           <AppMenuCard
             title={t('buttons.messages')}
             icon={<Ionicons
@@ -110,7 +111,7 @@ export default function AppMenu({ onNavigate, testID }) {
           {/* Settings button - Comportement différent selon la version */}
           <TouchableOpacity
             style={styles.settingsContainer}
-            onPress={() => onNavigate(VERSION === 'v1' ? SCREENS.SETTINGS : SCREENS.COMMON_SETTINGS)}
+            onPress={() => onNavigate(SCREENS.COMMON_SETTINGS)}
           >
             <Ionicons
               name="settings-outline"
@@ -120,13 +121,13 @@ export default function AppMenu({ onNavigate, testID }) {
           </TouchableOpacity>
 
           {/* Hide Messages Modal - Only for V2 */}
-          {VERSION === 'v2' && (
+          {/* {VERSION === 'v2' && ( */}
             <HideMessagesModal
               visible={hideMessagesModalVisible}
               onClose={() => setHideMessagesModalVisible(false)}
               onToggleHideMessages={handleHideMessages}
             />
-          )}
+          {/* )} */}
         </View>
       </GradientBackground>
     </>

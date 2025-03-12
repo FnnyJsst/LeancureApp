@@ -201,5 +201,10 @@ export default {
     errorLoadingFile: "Error loading file:",
     noCredentialsFound: "No credentials found",
     errorSendingMessage: "Error sending message:",
+    errorSavingPassword: "Error saving password",
+    errorLoadingPassword: "Error loading password",
+    incorrectPassword: "Incorrect password",
+    errorCleaningPassword: "Error cleaning password",
+    incorrectPassword: "Incorrect password",
   }
 }
