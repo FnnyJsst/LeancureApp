@@ -29,6 +29,12 @@ export default function WebviewScreen({
         javaScriptEnabled={true}
         androidLayerType="hardware"
         renderToHardwareTextureAndroid={true}
+        mediaPlaybackRequiresUserAction={false}
+        allowsInlineMediaPlayback={true}
+        androidHardwareAccelerationDisabled={false}
+        cameraAccessEnabled={true}
+        allowsProtectedMedia={true}
+        allowsFullscreenVideo={true}
         onShouldStartLoadWithRequest={(request) => {
           // Limit unnecessary loads
           return true;
