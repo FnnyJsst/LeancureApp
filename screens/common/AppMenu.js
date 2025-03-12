@@ -115,7 +115,7 @@ export default function AppMenu({ onNavigate, testID }) {
           >
             <Ionicons
               name="settings-outline"
-              size={isSmartphone ? 24 : 40}
+              size={isSmartphone ? 35 : 40}
               color={COLORS.borderColor}
             />
           </TouchableOpacity>

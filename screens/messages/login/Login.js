@@ -381,10 +381,10 @@ const styles = StyleSheet.create({
         marginTop: 50,
     },
     loginContainerSmartphone: {
-        width: '95%',
+        width: '98%',
     },
     loginContainerLandscape: {
-        width: '50%',
+        width: '55%',
     },
     inputsContainer: {
         width: '100%',

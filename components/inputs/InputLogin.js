@@ -65,6 +65,7 @@ export default function InputLogin({
     return (
         <View style={[
             styles.inputContainer,
+            isSmartphone && styles.inputContainerSmartphone,
             isFocused && styles.inputContainerFocused,
         ]}>
             {renderIcon()}
@@ -107,6 +108,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'transparent',
         transition: 'all 0.3s ease',
+    },
+    inputContainerSmartphone: {
+        width: '98%',
     },
     inputContainerFocused: {
         borderColor: COLORS.orange + '50',
