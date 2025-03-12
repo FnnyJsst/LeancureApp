@@ -25,6 +25,8 @@ export default {
     typeMessage: "Tapez votre message ici...",
     SelectAChannel: "Sélectionnez un canal pour commencer à discuter",
     Me: "Moi",
+    GroupWithoutName: "Groupe sans nom",
+    ChannelWithoutName: "Canal sans nom",
   },
 
   dateTime: {
@@ -208,5 +210,13 @@ export default {
     incorrectPassword: "Mot de passe incorrect",
     errorCleaningPassword: "Erreur lors du nettoyage du mot de passe",
     incorrectPassword: "Mot de passe incorrect",
+    noGroupsFound: "Aucun groupe trouvé",
+    serverError: "Erreur serveur",
+    messageNotSaved: "Message non enregistré",
+    messageNotDeleted: "Message non supprimé",
+    messageFileNotFound: "Fichier non trouvé",
+  },
+  success: {
+    messageDeleted: "Message supprimé avec succès",
   }
 }

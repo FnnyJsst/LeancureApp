@@ -25,6 +25,8 @@ export default {
     typeMessage: "Type your message here...",
     SelectAChannel: "Select a channel to start chatting",
     Me: "Me",
+    GroupWithoutName: "Group without name",
+    ChannelWithoutName: "Channel without name",
   },
 
   dateTime: {
@@ -206,5 +208,13 @@ export default {
     incorrectPassword: "Incorrect password",
     errorCleaningPassword: "Error cleaning password",
     incorrectPassword: "Incorrect password",
+    noGroupsFound: "No groups found",
+    serverError: "Server error",
+    messageNotSaved: "Message not saved",
+    messageNotDeleted: "Message not deleted",
+    messageFileNotFound: "Message file not found",
+  },
+  success: {
+    messageDeleted: "Message deleted successfully",
   }
 }

@@ -8,7 +8,7 @@ import Button from '../../../components/buttons/Button';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Text } from '../../text/CustomText';
-import { fetchHighQualityFile, fetchMessageFile } from '../../../services/api/messageApi';
+import { fetchMessageFile } from '../../../services/api/messageApi';
 import * as SecureStore from 'expo-secure-store';
 import { ActivityIndicator } from 'react-native';
 
