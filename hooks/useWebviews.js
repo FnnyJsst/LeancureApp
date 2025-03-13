@@ -101,14 +101,15 @@ export function useWebviews(setCurrentScreen) {
   /**
    * @function saveSelectedWebviews
    * @description Saves the channels selected by the user in AsyncStorage
-   * @param {Array} channels - The channels to save
+   * @param {Array} webviews - The channels to save
    */
   const saveSelectedWebviews = async (webviews) => {
     try {
       const webviewsToSave = webviews || [];
-      setSelectedWebviews(webviewsToSave);
+      // Sauvegarder dans SecureStore
       await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(webviewsToSave));
     } catch (error) {
+      console.error('Erreur lors de la sauvegarde des webviews:', error);
       throw new Error(t('errors.errorSavingWebviews'), error);
     }
   };

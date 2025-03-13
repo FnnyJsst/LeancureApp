@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Pressable } from 'react-native';
 import ImportWebviewModal from '../../components/modals/webviews/ImportWebviewModal';
 import EditWebviewModal from '../../components/modals/webviews/EditWebviewModal';
 import DeleteWebviewModal from '../../components/modals/webviews/DeleteWebviewModal';
@@ -43,125 +43,111 @@ export default function WebviewsManagementScreen({
   // Customized hook to determine the device type and orientation
   const { isTablet, isSmartphone } = useDeviceType();
 
-  const [isImportModalVisible, setImportModalVisible] = useState(false);
-  const [isEditModalVisible, setEditModalVisible] = useState(false);
-  const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [webviewToEdit, setWebviewToEdit] = useState(null);
-  const [webviewToDelete, setWebviewToDelete] = useState(null);
-  const [selectedTitleId, setSelectedTitleId] = useState(null);
-  const [selectedPencilIndex, setSelectedPencilIndex] = useState(null);
-  const [selectedBinIndex, setSelectedBinIndex] = useState(null);
-  const [selectedUpIndex, setSelectedUpIndex] = useState(null);
-  const [selectedDownIndex, setSelectedDownIndex] = useState(null);
+  // Réduire le nombre d'états
+  const [modals, setModals] = useState({
+    import: false,
+    edit: false,
+    delete: false
+  });
+  const [activeWebview, setActiveWebview] = useState(null);
+  const [indices, setIndices] = useState([...Array(selectedWebviews.length).keys()]);
 
-  /**
-  * functions to open and close the different modals
-  */
-  const openImportModal = () => setImportModalVisible(true);
-  const closeImportModal = () => setImportModalVisible(false);
-
-  const openEditModal = (channel) => {
-    setWebviewToEdit(channel);
-    setEditModalVisible(true);
+  // Simplifier la gestion des modales
+  const toggleModal = (modalType, webview = null) => {
+    setModals(prev => ({ ...prev, [modalType]: !prev[modalType] }));
+    setActiveWebview(webview);
   };
 
-  const closeEditModal = () => {
-    setEditModalVisible(false);
-    setWebviewToEdit(null);
+  // Optimiser les fonctions de mouvement
+  const moveWebview = (index, direction) => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= indices.length) return;
+
+    const newIndices = [...indices];
+    [newIndices[index], newIndices[newIndex]] = [newIndices[newIndex], newIndices[index]];
+    setIndices(newIndices);
   };
 
-  const openDeleteModal = (channel) => {
-    setWebviewToDelete(channel);
-    setDeleteModalVisible(true);
+  // Optimiser la suppression
+  const handleDelete = async () => {
+    if (!activeWebview) return;
+
+    const updatedWebviews = selectedWebviews.filter(
+      channel => channel.href !== activeWebview.href
+    );
+    setSelectedWebviews(updatedWebviews);
+    saveSelectedWebviews(updatedWebviews);
+    toggleModal('delete');
   };
 
-  const closeDeleteModal = () => setDeleteModalVisible(false);
+  // Optimiser l'édition
+  const handleEdit = async (newUrl, newTitle) => {
+    if (!activeWebview) return;
 
-  /**
-   * @function handleDeleteWebview
-   * @description Deletes a channel from the list
-   * @param {Object} webviewToDelete - The channel to delete
-   */
-  const handleDeleteWebview = async (webviewToDelete) => {
-    if (webviewToDelete) {
-      // Filter the channels to remove the one to delete
-      const updatedWebviews = selectedWebviews.filter(
-        channel => channel.href !== webviewToDelete.href
-      );
-      setSelectedWebviews(updatedWebviews);
-      saveSelectedWebviews(updatedWebviews);
-      closeDeleteModal();
-
-      // Save the updated channels in SecureStore
-      try {
-        await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(updatedWebviews));
-      } catch (error) {
-        throw error;
-      }
-    }
-  };
-
-  /**
-   * @function moveWebviewUp
-   * @description Moves a channel up in the list
-   * @param {number} index - The index of the channel to move up
-   */
-  const moveWebviewUp = (index) => {
-    // Check if we are not at the first channel
-    if (index > 0) {
-      // Create a copy of the selected channels
-      const updatedWebviews = [...selectedWebviews];
-      // Swap the channel with the one above
-      const temp = updatedWebviews[index - 1];
-      updatedWebviews[index - 1] = updatedWebviews[index];
-      updatedWebviews[index] = temp;
-      // Set the updated channels
-      setSelectedWebviews(updatedWebviews);
-      saveSelectedWebviews(updatedWebviews);
-    }
-  };
-
-  /**
-   * @function moveWebviewDown
-   * @description Moves a channel down in the list
-   * @param {number} index - The index of the channel to move down
-   */
-  const moveWebviewDown = (index) => {
-    // Check if we are not at the last channel
-    if (index < selectedWebviews.length - 1) {
-      // Create a copy of the selected channels
-      const updatedWebviews = [...selectedWebviews];
-      // Swap the channel with the one below
-      const temp = updatedWebviews[index + 1];
-      updatedWebviews[index + 1] = updatedWebviews[index];
-      updatedWebviews[index] = temp;
-      // Set the updated channels
-      setSelectedWebviews(updatedWebviews);
-      // Save the updated channels
-      saveSelectedWebviews(updatedWebviews);
-    }
-  };
-
-  /**
-   * @function handleEditWebviewModal
-   * @description Edits a channel name and/or url
-   * @param {Object} oldChannel - The old channel
-   * @param {string} newUrl - The new url
-   * @param {string} newTitle - The new title
-   */
-  const handleEditWebviewModal = async (oldChannel, newUrl, newTitle) => {
-    // Create a copy of the selected channels
-    const updatedWebviews = selectedWebviews.map(channel => {
-      // Check if the channel href is the same as the old channel href
-      if (channel.href === oldChannel.href) {
-        return { ...channel, href: newUrl, title: newTitle };
-      }
-      return channel;
-    });
-    // Set and save the updated channels
+    const updatedWebviews = selectedWebviews.map(channel =>
+      channel.href === activeWebview.href
+        ? { ...channel, href: newUrl, title: newTitle }
+        : channel
+    );
     setSelectedWebviews(updatedWebviews);
     await saveSelectedWebviews(updatedWebviews);
+    toggleModal('edit');
   };
+
+  // Simplifier le rendu des boutons
+  const renderControls = (channel, index) => (
+    <View style={[styles.controlsContainer, isSmartphone && styles.controlsContainerSmartphone]}>
+      <View style={[styles.arrowContainer, isSmartphone && styles.arrowContainerSmartphone]}>
+        <Pressable
+          testID={`move-up-${index}`}
+          onPress={() => moveWebview(index, 'up')}
+          style={styles.arrowButton}
+        >
+          <AntDesign
+            name="up"
+            size={isTablet ? 30 : 23}
+            color={COLORS.gray300}
+          />
+        </Pressable>
+        <Pressable
+          testID={`move-down-${index}`}
+          onPress={() => moveWebview(index, 'down')}
+          style={styles.arrowButton}
+        >
+          <AntDesign
+            name="down"
+            size={isTablet ? 30 : 23}
+            color={COLORS.gray300}
+          />
+        </Pressable>
+      </View>
+
+      <View style={[styles.iconsContainer, isSmartphone && styles.iconsContainerSmartphone]}>
+        <Pressable
+          testID={`edit-button-${index}`}
+          onPress={() => toggleModal('edit', channel)}
+          style={styles.iconButton}
+        >
+          <EvilIcons
+            name="pencil"
+            size={isTablet ? 40 : 29}
+            color={COLORS.gray300}
+          />
+        </Pressable>
+        <Pressable
+          testID={`delete-button-${index}`}
+          onPress={() => toggleModal('delete', channel)}
+          style={styles.iconButton}
+        >
+          <Ionicons
+            name="trash-outline"
+            size={isTablet ? 30 : 23}
+            color={COLORS.gray300}
+          />
+        </Pressable>
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.pageContainer}>
@@ -179,7 +165,7 @@ export default function WebviewsManagementScreen({
         {!isReadOnly && (
           <TouchableOpacity
             testID="import-button"
-            onPress={openImportModal}
+            onPress={() => toggleModal('import')}
           >
             <Entypo
               name="add-to-list"
@@ -199,155 +185,60 @@ export default function WebviewsManagementScreen({
         </Text>
       )}
 
-      {/* Modal to import channels */}
+      <ScrollView>
+        <View style={styles.channelsContainer}>
+          {indices.map((originalIndex, currentIndex) => {
+            const channel = selectedWebviews[originalIndex];
+            return (
+              <View
+                key={channel.href}
+                testID={`webview-container-${currentIndex}`}
+                style={[styles.channelContainer, isSmartphone && styles.channelContainerSmartphone]}
+              >
+                <Pressable
+                  testID={`webview-item-${currentIndex}`}
+                  style={[styles.titleContainer, isSmartphone && styles.titleContainerSmartphone]}
+                  onPress={() => onNavigateToWebview(channel.href)}
+                >
+                  <Text
+                    style={[styles.text, isSmartphone && styles.textSmartphone]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {channel.title}
+                  </Text>
+                </Pressable>
+
+                {!isReadOnly && renderControls(channel, currentIndex)}
+              </View>
+            );
+          })}
+        </View>
+      </ScrollView>
+
       <ImportWebviewModal
-        visible={isImportModalVisible}
-        onClose={closeImportModal}
+        visible={modals.import}
+        onClose={() => toggleModal('import')}
         onImport={onImport}
         testID={testID}
         selectedWebviews={selectedWebviews}
       />
-      {/* Modal to edit a channel */}
+
       <EditWebviewModal
         testID={testID}
-        visible={isEditModalVisible}
-        onClose={closeEditModal}
-        initialUrl={webviewToEdit?.href}
-        initialTitle={webviewToEdit?.title}
-        onSave={(newUrl, newTitle) => handleEditWebviewModal(webviewToEdit, newUrl, newTitle)}
+        visible={modals.edit}
+        onClose={() => toggleModal('edit')}
+        initialUrl={activeWebview?.href}
+        initialTitle={activeWebview?.title}
+        onSave={handleEdit}
       />
-      {/* Modal to delete a channel */}
+
       <DeleteWebviewModal
         testID={testID}
-        visible={isDeleteModalVisible}
-        onClose={closeDeleteModal}
-        handleDelete={() => handleDeleteWebview(webviewToDelete)}
+        visible={modals.delete}
+        onClose={() => toggleModal('delete')}
+        handleDelete={handleDelete}
       />
-      {/* List of channels */}
-      <ScrollView>
-        <View style={styles.channelsContainer}>
-          {selectedWebviews && selectedWebviews.map((channel, index) => (
-            <View
-              testID={`webview-container-${index}`}
-              style={[
-                styles.channelContainer,
-                isSmartphone && styles.channelContainerSmartphone,
-              ]}
-              key={channel.href}
-            >
-              <TouchableOpacity
-                testID={`webview-item-${index}`}
-                style={[
-                  styles.titleContainer,
-                  isSmartphone && styles.titleContainerSmartphone,
-                ]}
-                // Navigate to the webview with the channel href
-                onPress={() => onNavigateToWebview(channel.href)}
-                // Set the selected title id
-                onPressIn={() => setSelectedTitleId(channel.href)}
-                // Reset the selected title id
-                onPressOut={() => setSelectedTitleId(null)}
-              >
-                <Text
-                  style={[
-                    styles.text,
-                    isSmartphone && styles.textSmartphone,
-                    selectedTitleId === channel.href && styles.textSelected,
-                  ]}
-                  numberOfLines={1}
-                  // Add an ellipsis at the end of the text if it is too long
-                  ellipsizeMode="tail"
-                >
-                  {channel.title}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Check if the user is not read only */}
-              {!isReadOnly && (
-                <View style={[
-                  styles.controlsContainer,
-                  isSmartphone && styles.controlsContainerSmartphone,
-                ]}>
-                  <View style={[
-                    styles.arrowContainer,
-                    isSmartphone && styles.arrowContainerSmartphone,
-                  ]}>
-                  <TouchableOpacity
-                    testID={`move-up-${index}`}
-                    onPress={() => moveWebviewUp(index)}
-                    onPressIn={() => setSelectedUpIndex(index)}
-                    onPressOut={() => setSelectedUpIndex(null)}
-                    style={styles.arrowButton}
-                  >
-                    <AntDesign
-                      name="up"
-                      size={isTablet ? 30 : 23}
-                      style={[
-                        { marginRight: 15 },
-                        { color: selectedUpIndex === index ? COLORS.orange : COLORS.gray300 },
-                      ]}
-                    />
-                  </TouchableOpacity>
-                <TouchableOpacity
-                  testID={`move-down-${index}`}
-                  onPress={() => moveWebviewDown(index)}
-                  onPressIn={() => setSelectedDownIndex(index)}
-                  onPressOut={() => setSelectedDownIndex(null)}
-                  style={styles.arrowButton}
-                >
-                  <AntDesign
-                    name="down"
-                    size={isTablet ? 30 : 23}
-                    style={[
-                      { marginLeft: 15 },
-                      { marginRight: 15 },
-                      { color: selectedDownIndex === index ? COLORS.orange : COLORS.gray300 },
-                    ]}
-                  />
-                </TouchableOpacity>
-                  </View>
-
-                  <View style={[
-                    styles.iconsContainer,
-                    isSmartphone && styles.iconsContainerSmartphone,
-                  ]}>
-                  <TouchableOpacity
-                    testID={`edit-button-${index}`}
-                    onPress={() => openEditModal(channel)}
-                    onPressIn={() => setSelectedPencilIndex(index)}
-                    onPressOut={() => setSelectedPencilIndex(null)}
-                    style={styles.iconButton}
-                  >
-                    <EvilIcons
-                      name="pencil"
-                      size={isTablet ? 40 : 29}
-                      style={[
-                        { marginRight: 15 },
-                        { color: isTablet && selectedPencilIndex === index ? COLORS.orange : COLORS.gray300 },
-                      ]}
-                    />
-                  </TouchableOpacity>
-                  {/* Delete a channel */}
-                  <TouchableOpacity
-                    testID={`delete-button-${index}`}
-                    onPress={() => openDeleteModal(channel)}
-                    onPressIn={() => setSelectedBinIndex(index)}
-                    onPressOut={() => setSelectedBinIndex(null)}
-                    style={styles.iconButton}
-                  >
-                    <Ionicons
-                      name="trash-outline"
-                      size={isTablet ? 30 : 23}
-                      style={{ color: selectedBinIndex === index ? COLORS.orange : COLORS.gray300 }}
-                    />
-                  </TouchableOpacity>
-                  </View>
-                </View>
-              )}
-            </View>
-          ))}
-        </View>
-      </ScrollView>
     </View>
   );
 }
@@ -412,10 +303,12 @@ const styles = StyleSheet.create({
   },
   arrowContainer: {
     flexDirection: 'row',
-    marginRight: 30,
+    marginRight: 40,
+    gap: 15,
   },
   arrowContainerSmartphone: {
-    marginRight: 5,
+    marginRight: 15,
+    gap: 10,
   },
   arrowButton: {
     padding: 5,
@@ -424,18 +317,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginRight: 50,
     height: 45,
-    width: 90,
+    width: 120,
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 20,
   },
   iconsContainerSmartphone: {
-    marginRight: 0,
+    marginRight: 10,
     height: 40,
-    width: 80,
+    width: 100,
+    gap: 15,
   },
   iconButton: {
-    padding: 5,
-    minWidth: 40,
+    padding: 8,
+    minWidth: 44,
   },
   text: {
     color: COLORS.gray300,
@@ -453,9 +348,6 @@ const styles = StyleSheet.create({
   },
   addChannelTextSmartphone: {
     fontSize: SIZES.fonts.biggerTextSmartphone,
-  },
-  textSelected: {
-    color: COLORS.orange,
   },
   customHeaderContainer: {
     flexDirection: 'row',
