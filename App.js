@@ -176,12 +176,6 @@ export default function App({ testID }) {
 
   // Screen saver will render if the splash screen is visible, the app is loading, the fonts are not loaded or the translations are not initialized
   if (showSplash || isLoading || !fontsLoaded || !isI18nInitialized) {
-    console.log('🔄 État du chargement:', {
-      showSplash,
-      isLoading,
-      fontsLoaded,
-      isI18nInitialized
-    });
     return <ScreenSaver testID="screen-saver" />;
   }
 

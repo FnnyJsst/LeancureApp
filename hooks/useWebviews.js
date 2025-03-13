@@ -21,6 +21,7 @@ export function useWebviews(setCurrentScreen) {
   const [refreshOption, setRefreshOption] = useState('never');
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const { navigate } = useNavigation(setCurrentScreen);
 
@@ -73,6 +74,12 @@ export function useWebviews(setCurrentScreen) {
    * @param {string} option - The option to select
    */
   const handleSelectOption = (option) => {
+    console.log('⚙️ Changement de l\'option de rafraîchissement:', {
+      ancienneOption: refreshOption,
+      nouvelleOption: option,
+      nouvelIntervalle: getIntervalInMilliseconds(option)
+    });
+
     setRefreshOption(option);
     setRefreshInterval(getIntervalInMilliseconds(option));
     saveRefreshOption(option);
@@ -232,13 +239,42 @@ export function useWebviews(setCurrentScreen) {
    * @description Loads the interval chosen by the user in the settings to refresh the webviews
    */
   useEffect(() => {
-    if (refreshInterval) {
-      const interval = setInterval(() => {
-
-      }, refreshInterval);
-      return () => clearInterval(interval);
+    if (!refreshInterval || selectedWebviews.length === 0) {
+      console.log('⏸️ Rafraîchissement automatique désactivé:', {
+        option: refreshOption,
+        nombreWebviews: selectedWebviews.length
+      });
+      return;
     }
-  }, [refreshInterval]);
+
+    console.log('🔄 Initialisation du rafraîchissement automatique:', {
+      intervalle: refreshInterval,
+      option: refreshOption,
+      nombreWebviews: selectedWebviews.length
+    });
+
+    const interval = setInterval(() => {
+      const timestamp = new Date().toLocaleTimeString();
+      console.log(`🔄 Rafraîchissement déclenché à ${timestamp}`);
+
+      // Incrémenter directement le refreshKey sans setState intermédiaire
+      setRefreshKey(prevKey => {
+        const newKey = prevKey + 1;
+        console.log('📈 Incrémentation du refreshKey:', {
+          ancien: prevKey,
+          nouveau: newKey,
+          timestamp
+        });
+        return newKey;
+      });
+    }, refreshInterval);
+
+    // Nettoyage de l'intervalle
+    return () => {
+      console.log('🛑 Nettoyage du rafraîchissement automatique');
+      clearInterval(interval);
+    };
+  }, [refreshInterval, refreshOption]); // Réduire les dépendances
 
   return {
     channels,
@@ -261,5 +297,6 @@ export function useWebviews(setCurrentScreen) {
     handleSelectOption,
     navigateToChannelsList,
     navigateToWebview,
+    refreshKey,
   };
 }

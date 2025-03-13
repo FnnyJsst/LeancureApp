@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
 import { COLORS, SIZES } from '../../constants/style';
+import { useWebviews } from '../../hooks/useWebviews';
 
 /**
  * @component WebviewScreen
@@ -16,11 +17,24 @@ export default function WebviewScreen({
 }) {
 
   const webViewRef = useRef(null);
+  const { refreshKey } = useWebviews();
+
+  useEffect(() => {
+    if (webViewRef.current && refreshKey > 0) {
+      console.log('🔄 Rechargement de la WebView via refreshKey:', {
+        refreshKey,
+        url,
+        timestamp: new Date().toLocaleTimeString()
+      });
+      webViewRef.current.reload();
+    }
+  }, [refreshKey, url]);
 
   return (
     <View style={styles.container}>
       <WebView
         ref={webViewRef}
+        key={refreshKey}
         source={{ uri: url }}
         style={styles.webview}
         cacheEnabled={true}
@@ -39,6 +53,8 @@ export default function WebviewScreen({
           // Limit unnecessary loads
           return true;
         }}
+        onLoadStart={() => console.log('📱 Début du chargement de la WebView:', url)}
+        onLoadEnd={() => console.log('✅ Fin du chargement de la WebView:', url)}
       />
       <View style={styles.buttonContainer}>
         <ParameterButton onPress={onSettingsAccess} testID="settings-button" />
