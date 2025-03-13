@@ -11,6 +11,7 @@ import { Text } from '../text/CustomText';
  * @param {string} props.title - The title of the card
  * @param {string} props.description - The description of the card
  * @param {Function} props.onPress - The function to call when the card is pressed
+ * @param {string} props.iconBackgroundColor - The background color of the icon
  */
 export default function SettingsCard({ icon, title, description, onPress, iconBackgroundColor = COLORS.borderColor, testID }) {
 
@@ -78,8 +79,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.medium,
   },
   titleSmartphone: {
-    fontSize: 15,
-    fontWeight: SIZES.fontWeight.medium,
+    fontSize: 16,
   },
   description: {
     fontFamily: Platform.select({

@@ -22,7 +22,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
 
   const { t } = useTranslation();
   // We create a hook to determine the device type and orientation
-  const { isSmartphone, isLowResTablet } = useDeviceType();
+  const { isSmartphone, isLowResTablet, isSmartphoneLandscape } = useDeviceType();
 
   // State management for form inputs
   const [url, setUrl] = useState(initialUrl || '');
@@ -79,7 +79,9 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
       statusBarTranslucent={true}
       testID="edit-modal"
     >
-      <View style={MODAL_STYLES.modalContainer}>
+      <View style={[
+        MODAL_STYLES.modalContainer,
+        isSmartphoneLandscape && styles.modalContainerSmartphoneLandscape]}>
         <View style={[
           styles.modalContent,
           isSmartphone && styles.modalContentSmartphone,

@@ -140,6 +140,8 @@ export default {
     importChannels: "Importer des chaînes",
     doNotUse: "Ne pas utiliser",
     ok: "Ok",
+    deleting: "Suppression...",
+    importing: "Importation...",
   },
 
   titles: {

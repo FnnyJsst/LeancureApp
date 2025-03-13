@@ -15,9 +15,11 @@ export default function WebviewScreen({
   url,
   onSettingsAccess,
 }) {
+  console.log('WebViewScreen reçoit URL:', url);
 
   // We check if the url is valid
   if (!url) {
+    console.log('URL manquante dans WebViewScreen');
     return (
       <View style={styles.container}>
         <Text>{t('errors.urlNotDefined')}</Text>
@@ -35,16 +37,20 @@ export default function WebviewScreen({
   useEffect(() => {
     // We reload the webview if the refresh key is greater than 0
     if (webViewRef.current && refreshKey > 0) {
-
       webViewRef.current.reload();
     }
   }, [refreshKey, url]);
+
+  // Ajout d'un useEffect pour tracer les changements d'URL
+  useEffect(() => {
+    console.log('URL changée dans WebViewScreen:', url);
+  }, [url]);
 
   return (
     <View style={styles.container}>
       <WebView
         ref={webViewRef}
-        key={refreshKey}
+        key={`${url}-${refreshKey}`}
         source={{ uri: url }}
         style={styles.webview}
         cacheEnabled={true}

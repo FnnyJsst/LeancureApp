@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Modal, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Modal, StyleSheet, ActivityIndicator } from 'react-native';
 import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES, SIZES } from '../../../constants/style';
@@ -16,15 +16,27 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} props.handleDelete - The function to call when the webview is deleted
  */
 export default function DeleteWebviewModal({ visible, onClose, handleDelete, testID }) {
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Hook to determine the device type and orientation
   const { isSmartphone, isLowResTablet } = useDeviceType();
 
   const { t } = useTranslation();
 
+  const handleDeleteWithLoading = async () => {
+    setIsDeleting(true);
+    try {
+      await handleDelete();
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
@@ -51,15 +63,21 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
               title={t('buttons.cancel')}
               backgroundColor={COLORS.gray650}
               color={COLORS.white}
-              width={isSmartphone ? '23%' : '26%'}
+              width={isSmartphone ? '27%' : '30%'}
               onPress={onClose}
+              disabled={isDeleting}
             />
             <Button
-              title={t('buttons.delete')}
+              title={isDeleting ? t('buttons.deleting') : t('buttons.delete')}
               backgroundColor={COLORS.orange}
               color={COLORS.white}
-              width={isSmartphone ? '23%' : '26%'}
-              onPress={() => handleDelete()}
+              width={isSmartphone ? '27%' : '30%'}
+              onPress={handleDeleteWithLoading}
+              disabled={isDeleting}
+              icon={isDeleting ?
+                <ActivityIndicator size="small" color={COLORS.white} /> :
+                null
+              }
             />
           </View>
         </View>
@@ -70,10 +88,10 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
 
 const styles = StyleSheet.create({
   modalContentSmartphone: {
-    width: '55%',
+    width: '60%',
   },
   modalContentLowResTablet: {
-    width: '55%',
+    width: '60%',
   },
   titleContainerSmartphone: {
     display: 'flex',

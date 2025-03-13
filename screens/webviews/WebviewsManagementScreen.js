@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useCallback, useLayoutEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, Pressable } from 'react-native';
 import ImportWebviewModal from '../../components/modals/webviews/ImportWebviewModal';
 import EditWebviewModal from '../../components/modals/webviews/EditWebviewModal';
@@ -133,14 +133,26 @@ export default function WebviewsManagementScreen({
   const handleDelete = async () => {
     if (!activeWebview) return;
 
-    const updatedWebviews = selectedWebviews.filter(
-      channel => channel.href !== activeWebview.href
-    );
-    setSelectedWebviews(updatedWebviews);
-    saveSelectedWebviews(updatedWebviews);
-    toggleModal('delete');
-  };
+    try {
+      // 1. Supprimer la webview
+      const updatedWebviews = selectedWebviews.filter(
+        channel => channel.href !== activeWebview.href
+      );
 
+      // 2. Sauvegarder d'abord (c'est l'opération la plus longue)
+      await saveSelectedWebviews(updatedWebviews);
+
+      // 3. Une fois la sauvegarde réussie, mettre à jour les états locaux
+      setIndices([...Array(updatedWebviews.length).keys()]);
+      setSelectedWebviews(updatedWebviews);
+
+      // 4. Fermer le modal
+      toggleModal('delete');
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      // Ici vous pourriez ajouter une notification d'erreur pour l'utilisateur
+    }
+  };
   /**
    * @function handleEdit
    * @description Handles the editing of a webview
@@ -235,6 +247,27 @@ export default function WebviewsManagementScreen({
       throw new Error(t('errors.saveOrder'));
     }
   };
+
+  // Éviter les calculs de style à chaque rendu
+  const getStyles = useCallback((isSmartphone, isTablet) => {
+    return {
+      container: [
+        styles.channelContainer,
+        isSmartphone && styles.channelContainerSmartphone,
+      ],
+      title: [
+        styles.titleContainer,
+        isSmartphone && styles.titleContainerSmartphone,
+      ],
+      // ... autres styles
+    };
+  }, []);
+
+  // Utiliser useLayoutEffect pour les calculs de mise en page
+  useLayoutEffect(() => {
+    const styles = getStyles(isSmartphone, isTablet);
+    // ... utilisation des styles
+  }, [isSmartphone, isTablet, getStyles]);
 
   return (
     <View style={styles.pageContainer}>

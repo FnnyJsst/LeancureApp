@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, View, StyleSheet } from 'react-native';
+import { Modal, View, StyleSheet, ActivityIndicator } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
@@ -26,6 +26,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
   const [error, setError] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isLowResTablet } = useDeviceType();
@@ -80,7 +81,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
    * @function handleDownload
    * @description A function to handle the download of channels from URL
    */
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!url) {
       setError(t('errors.enterUrl'));
       return;
@@ -91,44 +92,59 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
       return;
     }
 
-    const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
-    fetch(fullUrl)
-      .then(response => {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          return response.json();
-        } else if (contentType && contentType.includes('text/html')) {
-          return response.text();
-        } else {
-          throw new Error(`Invalid content type: ${contentType}`);
-        }
-      })
-      .then(data => {
-        if (typeof data === 'string') {
-          const extractedChannels = parseHtml(data);
-          if (extractedChannels.length === 0) {
-            setError(t('errors.noChannelsFound'));
-            return;
-          }
+    setIsImporting(true);
+    setError(''); // Réinitialiser les erreurs précédentes
 
-          // Vérifier si toutes les chaînes sont déjà importées
-          const allChannelsAlreadyImported = extractedChannels.every(newChannel =>
-            selectedWebviews.some(existingChannel => existingChannel.href === newChannel.href)
-          );
+    try {
+      const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
+      const response = await fetch(fullUrl);
 
-          if (allChannelsAlreadyImported) {
-            setShowAlert(true);
-          } else {
-            onImport(extractedChannels);
-            onClose();
-          }
-        } else {
-          setError(t('errors.invalidResponseFormat'));
+      const contentType = response.headers.get('content-type');
+      if (!contentType) {
+        throw new Error('Content type non défini');
+      }
+
+      let data;
+      if (contentType.includes('application/json')) {
+        data = await response.json();
+      } else if (contentType.includes('text/html')) {
+        data = await response.text();
+      } else {
+        throw new Error(`Type de contenu invalide: ${contentType}`);
+      }
+
+      if (typeof data === 'string') {
+        const extractedChannels = parseHtml(data);
+        console.log('Chaînes extraites:', extractedChannels);
+
+        if (extractedChannels.length === 0) {
+          setError(t('errors.noChannelsFound'));
+          return;
         }
-      })
-      .catch(fetchError => {
-        setError(t('errors.errorDuringDownload'));
-      });
+
+        const newChannels = extractedChannels.filter(newChannel =>
+          !selectedWebviews.some(existingChannel =>
+            existingChannel.href === newChannel.href
+          )
+        );
+
+        console.log('Nouvelles chaînes à importer:', newChannels);
+
+        if (newChannels.length === 0) {
+          setShowAlert(true);
+        } else {
+          await onImport(newChannels); // Attendre que l'import soit terminé
+          onClose();
+        }
+      } else {
+        setError(t('errors.invalidResponseFormat'));
+      }
+    } catch (error) {
+      console.error('Erreur lors du téléchargement:', error);
+      setError(t('errors.errorDuringDownload'));
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   const handleCloseAlert = () => {
@@ -149,7 +165,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
   return (
     <>
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={visible}
         onRequestClose={handleClose}
@@ -195,14 +211,20 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
                 onPress={handleClose}
                 backgroundColor={COLORS.gray950}
                 textColor={COLORS.gray300}
-                width={isSmartphone ? '23%' : '26%'}
+                width={isSmartphone ? '26%' : '29%'}
+                disabled={isImporting}
                 testID="cancel-import-button"
               />
               <Button
-                title={t('buttons.import')}
+                title={isImporting ? t('buttons.importing') : t('buttons.import')}
                 onPress={handleDownload}
                 backgroundColor={COLORS.orange}
-                width={isSmartphone ? '23%' : '26%'}
+                width={isSmartphone ? '26%' : '29%'}
+                disabled={isImporting}
+                icon={isImporting ?
+                  <ActivityIndicator size="small" color={COLORS.white} /> :
+                  null
+                }
                 testID="save-import-button"
               />
             </View>
@@ -225,7 +247,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
 
 const styles = StyleSheet.create({
   modalContentSmartphone: {
-    width: '50%',
+    width: '60%',
   },
   modalContentLowResTablet: {
     width: '60%',

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, memo, useCallback, useMemo } from 'react';
+import { View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
 import Button from '../../components/buttons/Button';
@@ -16,7 +16,16 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} onBack - A function to navigate to a screen
  * @param {Function} onBackPress - A function to navigate to a screen
  */
-export default function WebviewsListScreen({ channels, selectedWebviews, onBack, onBackPress }) {
+export default function WebviewsListScreen({
+  channels,
+  selectedWebviews,
+  setSelectedWebviews,
+  saveSelectedWebviews,
+  onBack,
+  onBackPress
+}) {
+
+
 
   // Translation
   const { t } = useTranslation();
@@ -24,60 +33,101 @@ export default function WebviewsListScreen({ channels, selectedWebviews, onBack,
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
 
-  // States related to the channels list
-  const [localSelectedChannels, setLocalSelectedChannels] = useState([]);
-  const [availableChannels, setAvailableChannels] = useState([]);
 
-  /**
-   * @function useEffect
-   * @description Filters the channels that are not already selected to display them in the list
-   */
-  useEffect(() => {
-    // Filter the channels that are not already selected
-    const filteredChannels = channels.filter(newChannel =>
-      // Check if the channel is not already selected
+  // Mémoiser les canaux disponibles
+  const availableChannels = useMemo(() => {
+    return channels.filter(newChannel =>
       !selectedWebviews?.some(existingChannel =>
-        // Check if the channel href is the same as the existing channel href
         existingChannel.href === newChannel.href
       )
     );
-
-    // Set the available channels
-    setAvailableChannels(filteredChannels);
   }, [channels, selectedWebviews]);
 
-  /**
-   * @function toggleChannelSelection
-   * @description Toggles the channel selection
-   * @param {Object} channel - The channel to toggle
-   */
-  const toggleChannelSelection = (channel) => {
-    // Set the local selected channels
+  // État pour les sélections
+  const [localSelectedChannels, setLocalSelectedChannels] = useState([]);
+
+  // Mémoiser la fonction de toggle
+  const toggleChannelSelection = useCallback((channel) => {
     setLocalSelectedChannels(prevSelected => {
-      // Check if the channel is already selected
       if (prevSelected.some(c => c.href === channel.href)) {
-        // If the channel is already selected, remove it from the list
         return prevSelected.filter(c => c.href !== channel.href);
       } else {
-        // If the channel is not selected, add it to the list
         return [...prevSelected, channel];
       }
     });
-  };
+  }, []);
 
-  /**
-   * @function handleImportWebviews
-   * @description Handles the import of the channels
-   */
-  const handleImportWebviews = () => {
-    if (localSelectedChannels.length > 0) {
-      onBack(localSelectedChannels);
-      // Add a small delay to ensure the webviews are well imported
-      setTimeout(() => {
-        onBackPress();  // To redirect to WebviewsManagementScreen
-      }, 100);
+  // Mémoiser la fonction d'import
+  const handleImportWebviews = useCallback(async () => {
+    try {
+      if (localSelectedChannels.length > 0) {
+        // Vérifier que selectedWebviews existe
+        const currentWebviews = selectedWebviews || [];
+
+        // Ajouter les nouvelles webviews aux webviews existantes
+        const updatedWebviews = [...currentWebviews, ...localSelectedChannels];
+
+        // Sauvegarder les webviews mises à jour
+        await saveSelectedWebviews(updatedWebviews);
+        setSelectedWebviews(updatedWebviews);
+
+        // Retourner à l'écran précédent
+        onBackPress();
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'import:', error);
+    }
+  }, [localSelectedChannels, selectedWebviews, setSelectedWebviews, saveSelectedWebviews, onBackPress]);
+
+  // Modifier le bouton pour gérer le loading state
+  const [isImporting, setIsImporting] = useState(false);
+
+  const handleImportPress = async () => {
+    setIsImporting(true);
+    try {
+      await handleImportWebviews();
+    } finally {
+      setIsImporting(false);
     }
   };
+
+  // Mémoiser le rendu de l'item
+  const renderItem = useCallback(({ item }) => {
+    const isSelected = localSelectedChannels.some(c => c.href === item.href);
+    return (
+      <ChannelItem
+        item={item}
+        isSelected={isSelected}
+        onToggle={toggleChannelSelection}
+        isSmartphone={isSmartphone}
+      />
+    );
+  }, [localSelectedChannels, toggleChannelSelection, isSmartphone]);
+
+  // Mémoiser la fonction keyExtractor
+  const keyExtractor = useCallback((item) => item.href, []);
+
+  const ChannelItem = memo(({ item, isSelected, onToggle, isSmartphone }) => {
+    return (
+      <TouchableOpacity
+        style={[
+          styles.channelContainer,
+          isSmartphone && styles.channelContainerSmartphonePortrait,
+        ]}
+        onPress={() => onToggle(item)}
+      >
+        <CheckBox
+          checked={isSelected}
+          onPress={() => onToggle(item)}
+          label={item.title}
+          labelStyle={[
+            styles.channelTitle,
+            isSmartphone && styles.channelTitleSmartphone
+          ]}
+        />
+      </TouchableOpacity>
+    );
+  });
 
   return (
     <View style={styles.pageContainer}>
@@ -97,33 +147,36 @@ export default function WebviewsListScreen({ channels, selectedWebviews, onBack,
       <View style={[styles.listContainer, isLandscape && styles.listContainerLandscape]}>
         <FlatList
           data={availableChannels}
-          keyExtractor={(item) => item.href}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={[
-                styles.channelContainer,
-                isSmartphonePortrait && styles.channelContainerSmartphonePortrait,
-              ]}
-              onPress={() => toggleChannelSelection(item)}
-            >
-              <CheckBox
-                checked={localSelectedChannels.some(c => c.href === item.href)}
-                onPress={() => toggleChannelSelection(item)}
-                label={item.title}
-                labelStyle={[styles.channelTitle, isSmartphone && styles.channelTitleSmartphone]}
-              />
-            </TouchableOpacity>
-          )}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
+          removeClippedSubviews={true}
+          getItemLayout={(data, index) => ({
+            length: 60,
+            offset: 60 * index,
+            index,
+          })}
         />
       </View>
       <View style={styles.buttonContainer}>
         <Button
-          title="Import channels"
+          title={isImporting ? t('buttons.importing') : t('buttons.import')}
           variant="large"
           backgroundColor={COLORS.orange}
           color={COLORS.white}
-          onPress={handleImportWebviews}
+          onPress={handleImportPress}
           width="80%"
+          disabled={isImporting || localSelectedChannels.length === 0}
+          icon={isImporting ?
+            <ActivityIndicator
+              size="small"
+              color={COLORS.white}
+              style={styles.spinner}
+            /> :
+            null
+          }
         />
       </View>
     </View>
@@ -162,6 +215,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     bottom: 30,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   customHeaderContainer: {
     flexDirection: 'row',
@@ -182,5 +237,8 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: SIZES.fonts.subtitleTablet,
     fontWeight: SIZES.fontWeight.semibold,
+  },
+  spinner: {
+    marginLeft: 10,
   },
 });

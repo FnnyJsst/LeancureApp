@@ -23,6 +23,7 @@ export default function CheckBox({
   style,
 }) {
 
+  // Hook to determine the device type
   const { isSmartphone } = useDeviceType();
 
   return (
@@ -48,7 +49,6 @@ export default function CheckBox({
         <Text style={[
           styles.label,
           isSmartphone && styles.labelSmartphone,
-          disabled && styles.labelDisabled,
         ]}>
           {label}
         </Text>
@@ -86,8 +86,5 @@ const styles = StyleSheet.create({
   },
   labelSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
-  },
-  labelDisabled: {
-    color: COLORS.gray300,
   },
 });

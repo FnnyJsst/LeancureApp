@@ -139,6 +139,8 @@ export default {
     importChannels: "Import channels",
     doNotUse: "Do not use",
     ok: "Ok",
+    deleting: "Deleting...",
+    importing: "Importing...",
   },
 
   titles: {
