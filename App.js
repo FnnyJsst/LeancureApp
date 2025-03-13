@@ -12,25 +12,26 @@ import { SCREENS } from './constants/screens';
 import { COLORS } from './constants/style';
 import { useNavigation } from './hooks/useNavigation';
 import { useWebviews } from './hooks/useWebviews';
-import { useWebviewsPassword } from './hooks/useWebviewsPassword';
+import { useWebviewsPassword } from './hooks/useWebViewsPassword';
 import { useFonts } from 'expo-font';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import * as SecureStore from 'expo-secure-store';
 
 /**
  * @component App
  * @description The main component of the app
  */
 export default function App({ testID }) {
-  // 1. Tous les useState au début
+
   const [isLoading, setIsLoading] = useState(true);
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
   const [currentScreen, setCurrentScreen] = useState(SCREENS.NO_URL);
   const [showSplash, setShowSplash] = useState(true);
 
-  // 2. Chargement des polices
+  // Loading of fonts used in the app
   const [fontsLoaded] = useFonts({
     'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),
     'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),
@@ -41,7 +42,7 @@ export default function App({ testID }) {
     'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),
   });
 
-  // 3. Hooks personnalisés
+  // Custom hooks
   const { navigate } = useNavigation(setCurrentScreen);
   const {
     channels,
@@ -75,7 +76,10 @@ export default function App({ testID }) {
     closePasswordDefineModal,
   } = useWebviewsPassword(navigate);
 
-  // 4. Tous les useCallback
+  /**
+   * @function handleSettingsAccess
+   * @description Handles the access to the settings screen with a password check if needed
+   */
   const handleSettingsAccess = useCallback(() => {
     if (isPasswordRequired) {
       setPasswordCheckModalVisible(true);
@@ -84,13 +88,21 @@ export default function App({ testID }) {
     }
   }, [isPasswordRequired, setPasswordCheckModalVisible, navigate]);
 
+  /**
+   * @function handleImportWebviews
+   * @description Handles the import of webviews
+   * @param {Array} newWebviews - The new webviews to import
+   */
   const handleImportWebviews = useCallback((newWebviews) => {
     if (newWebviews && newWebviews.length > 0) {
       handleSelectChannels(newWebviews);
     }
   }, [handleSelectChannels]);
 
-  // 5. Tous les useEffect
+  /**
+   * @function useEffect
+   * @description Handles the screen saver when the app is loading
+   */
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
@@ -98,31 +110,51 @@ export default function App({ testID }) {
     return () => clearTimeout(timer);
   }, []);
 
+  /**
+   * @function useEffect
+   * @description Initializes the app
+   */
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        // We initialize the translations
         await initI18n();
         setIsI18nInitialized(true);
 
-        const loadedChannels = await loadSelectedChannels();
-        if (Array.isArray(loadedChannels)) {
-          navigate(loadedChannels.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-        } else {
-          navigate(SCREENS.NO_URL);
+        // We load the selected channels
+        try {
+          const loadedChannels = await loadSelectedChannels();
+          // We navigate to the webview screen if there are channels, otherwise we navigate to the no url screen
+          if (loadedChannels && Array.isArray(loadedChannels)) {
+            navigate(loadedChannels.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+          } else {
+            navigate(SCREENS.NO_URL);
+          }
+          // If the channels are not loaded, we navigate to the no url screen
+        } catch (channelsError) {
+          if (channelsError.message.includes('Could not decrypt')) {
+            await SecureStore.deleteItemAsync('selectedChannels');
+            navigate(SCREENS.NO_URL);
+          } else {
+            throw channelsError;
+          }
         }
-
-        setIsLoading(false);
       } catch (error) {
-        console.error('Erreur d\'initialisation:', error);
+        navigate(SCREENS.NO_URL);
+        throw new Error(t('errors.errorInitializingApp'), error);
+      } finally {
         setIsI18nInitialized(true);
         setIsLoading(false);
-        navigate(SCREENS.NO_URL);
       }
     };
 
     initializeApp();
   }, [loadSelectedChannels, navigate]);
 
+  /**
+   * @function useEffect
+   * @description Locks the orientation of the app to landscape
+   */
   useEffect(() => {
     const lockOrientation = async () => {
       try {
@@ -130,24 +162,30 @@ export default function App({ testID }) {
           ScreenOrientation.OrientationLock.LANDSCAPE
         );
       } catch (error) {
-        console.error('Erreur lors du verrouillage de l\'orientation:', error);
+        throw new Error(t('errors.errorLockingOrientation'), error);
       }
     };
 
     lockOrientation();
     return () => {
       ScreenOrientation.unlockAsync().catch(error => {
-        console.error('Erreur lors du déverrouillage de l\'orientation:', error);
+        throw new Error(t('errors.errorUnlockingOrientation'), error);
       });
     };
   }, []);
 
-  // 6. Condition de rendu du ScreenSaver
+  // Screen saver will render if the splash screen is visible, the app is loading, the fonts are not loaded or the translations are not initialized
   if (showSplash || isLoading || !fontsLoaded || !isI18nInitialized) {
+    console.log('🔄 État du chargement:', {
+      showSplash,
+      isLoading,
+      fontsLoaded,
+      isI18nInitialized
+    });
     return <ScreenSaver testID="screen-saver" />;
   }
 
-  // 7. Fonction de rendu des écrans (déplacée avant le return final)
+  // Render the screens
   const renderWebviewScreen = () => {
     switch (currentScreen) {
       case SCREENS.NO_URL:
@@ -224,7 +262,7 @@ export default function App({ testID }) {
     }
   };
 
-  // 8. Return final
+  // Return the final component
   return (
     <ErrorBoundary>
       <View style={styles.container} testID={testID || "app-root"}>

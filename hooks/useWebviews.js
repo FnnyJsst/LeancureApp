@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from './useNavigation';
-import { useWebviewsPassword } from './useWebviewsPassword';
+import { useWebviewsPassword } from './useWebViewsPassword';
 import { SCREENS } from '../constants/screens';
 import { useTranslation } from 'react-i18next';
 
@@ -20,6 +20,7 @@ export function useWebviews(setCurrentScreen) {
   const [refreshInterval, setRefreshInterval] = useState(null);
   const [refreshOption, setRefreshOption] = useState('never');
   const [isReadOnly, setIsReadOnly] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const { navigate } = useNavigation(setCurrentScreen);
 
@@ -152,20 +153,24 @@ export function useWebviews(setCurrentScreen) {
     }
   }, [setRefreshOption, setRefreshInterval, getIntervalInMilliseconds]);
 
-  /**
-   * @function loadReadOnlyState
-   * @description Loads the read-only state from AsyncStorage
-   */
-  const loadReadOnlyState = useCallback(async () => {
-    try {
-      const storedValue = await SecureStore.getItemAsync('isReadOnly');
-      if (storedValue !== null) {
-        setIsReadOnly(JSON.parse(storedValue));
-      }
-    } catch (error) {
-      throw new Error('Erreur lors du chargement du mode lecture seule:', error);
+  useEffect(() => {
+    if (!isInitialized) {
+      const loadReadOnlyMode = async () => {
+        try {
+          const savedMode = await SecureStore.getItemAsync('isReadOnly');
+          if (savedMode !== null) {
+            setIsReadOnly(savedMode === 'true');
+          }
+        } catch (error) {
+          console.log('Mode lecture seule non disponible, utilisation de la valeur par défaut');
+        } finally {
+          setIsInitialized(true);
+        }
+      };
+
+      loadReadOnlyMode();
     }
-  }, []);
+  }, [isInitialized]);
 
   /**
    * @function navigateToChannelsList
@@ -198,12 +203,11 @@ export function useWebviews(setCurrentScreen) {
   useEffect(() => {
     const initializeWebviews = async () => {
       try {
-        // Charger d'abord les options de base
+        // First we load the refresh option and the password from the SecureStore
         await loadRefreshOption();
-        await loadReadOnlyState();
         await loadPasswordFromSecureStore();
 
-        // Ensuite charger les webviews
+        // Then we load the selected channels
         const storedChannels = await SecureStore.getItemAsync('selectedWebviews');
         if (storedChannels) {
           const parsedChannels = JSON.parse(storedChannels);
@@ -215,13 +219,13 @@ export function useWebviews(setCurrentScreen) {
           setSelectedWebviews([]);
         }
       } catch (error) {
-        console.error('Erreur d\'initialisation des webviews:', error);
         setSelectedWebviews([]);
+        throw new Error(t('errors.errorLoadingWebviews'), error);
       }
     };
 
     initializeWebviews();
-  }, [loadRefreshOption, loadReadOnlyState, loadPasswordFromSecureStore]);
+  }, [loadRefreshOption, loadPasswordFromSecureStore]);
 
   /**
    * @function useEffect

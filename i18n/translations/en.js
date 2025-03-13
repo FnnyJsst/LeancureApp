@@ -203,6 +203,8 @@ export default {
     errorSavingPassword: "Error saving password",
     errorLoadingPassword: "Error loading password",
     incorrectPassword: "Incorrect password",
+    errorInitializingApp: "Error initializing app",
+    errorLockingOrientation: "Error locking orientation",
   },
   alerts: {
     information: 'Information',

@@ -205,6 +205,8 @@ export default {
     errorSavingPassword: "Erreur lors de la sauvegarde du mot de passe",
     errorLoadingPassword: "Erreur lors du chargement du mot de passe",
     incorrectPassword: "Mot de passe incorrect",
+    errorInitializingApp: "Erreur lors de l'initialisation de l'application",
+    errorLockingOrientation: "Erreur lors du verrouillage de l'orientation",
   },
 
   alerts: {
