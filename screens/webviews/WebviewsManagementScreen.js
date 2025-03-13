@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, Pressable } from 'react-native';
 import ImportWebviewModal from '../../components/modals/webviews/ImportWebviewModal';
 import EditWebviewModal from '../../components/modals/webviews/EditWebviewModal';
@@ -25,6 +25,59 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} onNavigateToWebview - A function to navigate to a webview
  * @param {Function} onImport - A function to import channels
  */
+
+// Créer un composant séparé pour chaque webview
+const WebviewItem = memo(({
+  channel,
+  index,
+  isSmartphone,
+  isTablet,
+  onNavigateToWebview,
+  renderControls,
+  isReadOnly
+}) => {
+  return (
+    <View
+      testID={`webview-container-${index}`}
+      style={[
+        styles.channelContainer,
+        isSmartphone && styles.channelContainerSmartphone,
+      ]}
+    >
+      <Pressable
+        testID={`webview-item-${index}`}
+        style={[
+          styles.titleContainer,
+          isSmartphone && styles.titleContainerSmartphone,
+        ]}
+        onPress={() => onNavigateToWebview(channel.href)}
+      >
+        <Text
+          style={[
+            styles.text,
+            isSmartphone && styles.textSmartphone,
+          ]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          {channel.title}
+        </Text>
+      </Pressable>
+
+      {!isReadOnly && renderControls(channel, index)}
+    </View>
+  );
+}, (prevProps, nextProps) => {
+  // Fonction de comparaison personnalisée pour éviter les re-rendus inutiles
+  return (
+    prevProps.channel.href === nextProps.channel.href &&
+    prevProps.channel.title === nextProps.channel.title &&
+    prevProps.index === nextProps.index &&
+    prevProps.isSmartphone === nextProps.isSmartphone &&
+    prevProps.isTablet === nextProps.isTablet &&
+    prevProps.isReadOnly === nextProps.isReadOnly
+  );
+});
 
 export default function WebviewsManagementScreen({
   onNavigate,
@@ -149,12 +202,29 @@ export default function WebviewsManagementScreen({
     </View>
   );
 
+  // Ajouter une fonction handleClose
+  const handleClose = async () => {
+    try {
+      // Réorganiser les webviews selon l'ordre des indices
+      const reorderedWebviews = indices.map(i => selectedWebviews[i]);
+
+      // Sauvegarder dans le state et SecureStore
+      setSelectedWebviews(reorderedWebviews);
+      await saveSelectedWebviews(reorderedWebviews);
+
+      // Naviguer vers Settings
+      onNavigate(SCREENS.SETTINGS);
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde de l\'ordre:', error);
+    }
+  };
+
   return (
     <View style={styles.pageContainer}>
       <View style={styles.customHeaderContainer}>
         <TouchableOpacity
           testID="back-button"
-          onPress={() => onNavigate(SCREENS.SETTINGS)}
+          onPress={handleClose}
         >
           <Ionicons
             name="close-outline"
@@ -190,27 +260,16 @@ export default function WebviewsManagementScreen({
           {indices.map((originalIndex, currentIndex) => {
             const channel = selectedWebviews[originalIndex];
             return (
-              <View
+              <WebviewItem
                 key={channel.href}
-                testID={`webview-container-${currentIndex}`}
-                style={[styles.channelContainer, isSmartphone && styles.channelContainerSmartphone]}
-              >
-                <Pressable
-                  testID={`webview-item-${currentIndex}`}
-                  style={[styles.titleContainer, isSmartphone && styles.titleContainerSmartphone]}
-                  onPress={() => onNavigateToWebview(channel.href)}
-                >
-                  <Text
-                    style={[styles.text, isSmartphone && styles.textSmartphone]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {channel.title}
-                  </Text>
-                </Pressable>
-
-                {!isReadOnly && renderControls(channel, currentIndex)}
-              </View>
+                channel={channel}
+                index={currentIndex}
+                isSmartphone={isSmartphone}
+                isTablet={isTablet}
+                onNavigateToWebview={onNavigateToWebview}
+                renderControls={renderControls}
+                isReadOnly={isReadOnly}
+              />
             );
           })}
         </View>
