@@ -206,6 +206,7 @@ export default {
     errorInitializingApp: "Error initializing app",
     errorLockingOrientation: "Error locking orientation",
     errorSavingOrder: "Error saving order of webviews",
+    urlNotDefined: "URL not defined",
   },
   alerts: {
     information: 'Information',

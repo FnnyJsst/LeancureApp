@@ -15,14 +15,12 @@ export default function WebviewScreen({
   url,
   onSettingsAccess,
 }) {
-  console.log('Rendu WebViewScreen avec URL:', url);
 
-  // Vérifier que l'URL est valide
+  // We check if the url is valid
   if (!url) {
-    console.log('URL manquante');
     return (
       <View style={styles.container}>
-        <Text>URL non définie</Text>
+        <Text>{t('errors.urlNotDefined')}</Text>
       </View>
     );
   }
@@ -30,13 +28,14 @@ export default function WebviewScreen({
   const webViewRef = useRef(null);
   const { refreshKey } = useWebviews();
 
+  /**
+   * @function useEffect
+   * @description Reloads the webview if the refresh key is greater than 0
+   */
   useEffect(() => {
+    // We reload the webview if the refresh key is greater than 0
     if (webViewRef.current && refreshKey > 0) {
-      console.log('🔄 Rechargement de la WebView via refreshKey:', {
-        refreshKey,
-        url,
-        timestamp: new Date().toLocaleTimeString()
-      });
+
       webViewRef.current.reload();
     }
   }, [refreshKey, url]);
@@ -68,8 +67,8 @@ export default function WebviewScreen({
           const { nativeEvent } = syntheticEvent;
           console.warn('Erreur WebView:', nativeEvent);
         }}
-        onLoadStart={() => console.log('📱 Début du chargement de la WebView:', url)}
-        onLoadEnd={() => console.log('✅ Fin du chargement de la WebView:', url)}
+        // onLoadStart={() => console.log('📱 Début du chargement de la WebView:', url)}
+        // onLoadEnd={() => console.log('✅ Fin du chargement de la WebView:', url)}
       />
       <View style={styles.buttonContainer}>
         <ParameterButton onPress={onSettingsAccess} testID="settings-button" />

@@ -208,6 +208,7 @@ export default {
     errorInitializingApp: "Erreur lors de l'initialisation de l'application",
     errorLockingOrientation: "Erreur lors du verrouillage de l'orientation",
     errorSavingOrder: "Erreur lors de la sauvegarde de l'ordre des canaux",
+    urlNotDefined: "URL non définie",
   },
 
   alerts: {

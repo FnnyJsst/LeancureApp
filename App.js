@@ -18,7 +18,6 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import * as SecureStore from 'expo-secure-store';
 
 /**
  * @component App
@@ -118,25 +117,24 @@ export default function App({ testID }) {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        console.log('Début initialisation...');
-
+        // We initialize the translations
         await initI18n();
-        console.log('i18n initialisé');
         setIsI18nInitialized(true);
 
+        // We load the webviews
         const loadedWebviews = await loadSelectedChannels();
-        console.log('Webviews chargées:', loadedWebviews?.length);
 
+        // We set the loading to false
         setIsLoading(false);
-        console.log('Chargement terminé');
 
+        // If there are webviews, we navigate to the webview screen, otherwise we navigate to the no url screen
         if (loadedWebviews && loadedWebviews.length > 0) {
           navigate(SCREENS.WEBVIEW);
         } else {
           navigate(SCREENS.NO_URL);
         }
       } catch (error) {
-        console.error('Erreur initialisation:', error);
+        throw new Error(t('errors.errorInitializingApp'), error);
         setIsLoading(false);
         navigate(SCREENS.NO_URL);
       }
