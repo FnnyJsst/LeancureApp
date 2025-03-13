@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
 import { COLORS, SIZES } from '../../constants/style';
@@ -15,6 +15,17 @@ export default function WebviewScreen({
   url,
   onSettingsAccess,
 }) {
+  console.log('Rendu WebViewScreen avec URL:', url);
+
+  // Vérifier que l'URL est valide
+  if (!url) {
+    console.log('URL manquante');
+    return (
+      <View style={styles.container}>
+        <Text>URL non définie</Text>
+      </View>
+    );
+  }
 
   const webViewRef = useRef(null);
   const { refreshKey } = useWebviews();
@@ -52,6 +63,10 @@ export default function WebviewScreen({
         onShouldStartLoadWithRequest={(request) => {
           // Limit unnecessary loads
           return true;
+        }}
+        onError={(syntheticEvent) => {
+          const { nativeEvent } = syntheticEvent;
+          console.warn('Erreur WebView:', nativeEvent);
         }}
         onLoadStart={() => console.log('📱 Début du chargement de la WebView:', url)}
         onLoadEnd={() => console.log('✅ Fin du chargement de la WebView:', url)}

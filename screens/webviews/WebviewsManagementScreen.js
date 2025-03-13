@@ -6,7 +6,6 @@ import DeleteWebviewModal from '../../components/modals/webviews/DeleteWebviewMo
 import AntDesign from '@expo/vector-icons/AntDesign';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import * as SecureStore from 'expo-secure-store';
 import { Text } from '../../components/text/CustomText';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
@@ -26,12 +25,11 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} onImport - A function to import channels
  */
 
-// Créer un composant séparé pour chaque webview
+// We create a separate component for each webview
 const WebviewItem = memo(({
   channel,
   index,
   isSmartphone,
-  isTablet,
   onNavigateToWebview,
   renderControls,
   isReadOnly
@@ -68,7 +66,7 @@ const WebviewItem = memo(({
     </View>
   );
 }, (prevProps, nextProps) => {
-  // Fonction de comparaison personnalisée pour éviter les re-rendus inutiles
+  // Custom comparison function to avoid unnecessary re-renders
   return (
     prevProps.channel.href === nextProps.channel.href &&
     prevProps.channel.title === nextProps.channel.title &&
@@ -79,6 +77,13 @@ const WebviewItem = memo(({
   );
 });
 
+/**
+ * @component WebviewsManagementScreen
+ * @description Allows displaying, editing, deleting and reordering webviews
+ * @param {Function} onNavigate - A function to navigate to a screen
+ * @param {Array} selectedWebviews - The list of selected channels
+ * @param {Function} setSelectedWebviews - A function to set the selected channels
+ */
 export default function WebviewsManagementScreen({
   onNavigate,
   selectedWebviews,
@@ -121,7 +126,10 @@ export default function WebviewsManagementScreen({
     setIndices(newIndices);
   };
 
-  // Optimiser la suppression
+  /**
+   * @function handleDelete
+   * @description Handles the deletion of a webview
+   */
   const handleDelete = async () => {
     if (!activeWebview) return;
 
@@ -133,7 +141,10 @@ export default function WebviewsManagementScreen({
     toggleModal('delete');
   };
 
-  // Optimiser l'édition
+  /**
+   * @function handleEdit
+   * @description Handles the editing of a webview
+   */
   const handleEdit = async (newUrl, newTitle) => {
     if (!activeWebview) return;
 
@@ -147,7 +158,10 @@ export default function WebviewsManagementScreen({
     toggleModal('edit');
   };
 
-  // Simplifier le rendu des boutons
+  /**
+   * @function renderControls
+   * @description Renders the controls for a webview to move it up or down, edit it or delete it
+   */
   const renderControls = (channel, index) => (
     <View style={[styles.controlsContainer, isSmartphone && styles.controlsContainerSmartphone]}>
       <View style={[styles.arrowContainer, isSmartphone && styles.arrowContainerSmartphone]}>
@@ -202,20 +216,23 @@ export default function WebviewsManagementScreen({
     </View>
   );
 
-  // Ajouter une fonction handleClose
+  /**
+   * @function handleClose
+   * @description Handles the closing of the webviews management screen
+   */
   const handleClose = async () => {
     try {
-      // Réorganiser les webviews selon l'ordre des indices
+      // Reorder the webviews according to the indices
       const reorderedWebviews = indices.map(i => selectedWebviews[i]);
 
-      // Sauvegarder dans le state et SecureStore
+      // Save in the state and SecureStore
       setSelectedWebviews(reorderedWebviews);
       await saveSelectedWebviews(reorderedWebviews);
 
-      // Naviguer vers Settings
+      // Navigate to Settings
       onNavigate(SCREENS.SETTINGS);
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde de l\'ordre:', error);
+      throw new Error(t('errors.saveOrder'));
     }
   };
 

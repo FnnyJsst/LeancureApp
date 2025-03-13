@@ -105,6 +105,7 @@ export default function App({ testID }) {
    */
   useEffect(() => {
     const timer = setTimeout(() => {
+      console.log('Timer terminé, désactivation du splash screen');
       setShowSplash(false);
     }, 3000);
     return () => clearTimeout(timer);
@@ -117,39 +118,32 @@ export default function App({ testID }) {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // We initialize the translations
+        console.log('Début initialisation...');
+
         await initI18n();
+        console.log('i18n initialisé');
         setIsI18nInitialized(true);
 
-        // We load the selected channels
-        try {
-          const loadedChannels = await loadSelectedChannels();
-          // We navigate to the webview screen if there are channels, otherwise we navigate to the no url screen
-          if (loadedChannels && Array.isArray(loadedChannels)) {
-            navigate(loadedChannels.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-          } else {
-            navigate(SCREENS.NO_URL);
-          }
-          // If the channels are not loaded, we navigate to the no url screen
-        } catch (channelsError) {
-          if (channelsError.message.includes('Could not decrypt')) {
-            await SecureStore.deleteItemAsync('selectedChannels');
-            navigate(SCREENS.NO_URL);
-          } else {
-            throw channelsError;
-          }
+        const loadedWebviews = await loadSelectedChannels();
+        console.log('Webviews chargées:', loadedWebviews?.length);
+
+        setIsLoading(false);
+        console.log('Chargement terminé');
+
+        if (loadedWebviews && loadedWebviews.length > 0) {
+          navigate(SCREENS.WEBVIEW);
+        } else {
+          navigate(SCREENS.NO_URL);
         }
       } catch (error) {
-        navigate(SCREENS.NO_URL);
-        throw new Error(t('errors.errorInitializingApp'), error);
-      } finally {
-        setIsI18nInitialized(true);
+        console.error('Erreur initialisation:', error);
         setIsLoading(false);
+        navigate(SCREENS.NO_URL);
       }
     };
 
     initializeApp();
-  }, [loadSelectedChannels, navigate]);
+  }, []);
 
   /**
    * @function useEffect
@@ -176,6 +170,12 @@ export default function App({ testID }) {
 
   // Screen saver will render if the splash screen is visible, the app is loading, the fonts are not loaded or the translations are not initialized
   if (showSplash || isLoading || !fontsLoaded || !isI18nInitialized) {
+    console.log('ScreenSaver affiché car:', {
+      showSplash,
+      isLoading,
+      fontsLoaded,
+      isI18nInitialized
+    });
     return <ScreenSaver testID="screen-saver" />;
   }
 

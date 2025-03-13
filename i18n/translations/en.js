@@ -205,6 +205,7 @@ export default {
     incorrectPassword: "Incorrect password",
     errorInitializingApp: "Error initializing app",
     errorLockingOrientation: "Error locking orientation",
+    errorSavingOrder: "Error saving order of webviews",
   },
   alerts: {
     information: 'Information',

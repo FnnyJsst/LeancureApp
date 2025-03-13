@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ScrollView, View, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import SettingsCard from '../../components/cards/SettingsCard';
@@ -109,7 +108,6 @@ export default function SettingsWebviews({
 
     return t(`modals.webview.refresh.${key}`);
   };
-
 
   return (
     <View testID={testID}>

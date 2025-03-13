@@ -16,7 +16,9 @@ export function useWebviews(setCurrentScreen) {
 
   const [channels, setChannels] = useState([]);
   const [selectedWebviews, setSelectedWebviews] = useState([]);
-  const [webViewUrl, setWebviewUrl] = useState('');
+  const [webViewUrl, setWebViewUrl] = useState(() => {
+    return selectedWebviews?.[0]?.href || '';
+  });
   const [refreshInterval, setRefreshInterval] = useState(null);
   const [refreshOption, setRefreshOption] = useState('never');
   const [isReadOnly, setIsReadOnly] = useState(false);
@@ -193,7 +195,7 @@ export function useWebviews(setCurrentScreen) {
    */
   const navigateToWebview = (url) => {
     console.log('🔗 Navigation vers la webview:', url);
-    setWebviewUrl(url);
+    setWebViewUrl(url);
     if (SCREENS.WEBVIEW) {
       navigate(SCREENS.WEBVIEW);
     } else {
@@ -269,13 +271,19 @@ export function useWebviews(setCurrentScreen) {
     };
   }, [refreshInterval, refreshOption]); // Réduire les dépendances
 
+  useEffect(() => {
+    if (selectedWebviews?.[0]?.href) {
+      setWebViewUrl(selectedWebviews[0].href);
+    }
+  }, [selectedWebviews]);
+
   return {
     channels,
     setChannels,
     selectedWebviews,
     setSelectedWebviews,
     webViewUrl,
-    setWebviewUrl,
+    setWebViewUrl,
     refreshInterval,
     setRefreshInterval,
     refreshOption,
