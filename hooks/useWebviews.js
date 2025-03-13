@@ -131,10 +131,6 @@ export function useWebviews(setCurrentScreen) {
       }
 
       setSelectedWebviews(parsedChannels);
-      if (parsedChannels.length > 0) {
-        setWebviewUrl(parsedChannels[0].href);
-      }
-
       return parsedChannels;
     } catch (error) {
       console.error('Erreur de chargement des channels:', error);
@@ -195,11 +191,12 @@ export function useWebviews(setCurrentScreen) {
    * @param {string} url - The URL to navigate to
    */
   const navigateToWebview = (url) => {
+    console.log('🔗 Navigation vers la webview:', url);
     setWebviewUrl(url);
     if (SCREENS.WEBVIEW) {
-        navigate(SCREENS.WEBVIEW);
+      navigate(SCREENS.WEBVIEW);
     } else {
-        throw new Error(t('errors.screenNotFound'), SCREENS.WEBVIEW);
+      throw new Error(t('errors.screenNotFound'), SCREENS.WEBVIEW);
     }
   };
 
@@ -210,18 +207,13 @@ export function useWebviews(setCurrentScreen) {
   useEffect(() => {
     const initializeWebviews = async () => {
       try {
-        // First we load the refresh option and the password from the SecureStore
         await loadRefreshOption();
         await loadPasswordFromSecureStore();
 
-        // Then we load the selected channels
         const storedChannels = await SecureStore.getItemAsync('selectedWebviews');
         if (storedChannels) {
           const parsedChannels = JSON.parse(storedChannels);
           setSelectedWebviews(parsedChannels || []);
-          if (parsedChannels && parsedChannels.length > 0) {
-            setWebviewUrl(parsedChannels[0].href);
-          }
         } else {
           setSelectedWebviews([]);
         }
