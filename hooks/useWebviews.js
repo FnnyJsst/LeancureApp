@@ -76,11 +76,6 @@ export function useWebviews(setCurrentScreen) {
    * @param {string} option - The option to select
    */
   const handleSelectOption = (option) => {
-    console.log('⚙️ Changement de l\'option de rafraîchissement:', {
-      ancienneOption: refreshOption,
-      nouvelleOption: option,
-      nouvelIntervalle: getIntervalInMilliseconds(option)
-    });
 
     setRefreshOption(option);
     setRefreshInterval(getIntervalInMilliseconds(option));
@@ -168,8 +163,6 @@ export function useWebviews(setCurrentScreen) {
             setIsReadOnly(savedMode === 'true');
           }
         } catch (error) {
-          console.log('Mode lecture seule non disponible, utilisation de la valeur par défaut');
-        } finally {
           setIsInitialized(true);
         }
       };
@@ -194,7 +187,6 @@ export function useWebviews(setCurrentScreen) {
    * @param {string} url - The URL to navigate to
    */
   const navigateToWebview = (url) => {
-    console.log('🔗 Navigation vers la webview:', url);
     setWebViewUrl(url);
     if (SCREENS.WEBVIEW) {
       navigate(SCREENS.WEBVIEW);
@@ -235,38 +227,21 @@ export function useWebviews(setCurrentScreen) {
    */
   useEffect(() => {
     if (!refreshInterval || selectedWebviews.length === 0) {
-      console.log('⏸️ Rafraîchissement automatique désactivé:', {
-        option: refreshOption,
-        nombreWebviews: selectedWebviews.length
-      });
       return;
     }
 
-    console.log('🔄 Initialisation du rafraîchissement automatique:', {
-      intervalle: refreshInterval,
-      option: refreshOption,
-      nombreWebviews: selectedWebviews.length
-    });
-
     const interval = setInterval(() => {
       const timestamp = new Date().toLocaleTimeString();
-      console.log(`🔄 Rafraîchissement déclenché à ${timestamp}`);
 
-      // Incrémenter directement le refreshKey sans setState intermédiaire
+      // Increment the refreshKey
       setRefreshKey(prevKey => {
         const newKey = prevKey + 1;
-        console.log('📈 Incrémentation du refreshKey:', {
-          ancien: prevKey,
-          nouveau: newKey,
-          timestamp
-        });
         return newKey;
       });
     }, refreshInterval);
 
     // Nettoyage de l'intervalle
     return () => {
-      console.log('🛑 Nettoyage du rafraîchissement automatique');
       clearInterval(interval);
     };
   }, [refreshInterval, refreshOption]); // Réduire les dépendances

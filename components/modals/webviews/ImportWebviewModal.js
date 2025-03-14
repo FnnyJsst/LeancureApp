@@ -115,7 +115,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
 
       if (typeof data === 'string') {
         const extractedChannels = parseHtml(data);
-        console.log('Chaînes extraites:', extractedChannels);
 
         if (extractedChannels.length === 0) {
           setError(t('errors.noChannelsFound'));
@@ -127,8 +126,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
             existingChannel.href === newChannel.href
           )
         );
-
-        console.log('Nouvelles chaînes à importer:', newChannels);
 
         if (newChannels.length === 0) {
           setShowAlert(true);

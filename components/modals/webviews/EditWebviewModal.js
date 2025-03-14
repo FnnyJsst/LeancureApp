@@ -72,7 +72,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
 
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}

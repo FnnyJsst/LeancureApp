@@ -104,7 +104,6 @@ export default function App({ testID }) {
    */
   useEffect(() => {
     const timer = setTimeout(() => {
-      console.log('Timer terminé, désactivation du splash screen');
       setShowSplash(false);
     }, 3000);
     return () => clearTimeout(timer);

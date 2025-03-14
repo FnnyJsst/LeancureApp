@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
  */
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error', testID }) {
 
+
   const { isSmartphone, isLowResTablet } = useDeviceType();
 
   const { t } = useTranslation();
@@ -35,6 +36,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
         <View style={[
           styles.modalContent,
           isLowResTablet && styles.modalContentLowResTablet,
+          isSmartphone && styles.modalContentSmartphone,
         ]}>
           <TitleModal title={title} />
           <Text style={[styles.message, isSmartphone && styles.messageSmartphone]}>{message}</Text>
@@ -81,7 +83,10 @@ const styles = StyleSheet.create({
     borderColor: COLORS.borderColor,
   },
   modalContentLowResTablet: {
-    width: '50%',
+    width: '60%',
+  },
+  modalContentSmartphone: {
+    width: '60%',
   },
   message: {
     color: COLORS.gray300,

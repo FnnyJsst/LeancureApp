@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
  * @param {string} props.value - The value of the input
  * @param {Function} props.onChangeText - The function to call when the input is changed
  * @param {Object} props.style - The style of the input
- * @param {boolean} props.secureTextEntry - Whether the input is secure
+ * @param {boolean} props.secureTextEntry - Whether we want to hide the text of the input or not
  * @param {ReactNode} props.icon - The icon of the input
  */
 export default function InputModal({
@@ -27,7 +27,6 @@ export default function InputModal({
   // We create a hook to determine the device type
   const { isSmartphone } = useDeviceType();
 
-  // We create a state to store if the input is focused
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 

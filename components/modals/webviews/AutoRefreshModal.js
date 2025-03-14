@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { View, Modal, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
@@ -17,63 +17,87 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} props.onSelectOption - The function to call when the option is selected
  * @param {string} props.currentOption - The current selected option
  */
+
+// Déplacer les options en dehors du composant pour éviter leur recréation à chaque rendu
+const createOptions = (t) => [
+  { label: t('modals.webview.refresh.never'), value: 'never' },
+  { label: t('modals.webview.refresh.every1min'), value: 'every minute' },
+  { label: t('modals.webview.refresh.every5min'), value: 'every 5 minutes' },
+  { label: t('modals.webview.refresh.every15min'), value: 'every 15 minutes' },
+  { label: t('modals.webview.refresh.every30min'), value: 'every 30 minutes' },
+  { label: t('modals.webview.refresh.every1h'), value: 'every hour' },
+  { label: t('modals.webview.refresh.every2h'), value: 'every 2 hours' },
+  { label: t('modals.webview.refresh.every6h'), value: 'every 6 hours' },
+];
+
+// Mémoiser l'item de la liste
+const RadioItem = memo(({ item, selectedOption, onSelect, isSmartphone }) => (
+  <TouchableOpacity
+    style={[
+      styles.radioContainer,
+      isSmartphone && styles.radioContainerSmartphone,
+    ]}
+    onPress={() => onSelect(item.value)}
+  >
+    <Ionicons
+      name={selectedOption === item.value ? 'radio-button-on-outline' : 'radio-button-off-outline'}
+      size={isSmartphone ? 20 : 24}
+      color={selectedOption === item.value ? COLORS.orange : COLORS.gray600}
+      style={styles.radioIcon}
+    />
+    <Text style={[
+      styles.radioText,
+      isSmartphone && styles.radioTextSmartphone
+    ]}>{item.label}</Text>
+  </TouchableOpacity>
+));
+
 const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOption }) => {
-
   const { t } = useTranslation();
-  // We create a hook to determine the device type and orientation
   const { isSmartphone, isLowResTablet } = useDeviceType();
-
-  // State used to store the selected option
   const [selectedOption, setSelectedOption] = useState(currentOption || 'never');
 
-  // Mettre à jour selectedOption quand currentOption change
+  // Mémoiser les options
+  const options = React.useMemo(() => createOptions(t), [t]);
+
   useEffect(() => {
     if (currentOption) {
       setSelectedOption(currentOption);
     }
   }, [currentOption]);
 
-  // Options for the auto-refresh modal
-  const options = [
-    { label: t('modals.webview.refresh.never'), value: 'never' },
-    { label: t('modals.webview.refresh.every1min'), value: 'every minute' },
-    { label: t('modals.webview.refresh.every5min'), value: 'every 5 minutes' },
-    { label: t('modals.webview.refresh.every15min'), value: 'every 15 minutes' },
-    { label: t('modals.webview.refresh.every30min'), value: 'every 30 minutes' },
-    { label: t('modals.webview.refresh.every1h'), value: 'every hour' },
-    { label: t('modals.webview.refresh.every2h'), value: 'every 2 hours' },
-    { label: t('modals.webview.refresh.every6h'), value: 'every 6 hours' },
-  ];
+  // Mémoiser les callbacks
+  const handleSelect = useCallback((value) => {
+    setSelectedOption(value);
+  }, []);
 
-  /**
-   * @description Render the item of the flatlist
-   * @param {Object} item - The item of the flatlist
-   * @returns {React.ReactNode} - The item of the flatlist
-   */
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        styles.radioContainer,
-        isSmartphone && styles.radioContainerSmartphone,
-      ]}
-      onPress={() => setSelectedOption(item.value)}
-    >
-      <Ionicons
-        name={selectedOption === item.value ? 'radio-button-on-outline' : 'radio-button-off-outline'}
-        size={isSmartphone ? 20 : 24}
-        color={selectedOption === item.value ? COLORS.orange : COLORS.gray600}
-        style={styles.radioIcon}
-      />
-      <Text style={[
-        styles.radioText,
-        isSmartphone && styles.radioTextSmartphone
-      ]}>{item.label}</Text>
-    </TouchableOpacity>
-  );
+  const handleSave = useCallback(() => {
+    onSelectOption(selectedOption);
+    onClose();
+  }, [selectedOption, onSelectOption, onClose]);
+
+  // Mémoiser le rendu des items
+  const renderItem = useCallback(({ item }) => (
+    <RadioItem
+      item={item}
+      selectedOption={selectedOption}
+      onSelect={handleSelect}
+      isSmartphone={isSmartphone}
+    />
+  ), [selectedOption, handleSelect, isSmartphone]);
+
+  // Mémoiser le keyExtractor
+  const keyExtractor = useCallback((item) => item.value, []);
+
+  // Mémoiser les styles de la FlatList
+  const contentContainerStyle = React.useMemo(() => [
+    styles.optionsContainer,
+    isSmartphone && styles.optionsContainerSmartphone,
+  ], [isSmartphone]);
 
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
@@ -93,15 +117,18 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOpt
           <FlatList
             data={options}
             renderItem={renderItem}
-            keyExtractor={item => item.value}
-            contentContainerStyle={[
-              styles.optionsContainer,
-              isSmartphone && styles.optionsContainerSmartphone,
-            ]}
+            keyExtractor={keyExtractor}
+            contentContainerStyle={contentContainerStyle}
             showsVerticalScrollIndicator={false}
             initialNumToRender={8}
             maxToRenderPerBatch={8}
+            windowSize={2}
             removeClippedSubviews={true}
+            getItemLayout={(data, index) => ({
+              length: isSmartphone ? 30 : 40,
+              offset: isSmartphone ? 30 * index : 40 * index,
+              index,
+            })}
           />
 
           <View style={MODAL_STYLES.buttonContainer}>
@@ -117,10 +144,7 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOpt
               backgroundColor={COLORS.orange}
               color={COLORS.white}
               width={isSmartphone ? '23%' : isLowResTablet ? '30%' : '26%'}
-              onPress={() => {
-                onSelectOption(selectedOption);
-                onClose();
-              }}
+              onPress={handleSave}
             />
           </View>
         </View>
@@ -140,7 +164,6 @@ const styles = StyleSheet.create({
   modalContainerSmartphone: {
     paddingBottom: 0,
   },
-
   modalContent: {
     width: '40%',
     padding: 20,
@@ -152,7 +175,6 @@ const styles = StyleSheet.create({
   modalContentSmartphone: {
     width: '45%',
   },
-
   optionsContainer: {
     marginTop: 15,
     gap: 6,
@@ -161,7 +183,6 @@ const styles = StyleSheet.create({
     marginTop: 0,
     gap: 2,
   },
-
   radioContainer: {
     flexDirection: 'row',
     marginBottom: 10,
@@ -185,4 +206,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AutoRefreshModal;
+// Exporter le composant mémorisé
+export default memo(AutoRefreshModal);

@@ -71,7 +71,7 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
   return (
     <>
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={visible}
         onRequestClose={handleClose}
