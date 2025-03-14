@@ -92,7 +92,7 @@ export const MODAL_STYLES = {
     paddingBottom: '20%',
   },
   content: {
-    width: '40%',
+    width: '45%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,

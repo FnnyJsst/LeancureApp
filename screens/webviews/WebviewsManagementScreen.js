@@ -1,4 +1,4 @@
-import React, { useState, memo, useCallback, useLayoutEffect } from 'react';
+import React, { useState, memo, useCallback, useLayoutEffect, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, Pressable } from 'react-native';
 import ImportWebviewModal from '../../components/modals/webviews/ImportWebviewModal';
 import EditWebviewModal from '../../components/modals/webviews/EditWebviewModal';
@@ -101,30 +101,58 @@ export default function WebviewsManagementScreen({
   // Customized hook to determine the device type and orientation
   const { isTablet, isSmartphone } = useDeviceType();
 
-  // Réduire le nombre d'états
   const [modals, setModals] = useState({
     import: false,
     edit: false,
     delete: false
   });
   const [activeWebview, setActiveWebview] = useState(null);
-  const [indices, setIndices] = useState([...Array(selectedWebviews.length).keys()]);
+  const [indices, setIndices] = useState([]);
 
-  // Simplifier la gestion des modales
+  /**
+   * @function useEffect
+   * @description Initializes the indices when the selected webviews length changes
+   */
+  useEffect(() => {
+    setIndices([...Array(selectedWebviews.length).keys()]);
+  }, [selectedWebviews.length]);
+
+  /**
+   * @function toggleModal
+   * @description Toggles the modal
+   */
   const toggleModal = (modalType, webview = null) => {
     setModals(prev => ({ ...prev, [modalType]: !prev[modalType] }));
     setActiveWebview(webview);
   };
 
-  // Optimiser les fonctions de mouvement
-  const moveWebview = (index, direction) => {
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= indices.length) return;
+  /**
+   * @function moveWebview
+   * @description Moves the webview up or down
+   */
+  const moveWebview = useCallback((index, direction) => {
+    // Update the indices
+    setIndices(currentIndices => {
+      // Check if the index is valid
+      if (index < 0 || index >= selectedWebviews.length) return currentIndices;
 
-    const newIndices = [...indices];
-    [newIndices[index], newIndices[newIndex]] = [newIndices[newIndex], newIndices[index]];
-    setIndices(newIndices);
-  };
+      // Calculate the new index
+      const newIndex = direction === 'up' ? index - 1 : index + 1;
+
+      // Check if the new index is valid
+      if (newIndex < 0 || newIndex >= selectedWebviews.length) return currentIndices;
+
+      // Create a new copy of the current indices
+      const newIndices = [...currentIndices];
+
+      // Swap the positions using a temporary variable for safety
+      const temp = newIndices[index];
+      newIndices[index] = newIndices[newIndex];
+      newIndices[newIndex] = temp;
+
+      return newIndices;
+    });
+  }, [selectedWebviews.length]);
 
   /**
    * @function handleDelete
@@ -143,14 +171,13 @@ export default function WebviewsManagementScreen({
       await saveSelectedWebviews(updatedWebviews);
 
       // 3. Une fois la sauvegarde réussie, mettre à jour les états locaux
-      setIndices([...Array(updatedWebviews.length).keys()]);
+      setIndices(() => [...Array(updatedWebviews.length).keys()]);
       setSelectedWebviews(updatedWebviews);
 
       // 4. Fermer le modal
       toggleModal('delete');
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-      // Ici vous pourriez ajouter une notification d'erreur pour l'utilisateur
+      throw new Error(t('errors.errorDeletingWebview'));
     }
   };
   /**
@@ -180,24 +207,34 @@ export default function WebviewsManagementScreen({
         <Pressable
           testID={`move-up-${index}`}
           onPress={() => moveWebview(index, 'up')}
-          style={styles.arrowButton}
+          style={({ pressed }) => [
+            styles.arrowButton,
+            pressed && { opacity: 0.7 }
+          ]}
         >
-          <AntDesign
-            name="up"
-            size={isTablet ? 30 : 23}
-            color={COLORS.gray300}
-          />
+          {({ pressed }) => (
+            <AntDesign
+              name="up"
+              size={isTablet ? 30 : 23}
+              color={pressed ? COLORS.orange : COLORS.gray300}
+            />
+          )}
         </Pressable>
         <Pressable
           testID={`move-down-${index}`}
           onPress={() => moveWebview(index, 'down')}
-          style={styles.arrowButton}
+          style={({ pressed }) => [
+            styles.arrowButton,
+            pressed && { opacity: 0.7 }
+          ]}
         >
-          <AntDesign
-            name="down"
-            size={isTablet ? 30 : 23}
-            color={COLORS.gray300}
-          />
+          {({ pressed }) => (
+            <AntDesign
+              name="down"
+              size={isTablet ? 30 : 23}
+              color={pressed ? COLORS.orange : COLORS.gray300}
+            />
+          )}
         </Pressable>
       </View>
 
@@ -205,24 +242,34 @@ export default function WebviewsManagementScreen({
         <Pressable
           testID={`edit-button-${index}`}
           onPress={() => toggleModal('edit', channel)}
-          style={styles.iconButton}
+          style={({ pressed }) => [
+            styles.iconButton,
+            pressed && { opacity: 0.7 }
+          ]}
         >
-          <EvilIcons
-            name="pencil"
-            size={isTablet ? 40 : 29}
-            color={COLORS.gray300}
-          />
+          {({ pressed }) => (
+            <EvilIcons
+              name="pencil"
+              size={isTablet ? 40 : 29}
+              color={pressed ? COLORS.orange : COLORS.gray300}
+            />
+          )}
         </Pressable>
         <Pressable
           testID={`delete-button-${index}`}
           onPress={() => toggleModal('delete', channel)}
-          style={styles.iconButton}
+          style={({ pressed }) => [
+            styles.iconButton,
+            pressed && { opacity: 0.7 }
+          ]}
         >
-          <Ionicons
-            name="trash-outline"
-            size={isTablet ? 30 : 23}
-            color={COLORS.gray300}
-          />
+          {({ pressed }) => (
+            <Ionicons
+              name="trash-outline"
+              size={isTablet ? 30 : 23}
+              color={pressed ? COLORS.orange : COLORS.gray300}
+            />
+          )}
         </Pressable>
       </View>
     </View>
@@ -259,14 +306,11 @@ export default function WebviewsManagementScreen({
         styles.titleContainer,
         isSmartphone && styles.titleContainerSmartphone,
       ],
-      // ... autres styles
     };
   }, []);
 
-  // Utiliser useLayoutEffect pour les calculs de mise en page
   useLayoutEffect(() => {
     const styles = getStyles(isSmartphone, isTablet);
-    // ... utilisation des styles
   }, [isSmartphone, isTablet, getStyles]);
 
   return (

@@ -11,37 +11,37 @@ export const useDeviceType = () => {
   const { width, height } = useWindowDimensions();
   const pixelDensity = PixelRatio.get();
 
-  // We calculate the diagonal in inches to determine the device size
+  // Calcul des dimensions en pouces
   const widthInches = width / (PixelRatio.get() * 160);
   const heightInches = height / (PixelRatio.get() * 160);
   const diagonalInches = Math.sqrt(Math.pow(widthInches, 2) + Math.pow(heightInches, 2));
 
-  // Explicit detection of low resolution tablets first
   const isLowResTablet = (() => {
     const minWidth = 550;
     const minHeight = 700;
     const maxDensity = 2;
 
-    return (
+    const result = (
       Math.min(width, height) >= minWidth &&
       Math.max(width, height) >= minHeight &&
-      pixelDensity < maxDensity
+      pixelDensity > 1.5
     );
+
+    return result;
   })();
 
-  // Detection of
   const isTablet = (() => {
-    const minimumTabletDiagonal = 6.5;
+    const minimumTabletDiagonal = 6.0;
     const aspectRatio = Math.max(width, height) / Math.min(width, height);
 
-    return (
-      // We first check if it's a low resolution tablet
+    const result = (
       isLowResTablet ||
-      // Then we use the standard criteria
       (diagonalInches >= minimumTabletDiagonal &&
-       aspectRatio <= 1.6 &&
-       Math.min(width, height) >= 400)
+      aspectRatio <= 2.0 &&
+      Math.min(width, height) >= 500)
     );
+
+    return result;
   })();
 
   // If a device is not a tablet, it's a smartphone

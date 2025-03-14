@@ -104,6 +104,7 @@ export default function App({ testID }) {
    */
   useEffect(() => {
     const timer = setTimeout(() => {
+
       setShowSplash(false);
     }, 3000);
     return () => clearTimeout(timer);

@@ -211,6 +211,7 @@ export default {
     errorLockingOrientation: "Erreur lors du verrouillage de l'orientation",
     errorSavingOrder: "Erreur lors de la sauvegarde de l'ordre des canaux",
     urlNotDefined: "URL non définie",
+    errorDeletingWebview: "Erreur lors de la suppression du canal",
   },
 
   alerts: {

@@ -28,7 +28,7 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
     try {
       await handleDelete();
     } catch (error) {
-      throw error;
+      throw new Error('Erreur lors de la suppression:', error);
     } finally {
       setIsDeleting(false);
     }

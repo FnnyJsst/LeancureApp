@@ -16,9 +16,7 @@ export function useWebviews(setCurrentScreen) {
 
   const [channels, setChannels] = useState([]);
   const [selectedWebviews, setSelectedWebviews] = useState([]);
-  const [webViewUrl, setWebViewUrl] = useState(() => {
-    return selectedWebviews?.[0]?.href || '';
-  });
+  const [webViewUrl, setWebViewUrl] = useState('');
   const [refreshInterval, setRefreshInterval] = useState(null);
   const [refreshOption, setRefreshOption] = useState('never');
   const [isReadOnly, setIsReadOnly] = useState(false);
@@ -43,9 +41,14 @@ export function useWebviews(setCurrentScreen) {
 
   const handleSelectChannels = async (selectedChannels) => {
     try {
-      const updatedWebviews = [...(selectedWebviews || []), ...(selectedChannels || [])];
-      setSelectedWebviews(updatedWebviews);
-      await saveSelectedWebviews(updatedWebviews);
+      setSelectedWebviews(prev => {
+        const updatedWebviews = [...(prev || []), ...(selectedChannels || [])];
+        if (updatedWebviews[0]?.href) {
+          setWebViewUrl(updatedWebviews[0].href);
+        }
+        saveSelectedWebviews(updatedWebviews);
+        return updatedWebviews;
+      });
     } catch (error) {
       throw new Error(t('errors.errorSelectingChannels'), error);
     }
@@ -209,6 +212,9 @@ export function useWebviews(setCurrentScreen) {
         if (storedChannels) {
           const parsedChannels = JSON.parse(storedChannels);
           setSelectedWebviews(parsedChannels || []);
+          if (parsedChannels?.[0]?.href) {
+            setWebViewUrl(parsedChannels[0].href);
+          }
         } else {
           setSelectedWebviews([]);
         }
@@ -219,7 +225,7 @@ export function useWebviews(setCurrentScreen) {
     };
 
     initializeWebviews();
-  }, [loadRefreshOption, loadPasswordFromSecureStore]);
+  }, []);
 
   /**
    * @function useEffect
@@ -245,12 +251,6 @@ export function useWebviews(setCurrentScreen) {
       clearInterval(interval);
     };
   }, [refreshInterval, refreshOption]); // Réduire les dépendances
-
-  useEffect(() => {
-    if (selectedWebviews?.[0]?.href) {
-      setWebViewUrl(selectedWebviews[0].href);
-    }
-  }, [selectedWebviews]);
 
   return {
     channels,

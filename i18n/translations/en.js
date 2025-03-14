@@ -209,6 +209,7 @@ export default {
     errorLockingOrientation: "Error locking orientation",
     errorSavingOrder: "Error saving order of webviews",
     urlNotDefined: "URL not defined",
+    errorDeletingWebview: "Error deleting webview",
   },
   alerts: {
     information: 'Information',
