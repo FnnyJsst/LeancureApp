@@ -93,30 +93,44 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
     }
 
     setIsImporting(true);
-    setError(''); // Réinitialiser les erreurs précédentes
+    setError('');
 
     try {
       const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
+      console.log('🔍 Tentative de téléchargement depuis:', fullUrl);
+
       const response = await fetch(fullUrl);
+      console.log('📡 Statut de la réponse:', response.status);
+      console.log('📋 Headers:', JSON.stringify(response.headers, null, 2));
 
       const contentType = response.headers.get('content-type');
+      console.log('📝 Type de contenu:', contentType);
+
       if (!contentType) {
+        console.error('❌ Content type non défini');
         throw new Error('Content type non défini');
       }
 
       let data;
       if (contentType.includes('application/json')) {
         data = await response.json();
+        console.log('📊 Données JSON reçues:', JSON.stringify(data).substring(0, 200) + '...');
       } else if (contentType.includes('text/html')) {
         data = await response.text();
+        console.log('🌐 Longueur HTML reçue:', data.length);
+        console.log('🌐 Début du HTML:', data.substring(0, 200) + '...');
       } else {
+        console.error('❌ Type de contenu invalide:', contentType);
         throw new Error(`Type de contenu invalide: ${contentType}`);
       }
 
       if (typeof data === 'string') {
         const extractedChannels = parseHtml(data);
+        console.log('📺 Nombre de canaux extraits:', extractedChannels.length);
+        console.log('📺 Premier canal extrait:', extractedChannels[0]);
 
         if (extractedChannels.length === 0) {
+          console.warn('⚠️ Aucun canal trouvé dans les données');
           setError(t('errors.noChannelsFound'));
           return;
         }
@@ -126,18 +140,28 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
             existingChannel.href === newChannel.href
           )
         );
+        console.log('🆕 Nombre de nouveaux canaux:', newChannels.length);
 
         if (newChannels.length === 0) {
+          console.log('ℹ️ Tous les canaux sont déjà importés');
           setShowAlert(true);
         } else {
-          await onImport(newChannels); // Attendre que l'import soit terminé
+          console.log('✅ Début de l\'import des nouveaux canaux');
+          await onImport(newChannels);
+          console.log('✅ Import terminé avec succès');
           onClose();
         }
       } else {
+        console.error('❌ Format de réponse invalide, data n\'est pas une chaîne');
         setError(t('errors.invalidResponseFormat'));
       }
     } catch (error) {
-      console.error('Erreur lors du téléchargement:', error);
+      console.error('❌ Erreur détaillée:', {
+        message: error.message,
+        stack: error.stack,
+        url: url,
+        fullUrl: `${url}/p/mes_getchannelsxml/action/display`
+      });
       setError(t('errors.errorDuringDownload'));
     } finally {
       setIsImporting(false);

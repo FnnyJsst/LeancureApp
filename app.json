@@ -6,12 +6,15 @@
     "orientation": "default",
     "userInterfaceStyle": "light",
     "splash": {
-      "backgroundColor": "#FFFFFF"
+      "backgroundColor": "#000000"
     },
     "plugins": [
       "expo-secure-store",
       "expo-font",
-      "expo-localization"
+      "expo-localization",
+      [
+        "./plugins/withAndroidSecurityConfig"
+      ]
     ],
     "ios": {
       "supportsTablet": true
@@ -24,7 +27,8 @@
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "WRITE_EXTERNAL_STORAGE",
+        "INTERNET"
       ]
     },
     "assetBundlePatterns": [
@@ -45,5 +49,8 @@
       "barStyle": "light-content"
     },
     "developmentClient":  {}
+  },
+  "resolutions": {
+    "@expo/config-plugins": "7.8.0"
   }
 }

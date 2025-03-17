@@ -4,6 +4,7 @@ import { WebView } from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
 import { COLORS, SIZES } from '../../constants/style';
 import { useWebviews } from '../../hooks/useWebviews';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component WebviewScreen
@@ -15,7 +16,7 @@ export default function WebviewScreen({
   url,
   onSettingsAccess,
 }) {
-
+  const { t } = useTranslation();
   // We check if the url is valid
   if (!url) {
     return (
