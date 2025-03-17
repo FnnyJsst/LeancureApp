@@ -14,31 +14,57 @@ import * as SecureStore from 'expo-secure-store';
  */
 export const loginApi = async (contractNumber, login, password, accessToken = '') => {
   try {
-    // Première requête pour la connexion
-    const loginResponse = await axios({
-      method: 'POST',
-      url: await ENV.API_URL(),
-      data: createApiRequest({
-        'accounts': {
-          'loginmsg': {
-            'get': {
-              'login': login,
-              'password': password,
-            },
+    console.log('🔵 Tentative de connexion avec:', { contractNumber, login });
+
+    // Créer la requête une seule fois
+    const requestData = createApiRequest({
+      'accounts': {
+        'loginmsg': {
+          'get': {
+            'login': login,
+            'password': password,
           },
         },
-      }, contractNumber, accessToken),
+      },
+    }, contractNumber, accessToken);
+
+    let apiUrl = await ENV.API_URL();
+    if (!apiUrl.endsWith('/ic.php')) {
+      apiUrl = `${apiUrl}/ic.php`;
+    }
+    console.log('🔵 URL de l\'API:', apiUrl);
+    console.log('🔵 Données envoyées:', JSON.stringify(requestData, null, 2));
+
+    // Utiliser requestData directement
+    const loginResponse = await axios({
+      method: 'POST',
+      url: apiUrl,
+      data: requestData,
       headers: {
         'Content-Type': 'application/json',
       },
       timeout: 10000,
+      validateStatus: function (status) {
+        console.log('🔵 Status reçu:', status);
+        return true; // accepte tous les status pour le debug
+      },
+      maxRedirects: 0, // désactive les redirections pour le debug
     });
 
-    if (!loginResponse.data?.cmd?.[0]?.accounts?.loginmsg?.get?.data) {
-      throw new Error('Invalid response format');
+    console.log('🔵 Login response détaillée:', JSON.stringify(loginResponse.data, null, 2));
+
+    if (!loginResponse.data?.cmd?.[0]?.accounts) {
+        throw new Error('Format de réponse invalide - données manquantes');
     }
 
-    const userData = loginResponse.data.cmd[0].accounts.loginmsg.get.data;
+    const accountsData = loginResponse.data.cmd[0].accounts;
+    console.log('🔵 Données du compte:', JSON.stringify(accountsData, null, 2));
+
+    if (!accountsData.loginmsg?.get?.data) {
+        throw new Error('Données de connexion manquantes dans la réponse');
+    }
+
+    const userData = accountsData.loginmsg.get.data;
     const accountApiKey = userData.accountapikey;
 
     // Deuxième requête pour obtenir les droits
@@ -101,10 +127,16 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
 
   } catch (error) {
     console.error('🔴 Error loginApi:', error);
+    console.error('🔴 Error details:', {
+        message: error.message,
+        code: error.code,
+        response: error.response,
+        request: error.request
+    });
     return {
-      status: 500,
-      success: false,
-      error: error.message,
+        status: 500,
+        success: false,
+        error: `${error.message} (${error.code || 'no code'})`,
     };
   }
 };

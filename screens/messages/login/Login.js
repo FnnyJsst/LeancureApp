@@ -75,6 +75,7 @@ export default function Login({ onNavigate, testID }) {
             }
 
             const loginResponse = await loginApi(contractNumber, login, password);
+            console.log('🔵 Réponse login:', loginResponse);
 
             if (loginResponse.success) {
                 // Save the new credentials in the SecureStore
@@ -93,6 +94,12 @@ export default function Login({ onNavigate, testID }) {
                 }
 
                 // Fetch the user channels
+                console.log('🔵 Récupération des canaux avec:', {
+                    contractNumber,
+                    login,
+                    accountApiKey: loginResponse.accountApiKey
+                });
+
                 const channelsResponse = await fetchUserChannels(
                     contractNumber,
                     login,
@@ -101,17 +108,20 @@ export default function Login({ onNavigate, testID }) {
                     loginResponse.accountApiKey
                 );
 
-                // Navigate to the chat screen if the channels are loaded
-                if (channelsResponse.status === 'ok') {
+                console.log('🔵 Réponse channels:', channelsResponse);
+
+                if (channelsResponse.status === 'ok' && channelsResponse.data?.private?.groups) {
                     onNavigate(SCREENS.CHAT);
                 } else {
-                    setError('Error loading channels');
+                    console.error('❌ Erreur channels:', channelsResponse);
+                    setError('Erreur lors du chargement des canaux: ' + (channelsResponse.message || 'Erreur inconnue'));
                 }
             } else {
-                setError('Invalid credentials');
+                setError('Identifiants invalides');
             }
         } catch (loginError) {
-            setError('Login failed');
+            console.error('🔴 Erreur login:', loginError);
+            setError('Échec de la connexion: ' + loginError.message);
         } finally {
             setIsLoading(false);
         }

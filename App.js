@@ -88,6 +88,7 @@ export default function App({ testID, initialScreen }) {
     handleSelectOption,
     navigateToChannelsList,
     navigateToWebview,
+    clearSecureStore,
   } = useWebviews(setCurrentScreen);
 
   // 5. Password hook
@@ -133,68 +134,70 @@ export default function App({ testID, initialScreen }) {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // 1. Initialiser i18n
         await initI18n();
-        console.log('i18n initialized');
+        console.log('✅ i18n initialisé');
         setIsI18nInitialized(true);
 
-        // 2. Charger les données du SecureStore
         try {
           await loadSelectedChannels();
           await loadTimeoutInterval();
 
-          // Vérifier la valeur de isMessagesHidden dans le SecureStore
-          const storedMessagesHidden = await SecureStore.getItemAsync('isMessagesHidden');
+          // Liste des écrans où on ne veut pas de redirection automatique
+          const intentionalScreens = [
+            SCREENS.COMMON_SETTINGS,
+            SCREENS.LOGIN,
+            SCREENS.WEBVIEW,
+            SCREENS.NO_URL,
+            SCREENS.CHAT
+          ];
 
-          if (storedMessagesHidden === null) {
-            // Première utilisation : messages visibles par défaut
-            await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(false));
-            setIsMessagesHidden(false);
-            setIsLoading(false);
-            navigate(SCREENS.APP_MENU);
-          } else {
-            // Valeur existante
-            const isHidden = JSON.parse(storedMessagesHidden);
-            setIsMessagesHidden(isHidden);
-            setIsLoading(false);
+          // Ne pas naviguer si on est sur un écran intentionnel
+          if (!intentionalScreens.includes(currentScreen)) {
+            const storedMessagesHidden = await SecureStore.getItemAsync('isMessagesHidden');
 
-            if (isHidden) {
-              // Si messages cachés, diriger vers WEBVIEW ou NO_URL
-              navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-            } else {
-              // Si messages visibles, diriger vers APP_MENU
+            if (storedMessagesHidden === null) {
+              await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(false));
+              setIsMessagesHidden(false);
+              setIsLoading(false);
               navigate(SCREENS.APP_MENU);
+            } else {
+              const isHidden = JSON.parse(storedMessagesHidden);
+              setIsMessagesHidden(isHidden);
+              setIsLoading(false);
+
+              if (isHidden) {
+                navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+              } else {
+                navigate(SCREENS.APP_MENU);
+              }
             }
+          } else {
+            // Si on est sur un écran intentionnel, juste mettre à jour l'état sans navigation
+            setIsLoading(false);
           }
 
         } catch (error) {
           if (error.message.includes('Could not decrypt')) {
-            await SecureStore.deleteItemAsync('selectedWebviews');
-            await SecureStore.deleteItemAsync('password');
-            await SecureStore.deleteItemAsync('isPasswordRequired');
-            await SecureStore.deleteItemAsync('refreshOption');
-            await SecureStore.deleteItemAsync('isReadOnly');
-            await SecureStore.deleteItemAsync('isMessagesHidden');
-
-            // En cas d'erreur de décryptage, réinitialiser à l'état par défaut
+            console.log('🔐 Erreur de décryptage dans App.js, nettoyage complet...');
+            await clearSecureStore();
             setIsMessagesHidden(false);
+            setIsLoading(false);
             navigate(SCREENS.APP_MENU);
           }
-          console.error('Erreur de chargement des données:', error);
         }
-
       } catch (error) {
-        console.error('Erreur d\'initialisation:', error);
+        console.error('❌ Erreur d\'initialisation:', error);
         setIsI18nInitialized(true);
         setIsLoading(false);
-        // En cas d'erreur générale, aller vers APP_MENU avec messages visibles
         setIsMessagesHidden(false);
-        navigate(SCREENS.APP_MENU);
+        if (!intentionalScreens.includes(currentScreen)) {
+          navigate(SCREENS.APP_MENU);
+        }
       }
     };
 
     initializeApp();
-  }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews]);
+  }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews, clearSecureStore, currentScreen]);
 
   // 8. Rendu conditionnel pour le ScreenSaver
   if (!fontsLoaded || !isI18nInitialized || isLoading) {
@@ -232,7 +235,6 @@ export default function App({ testID, initialScreen }) {
                 navigate(screen);
               }
             }}
-            // isV2={VERSION === 'v2'}
             testID="app-menu"
           />
         );

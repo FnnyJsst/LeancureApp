@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-const DEFAULT_API_URL = process.env.API_URL || 'http://172.20.10.3/ic.php';
+const DEFAULT_API_URL = process.env.API_URL || 'http://coucou/ic.php';
 
 if (!DEFAULT_API_URL) {
     console.warn('API_URL not found in environment variables, using default value');

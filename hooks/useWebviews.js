@@ -137,8 +137,10 @@ export function useWebviews(setCurrentScreen) {
         }
       }
     } catch (error) {
-      if (__DEV__) {
-        console.error('Failed to load channels', error);
+      console.error('❌ Erreur de chargement des canaux:', error);
+      if (error.message.includes('Could not decrypt')) {
+        console.log('🔐 Erreur de décryptage détectée, nettoyage...');
+        await clearSecureStore();
       }
     }
   }, [setSelectedWebviews, setWebviewUrl]);
@@ -230,6 +232,25 @@ export function useWebviews(setCurrentScreen) {
     loadRefreshOption();
   }, [loadSelectedChannels, loadPasswordFromSecureStore, loadRefreshOption]);
 
+  const clearSecureStore = async () => {
+    try {
+      console.log('🧹 Nettoyage du SecureStore...');
+      await SecureStore.deleteItemAsync('selectedWebviews');
+      await SecureStore.deleteItemAsync('refreshOption');
+      await SecureStore.deleteItemAsync('isReadOnly');
+      setSelectedWebviews([]);
+      setWebviewUrl('');
+      setRefreshOption('never');
+      setRefreshInterval(null);
+      setIsReadOnly(false);
+      console.log('✅ SecureStore nettoyé avec succès');
+      return true;
+    } catch (error) {
+      console.error('❌ Erreur lors du nettoyage:', error);
+      return false;
+    }
+  };
+
   return {
     channels,
     setChannels,
@@ -251,5 +272,6 @@ export function useWebviews(setCurrentScreen) {
     handleSelectOption,
     navigateToChannelsList,
     navigateToWebview,
+    clearSecureStore,
   };
 }

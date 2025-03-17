@@ -112,6 +112,7 @@ export default function AppMenu({ onNavigate, testID }) {
           <TouchableOpacity
             style={styles.settingsContainer}
             onPress={() => onNavigate(SCREENS.COMMON_SETTINGS)}
+            testID="settings-access-button"
           >
             <Ionicons
               name="settings-outline"

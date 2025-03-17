@@ -7,16 +7,16 @@ import { useTranslation } from 'react-i18next';
  * @function fetchUserChannels
  * @description Fetches the user's channels
  * @param {string} contractNumber - The contract number
+ * @param {string} login - The login (unused)
+ * @param {string} password - The password (unused)
  * @param {string} accessToken - The access token
+ * @param {string} accountApiKey - The account API key
  * @returns {Promise<Object>} - The user's channels
  */
-export const fetchUserChannels = async (contractNumber, accessToken = '', accountApiKey = '') => {
-
-  // We get the translation
-  const { t } = useTranslation();
-
+export const fetchUserChannels = async (contractNumber, login, password, accessToken = '', accountApiKey = '') => {
   try {
-    // We create the body of the request
+    console.log('🔵 Récupération des canaux pour:', { contractNumber, accountApiKey });
+
     const body = createApiRequest({
       'amaiia_msg_srv': {
         'client': {
@@ -24,8 +24,7 @@ export const fetchUserChannels = async (contractNumber, accessToken = '', accoun
             'accountinfos': {
               'accountapikey': accountApiKey,
             },
-            'returnmessages': true,
-            'returnimgsmin': true,
+            'returnmessages': false,
             'resultsperchannel': 0,
             'orderby': 'ASC'
           },
@@ -33,63 +32,66 @@ export const fetchUserChannels = async (contractNumber, accessToken = '', accoun
       },
     }, contractNumber, accessToken);
 
-    // We get the API URL
-    let apiUrl;
-    try {
-      apiUrl = await ENV.API_URL();
-    } catch (urlError) {
-      throw urlError;
+    let apiUrl = await ENV.API_URL();
+    if (!apiUrl.endsWith('/ic.php')) {
+      apiUrl = `${apiUrl}/ic.php`;
     }
 
-    try {
-      // We send the request to the API
-      const response = await axios({
-        method: 'POST',
-        url: apiUrl,
-        data: body,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 10000,
-      });
+    console.log('🔵 URL API pour les channels:', apiUrl);
 
-      const data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data;
+    const response = await axios({
+      method: 'POST',
+      url: apiUrl,
+      data: body,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: 10000,
+      validateStatus: function (status) {
+        console.log('🔵 Status reçu pour les channels:', status);
+        return true;
+      },
+    });
 
-      // We check if the data is valid
-      if (!data?.private?.groups) {
-        // If the data is not valid, we return an error
-        return { status: 'error', message: t('error.noGroupsFound') };
-      }
+    console.log('🔵 Réponse des channels:', JSON.stringify(response.data, null, 2));
 
-      const privateGroups = Object.entries(data.private.groups)
-        .map(([groupId, groupData]) => ({
-          id: groupId,
-          title: groupData.identifier || t('messages.GroupWithoutName'),
-          channels: Object.entries(groupData.channels || {})
-            .map(([channelId, channel]) => ({
-              id: channelId,
-              title: channel.identifier || channel.description || t('messages.ChannelWithoutName'),
-              unreadCount: 0,
-              groupId: groupId,
-            })),
-        }))
-        .filter(group => group.channels.length > 0);
+    const data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data;
 
-      return {
-        status: 'ok',
-        privateGroups,
-        publicChannels: [],
-        rawData: data,
-      };
-
-    } catch (axiosError) {
-      return { status: 'error', message: axiosError.message };
+    if (!data?.private?.groups) {
+      console.error('❌ Pas de groupes trouvés dans la réponse');
+      return { status: 'error', message: 'No groups found' };
     }
+
+    // Formater les groupes et canaux comme attendu par la Sidebar
+    const privateGroups = Object.entries(data.private.groups)
+      .map(([groupId, groupData]) => ({
+        id: groupId,
+        title: groupData.identifier || 'Groupe sans nom',
+        channels: Object.entries(groupData.channels || {})
+          .map(([channelId, channel]) => ({
+            id: channelId,
+            title: channel.identifier || channel.description || 'Canal sans nom',
+            unreadCount: 0,
+            groupId: groupId,
+          })),
+      }))
+      .filter(group => group.channels.length > 0);
+
+    return {
+      status: 'ok',
+      privateGroups: privateGroups,
+      publicChannels: [],
+      rawData: data
+    };
 
   } catch (error) {
-    return { status: 'error', message: error.message };
+    console.error('🔴 Error fetchUserChannels:', error);
+    return {
+      status: 'error',
+      message: error.message
+    };
   }
-};
+}
 
 /**
  * @function sendMessageApi
