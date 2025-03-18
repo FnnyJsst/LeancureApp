@@ -70,4 +70,17 @@ export const ENV = {
             throw error;
         }
     },
+
+    WS_URL: async () => {
+        try {
+            const customUrl = await SecureStore.getItemAsync('custom_ws_url');
+            if (customUrl) return customUrl;
+
+            // Utilisation de l'adresse IP locale de la machine de développement
+            return 'ws://192.168.1.67:8000';
+        } catch (error) {
+            console.error('Erreur lors de la récupération de l\'URL WebSocket:', error);
+            return 'ws://192.168.1.67:8000';
+        }
+    }
 };

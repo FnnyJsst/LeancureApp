@@ -33,7 +33,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       apiUrl = `${apiUrl}/ic.php`;
     }
     console.log('🔵 URL de l\'API:', apiUrl);
-    console.log('🔵 Données envoyées:', JSON.stringify(requestData, null, 2));
+    // console.log('🔵 Données envoyées:', JSON.stringify(requestData, null, 2));
 
     // Utiliser requestData directement
     const loginResponse = await axios({
@@ -58,7 +58,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     }
 
     const accountsData = loginResponse.data.cmd[0].accounts;
-    console.log('🔵 Données du compte:', JSON.stringify(accountsData, null, 2));
+    // console.log('🔵 Données du compte:', JSON.stringify(accountsData, null, 2));
 
     if (!accountsData.loginmsg?.get?.data) {
         throw new Error('Données de connexion manquantes dans la réponse');

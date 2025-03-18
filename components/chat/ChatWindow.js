@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import InputChatWindow from '../inputs/InputChatWindow';
@@ -7,6 +7,7 @@ import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as SecureStore from 'expo-secure-store';
 import { sendMessageApi, fetchMessageFile, deleteMessageApi } from '../../services/api/messageApi';
+import { useWebSocket } from '../../hooks/useWebSocket';
 import DateBanner from './DateBanner';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +27,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   const { isSmartphone } = useDeviceType();
   const scrollViewRef = useRef();
+  const updatingRef = useRef(false);
+  const previousMessagesRef = useRef([]);
 
   const [isDocumentPreviewModalVisible, setIsDocumentPreviewModalVisible] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState(null);
@@ -40,6 +43,118 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [isLoading, setIsLoading] = useState(true);
   const [editingMessage, setEditingMessage] = useState(null);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
+
+  // Fonction pour charger les messages
+  const loadMessages = useCallback(async () => {
+    if (!channel || !credentials) return;
+
+    try {
+      const channelMessages = await fetchMessageFile(channel.id, credentials);
+      setMessages(channelMessages);
+      onMessageSent && onMessageSent();
+    } catch (error) {
+      console.error('🔴 Erreur chargement messages:', error);
+      setError(t('errors.loadingMessages'));
+    }
+  }, [channel, credentials, onMessageSent]);
+
+  // Modifions la gestion des messages avec useRef
+  useEffect(() => {
+    if (channelMessages && !updatingRef.current) {
+      const messagesString = JSON.stringify(channelMessages);
+      const previousMessagesString = JSON.stringify(previousMessagesRef.current);
+
+      if (messagesString !== previousMessagesString) {
+        previousMessagesRef.current = channelMessages;
+        setMessages(channelMessages);
+      }
+    }
+  }, [channelMessages]);
+
+  // Gestion des fichiers optimisée
+  useEffect(() => {
+    if (!isLoading && credentials && channel && messages.length > 0 && !updatingRef.current) {
+      const messagesNeedingFiles = messages.filter(msg =>
+        msg.type === 'file' &&
+        !msg.base64 &&
+        msg.fileType &&
+        msg.fileType.toLowerCase() !== 'none'
+      );
+
+      if (messagesNeedingFiles.length === 0) return;
+
+      const loadFiles = async () => {
+        updatingRef.current = true;
+        const batchSize = 3;
+        const updatedMessages = [...messages];
+        let hasUpdates = false;
+
+        try {
+          for (let i = 0; i < messagesNeedingFiles.length; i += batchSize) {
+            const batch = messagesNeedingFiles.slice(i, i + batchSize);
+            await Promise.all(
+              batch.map(async (msg) => {
+                try {
+                  const base64 = await fetchMessageFile(msg.id, {
+                    channelid: parseInt(channel.id, 10),
+                    ...msg,
+                  }, credentials);
+
+                  const index = updatedMessages.findIndex(m => m.id === msg.id);
+                  if (index !== -1 && base64) {
+                    updatedMessages[index] = {
+                      ...updatedMessages[index],
+                      base64: base64,
+                      type: 'file',
+                    };
+                    hasUpdates = true;
+                  }
+                } catch (fileError) {
+                  console.error('Erreur chargement fichier:', fileError);
+                }
+              })
+            );
+          }
+
+          if (hasUpdates) {
+            setMessages(updatedMessages);
+          }
+        } finally {
+          updatingRef.current = false;
+        }
+      };
+
+      loadFiles();
+    }
+  }, [isLoading, credentials, channel, messages]);
+
+  // WebSocket simplifié
+  const handleWebSocketMessage = useCallback((data) => {
+    if (!updatingRef.current && data.notification?.filters?.values?.channel) {
+      const channelId = data.notification.filters.values.channel;
+      if (channelId.includes(channel?.id)) {
+        onMessageSent && onMessageSent();
+      }
+    }
+  }, [channel, onMessageSent]);
+
+  const handleWebSocketError = useCallback((error) => {
+    console.error('🔴 Erreur WebSocket:', error);
+  }, []);
+
+  // Initialisation WebSocket
+  const { closeConnection } = useWebSocket({
+    onMessage: handleWebSocketMessage,
+    onError: handleWebSocketError,
+    channels: channel ? [channel.id] : []
+  });
+
+  useEffect(() => {
+    return () => {
+      closeConnection();
+    };
+  }, [closeConnection]);
+
   /**
    * @function useEffect
    * @description We use the useEffect hook to update the messages when the channel messages change
@@ -67,51 +182,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
     loadUserData();
   }, []);
-
-  useEffect(() => {
-    if (!isLoading && channelMessages && credentials) {
-      const loadFiles = async () => {
-        const messagesNeedingFiles = channelMessages.filter(msg =>
-          msg.type === 'file' &&
-          !msg.base64 &&
-          msg.fileType &&
-          msg.fileType.toLowerCase() !== 'none'
-        );
-
-        const batchSize = 3;
-        const updatedMessages = [...channelMessages];
-
-        for (let i = 0; i < messagesNeedingFiles.length; i += batchSize) {
-          const batch = messagesNeedingFiles.slice(i, i + batchSize);
-          await Promise.all(
-            batch.map(async (msg) => {
-              try {
-                const base64 = await fetchMessageFile(msg.id, {
-                  channelid: parseInt(channel.id, 10),
-                  ...msg,
-                }, credentials);
-
-                const index = updatedMessages.findIndex(m => m.id === msg.id);
-                if (index !== -1 && base64) {
-                  updatedMessages[index] = {
-                    ...updatedMessages[index],
-                    base64: base64,
-                    type: 'file',
-                  };
-                }
-              } catch (fileError) {
-                console.error('Erreur chargement fichier:', fileError);
-              }
-            })
-          );
-        }
-
-        setMessages(updatedMessages);
-      };
-
-      loadFiles();
-    }
-  }, [channelMessages, credentials, channel, isLoading]);
 
   // Function to open the document preview modal
   const openDocumentPreviewModal = (message) => {
@@ -354,6 +424,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.gray950,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   noChannelContainer: {
     alignItems: 'center',
