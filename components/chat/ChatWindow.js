@@ -497,7 +497,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
           >
             {(() => {
-              // Si pas de messages, on retourne null
+              // If there are no messages, we return an empty message container
               if (!messages || messages.length === 0) {
                 return (
                   <View style={styles.emptyMessagesContainer}>
@@ -511,14 +511,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 );
               }
 
-              // Filtrer les messages invalides
-              const validMessages = messages.filter(message =>
-                message &&
-                (message.text || message.message || message.type === 'file')
-              );
-
               return validMessages.reduce((acc, message, index) => {
-                // Vérifier que le message est valide
+                // If the message is not valid, we return the accumulator
                 if (!message || (!message.text && !message.message && message.type !== 'file')) {
                   return acc;
                 }

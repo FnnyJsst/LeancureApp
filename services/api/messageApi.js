@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { ENV } from '../../config/env';
 import { createApiRequest, createSignature } from './baseApi';
-import { useTranslation } from 'react-i18next';
 
 /**
  * @function fetchUserChannels
