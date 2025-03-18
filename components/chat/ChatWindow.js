@@ -473,9 +473,34 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
           >
             {(() => {
-              return messages.reduce((acc, message, index) => {
+              // Si pas de messages, on retourne null
+              if (!messages || messages.length === 0) {
+                return (
+                  <View style={styles.emptyMessagesContainer}>
+                    <Text style={[
+                      styles.emptyMessagesText,
+                      isSmartphone && styles.emptyMessagesTextSmartphone
+                    ]}>
+                      {t('messages.noMessages')}
+                    </Text>
+                  </View>
+                );
+              }
+
+              // Filtrer les messages invalides
+              const validMessages = messages.filter(message =>
+                message &&
+                (message.text || message.message || message.type === 'file')
+              );
+
+              return validMessages.reduce((acc, message, index) => {
+                // Vérifier que le message est valide
+                if (!message || (!message.text && !message.message && message.type !== 'file')) {
+                  return acc;
+                }
+
                 const currentDate = formatDate(message.savedTimestamp);
-                const prevMessage = messages[index - 1];
+                const prevMessage = validMessages[index - 1];
                 const prevDate = prevMessage ? formatDate(prevMessage.savedTimestamp) : null;
 
                 if (currentDate !== prevDate) {
@@ -489,7 +514,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
                 acc.push(
                   <ChatMessage
-                    key={message.id}
+                    key={message.id || `temp-${index}`}
                     message={message}
                     isOwnMessage={message.isOwnMessage}
                     onFileClick={openDocumentPreviewModal}
@@ -567,5 +592,19 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     marginBottom: 10,
+  },
+  emptyMessagesContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  emptyMessagesText: {
+    color: COLORS.gray600,
+    fontSize: SIZES.fonts.textTablet,
+    textAlign: 'center',
+  },
+  emptyMessagesTextSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
   },
 });
