@@ -54,22 +54,9 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       onMessageSent && onMessageSent();
     } catch (error) {
       console.error('🔴 Erreur chargement messages:', error);
-      setError(t('errors.loadingMessages'));
+      // setError(t('errors.loadingMessages'));
     }
   }, [channel, credentials, onMessageSent]);
-
-  // Modifions la gestion des messages avec useRef
-  useEffect(() => {
-    if (channelMessages && !updatingRef.current) {
-      const messagesString = JSON.stringify(channelMessages);
-      const previousMessagesString = JSON.stringify(previousMessagesRef.current);
-
-      if (messagesString !== previousMessagesString) {
-        previousMessagesRef.current = channelMessages;
-        setMessages(channelMessages);
-      }
-    }
-  }, [channelMessages]);
 
   // Gestion des fichiers optimisée
   useEffect(() => {
@@ -128,26 +115,126 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     }
   }, [isLoading, credentials, channel, messages]);
 
+  // Chargement initial des messages
+  useEffect(() => {
+    if (channelMessages && channel && !updatingRef.current) {
+      console.log('📥 Chargement initial des messages du channel:', channel.id);
+      // On ne met à jour que si on n'a pas déjà des messages
+      if (messages.length === 0) {
+        setMessages(channelMessages);
+      }
+    }
+  }, [channelMessages, channel]);
+
   // WebSocket simplifié
   const handleWebSocketMessage = useCallback((data) => {
     if (!updatingRef.current && data.notification?.filters?.values?.channel) {
-      const channelId = data.notification.filters.values.channel;
-      if (channelId.includes(channel?.id)) {
-        onMessageSent && onMessageSent();
+      const receivedChannelId = parseInt(data.notification.filters.values.channel, 10);
+      const currentChannelId = channel ? parseInt(channel.id, 10) : null;
+
+      console.log('🌐 WebSocket - Message reçu:', {
+        channelRecu: receivedChannelId,
+        channelActuel: currentChannelId,
+        messageType: data.notification?.message?.type,
+        messageId: data.notification?.message?.id
+      });
+
+      // Vérification stricte du canal avec les IDs convertis en nombres
+      if (!currentChannelId || receivedChannelId !== currentChannelId) {
+        console.log('🚫 Message ignoré - Canal différent', {
+          recu: receivedChannelId,
+          actuel: currentChannelId
+        });
+        return;
       }
+
+      const newMessageData = data.notification.message;
+      if (!newMessageData || !newMessageData.id) {
+        console.log('🚫 Message ignoré - Données invalides');
+        return;
+      }
+
+      setMessages(prevMessages => {
+        // Vérifie si le message existe déjà
+        const messageExists = prevMessages.some(msg => msg.id === newMessageData.id);
+        if (messageExists) {
+          console.log('🚫 Message ignoré - Déjà existant');
+          return prevMessages;
+        }
+
+        // Cherche un message temporaire correspondant
+        const tempMessage = prevMessages.find(msg =>
+          msg.isTemp &&
+          ((msg.type === 'file' && msg.fileName === newMessageData.fileName) ||
+           (msg.type === 'text' && msg.text === (newMessageData.message?.message || newMessageData.message)))
+        );
+
+        if (tempMessage) {
+          console.log('🔄 Remplacement du message temporaire');
+          return prevMessages.map(msg =>
+            msg.id === tempMessage.id ? {
+              ...newMessageData,
+              id: newMessageData.id,
+              type: newMessageData.type || 'text',
+              text: newMessageData.message?.message || newMessageData.message,
+              message: newMessageData.message?.message || newMessageData.message,
+              savedTimestamp: newMessageData.savedTimestamp,
+              endTimestamp: newMessageData.endTimestamp,
+              fileType: newMessageData.fileType || 'none',
+              login: tempMessage.login,
+              isOwnMessage: true,
+              isUnread: false,
+              username: 'Me'
+            } : msg
+          );
+        }
+
+        // Ajout d'un nouveau message
+        console.log("➕ Ajout d'un nouveau message");
+        const messageContent = newMessageData.message?.message || newMessageData.message;
+        return [...prevMessages, {
+          ...newMessageData,
+          id: newMessageData.id,
+          type: newMessageData.type || 'text',
+          text: messageContent,
+          message: messageContent,
+          savedTimestamp: newMessageData.savedTimestamp,
+          endTimestamp: newMessageData.endTimestamp,
+          fileType: newMessageData.fileType || 'none',
+          login: newMessageData.login,
+          isOwnMessage: newMessageData.login === credentials?.login,
+          isUnread: false,
+          username: newMessageData.login === credentials?.login ? 'Me' : newMessageData.login
+        }];
+      });
     }
-  }, [channel, onMessageSent]);
+  }, [channel, credentials]);
 
   const handleWebSocketError = useCallback((error) => {
     console.error('🔴 Erreur WebSocket:', error);
   }, []);
 
-  // Initialisation WebSocket
+  // Initialisation WebSocket avec le canal actuel
   const { closeConnection } = useWebSocket({
     onMessage: handleWebSocketMessage,
     onError: handleWebSocketError,
-    channels: channel ? [channel.id] : []
+    channels: channel ? [`channel_${channel.id}`] : [], // Préfixe unique pour éviter les conflits
+    subscriptions: channel ? [{
+      type: 'channel',
+      id: channel.id
+    }] : []
   });
+
+  // Réinitialisation des messages lors du changement de canal
+  useEffect(() => {
+    if (channel) {
+      console.log('🔄 Changement de canal, réinitialisation des messages');
+      setMessages([]); // On vide les messages
+      if (channelMessages) {
+        setMessages(channelMessages); // On charge les nouveaux messages
+      }
+    }
+  }, [channel?.id]); // Dépendance sur l'ID du canal uniquement
 
   useEffect(() => {
     return () => {
@@ -207,93 +294,122 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @description We send a message to the channel
    * @param {Object} messageData - The message data
    */
-  const sendMessage = async (messageData) => {
+  const sendMessage = useCallback(async (messageData) => {
     try {
-      if (!messageData ||
-          (typeof messageData === 'string' && !messageData.trim()) ||
-          messageData === undefined) {
+      console.log('🔵 Début sendMessage - messageData reçu:', JSON.stringify(messageData, null, 2));
+
+      if (!channel) {
+        console.log('❌ Pas de channel sélectionné');
         return;
       }
 
-      // Si c'est une édition
-      if (messageData.isEditing) {
-        console.log('📝 Envoi du message édité:', messageData);
-        // TODO: Ajouter l'appel API pour modifier le message
-        // Pour l'instant, on met à jour localement
-        const updatedMessages = messages.map(msg =>
-          msg.id === messageData.messageId
-            ? { ...msg, text: messageData.text }
-            : msg
-        );
-        setMessages(updatedMessages);
-        setEditingMessage(null);
-        return;
+      // Vérification différente selon le type de message
+      if (messageData.type === 'file') {
+        if (!messageData.base64) {
+          console.log('❌ Fichier invalide');
+          return;
+        }
+      } else {
+        const messageText = typeof messageData === 'object' ? messageData.text : messageData;
+        if (!messageText || messageText.trim() === '') {
+          console.log('❌ Message texte vide ou invalide');
+          return;
+        }
       }
 
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       if (!credentialsStr) {
+        console.log('❌ Pas de credentials trouvés');
         setError(t('errors.noCredentialsFound'));
         return;
       }
 
       const userCredentials = JSON.parse(credentialsStr);
-      const response = await sendMessageApi(channel.id, messageData, userCredentials);
+      console.log('👤 Credentials utilisateur trouvés');
 
-      if (response.status === 'ok') {
-        const currentTimestamp = Date.now();
+      // Message temporaire avec un ID unique
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const tempMessage = messageData.type === 'file' ? {
+        id: tempId,
+        type: 'file',
+        fileName: messageData.fileName,
+        fileType: messageData.fileType,
+        fileSize: messageData.fileSize,
+        base64: messageData.base64,
+        uri: messageData.uri,
+        text: messageData.messageText,
+        savedTimestamp: Date.now(),
+        login: userCredentials.login,
+        isOwnMessage: true,
+        isUnread: false,
+        username: 'Me',
+        isTemp: true
+      } : {
+        id: tempId,
+        type: 'text',
+        text: typeof messageData === 'object' ? messageData.text : messageData,
+        message: typeof messageData === 'object' ? messageData.text : messageData,
+        savedTimestamp: Date.now(),
+        fileType: 'none',
+        login: userCredentials.login,
+        isOwnMessage: true,
+        isUnread: false,
+        username: 'Me',
+        isTemp: true
+      };
 
-        const newMessage = {
-          id: currentTimestamp,
-          type: typeof messageData === 'object' ? 'file' : 'text',
-          title: typeof messageData === 'string' ? messageData.substring(0, 50) : messageData.fileName,
-          message: messageData.details,
-          savedTimestamp: currentTimestamp,
-          endTimestamp: currentTimestamp + 99999,
-          fileType: typeof messageData === 'object' ? messageData.fileType.toLowerCase() : 'none',
-          login: userCredentials.login,
-          isOwnMessage: true,
-          isUnread: false,
-          username: 'Me',
-          ...(typeof messageData === 'object' && {
-            fileName: messageData.fileName,
-            fileSize: messageData.fileSize,
-            base64: messageData.base64,
-            uri: messageData.uri,
-            messageText: messageData.messageText,
-          }),
-        };
+      console.log('📝 Message temporaire créé:', JSON.stringify(tempMessage, null, 2));
 
-        if (typeof onMessageSent === 'function') {
-          onMessageSent(newMessage);
-        }
+      // Ajout du message temporaire
+      setMessages(prevMessages => [...prevMessages, tempMessage]);
+
+      // Envoi du message
+      const messageToSend = messageData.type === 'file' ? messageData : {
+        type: 'text',
+        message: typeof messageData === 'object' ? messageData.text : messageData
+      };
+
+      console.log('📤 Message à envoyer à l\'API:', JSON.stringify(messageToSend, null, 2));
+      const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
+      console.log('📥 Réponse de l\'API:', JSON.stringify(response, null, 2));
+
+      if (response.status !== 'ok') {
+        console.log('❌ Erreur API, suppression du message temporaire');
+        setMessages(prevMessages =>
+          prevMessages.filter(msg => msg.id !== tempId)
+        );
+        setError(t('errors.errorSendingMessage'));
+      } else {
+        console.log('✅ Message envoyé avec succès, attente du WebSocket');
       }
     } catch (error) {
-      setError(`${t('errors.errorSendingMessage')} ${error.message}`);
+      console.error('🔴 Erreur dans sendMessage:', error);
+      setError(t('errors.errorSendingMessage'));
     }
-  };
+  }, [channel, t, setError]);
 
   const handleDeleteMessage = async (messageId) => {
+    const messageToDelete = messages.find(msg => msg.id === messageId);
+    const hasDeleteRights = userRights === "3";
+    const isOwnMessage = messageToDelete?.isOwnMessage;
+
+    if (!hasDeleteRights && !isOwnMessage) {
+      setError(t('errors.noDeletePermission'));
+      return;
+    }
+
     try {
-      // Vérifier si l'utilisateur a les droits de suppression (3) ou si c'est son propre message
-      const messageToDelete = messages.find(msg => msg.id === messageId);
-      const hasDeleteRights = userRights === "3";
-      const isOwnMessage = messageToDelete?.isOwnMessage;
-
-
-      if (!hasDeleteRights && !isOwnMessage) {
-        setError(t('errors.noDeletePermission'));
-        return;
-      }
-
       const response = await deleteMessageApi(messageId, credentials);
 
       if (response.status === 'ok') {
         const updatedMessages = messages.filter(msg => msg.id !== messageId);
         setMessages(updatedMessages);
+      } else {
+        setError(t('errors.errorDeletingMessage'));
       }
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
-      setError(`${t('errors.errorDeletingMessage')} ${error.message}`);
+      setError(t('errors.errorDeletingMessage'));
     }
   };
 

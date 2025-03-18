@@ -28,18 +28,17 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
   /**
    * @function useEffect
-   * @description Fetches the channel data and refreshes it every 5 seconds to ensure the user sees the new messages
+   * @description Charge les messages initiaux du canal
    */
   useEffect(() => {
     let isMounted = true;
-    let refreshInterval;
 
     const fetchMessages = async () => {
       try {
-        if (!isMounted || !selectedChannel) {return;}
+        if (!isMounted || !selectedChannel) return;
 
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-        if (!credentialsStr) {return;}
+        if (!credentialsStr) return;
 
         const credentials = JSON.parse(credentialsStr);
         const messages = await fetchChannelMessages(selectedChannel.id, credentials);
@@ -49,7 +48,9 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
           return;
         }
 
-        setChannelMessages(messages);
+        if (isMounted) {
+          setChannelMessages(messages);
+        }
       } catch (error) {
         if (__DEV__) {
           console.error('🔴 Error fetching messages:', error);
@@ -59,13 +60,9 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     };
 
     fetchMessages();
-    refreshInterval = setInterval(fetchMessages, 5000);
 
     return () => {
       isMounted = false;
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-      }
     };
   }, [selectedChannel]);
 
@@ -97,24 +94,8 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    */
   const handleNewMessage = async (message) => {
     try {
-      console.log('🏆 PARENT - Message reçu, rafraîchissement prévu');
-
-      // Ne plus envoyer à l'API, car ChatWindow.js l'a déjà fait
-      // On se contente de rafraîchir la liste des messages
-
-      setTimeout(async () => {
-        const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-        if (!credentialsStr || !selectedChannel) {
-          console.log('❌ Missing credentials or selectedChannel');
-          return;
-        }
-
-        const credentials = JSON.parse(credentialsStr);
-        console.log('🏆 PARENT - Rafraîchissement des messages');
-        const updatedMessages = await fetchChannelMessages(selectedChannel.id, credentials);
-        setChannelMessages(updatedMessages);
-      }, 1000);
-
+      console.log('🏆 PARENT - Message reçu');
+      // Ne rien faire car ChatWindow.js gère déjà tout
     } catch (error) {
       console.error('Error handling message:', error);
     }
@@ -163,8 +144,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
           messages={channelMessages}
           isExpanded={isExpanded}
           onInputFocusChange={handleInputFocusChange}
-          onMessageSent={handleNewMessage
-          }
+          onMessageSent={handleNewMessage}
         />
       </View>
     </View>

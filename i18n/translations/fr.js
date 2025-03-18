@@ -209,6 +209,7 @@ export default {
     errorLoadingPassword: "Erreur lors du chargement du mot de passe",
     incorrectPassword: "Mot de passe incorrect",
     errorCleaningPassword: "Erreur lors du nettoyage du mot de passe",
+    errorDeletingMessage: "Erreur lors de la suppression du message",
     incorrectPassword: "Mot de passe incorrect",
     noGroupsFound: "Aucun groupe trouvé",
     serverError: "Erreur serveur",

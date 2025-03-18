@@ -221,7 +221,7 @@ export const deleteMessageApi = async (messageId, userCredentials) => {
     if (response.status === 200) {
       return {
         status: 'ok',
-        message: t('success.messageDeleted')
+        // message: t('success.messageDeleted')
       };
     }
 
