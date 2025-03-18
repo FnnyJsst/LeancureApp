@@ -15,8 +15,8 @@ import { useTranslation } from 'react-i18next';
  */
 export const fetchUserChannels = async (contractNumber, login, password, accessToken = '', accountApiKey = '') => {
   try {
-    console.log('🔵 Récupération des canaux pour:', { contractNumber, accountApiKey });
 
+    // We create the body of the request
     const body = createApiRequest({
       'amaiia_msg_srv': {
         'client': {
@@ -32,13 +32,13 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
       },
     }, contractNumber, accessToken);
 
+    // We get the API URL and add the ic.php if it is not already there
     let apiUrl = await ENV.API_URL();
     if (!apiUrl.endsWith('/ic.php')) {
       apiUrl = `${apiUrl}/ic.php`;
     }
 
-    console.log('🔵 URL API pour les channels:', apiUrl);
-
+    // We send the request to the API
     const response = await axios({
       method: 'POST',
       url: apiUrl,
@@ -48,29 +48,29 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
       },
       timeout: 10000,
       validateStatus: function (status) {
-        console.log('🔵 Status reçu pour les channels:', status);
         return true;
       },
     });
 
-    console.log('🔵 Réponse des channels:', JSON.stringify(response.data, null, 2));
-
+    // We get the data of the response
     const data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data;
 
+    // We check if the data is valid
     if (!data?.private?.groups) {
+      // If the data is not valid, we throw an error
       console.error('❌ Pas de groupes trouvés dans la réponse');
       return { status: 'error', message: 'No groups found' };
     }
 
-    // Formater les groupes et canaux comme attendu par la Sidebar
+    // We format the groups and channels as expected by the Sidebar
     const privateGroups = Object.entries(data.private.groups)
       .map(([groupId, groupData]) => ({
         id: groupId,
-        title: groupData.identifier || 'Groupe sans nom',
+        title: groupData.identifier || t('titles.noGroupName'),
         channels: Object.entries(groupData.channels || {})
           .map(([channelId, channel]) => ({
             id: channelId,
-            title: channel.identifier || channel.description || 'Canal sans nom',
+            title: channel.identifier || channel.description || t('titles.noNameChannel'),
             unreadCount: 0,
             groupId: groupId,
           })),
@@ -152,9 +152,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
 
     // We check if the response is valid
     if (response.status === 200) {
-      // We check if the response contains a PHP error
       if (typeof response.data === 'string' && response.data.includes('xdebug-error')) {
-        // If it does, we throw an error
         throw new Error(t('error.serverError'));
       }
 

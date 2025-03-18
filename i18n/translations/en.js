@@ -159,6 +159,8 @@ export default {
     app: "App",
     signIn: "Sign in to your account",
     welcomeBack: "Welcome back",
+    noNameGroup: "Group without name",
+    noNameChannel: "Channel without name",
   },
 
   settings: {
@@ -213,6 +215,19 @@ export default {
     messageNotSaved: "Message not saved",
     messageNotDeleted: "Message not deleted",
     messageFileNotFound: "Message file not found",
+    errorFetchingMessages: "Error fetching messages",
+    webSocketNotConnected: "WebSocket not connected",
+    errorSendingSubscription: "Error sending subscription",
+    webSocketUrlNotDefined: "WebSocket URL not defined",
+    errorParsingMessage: "Error parsing message",
+    errorWebSocket: "Error WebSocket",
+    errorLoadingUserData: "Error loading user data",
+    noChannelSelected: "No channel selected",
+    invalidFile: "Invalid file",
+    invalidMessageText: "Invalid message text",
+    noCredentialsFound: "No credentials found",
+    noDeletePermission: "You do not have permission to delete this message",
+
   },
   success: {
     messageDeleted: "Message deleted successfully",

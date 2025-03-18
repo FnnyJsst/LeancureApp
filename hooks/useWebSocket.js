@@ -1,30 +1,38 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { ENV } from '../config/env';
+import { useTranslation } from 'react-i18next';
 
 /**
- * Hook personnalisé pour gérer les connexions WebSocket
- * @param {Object} options - Options de configuration
- * @param {Function} options.onMessage - Callback appelé quand un message est reçu
- * @param {Function} options.onError - Callback appelé en cas d'erreur
- * @param {Array} options.channels - Liste des canaux à surveiller
- * @param {Array} options.subscriptions - Liste des souscriptions à envoyer
- * @returns {Object} - Méthodes pour interagir avec le WebSocket
+ * Personalized hook to handle WebSocket connections
+ * @param {Object} options - Configuration options
+ * @param {Function} options.onMessage - Callback called when a message is received
+ * @param {Function} options.onError - Callback called in case of error
+ * @param {Array} options.channels - List of channels to monitor
+ * @param {Array} options.subscriptions - List of subscriptions to send
+ * @returns {Object} - Methods to interact with the WebSocket
  */
 export const useWebSocket = ({ onMessage, onError, channels = [], subscriptions = [] }) => {
+    //
     const ws = useRef(null);
     const reconnectTimeout = useRef(null);
     const isConnecting = useRef(false);
     const isSubscribed = useRef(false);
 
+    // Translation
+    const { t } = useTranslation();
+
     /**
-     * Envoie les données de souscription au serveur
+     * @function sendSubscription
+     * @description Send the subscription data to the server
      */
     const sendSubscription = useCallback(() => {
+        // Check if the WebSocket is connected
         if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
-            console.log('🔸 WebSocket non connecté, impossible d\'envoyer la souscription');
-            return;
+            // console.log('🔸 WebSocket non connecté, impossible d\'envoyer la souscription');
+            throw new Error(t('errors.webSocketNotConnected'));
         }
 
+        // Prepare the subscription data
         const subscriptionData = {
             sender: "client",
             subscriptions: subscriptions.length > 0 ? subscriptions : [
@@ -41,19 +49,22 @@ export const useWebSocket = ({ onMessage, onError, channels = [], subscriptions 
         };
 
         try {
+            // Send the subscription data to the server
             ws.current.send(JSON.stringify(subscriptionData));
             isSubscribed.current = true;
-            console.log('🔵 Souscription WebSocket envoyée:', JSON.stringify(subscriptionData));
+            // console.log('🔵 Souscription WebSocket envoyée:', JSON.stringify(subscriptionData));
         } catch (error) {
-            console.error('🔴 Erreur lors de l\'envoi de la souscription:', error);
-            onError && onError(error);
+            // console.error('🔴 Erreur lors de l\'envoi de la souscription:', error);
+            throw new Error(t('errors.errorSendingSubscription'), error);
         }
     }, [channels, subscriptions, onError]);
 
     /**
-     * Initialise la connexion WebSocket
+     * @function initializeWebSocket
+     * @description Initialize the WebSocket connection
      */
     const initializeWebSocket = useCallback(async () => {
+        // Check if the WebSocket is already connecting or open
         if (isConnecting.current || (ws.current && ws.current.readyState === WebSocket.OPEN)) {
             return;
         }
@@ -62,64 +73,74 @@ export const useWebSocket = ({ onMessage, onError, channels = [], subscriptions 
         isSubscribed.current = false;
 
         try {
+            // Get the WebSocket URL
             const wsUrl = await ENV.WS_URL();
             if (!wsUrl) {
-                throw new Error('URL WebSocket non définie');
+                throw new Error(t('errors.webSocketUrlNotDefined'));
             }
 
+            // Close the current WebSocket connection if it exists
             if (ws.current) {
                 ws.current.close();
                 ws.current = null;
             }
 
+            // Create a new WebSocket connection
             ws.current = new WebSocket(wsUrl);
 
+            // Handle the WebSocket connection open event
             ws.current.onopen = () => {
-                console.log('🔵 Connexion WebSocket établie');
+                // console.log('🔵 Connexion WebSocket établie');
                 isConnecting.current = false;
                 sendSubscription();
             };
 
+            // Handle the WebSocket connection message event
             ws.current.onmessage = (event) => {
+                // Parse the message data
                 try {
                     const data = JSON.parse(event.data);
                     if (data.type === 'refreshcontent') {
                         onMessage && onMessage(data);
                     }
                 } catch (error) {
-                    console.error('🔴 Erreur parsing message WebSocket:', error);
+                    throw new Error(t('errors.errorParsingMessage'), error);
                 }
             };
 
+            // Handle the WebSocket connection error event
             ws.current.onerror = (error) => {
-                console.error('🔴 Erreur WebSocket:', error);
                 isConnecting.current = false;
-                onError && onError(error);
+                throw new Error(t('errors.errorWebSocket'), error);
             };
 
+            // Handle the WebSocket connection close event
             ws.current.onclose = () => {
-                console.log('🔸 Connexion WebSocket fermée');
+                // console.log('🔸 Connexion WebSocket fermée');
                 isConnecting.current = false;
                 isSubscribed.current = false;
 
+                // Clear the reconnect timeout if it exists
                 if (reconnectTimeout.current) {
                     clearTimeout(reconnectTimeout.current);
                 }
 
                 reconnectTimeout.current = setTimeout(() => {
-                    console.log('🔄 Tentative de reconnexion WebSocket...');
+                    // console.log('🔄 Tentative de reconnexion WebSocket...');
                     initializeWebSocket();
                 }, 5000);
             };
 
         } catch (error) {
-            console.error('🔴 Erreur initialisation WebSocket:', error);
             isConnecting.current = false;
-            onError && onError(error);
+            throw new Error(t('errors.errorWebSocket'), error);
         }
     }, [sendSubscription, onMessage, onError]);
 
-    // Initialisation de la connexion
+    /**
+     * @function useEffect
+     * @description Initialize the WebSocket connection
+     */
     useEffect(() => {
         initializeWebSocket();
 
@@ -135,19 +156,25 @@ export const useWebSocket = ({ onMessage, onError, channels = [], subscriptions 
         };
     }, [initializeWebSocket]);
 
-    // Mise à jour des souscriptions quand les canaux changent
+    /**
+     * @function useEffect
+     * @description Update the subscriptions when the channels change
+     */
     useEffect(() => {
+        // Check if the WebSocket is connected and the subscriptions are not already sent
         if (ws.current && ws.current.readyState === WebSocket.OPEN && !isSubscribed.current) {
             sendSubscription();
         }
     }, [channels, subscriptions, sendSubscription]);
 
     return {
+        // Send a message to the WebSocket
         sendMessage: (message) => {
             if (ws.current && ws.current.readyState === WebSocket.OPEN) {
                 ws.current.send(JSON.stringify(message));
             }
         },
+        // Close the WebSocket connection
         closeConnection: () => {
             if (reconnectTimeout.current) {
                 clearTimeout(reconnectTimeout.current);

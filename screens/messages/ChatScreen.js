@@ -5,7 +5,7 @@ import ChatWindow from '../../components/chat/ChatWindow';
 import Header from '../../components/Header';
 import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../../services/api/messageApi';
-import { sendMessageApi } from '../../services/api/messageApi';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component ChatScreen
@@ -16,6 +16,8 @@ import { sendMessageApi } from '../../services/api/messageApi';
  * @param {Function} handleChatLogout - A function to handle logout
  */
 export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, handleChatLogout, testID }) {
+
+  const { t } = useTranslation();
 
   // States related to the chat
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -28,39 +30,51 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
   /**
    * @function useEffect
-   * @description Charge les messages initiaux du canal
+   * @description Loads the initial messages of the channel
    */
   useEffect(() => {
+    // Check if the component is mounted
     let isMounted = true;
 
+    // Fetch messages from the channel
     const fetchMessages = async () => {
       try {
+        // If the component is not mounted or the channel is not selected, we don't fetch messages
         if (!isMounted || !selectedChannel) return;
 
+        // Get the user credentials
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         if (!credentialsStr) return;
 
+        // Parse the credentials
         const credentials = JSON.parse(credentialsStr);
+
+        // Fetch the messages
         const messages = await fetchChannelMessages(selectedChannel.id, credentials);
 
+        // If there are no messages, we set the channel messages to an empty array
         if (!messages || messages.length === 0) {
           setChannelMessages([]);
           return;
         }
 
+        // If the component is mounted, we set the channel messages
         if (isMounted) {
           setChannelMessages(messages);
         }
       } catch (error) {
+        // If there is an error, we set the channel messages to an empty array
         if (__DEV__) {
-          console.error('🔴 Error fetching messages:', error);
+          throw new Error(t('errors.errorFetchingMessages'), error);
         }
         setChannelMessages([]);
       }
     };
 
+    // Fetch the messages
     fetchMessages();
 
+    // Return a cleanup function
     return () => {
       isMounted = false;
     };
@@ -87,19 +101,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     setSelectedChannel(channel);
   };
 
-  /**
-   * @function handleNewMessage
-   * @description Handles the new message sent by the user
-   * @param {string} message - The message to handle
-   */
-  const handleNewMessage = async (message) => {
-    try {
-      console.log('🏆 PARENT - Message reçu');
-      // Ne rien faire car ChatWindow.js gère déjà tout
-    } catch (error) {
-      console.error('Error handling message:', error);
-    }
-  };
 
   /**
    * @function handleInputFocusChange
@@ -144,7 +145,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
           messages={channelMessages}
           isExpanded={isExpanded}
           onInputFocusChange={handleInputFocusChange}
-          onMessageSent={handleNewMessage}
         />
       </View>
     </View>

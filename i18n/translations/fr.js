@@ -160,6 +160,8 @@ export default {
     security: "Sécurité",
     signIn: "Connectez-vous à votre compte",
     welcomeBack: "Bienvenue",
+    noNameGroup: "Groupe sans nom",
+    noNameChannel: "Canal sans nom",
   },
 
   settings: {
@@ -216,6 +218,18 @@ export default {
     messageNotSaved: "Message non enregistré",
     messageNotDeleted: "Message non supprimé",
     messageFileNotFound: "Fichier non trouvé",
+    errorFetchingMessages: "Erreur lors du chargement des messages",
+    webSocketNotConnected: "WebSocket non connecté",
+    errorSendingSubscription: "Erreur lors de l'envoi de la souscription",
+    webSocketUrlNotDefined: "URL WebSocket non définie",
+    errorParsingMessage: "Erreur lors de la lecture du message",
+    errorWebSocket: "Erreur WebSocket",
+    errorLoadingUserData: "Erreur lors du chargement des données de l'utilisateur",
+    noChannelSelected: "Aucun canal sélectionné",
+    invalidFile: "Fichier invalide",
+    invalidMessageText: "Message texte invalide",
+    noCredentialsFound: "Aucune information de connexion trouvée",
+    noDeletePermission: "Vous n'avez pas les droits pour supprimer ce message",
   },
   success: {
     messageDeleted: "Message supprimé avec succès",
