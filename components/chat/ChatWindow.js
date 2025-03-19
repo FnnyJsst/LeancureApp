@@ -122,13 +122,13 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @description Load the initial messages of the channel
    */
   useEffect(() => {
-    if (channelMessages && channel && !updatingRef.current) {
-      // We load the messages only if there are no messages
-      if (messages.length === 0) {
+    if (channel && channelMessages) {
+      // On met à jour les messages uniquement si on en a de nouveaux
+      if (channelMessages.length > 0) {
         setMessages(channelMessages);
       }
     }
-  }, [channelMessages, channel]);
+  }, [channel?.id, channelMessages]);
 
   /**
    * @function handleWebSocketMessage
@@ -136,79 +136,107 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @param {Object} data - The data of the message
    */
   const handleWebSocketMessage = useCallback((data) => {
-    // We check if the message is for the current channel
-    if (!updatingRef.current && data.notification?.filters?.values?.channel) {
-      // We get the received channel ID
-      const receivedChannelId = parseInt(data.notification.filters.values.channel, 10);
-      // We get the current channel ID
-      const currentChannelId = channel ? parseInt(channel.id, 10) : null;
+    console.log('🔍 Message WebSocket reçu dans handleWebSocketMessage:', JSON.stringify(data, null, 2));
 
-      // If the channel is not the current channel, we ignore the message
-      if (!currentChannelId || receivedChannelId !== currentChannelId) {
-        return;
-      }
+    // Si le message est au format notification directe
+    if (data.type === 'notification' || data.type === 'message') {
+        console.log('📩 Message au format notification directe');
+        const channelId = data.filters?.values?.channel;
+        const currentChannelId = channel ? channel.id.toString() : null;
 
-      // We get the new message data
-      const newMessageData = data.notification.message;
-      // If the message data is invalid, we ignore the message
-      if (!newMessageData || !newMessageData.id) {
-        return;
-      }
+        console.log('Comparaison des canaux:', {
+            reçu: channelId,
+            actuel: currentChannelId
+        });
 
-      // We update the messages
-      setMessages(prevMessages => {
-        // We check if the message already exists
-        const messageExists = prevMessages.some(msg => msg.id === newMessageData.id);
-        // If the message exists, we ignore the message
-        if (messageExists) {
-          return prevMessages;
+        if (!currentChannelId || channelId !== currentChannelId) {
+            console.log('❌ Canal non correspondant, message ignoré');
+            return;
         }
 
-        // We search for a temporary message corresponding to the new message
-        const tempMessage = prevMessages.find(msg =>
-          msg.isTemp &&
-          ((msg.type === 'file' && msg.fileName === newMessageData.fileName) ||
-           (msg.type === 'text' && msg.text === (newMessageData.message?.message || newMessageData.message)))
-        );
-
-        // If the temporary message exists, we replace it
-        if (tempMessage) {
-          return prevMessages.map(msg =>
-            msg.id === tempMessage.id ? {
-              ...newMessageData,
-              id: newMessageData.id,
-              type: newMessageData.type || 'text',
-              text: newMessageData.message?.message || newMessageData.message,
-              message: newMessageData.message?.message || newMessageData.message,
-              savedTimestamp: newMessageData.savedTimestamp,
-              endTimestamp: newMessageData.endTimestamp,
-              fileType: newMessageData.fileType || 'none',
-              login: tempMessage.login,
-              isOwnMessage: true,
-              isUnread: false,
-              username: 'Me'
-            } : msg
-          );
+        const messageContent = data.message;
+        if (!messageContent) {
+            console.log('❌ Pas de contenu de message');
+            return;
         }
 
-        // We add a new message
-        const messageContent = newMessageData.message?.message || newMessageData.message;
-        return [...prevMessages, {
-          ...newMessageData,
-          id: newMessageData.id,
-          type: newMessageData.type || 'text',
-          text: messageContent,
-          message: messageContent,
-          savedTimestamp: newMessageData.savedTimestamp,
-          endTimestamp: newMessageData.endTimestamp,
-          fileType: newMessageData.fileType || 'none',
-          login: newMessageData.login,
-          isOwnMessage: newMessageData.login === credentials?.login,
-          isUnread: false,
-          username: newMessageData.login === credentials?.login ? 'Me' : newMessageData.login
-        }];
-      });
+        console.log('✨ Création du nouveau message');
+        setMessages(prevMessages => {
+            const messageExists = prevMessages.some(msg => msg.id === messageContent.id);
+            if (messageExists) {
+                console.log('⚠️ Message déjà existant');
+                return prevMessages;
+            }
+
+            const newMessage = {
+                id: messageContent.id || Date.now().toString(),
+                type: messageContent.type || 'text',
+                text: messageContent.message,
+                message: messageContent.message,
+                savedTimestamp: messageContent.savedTimestamp || Date.now().toString(),
+                fileType: messageContent.fileType || 'none',
+                login: messageContent.login || 'unknown',
+                isOwnMessage: messageContent.login === credentials?.login,
+                isUnread: false,
+                username: messageContent.login === credentials?.login ? 'Me' : messageContent.login || 'Unknown'
+            };
+
+            console.log('✅ Nouveau message créé:', newMessage);
+            return [...prevMessages, newMessage];
+        });
+        return;
     }
+
+    // Si le message est au format notification imbriquée
+    if (data.notification) {
+        console.log('📩 Message au format notification imbriquée');
+        const channelId = data.notification.filters?.values?.channel;
+        const currentChannelId = channel ? channel.id.toString() : null;
+
+        console.log('Comparaison des canaux:', {
+            reçu: channelId,
+            actuel: currentChannelId
+        });
+
+        if (!currentChannelId || channelId !== currentChannelId) {
+            console.log('❌ Canal non correspondant, message ignoré');
+            return;
+        }
+
+        const messageContent = data.notification.message;
+        if (!messageContent) {
+            console.log('❌ Pas de contenu de message');
+            return;
+        }
+
+        console.log('✨ Création du nouveau message');
+        setMessages(prevMessages => {
+            const messageExists = prevMessages.some(msg => msg.id === messageContent.id);
+            if (messageExists) {
+                console.log('⚠️ Message déjà existant');
+                return prevMessages;
+            }
+
+            const newMessage = {
+                id: messageContent.id || Date.now().toString(),
+                type: messageContent.type || 'text',
+                text: messageContent.message,
+                message: messageContent.message,
+                savedTimestamp: messageContent.savedTimestamp || Date.now().toString(),
+                fileType: messageContent.fileType || 'none',
+                login: messageContent.login || data.sender || 'unknown',
+                isOwnMessage: (messageContent.login || data.sender) === credentials?.login,
+                isUnread: false,
+                username: (messageContent.login || data.sender) === credentials?.login ? 'Me' : (messageContent.login || data.sender || 'Unknown')
+            };
+
+            console.log('✅ Nouveau message créé:', newMessage);
+            return [...prevMessages, newMessage];
+        });
+        return;
+    }
+
+    console.log('⚠️ Format de message non reconnu:', data);
   }, [channel, credentials]);
 
   /**
