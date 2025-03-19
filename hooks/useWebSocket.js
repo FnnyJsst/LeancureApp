@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { ENV } from '../config/env';
 import { useTranslation } from 'react-i18next';
 import * as SecureStore from 'expo-secure-store';
+import { fetchChannelMessages } from '../services/api/messageApi';
 
 /**
  * Personalized hook to handle WebSocket connections
@@ -41,18 +42,20 @@ export const useWebSocket = ({ onMessage, onError, channels = [], subscriptions 
         if (!ws.current || ws.current.readyState !== WebSocket.OPEN || !channels.length) {
             console.log('❌ Impossible d\'envoyer la souscription:', {
                 wsExists: !!ws.current,
-                readyState: ws.current?.readyState,
+                wsState: ws.current?.readyState,
                 channelsLength: channels.length,
                 channels: channels
             });
             return;
         }
 
-        const cleanId = typeof channels[0] === 'string' ?
-            channels[0].replace('channel_', '') :
-            channels[0].toString();
+        const cleanChannels = channels.map(channel =>
+            typeof channel === 'string' ?
+                channel.replace('channel_', '') :
+                channel.toString()
+        );
 
-        console.log('📢 Envoi de la souscription pour le canal:', cleanId);
+        console.log('📢 Envoi de la souscription pour les canaux:', cleanChannels);
 
         try {
             const credentialsStr = await SecureStore.getItemAsync('userCredentials');
@@ -62,17 +65,15 @@ export const useWebSocket = ({ onMessage, onError, channels = [], subscriptions 
 
             const credentials = JSON.parse(credentialsStr);
 
-            const timestamp = Date.now();
             const subscriptionData = {
-                "package": "amaiia_msg_srv",
-                "page": "message",
-                "cmd": [
+                "sender": "client",
+                "subscriptions": [
                     {
-                        "amaiia_msg_srv": {
-                            "message": {
-                                "subscribe": {
-                                    "channelid": parseInt(cleanId, 10)
-                                }
+                        "package": "amaiia_messages",
+                        "page": "message_reader",
+                        "filters": {
+                            "values": {
+                                "channel": cleanChannels
                             }
                         }
                     }
@@ -166,6 +167,14 @@ export const useWebSocket = ({ onMessage, onError, channels = [], subscriptions 
                 try {
                     const data = JSON.parse(event.data);
                     console.log('📩 Message parsé:', JSON.stringify(data, null, 2));
+
+                    // Gestion spécifique du type refreshcontent
+                    if (data.type === 'refreshcontent') {
+                        console.log('🔄 Rafraîchissement du contenu demandé');
+                        refreshMessages();
+                        return;
+                    }
+
                     if (data && typeof data === 'object' && onMessage) {
                         console.log('✅ Transmission du message au gestionnaire');
                         onMessage(data);
@@ -235,6 +244,62 @@ export const useWebSocket = ({ onMessage, onError, channels = [], subscriptions 
             cleanup();
         };
     }, [cleanup]);
+
+    const refreshMessages = useCallback(async () => {
+        if (!channels.length) {
+            console.log('❌ Impossible de rafraîchir les messages: aucun canal sélectionné');
+            return;
+        }
+
+        try {
+            const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+            if (!credentialsStr) {
+                throw new Error('Pas de credentials trouvés dans SecureStore');
+            }
+
+            const credentials = JSON.parse(credentialsStr);
+            const cleanChannelId = activeChannel.current?.replace('channel_', '');
+
+            console.log('🔄 Rafraîchissement des messages pour le canal:', cleanChannelId);
+            const messages = await fetchChannelMessages(cleanChannelId, credentials);
+
+            if (onMessage && Array.isArray(messages)) {
+                console.log('📦 Messages récupérés (brut):', messages);
+
+                // Format du message pour correspondre au format attendu par handleWebSocketMessage
+                const formattedData = {
+                    type: 'notification',
+                    filters: {
+                        values: {
+                            channel: cleanChannelId
+                        }
+                    },
+                    message: {
+                        type: 'messages',
+                        messages: messages.map(msg => ({
+                            id: msg.id?.toString() || '',
+                            type: msg.type || 'text',
+                            message: msg.message || msg.text || '',
+                            savedTimestamp: msg.savedTimestamp?.toString() || Date.now().toString(),
+                            fileType: msg.fileType || 'none',
+                            login: msg.login || '',
+                            isOwnMessage: msg.login === credentials.login,
+                            isUnread: false,
+                            username: msg.login === credentials.login ? 'Me' : (msg.login || 'Unknown')
+                        }))
+                    }
+                };
+
+                console.log('📤 Envoi des messages formatés:', JSON.stringify(formattedData, null, 2));
+                onMessage(formattedData);
+            }
+
+            console.log('✅ Messages rafraîchis avec succès');
+        } catch (error) {
+            console.error('🔴 Erreur lors du rafraîchissement des messages:', error);
+            if (onError) onError(error);
+        }
+    }, [channels, onMessage, onError]);
 
     return {
         sendMessage: async (message) => {

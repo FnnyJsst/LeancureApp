@@ -160,7 +160,36 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             return;
         }
 
-        console.log('✨ Création du nouveau message');
+        // Si c'est un tableau de messages
+        if (messageContent.type === 'messages' && Array.isArray(messageContent.messages)) {
+            console.log('📦 Réception d\'un tableau de messages:', messageContent.messages.length);
+            setMessages(prevMessages => {
+                const newMessages = messageContent.messages.map(msg => ({
+                    id: msg.id || Date.now().toString(),
+                    type: msg.type || 'text',
+                    text: msg.message,
+                    message: msg.message,
+                    savedTimestamp: msg.savedTimestamp || Date.now().toString(),
+                    fileType: msg.fileType || 'none',
+                    login: msg.login || 'unknown',
+                    isOwnMessage: msg.login === credentials?.login,
+                    isUnread: false,
+                    username: msg.login === credentials?.login ? 'Me' : (msg.login || 'Unknown')
+                }));
+
+                // Filtrer les messages qui n'existent pas déjà
+                const uniqueNewMessages = newMessages.filter(newMsg =>
+                    !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
+                );
+
+                console.log('✅ Nouveaux messages uniques ajoutés:', uniqueNewMessages.length);
+                return [...prevMessages, ...uniqueNewMessages];
+            });
+            return;
+        }
+
+        // Si c'est un message unique
+        console.log('✨ Création d\'un nouveau message unique');
         setMessages(prevMessages => {
             const messageExists = prevMessages.some(msg => msg.id === messageContent.id);
             if (messageExists) {
