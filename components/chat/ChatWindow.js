@@ -487,6 +487,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     return null; // ou un indicateur de chargement
   }
 
+  const validMessages = messages.filter(message =>
+    message &&
+    (message.text || message.message || message.type === 'file')
+  );
+
   return (
     <View style={styles.container}>
       {channel ? (

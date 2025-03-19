@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-const DEFAULT_API_URL = process.env.API_URL || 'http://coucou/ic.php';
+const DEFAULT_API_URL = process.env.API_URL;
 
 if (!DEFAULT_API_URL) {
     console.warn('API_URL not found in environment variables, using default value');
@@ -74,13 +74,18 @@ export const ENV = {
     WS_URL: async () => {
         try {
             const customUrl = await SecureStore.getItemAsync('custom_ws_url');
-            if (customUrl) return customUrl;
+            if (customUrl) {
+                console.log('📱 URL WebSocket personnalisée trouvée:', customUrl);
+                return customUrl;
+            }
 
-            // Utilisation de l'adresse IP locale de la machine de développement
-            return 'ws://192.168.1.67:8000';
+            // URL par défaut pour le développement
+            const defaultWsUrl = 'ws://192.168.77.101:8000';
+            console.log('✅ Utilisation de l\'URL WebSocket par défaut:', defaultWsUrl);
+            return defaultWsUrl;
         } catch (error) {
-            console.error('Erreur lors de la récupération de l\'URL WebSocket:', error);
-            return 'ws://192.168.1.67:8000';
+            console.error('🔴 Erreur lors de la récupération de l\'URL WebSocket:', error);
+            return 'ws://192.168.77.101:8000';
         }
     }
 };
