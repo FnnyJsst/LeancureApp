@@ -95,12 +95,33 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    */
   const handleChannelSelect = (channel) => {
     if (isExpanded) {
-      toggleMenu();
+        toggleMenu();
     }
 
-    setSelectedChannel(channel);
+    console.log('🔄 Changement de canal dans ChatScreen:', {
+        ancien: selectedChannel?.id,
+        nouveau: channel?.id,
+        channel: channel
+    });
+
+    // On réinitialise les messages avant de changer de canal
+    setChannelMessages([]);
+    // On met à jour le canal sélectionné
+    setSelectedChannel({
+        ...channel,
+        id: channel.id.toString()  // On s'assure que l'ID est une chaîne
+    });
   };
 
+  // On ajoute un useEffect pour surveiller les changements de canal
+  useEffect(() => {
+    if (selectedChannel) {
+        console.log('📢 Canal sélectionné mis à jour dans ChatScreen:', {
+            id: selectedChannel.id,
+            titre: selectedChannel.title
+        });
+    }
+  }, [selectedChannel]);
 
   /**
    * @function handleInputFocusChange

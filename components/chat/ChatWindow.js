@@ -141,18 +141,40 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     // Si le message est au format notification directe
     if (data.type === 'notification' || data.type === 'message') {
         console.log('📩 Message au format notification directe');
+
+        // On extrait le canal du message
         const channelId = data.filters?.values?.channel;
-        const currentChannelId = channel ? channel.id.toString() : null;
+        const currentChannelId = channel?.id?.toString();
 
         console.log('Comparaison des canaux:', {
             reçu: channelId,
-            actuel: currentChannelId
+            actuel: currentChannelId,
+            channelComplet: channel
         });
 
-        if (!currentChannelId || channelId !== currentChannelId) {
-            console.log('❌ Canal non correspondant, message ignoré');
+        // On vérifie si on a un canal actuel
+        if (!currentChannelId) {
+            console.log('❌ Pas de canal actuel');
             return;
         }
+
+        // On nettoie les IDs des canaux
+        const cleanReceivedChannelId = channelId?.toString()?.replace('channel_', '');
+        const cleanCurrentChannelId = currentChannelId?.toString()?.replace('channel_', '');
+
+        console.log('Comparaison après nettoyage:', {
+            reçu: cleanReceivedChannelId,
+            actuel: cleanCurrentChannelId,
+            correspondance: cleanReceivedChannelId === cleanCurrentChannelId
+        });
+
+        // On compare les canaux après nettoyage
+        if (cleanReceivedChannelId !== cleanCurrentChannelId) {
+            console.log('❌ Canal non correspondant après nettoyage, message ignoré');
+            return;
+        }
+
+        console.log('✅ Canal correspondant, traitement du message');
 
         const messageContent = data.message;
         if (!messageContent) {
@@ -165,7 +187,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             console.log('📦 Réception d\'un tableau de messages:', messageContent.messages.length);
             setMessages(prevMessages => {
                 const newMessages = messageContent.messages.map(msg => ({
-                    id: msg.id || Date.now().toString(),
+                    id: msg.id?.toString() || Date.now().toString(),
                     type: msg.type || 'text',
                     text: msg.message,
                     message: msg.message,
@@ -174,16 +196,23 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     login: msg.login || 'unknown',
                     isOwnMessage: msg.login === credentials?.login,
                     isUnread: false,
-                    username: msg.login === credentials?.login ? 'Me' : (msg.login || 'Unknown')
+                    username: msg.login === credentials?.login ? 'Me' : (msg.login || 'Unknown'),
+                    base64: msg.base64
                 }));
 
-                // Filtrer les messages qui n'existent pas déjà
+                // On filtre les messages qui n'existent pas déjà
                 const uniqueNewMessages = newMessages.filter(newMsg =>
                     !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
                 );
 
                 console.log('✅ Nouveaux messages uniques ajoutés:', uniqueNewMessages.length);
-                return [...prevMessages, ...uniqueNewMessages];
+
+                // On trie les messages par timestamp
+                const allMessages = [...prevMessages, ...uniqueNewMessages].sort((a, b) =>
+                    parseInt(a.savedTimestamp) - parseInt(b.savedTimestamp)
+                );
+
+                return allMessages;
             });
             return;
         }
@@ -296,14 +325,22 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   useEffect(() => {
     if (channel) {
-      // We empty the messages
-      setMessages([]);
-      // We load the new messages
-      if (channelMessages) {
-        setMessages(channelMessages);
-      }
+        console.log('📢 Changement de canal dans ChatWindow:', {
+            id: channel.id,
+            titre: channel.title,
+            canal: channel
+        });
+
+        // On force la réinitialisation des messages
+        setMessages([]);
+
+        // On met à jour les messages si disponibles
+        if (channelMessages && Array.isArray(channelMessages)) {
+            console.log('📥 Mise à jour des messages du canal:', channelMessages.length);
+            setMessages(channelMessages);
+        }
     }
-  }, [channel?.id]);
+  }, [channel?.id, channelMessages]);
 
   /**
    * @function useEffect

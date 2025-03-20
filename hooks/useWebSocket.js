@@ -218,22 +218,37 @@ export const useWebSocket = ({ onMessage, onError, channels = [], subscriptions 
         }
 
         const currentChannel = channels[0];
-        if (currentChannel !== activeChannel.current) {
-            console.log('📢 Changement de canal:', {
-                ancien: activeChannel.current,
-                nouveau: currentChannel
+        console.log('📢 Vérification du changement de canal:', {
+            ancien: activeChannel.current,
+            nouveau: currentChannel,
+            canaux: channels
+        });
+
+        // On nettoie toujours les IDs pour la comparaison
+        const cleanCurrentChannel = currentChannel?.replace('channel_', '');
+        const cleanActiveChannel = activeChannel.current?.replace('channel_', '');
+
+        if (cleanCurrentChannel !== cleanActiveChannel) {
+            console.log('📢 Changement de canal effectif:', {
+                ancien: cleanActiveChannel,
+                nouveau: cleanCurrentChannel
             });
 
-            // On ne fait pas de cleanup ici, on change juste le canal actif
+            // On ferme la connexion existante
+            if (ws.current) {
+                console.log('🔌 Fermeture de l\'ancienne connexion');
+                ws.current.close();
+                ws.current = null;
+            }
+
+            // On met à jour le canal actif
             activeChannel.current = currentChannel;
 
-            // Si pas de connexion active, on se connecte
-            if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
-                connect();
-            } else {
-                // Si déjà connecté, on envoie juste la nouvelle souscription
-                sendSubscription();
-            }
+            // On établit une nouvelle connexion
+            console.log('🔄 Établissement d\'une nouvelle connexion');
+            connect();
+        } else {
+            console.log('ℹ️ Pas de changement de canal effectif');
         }
     }, [channels, connect, cleanup]);
 
