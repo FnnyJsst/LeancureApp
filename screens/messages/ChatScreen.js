@@ -80,10 +80,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     };
   }, [selectedChannel]);
 
-  /**
-   * @function toggleMenu
-   * @description Opens or closes the sidebar menu
-   */
+  // Toggle the sidebar menu
   const toggleMenu = () => {
     setIsExpanded(!isExpanded);
   };
@@ -98,36 +95,16 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         toggleMenu();
     }
 
-    console.log('🔄 Changement de canal dans ChatScreen:', {
-        ancien: selectedChannel?.id,
-        nouveau: channel?.id,
-        channel: channel
-    });
-
-    // On réinitialise les messages avant de changer de canal
+    // We reset the messages before changing the channel
     setChannelMessages([]);
-    // On met à jour le canal sélectionné
+    // We update the selected channel
     setSelectedChannel({
         ...channel,
-        id: channel.id.toString()  // On s'assure que l'ID est une chaîne
+        id: channel.id.toString()
     });
   };
 
-  // On ajoute un useEffect pour surveiller les changements de canal
-  useEffect(() => {
-    if (selectedChannel) {
-        console.log('📢 Canal sélectionné mis à jour dans ChatScreen:', {
-            id: selectedChannel.id,
-            titre: selectedChannel.title
-        });
-    }
-  }, [selectedChannel]);
-
-  /**
-   * @function handleInputFocusChange
-   * @description Handles the input focus change, so we can mark all the messages as read as soon as we use the chat input
-   * @param {boolean} isFocused - A boolean to indicate if the input is focused
-   */
+  // Handle the input focus change to mark all the messages as read as soon as we use the chat input
   const handleInputFocusChange = async (isFocused) => {
     setIsInputFocused(isFocused);
   };

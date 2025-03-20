@@ -18,9 +18,8 @@ import { useTranslation } from 'react-i18next';
  * @param {Object} props.channel - The channel to display
  * @param {Object} props.messages - The messages to display
  * @param {Function} props.onInputFocusChange - The function to call when the input focus changes
- * @param {Function} props.onMessageSent - The function to call when a message is sent
  */
-export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange, onMessageSent, testID }) {
+export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange, testID }) {
 
   // Translation
   const { t } = useTranslation();
@@ -45,10 +44,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [editingMessage, setEditingMessage] = useState(null);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
 
-  /**
-   * @function useEffect
-   * @description Load the files of the messages
-   */
+  // Load the files of the messages
   useEffect(() => {
     if (!isLoading && credentials && channel && messages.length > 0 && !updatingRef.current) {
       // We filter the messages that need to be loaded
@@ -117,13 +113,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     }
   }, [isLoading, credentials, channel, messages]);
 
-  /**
-   * @function useEffect
-   * @description Load the initial messages of the channel
-   */
+  // Update the messages
   useEffect(() => {
     if (channel && channelMessages) {
-      // On met à jour les messages uniquement si on en a de nouveaux
+      // We update the messages only if there are new messages
       if (channelMessages.length > 0) {
         setMessages(channelMessages);
       }
@@ -136,13 +129,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @param {Object} data - The data of the message
    */
   const handleWebSocketMessage = useCallback((data) => {
-    console.log('🔍 Message WebSocket reçu dans handleWebSocketMessage:', JSON.stringify(data, null, 2));
 
-    // Si le message est au format notification directe
+    // If the message is in the format of a direct notification
     if (data.type === 'notification' || data.type === 'message') {
         console.log('📩 Message au format notification directe');
 
-        // On extrait le canal du message
+        // We extract the channel from the message
         const channelId = data.filters?.values?.channel;
         const currentChannelId = channel?.id?.toString();
 
@@ -152,13 +144,13 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             channelComplet: channel
         });
 
-        // On vérifie si on a un canal actuel
+        // We check if we have a current channel
         if (!currentChannelId) {
-            console.log('❌ Pas de canal actuel');
+            console.log('❌ No current channel');
             return;
         }
 
-        // On nettoie les IDs des canaux
+        // We clean the channel IDs
         const cleanReceivedChannelId = channelId?.toString()?.replace('channel_', '');
         const cleanCurrentChannelId = currentChannelId?.toString()?.replace('channel_', '');
 
@@ -176,15 +168,16 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
         console.log('✅ Canal correspondant, traitement du message');
 
+        // We get the message content
         const messageContent = data.message;
         if (!messageContent) {
             console.log('❌ Pas de contenu de message');
             return;
         }
 
-        // Si c'est un tableau de messages
+        // If it's an array of messages
         if (messageContent.type === 'messages' && Array.isArray(messageContent.messages)) {
-            console.log('📦 Réception d\'un tableau de messages:', messageContent.messages.length);
+            // We update the messages
             setMessages(prevMessages => {
                 const newMessages = messageContent.messages.map(msg => ({
                     id: msg.id?.toString() || Date.now().toString(),
@@ -200,14 +193,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     base64: msg.base64
                 }));
 
-                // On filtre les messages qui n'existent pas déjà
+                // We filter the new messages
                 const uniqueNewMessages = newMessages.filter(newMsg =>
                     !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
                 );
 
                 console.log('✅ Nouveaux messages uniques ajoutés:', uniqueNewMessages.length);
 
-                // On trie les messages par timestamp
+                // We sort the messages by timestamp
                 const allMessages = [...prevMessages, ...uniqueNewMessages].sort((a, b) =>
                     parseInt(a.savedTimestamp) - parseInt(b.savedTimestamp)
                 );
@@ -217,15 +210,15 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             return;
         }
 
-        // Si c'est un message unique
-        console.log('✨ Création d\'un nouveau message unique');
+        // If it's a unique message, we update the messages
         setMessages(prevMessages => {
             const messageExists = prevMessages.some(msg => msg.id === messageContent.id);
+            // If the message exists, we return the previous messages
             if (messageExists) {
-                console.log('⚠️ Message déjà existant');
                 return prevMessages;
             }
 
+            // We create a new message
             const newMessage = {
                 id: messageContent.id || Date.now().toString(),
                 type: messageContent.type || 'text',
@@ -239,13 +232,13 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 username: messageContent.login === credentials?.login ? 'Me' : messageContent.login || 'Unknown'
             };
 
-            console.log('✅ Nouveau message créé:', newMessage);
+            // We return the new message
             return [...prevMessages, newMessage];
         });
         return;
     }
 
-    // Si le message est au format notification imbriquée
+    // If the message is in the format of a nested notification
     if (data.notification) {
         console.log('📩 Message au format notification imbriquée');
         const channelId = data.notification.filters?.values?.channel;
@@ -578,9 +571,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   };
 
   if (isLoading) {
-    return null; // ou un indicateur de chargement
+    return null;
   }
 
+  // We filter the messages
   const validMessages = messages.filter(message =>
     message &&
     (message.text || message.message || message.type === 'file')
