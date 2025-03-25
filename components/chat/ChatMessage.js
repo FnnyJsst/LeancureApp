@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
   menuMessageContainer: {
     position: 'absolute',
     top: '100%',
-    marginTop: -50,
+    marginTop: -100,
     zIndex: 9999,
   },
   menuLeft: {
