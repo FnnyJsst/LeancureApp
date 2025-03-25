@@ -213,7 +213,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
     setSelectedFile(null);
   };
 
-
   return (
     <>
       <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>

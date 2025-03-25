@@ -6,6 +6,7 @@ import Header from '../../components/Header';
 import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../../services/api/messageApi';
 import { useTranslation } from 'react-i18next';
+import { handleError, ErrorType } from '../../utils/errorHandling';
 
 /**
  * @component ChatScreen
@@ -29,6 +30,20 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const [editingMessage, setEditingMessage] = useState(null);
 
   /**
+   * @description Handle chat-related errors
+   * @param {Error} error - The error
+   * @param {string} source - The source
+   * @param {object} options - Additional options
+   * @returns {object} Formatted error
+   */
+  const handleChatError = (error, source, options = {}) => {
+    return handleError(error, `chat.${source}`, {
+      type: ErrorType.SYSTEM,
+      ...options
+    });
+  };
+
+  /**
    * @function useEffect
    * @description Loads the initial messages of the channel
    */
@@ -44,7 +59,14 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
         // Get the user credentials
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-        if (!credentialsStr) return;
+        if (!credentialsStr) {
+          handleChatError(
+            t('errors.noCredentialsFound'),
+            'fetchMessages.credentials',
+            { silent: true }
+          );
+          return;
+        }
 
         // Parse the credentials
         const credentials = JSON.parse(credentialsStr);
@@ -63,10 +85,8 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
           setChannelMessages(messages);
         }
       } catch (error) {
-        // If there is an error, we set the channel messages to an empty array
-        if (__DEV__) {
-          throw new Error(t('errors.errorFetchingMessages'), error);
-        }
+        // If there is an error, we handle it and set empty messages
+        handleChatError(error, 'fetchMessages.process');
         setChannelMessages([]);
       }
     };
@@ -91,27 +111,56 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    * @param {Object} channel - The channel to select
    */
   const handleChannelSelect = (channel) => {
-    if (isExpanded) {
+    try {
+      if (isExpanded) {
         toggleMenu();
-    }
+      }
 
-    // We reset the messages before changing the channel
-    setChannelMessages([]);
-    // We update the selected channel
-    setSelectedChannel({
+      if (!channel || !channel.id) {
+        handleChatError(
+          'Tentative de sélection d\'un canal invalide',
+          'channelSelect.validation',
+          { silent: true }
+        );
+        return;
+      }
+
+      // We reset the messages before changing the channel
+      setChannelMessages([]);
+      // We update the selected channel
+      setSelectedChannel({
         ...channel,
         id: channel.id.toString()
-    });
+      });
+    } catch (error) {
+      handleChatError(error, 'channelSelect.process');
+    }
   };
 
   // Handle the input focus change to mark all the messages as read as soon as we use the chat input
   const handleInputFocusChange = async (isFocused) => {
-    setIsInputFocused(isFocused);
+    try {
+      setIsInputFocused(isFocused);
+    } catch (error) {
+      handleChatError(error, 'inputFocusChange');
+    }
   };
 
   const handleEditMessage = (messageToEdit) => {
-    console.log('📝 Message à éditer reçu dans ChatScreen:', messageToEdit);
-    setEditingMessage(messageToEdit);
+    try {
+      if (!messageToEdit || !messageToEdit.id) {
+        handleChatError(
+          'Tentative d\'édition d\'un message invalide',
+          'editMessage.validation',
+          { silent: true }
+        );
+        return;
+      }
+
+      setEditingMessage(messageToEdit);
+    } catch (error) {
+      handleChatError(error, 'editMessage.process');
+    }
   };
 
   return (
@@ -143,6 +192,8 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
           messages={channelMessages}
           isExpanded={isExpanded}
           onInputFocusChange={handleInputFocusChange}
+          onEditMessage={handleEditMessage}
+          editingMessage={editingMessage}
         />
       </View>
     </View>

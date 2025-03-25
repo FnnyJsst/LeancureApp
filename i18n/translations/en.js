@@ -227,7 +227,21 @@ export default {
     invalidMessageText: "Invalid message text",
     noCredentialsFound: "No credentials found",
     noDeletePermission: "You do not have permission to delete this message",
-
+    invalidChannel: "Invalid channel",
+    invalidMessageEdit: "Invalid message for editing",
+    errorEditingMessage: "Error editing message",
+    messageSendError: "Error sending message",
+    connectionError: "Error connecting to server",
+    messageParsingError: "Error parsing message",
+    subscriptionError: "Error subscribing to channels",
+    webSocketClosed: "Server connection closed",
+    channelSelectError: "Error selecting channel",
+    inputFocusError: "Error focusing input",
+    fetchMessagesError: "Error fetching messages",
+    emptyMessage: "Message cannot be empty",
+    fileTypeNotAllowed: "File type not allowed",
+    filePickError: "Error picking file",
+    fileProcessingError: "Error processing file"
   },
   success: {
     messageDeleted: "Message deleted successfully",
