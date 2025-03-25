@@ -30,6 +30,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   // Refs
   const scrollViewRef = useRef();
   const updatingRef = useRef(false);
+  const processedMessageIds = useRef(new Set());
 
   const [isDocumentPreviewModalVisible, setIsDocumentPreviewModalVisible] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState(null);
@@ -129,96 +130,83 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @param {Object} data - The data of the message
    */
   const handleWebSocketMessage = useCallback((data) => {
+    console.log('📩 Message WebSocket reçu:', {
+      type: data.type,
+      hasNotification: !!data.notification,
+      messageId: data.message?.id || data.notification?.message?.id
+    });
 
-    // If the message is in the format of a direct notification
+    // On extrait l'ID du message
+    const messageId = data.message?.id || data.notification?.message?.id;
+
+    // Si le message a déjà été traité, on l'ignore
+    if (messageId && processedMessageIds.current.has(messageId)) {
+      console.log('⚠️ Message déjà traité, ignoré:', messageId);
+      return;
+    }
+
+    // On ajoute l'ID du message à la liste des messages traités
+    if (messageId) {
+      processedMessageIds.current.add(messageId);
+    }
+
+    // Si le message est au format notification directe
     if (data.type === 'notification' || data.type === 'message') {
-        console.log('📩 Message au format notification directe');
-
-        // We extract the channel from the message
         const channelId = data.filters?.values?.channel;
         const currentChannelId = channel?.id?.toString();
 
-        console.log('Comparaison des canaux:', {
-            reçu: channelId,
-            actuel: currentChannelId,
-            channelComplet: channel
-        });
-
-        // We check if we have a current channel
         if (!currentChannelId) {
             console.log('❌ No current channel');
             return;
         }
 
-        // We clean the channel IDs
         const cleanReceivedChannelId = channelId?.toString()?.replace('channel_', '');
         const cleanCurrentChannelId = currentChannelId?.toString()?.replace('channel_', '');
 
-        console.log('Comparaison après nettoyage:', {
-            reçu: cleanReceivedChannelId,
-            actuel: cleanCurrentChannelId,
-            correspondance: cleanReceivedChannelId === cleanCurrentChannelId
-        });
-
-        // On compare les canaux après nettoyage
         if (cleanReceivedChannelId !== cleanCurrentChannelId) {
             console.log('❌ Canal non correspondant après nettoyage, message ignoré');
             return;
         }
 
-        console.log('✅ Canal correspondant, traitement du message');
-
-        // We get the message content
         const messageContent = data.message;
         if (!messageContent) {
             console.log('❌ Pas de contenu de message');
             return;
         }
 
-        // If it's an array of messages
+        // Si c'est un tableau de messages
         if (messageContent.type === 'messages' && Array.isArray(messageContent.messages)) {
-            // We update the messages
             setMessages(prevMessages => {
-                const newMessages = messageContent.messages.map(msg => ({
-                    id: msg.id?.toString() || Date.now().toString(),
-                    type: msg.type || 'text',
-                    text: msg.message,
-                    message: msg.message,
-                    savedTimestamp: msg.savedTimestamp || Date.now().toString(),
-                    fileType: msg.fileType || 'none',
-                    login: msg.login || 'unknown',
-                    isOwnMessage: msg.login === credentials?.login,
-                    isUnread: false,
-                    username: msg.login === credentials?.login ? 'Me' : (msg.login || 'Unknown'),
-                    base64: msg.base64
-                }));
+                const newMessages = messageContent.messages
+                    .filter(msg => !processedMessageIds.current.has(msg.id))
+                    .map(msg => {
+                        processedMessageIds.current.add(msg.id);
+                        return {
+                            id: msg.id?.toString() || Date.now().toString(),
+                            type: msg.type || 'text',
+                            text: msg.message,
+                            message: msg.message,
+                            savedTimestamp: msg.savedTimestamp || Date.now().toString(),
+                            fileType: msg.fileType || 'none',
+                            login: msg.login || 'unknown',
+                            isOwnMessage: msg.login === credentials?.login,
+                            isUnread: false,
+                            username: msg.login === credentials?.login ? 'Me' : (msg.login || 'Unknown'),
+                            base64: msg.base64
+                        };
+                    });
 
-                // We filter the new messages
-                const uniqueNewMessages = newMessages.filter(newMsg =>
-                    !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
-                );
+                console.log('✅ Nouveaux messages uniques ajoutés:', newMessages.length);
 
-                console.log('✅ Nouveaux messages uniques ajoutés:', uniqueNewMessages.length);
-
-                // We sort the messages by timestamp
-                const allMessages = [...prevMessages, ...uniqueNewMessages].sort((a, b) =>
+                return [...prevMessages, ...newMessages].sort((a, b) =>
                     parseInt(a.savedTimestamp) - parseInt(b.savedTimestamp)
                 );
-
-                return allMessages;
             });
             return;
         }
 
-        // If it's a unique message, we update the messages
+        // Si c'est un message unique
         setMessages(prevMessages => {
-            const messageExists = prevMessages.some(msg => msg.id === messageContent.id);
-            // If the message exists, we return the previous messages
-            if (messageExists) {
-                return prevMessages;
-            }
-
-            // We create a new message
             const newMessage = {
                 id: messageContent.id || Date.now().toString(),
                 type: messageContent.type || 'text',
@@ -232,22 +220,16 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 username: messageContent.login === credentials?.login ? 'Me' : messageContent.login || 'Unknown'
             };
 
-            // We return the new message
+            console.log('✅ Nouveau message ajouté:', newMessage.id);
             return [...prevMessages, newMessage];
         });
         return;
     }
 
-    // If the message is in the format of a nested notification
+    // Si le message est au format notification imbriquée
     if (data.notification) {
-        console.log('📩 Message au format notification imbriquée');
         const channelId = data.notification.filters?.values?.channel;
         const currentChannelId = channel ? channel.id.toString() : null;
-
-        console.log('Comparaison des canaux:', {
-            reçu: channelId,
-            actuel: currentChannelId
-        });
 
         if (!currentChannelId || channelId !== currentChannelId) {
             console.log('❌ Canal non correspondant, message ignoré');
@@ -260,14 +242,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             return;
         }
 
-        console.log('✨ Création du nouveau message');
         setMessages(prevMessages => {
-            const messageExists = prevMessages.some(msg => msg.id === messageContent.id);
-            if (messageExists) {
-                console.log('⚠️ Message déjà existant');
-                return prevMessages;
-            }
-
             const newMessage = {
                 id: messageContent.id || Date.now().toString(),
                 type: messageContent.type || 'text',
@@ -281,7 +256,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 username: (messageContent.login || data.sender) === credentials?.login ? 'Me' : (messageContent.login || data.sender || 'Unknown')
             };
 
-            console.log('✅ Nouveau message créé:', newMessage);
+            console.log('✅ Nouveau message ajouté:', newMessage.id);
             return [...prevMessages, newMessage];
         });
         return;
@@ -409,6 +384,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = useCallback(async (messageData) => {
     try {
+      console.log('🚀 Début de l\'envoi du message:', messageData);
 
       if (!channel) {
         throw new Error(t('errors.noChannelSelected'));
@@ -437,9 +413,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       const userCredentials = JSON.parse(credentialsStr);
 
-
       // We create a temporary message with a unique ID
       const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      console.log('📝 Création du message temporaire avec ID:', tempId);
+
       const tempMessage = messageData.type === 'file' ? {
         id: tempId,
         type: 'file',
@@ -454,7 +431,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         isOwnMessage: true,
         isUnread: false,
         username: 'Me',
-        isTemp: true
+        isTemp: true,
+        _tempId: tempId // Ajout d'un identifiant unique pour le message temporaire
       } : {
         id: tempId,
         type: 'text',
@@ -466,11 +444,15 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         isOwnMessage: true,
         isUnread: false,
         username: 'Me',
-        isTemp: true
+        isTemp: true,
+        _tempId: tempId // Ajout d'un identifiant unique pour le message temporaire
       };
 
       // We add the temporary message
-      setMessages(prevMessages => [...prevMessages, tempMessage]);
+      setMessages(prevMessages => {
+        console.log('📥 Ajout du message temporaire aux messages existants');
+        return [...prevMessages, tempMessage];
+      });
 
       // We send the message
       const messageToSend = messageData.type === 'file' ? messageData : {
@@ -478,17 +460,30 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         message: typeof messageData === 'object' ? messageData.text : messageData
       };
 
+      console.log('📤 Envoi du message à l\'API:', messageToSend);
+
       // We send the message to the API
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
 
+      // console.log('📨 Réponse de l\'API:', response);
+
       // If the response is not ok, we remove the temporary message
       if (response.status !== 'ok') {
+        console.log('❌ Erreur de l\'API, suppression du message temporaire');
         setMessages(prevMessages =>
-          prevMessages.filter(msg => msg.id !== tempId)
+          prevMessages.filter(msg => msg._tempId !== tempId)
         );
         throw new Error(t('errors.errorSendingMessage'));
       }
+
+      // Si la réponse est ok, on supprime le message temporaire
+      console.log('✅ Message envoyé avec succès, suppression du message temporaire');
+      setMessages(prevMessages =>
+        prevMessages.filter(msg => msg._tempId !== tempId)
+      );
+
     } catch (error) {
+      console.error('❌ Erreur lors de l\'envoi du message:', error);
       throw new Error(t('errors.errorSendingMessage'), error);
     }
   }, [channel, t]);

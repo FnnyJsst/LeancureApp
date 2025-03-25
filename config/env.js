@@ -42,7 +42,7 @@ export const ENV = {
     },
 
     setCustomApiUrl: async (url) => {
-        console.log('💾 Début sauvegarde URL personnalisée');
+        // console.log('💾 Début sauvegarde URL personnalisée');
         if (!url || typeof url !== 'string') {
             console.error('❌ URL invalide:', url);
             throw new Error('L\'URL doit être une chaîne de caractères valide');
@@ -59,7 +59,7 @@ export const ENV = {
 
             // Sauvegardons la nouvelle URL
             await SecureStore.setItemAsync('custom_api_url', trimmedUrl);
-            console.log('✅ Nouvelle URL sauvegardée:', trimmedUrl);
+            // console.log('✅ Nouvelle URL sauvegardée:', trimmedUrl);
 
             return true;
         } catch (error) {
@@ -75,13 +75,13 @@ export const ENV = {
         try {
             const customUrl = await SecureStore.getItemAsync('custom_ws_url');
             if (customUrl) {
-                console.log('📱 URL WebSocket personnalisée trouvée:', customUrl);
+                // console.log('📱 URL WebSocket personnalisée trouvée:', customUrl);
                 return customUrl;
             }
 
             // URL par défaut pour le développement
             const defaultWsUrl = 'ws://192.168.1.67:8000';
-            console.log('✅ Utilisation de l\'URL WebSocket par défaut:', defaultWsUrl);
+            // console.log('✅ Utilisation de l\'URL WebSocket par défaut:', defaultWsUrl);
             return defaultWsUrl;
         } catch (error) {
             console.error('🔴 Erreur lors de la récupération de l\'URL WebSocket:', error);

@@ -135,7 +135,7 @@ export default function App({ testID, initialScreen }) {
     const initializeApp = async () => {
       try {
         await initI18n();
-        console.log('✅ i18n initialisé');
+        // console.log('✅ i18n initialisé');
         setIsI18nInitialized(true);
 
         try {
