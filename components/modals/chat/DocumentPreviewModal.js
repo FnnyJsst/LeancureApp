@@ -87,25 +87,71 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
    * @description Formate la taille du fichier avec l'unité appropriée
    */
   const formatFileSize = () => {
-    // Estimer la taille à partir de base64 si non fournie
+    // Calcul de la taille du fichier
     let calculatedSize = 0;
 
-    if (initialBase64) {
-      // Convertir la longueur base64 en taille approximative
-      calculatedSize = Math.round(initialBase64.length * 0.75);
+    // Option 1: Utiliser la taille fournie si elle est valide
+    if (fileSize && !isNaN(parseInt(fileSize, 10))) {
+      calculatedSize = parseInt(fileSize, 10);
+      console.log('🔍 MODAL_SIZE - Utilisation de la taille fournie:', calculatedSize);
+    }
+    // Option 2: Estimer la taille à partir du base64
+    else if (initialBase64) {
+      // La taille approximative en octets est environ 3/4 de la longueur de la chaîne base64
+      calculatedSize = Math.ceil(initialBase64.length * 0.75);
+      console.log('🔍 MODAL_SIZE - Taille estimée depuis base64:', calculatedSize);
+    }
+    // Option 3: Utiliser des valeurs par défaut selon le type
+    else {
+      if (fileType?.toLowerCase().includes('pdf')) {
+        calculatedSize = 150 * 1024; // ~150 Ko pour un PDF typique
+      } else if (fileType?.toLowerCase().match(/jpg|jpeg|png|gif/)) {
+        calculatedSize = 350 * 1024; // ~350 Ko pour une image typique
+      } else {
+        calculatedSize = 100 * 1024; // ~100 Ko par défaut
+      }
+      console.log('🔍 MODAL_SIZE - Utilisation de la taille par défaut:', calculatedSize);
     }
 
     if (!calculatedSize) return '0 Ko';
 
+    // Si la taille est très petite (< 100 octets) pour un vrai fichier,
+    // supposons qu'elle est déjà en Ko et non en octets
+    if (calculatedSize < 100) {
+      // La taille est déjà en Ko, pas besoin de division
+      const size = calculatedSize;
+
+      // Pour les petites tailles, afficher une décimale
+      if (size < 10) {
+        return `${size.toFixed(1)} Ko`;
+      }
+
+      // Pour les tailles plus grandes, arrondir à l'entier
+      return `${Math.round(size)} Ko`;
+    }
+
+    // Conversion directe en Ko, toujours commencer en Ko
     const units = ['Ko', 'Mo', 'Go'];
-    let size = calculatedSize / 1024; // Conversion en Ko
+    let size = calculatedSize / 1024; // Conversion directe en Ko
     let unitIndex = 0;
 
+    // Pour les très petits fichiers (moins de 0.1 Ko), afficher au moins 0.1 Ko
+    if (size < 0.1) {
+      return '0.1 Ko';
+    }
+
+    // Monter en unités si nécessaire
     while (size >= 1024 && unitIndex < units.length - 1) {
       size /= 1024;
       unitIndex++;
     }
 
+    // Pour les petites tailles (< 10), afficher une décimale pour plus de précision
+    if (size < 10) {
+      return `${size.toFixed(1)} ${units[unitIndex]}`;
+    }
+
+    // Pour les tailles plus grandes, arrondir à l'entier
     return `${Math.round(size)} ${units[unitIndex]}`;
   };
 

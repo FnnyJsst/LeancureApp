@@ -460,7 +460,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         message: typeof messageData === 'object' ? messageData.text : messageData
       };
 
-      console.log('🔎 DEBUG-LEANCURE-CHATWINDOW: messageToSend =', JSON.stringify(messageToSend, null, 2));
+      console.log('🔍 DEBUG_FILESIZE_SEND - messageData:', {
+        type: messageData.type,
+        fileSize: messageData.type === 'file' ? messageData.fileSize : null,
+        fileSizeType: messageData.type === 'file' ? typeof messageData.fileSize : null
+      });
 
       // We send the message to the API
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);

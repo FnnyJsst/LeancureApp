@@ -28,15 +28,76 @@ const formatTimestamp = (timestamp) => {
  * @returns {string} The formatted file size
  */
 const formatFileSize = (bytes) => {
-  if (bytes === 0) {return '0 B';}
+  console.log('🔍 DEBUG_FILESIZE - Valeur reçue bytes:', bytes, 'Type:', typeof bytes);
+
+  // Si la valeur est une chaîne, essayer de la convertir en nombre
+  if (typeof bytes === 'string') {
+    bytes = parseFloat(bytes);
+    console.log('🔍 DEBUG_FILESIZE - Après conversion de string:', bytes);
+  }
+
+  if (!bytes || isNaN(bytes)) {
+    console.log('🔍 DEBUG_FILESIZE - Valeur invalide, retourne 0 Ko');
+    return '0.1 Ko'; // Retourner une taille minimale même si invalide
+  }
+  if (bytes === 0) {
+    console.log('🔍 DEBUG_FILESIZE - Valeur zéro, retourne 0 Ko');
+    return '0.1 Ko'; // Retourner une taille minimale même si zéro
+  }
 
   const k = 1024;
-  const sizes = ['B', 'Ko', 'Mo', 'Go'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const sizes = ['Ko', 'Mo', 'Go'];
 
-  // If the size is in Ko, we don't do the additional division
-  const size = bytes;
-  return `${size} Ko`;
+  // Si la taille est très petite (< 100 octets) pour un vrai fichier,
+  // supposons qu'elle est déjà en Ko et non en octets
+  if (bytes < 100) {
+    console.log('🔍 DEBUG_FILESIZE - Taille suspicieusement petite, interprétée comme déjà en Ko:', bytes);
+    // La taille est déjà en Ko, pas besoin de division initiale
+    let size = bytes;
+    let unitIndex = 0;
+
+    // Pour les petites tailles (< 10), afficher une décimale pour plus de précision
+    if (size < 10) {
+      const result = `${size.toFixed(1)} ${sizes[unitIndex]}`;
+      console.log('🔍 DEBUG_FILESIZE - Résultat formaté (déjà en Ko):', result);
+      return result;
+    }
+
+    // Pour les tailles plus grandes, arrondir à l'entier
+    const result = `${Math.round(size)} ${sizes[unitIndex]}`;
+    console.log('🔍 DEBUG_FILESIZE - Résultat formaté (déjà en Ko):', result);
+    return result;
+  }
+
+  // Conversion normale en Ko comme base de départ
+  let size = bytes / 1024;
+  let unitIndex = 0;
+
+  console.log('🔍 DEBUG_FILESIZE - Taille initiale en Ko:', size);
+
+  // Pour les très petits fichiers (moins de 0.1 Ko), afficher au moins 0.1 Ko
+  if (size < 0.1) {
+    return '0.1 Ko';
+  }
+
+  // Conversion en unités supérieures si nécessaire
+  while (size >= 1024 && unitIndex < sizes.length - 1) {
+    size /= 1024;
+    unitIndex++;
+    console.log('🔍 DEBUG_FILESIZE - Passage à unité supérieure:', size, sizes[unitIndex]);
+  }
+
+  // Pour les petites tailles (< 10), afficher une décimale pour plus de précision
+  if (size < 10) {
+    const result = `${size.toFixed(1)} ${sizes[unitIndex]}`;
+    console.log('🔍 DEBUG_FILESIZE - Résultat formaté (petit):', result);
+    return result;
+  }
+
+  // Pour les tailles plus grandes, arrondir à l'entier
+  const result = `${Math.round(size)} ${sizes[unitIndex]}`;
+  console.log('🔍 DEBUG_FILESIZE - Résultat formaté (grand):', result);
+  return result;
 };
 
 /**
@@ -129,7 +190,41 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                 message.fileType?.toLowerCase().includes('jpg') ||
                 message.fileType?.toLowerCase().includes('png');
 
-    const fileSizeInBytes = parseInt(message.fileSize, 10);
+    console.log('🧐 DEBUG_MESSAGE - Données du fichier:', {
+      fileName: message.fileName,
+      fileType: message.fileType,
+      fileSize: message.fileSize,
+      fileSizeType: typeof message.fileSize,
+      hasBase64: !!message.base64,
+      base64Length: message.base64 ? message.base64.length : 0
+    });
+
+    // Estimer la taille du fichier
+    let fileSizeInBytes;
+
+    // Option 1: Utiliser la taille fournie si elle est valide
+    if (message.fileSize && !isNaN(parseInt(message.fileSize, 10))) {
+      fileSizeInBytes = parseInt(message.fileSize, 10);
+      console.log('🔍 DEBUG_SIZE - Utilisation de la taille fournie:', fileSizeInBytes);
+    }
+    // Option 2: Estimer la taille à partir du base64 (environ 3/4 de la longueur)
+    else if (message.base64) {
+      // La taille approximative en octets est environ 3/4 de la longueur de la chaîne base64
+      fileSizeInBytes = Math.ceil(message.base64.length * 0.75);
+      console.log('🔍 DEBUG_SIZE - Taille estimée depuis base64:', fileSizeInBytes);
+    }
+    // Option 3: Utiliser une valeur par défaut selon le type
+    else {
+      // Valeurs par défaut plus réalistes selon le type
+      if (isPDF) {
+        fileSizeInBytes = 150 * 1024; // ~150 Ko pour un PDF typique
+      } else if (isImage) {
+        fileSizeInBytes = 350 * 1024; // ~350 Ko pour une image typique
+      } else {
+        fileSizeInBytes = 100 * 1024; // ~100 Ko par défaut
+      }
+      console.log('🔍 DEBUG_SIZE - Utilisation de la taille par défaut:', fileSizeInBytes);
+    }
 
     const messageContent = (
       <TouchableOpacity
@@ -162,10 +257,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                 <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
                 <View>
                   <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="tail">
-                    {message.fileName}
+                    {message.fileName || 'Document PDF'}
                   </Text>
                   <Text style={styles.fileSize}>
-                    {message.fileType.toUpperCase()} • {formatFileSize(parseInt(message.fileSize, 10))}
+                    {message.fileType?.toUpperCase() || 'PDF'} • {formatFileSize(fileSizeInBytes)}
                   </Text>
                 </View>
               </View>
@@ -201,10 +296,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                 />
                 <View>
                   <Text style={styles.pictureName} numberOfLines={1} ellipsizeMode="tail">
-                    {message.fileName}
+                    {message.fileName || 'Image'}
                   </Text>
                   <Text style={styles.fileSize}>
-                    {message.fileType.toUpperCase()} • {formatFileSize(fileSizeInBytes)}
+                    {message.fileType?.toUpperCase() || 'IMAGE'} • {formatFileSize(fileSizeInBytes)}
                   </Text>
                 </View>
               </View>

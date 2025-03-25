@@ -102,11 +102,6 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
  */
 export const sendMessageApi = async (channelId, messageContent, userCredentials) => {
   try {
-    console.log('🔎 DEBUG-LEANCURE-1: Entrée dans sendMessageApi avec:', JSON.stringify({
-      channelId,
-      messageContent,
-      userCredentialsKeys: Object.keys(userCredentials)
-    }, null, 2));
 
     const timestamp = Date.now();
 
@@ -128,8 +123,6 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       fileType = 'png';
     }
 
-    console.log('🔎 DEBUG-LEANCURE-2: Avant création du body, messageContent =', JSON.stringify(messageContent, null, 2));
-
     // We create the body of the request
     const body = createApiRequest({
       'amaiia_msg_srv': {
@@ -143,7 +136,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
               'base64': messageContent.base64,
               'filetype': fileType,
               'filename': messageContent.fileName,
-              'filesize': messageContent.fileSize || 0,
+              'filesize': messageContent.fileSize,
             } : null,
             'sentby': userCredentials.accountApiKey,
           }
@@ -151,7 +144,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       }
     }, userCredentials.contractNumber, userCredentials.accessToken || "");
 
-    console.log('🔎 DEBUG-LEANCURE-3: Corps complet de la requête =', JSON.stringify(body, null, 2));
+    console.log('🔍 DEBUG_FILESIZE_API - taille du fichier dans la requête:', isFile ? messageContent.fileSize : 'N/A');
 
     // We get the API URL
     const apiUrl = await ENV.API_URL();
@@ -160,8 +153,6 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     const response = await axios.post(apiUrl, body, {
       timeout: 30000,
     });
-
-    console.log('🔎 DEBUG-LEANCURE-4: Réponse de l\'API =', JSON.stringify(response.data, null, 2));
 
     // We check if the response is valid
     if (response.status === 200) {
@@ -185,7 +176,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
           ...(isFile && {
             type: 'file',
             fileName: messageContent.fileName,
-            fileSize: messageContent.fileSize,
+            fileSize: messageContent.fileSize ? parseInt(messageContent.fileSize, 10) : 0,
             fileType: fileType,
             base64: messageContent.base64,
           }),
