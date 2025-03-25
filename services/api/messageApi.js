@@ -144,7 +144,6 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       }
     }, userCredentials.contractNumber, userCredentials.accessToken || "");
 
-    console.log('🔍 DEBUG_FILESIZE_API - taille du fichier dans la requête:', isFile ? messageContent.fileSize : 'N/A');
 
     // We get the API URL
     const apiUrl = await ENV.API_URL();
@@ -380,6 +379,86 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
 
     return base64Data;
   } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * @function editMessageApi
+ * @description Edits an existing message in the API
+ * @param {string} messageId - The ID of the message to edit
+ * @param {Object} messageContent - The new content for the message
+ * @param {Object} userCredentials - The user credentials
+ * @returns {Promise<Object>} - The result of the edit operation
+ */
+export const editMessageApi = async (messageId, messageContent, userCredentials) => {
+  try {
+    const timestamp = Date.now();
+
+    console.log('🔍 DEBUG_EDIT - Contenu reçu pour édition:', JSON.stringify(messageContent, null, 2));
+
+    // Nous créons le titre à partir du contenu du message
+    const messageTitle = typeof messageContent.text === 'string'
+      ? messageContent.text.substring(0, 50)
+      : 'Message édité';
+
+    // Nous récupérons le texte du message
+    const messageText = messageContent.text || '';
+
+    // Nous créons le body de la requête pour l'édition du message
+    const body = createApiRequest({
+      'amaiia_msg_srv': {
+        'message': {
+          'edit': {
+            'messageid': parseInt(messageId, 10),
+            'accountapikey': userCredentials.accountApiKey,
+            'title': messageTitle,
+            'details': messageText
+          }
+        }
+      }
+    }, userCredentials.contractNumber, userCredentials.accessToken || "");
+
+    console.log('✏️ Édition du message, envoi à l\'API:', {
+      messageId,
+      title: messageTitle,
+      details: messageText
+    });
+
+    // Nous envoyons la requête à l'API
+    const apiUrl = await ENV.API_URL();
+    const response = await axios.post(apiUrl, body, {
+      timeout: 30000,
+    });
+
+    console.log('📝 Réponse de l\'API pour l\'édition:', response.data);
+
+    // Nous vérifions si la réponse est valide
+    if (response.status === 200) {
+      if (typeof response.data === 'string' && response.data.includes('xdebug-error')) {
+        throw new Error('Erreur serveur lors de l\'édition');
+      }
+
+      return {
+        status: 'ok',
+        message: {
+          id: messageId,
+          title: messageTitle,
+          text: messageText,
+          message: messageText,
+          savedTimestamp: timestamp,
+          fileType: 'none',
+          login: userCredentials.login,
+          isOwnMessage: true,
+          isUnread: false,
+          username: 'Moi',
+        },
+      };
+    }
+
+    throw new Error('Erreur lors de l\'édition du message');
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'édition du message:', error);
     throw error;
   }
 };

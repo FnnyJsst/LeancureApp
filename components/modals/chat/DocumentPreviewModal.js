@@ -49,7 +49,6 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         }, credentials);
 
         if (highQualityData) {
-          console.log('✅ Image HD reçue, longueur:', highQualityData.length);
           setHighQualityBase64(highQualityData);
         }
       } catch (err) {
@@ -99,7 +98,6 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
     else if (initialBase64) {
       // La taille approximative en octets est environ 3/4 de la longueur de la chaîne base64
       calculatedSize = Math.ceil(initialBase64.length * 0.75);
-      console.log('🔍 MODAL_SIZE - Taille estimée depuis base64:', calculatedSize);
     }
     // Option 3: Utiliser des valeurs par défaut selon le type
     else {
@@ -110,7 +108,6 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       } else {
         calculatedSize = 100 * 1024; // ~100 Ko par défaut
       }
-      console.log('🔍 MODAL_SIZE - Utilisation de la taille par défaut:', calculatedSize);
     }
 
     if (!calculatedSize) return '0 Ko';
@@ -227,19 +224,6 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         ? 'image/jpeg'
         : 'image/png';
 
-      // Ajout de logs détaillés pour le debug
-      console.log('🎨 Préparation rendu image:', {
-        mimeType,
-        base64Length: {
-          high: highQualityBase64?.length,
-          initial: initialBase64?.length
-        },
-        base64Preview: {
-          high: highQualityBase64?.substring(0, 50),
-          initial: initialBase64?.substring(0, 50)
-        }
-      });
-
       const imageSource = {
         uri: `data:${mimeType};base64,${highQualityBase64 || initialBase64}`,
         // Ajout de propriétés pour forcer le rendu
@@ -247,19 +231,12 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         timestamp: Date.now()
       };
 
-      console.log('🖼️ Source image:', {
-        uri: imageSource.uri.substring(0, 50) + '...',
-        hasData: !!(highQualityBase64 || initialBase64)
-      });
-
       return (
         <View style={styles.imageWrapper}>
           <Image
             source={imageSource}
             style={styles.image}
             resizeMode="contain"
-            onLoadStart={() => console.log('🔄 Début chargement image')}
-            onLoadEnd={() => console.log('✅ Fin chargement image')}
             onError={(error) => {
               console.error('🔴 Erreur chargement image:', {
                 error: error.nativeEvent,

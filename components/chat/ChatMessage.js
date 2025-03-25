@@ -28,20 +28,16 @@ const formatTimestamp = (timestamp) => {
  * @returns {string} The formatted file size
  */
 const formatFileSize = (bytes) => {
-  console.log('🔍 DEBUG_FILESIZE - Valeur reçue bytes:', bytes, 'Type:', typeof bytes);
 
   // Si la valeur est une chaîne, essayer de la convertir en nombre
   if (typeof bytes === 'string') {
     bytes = parseFloat(bytes);
-    console.log('🔍 DEBUG_FILESIZE - Après conversion de string:', bytes);
   }
 
   if (!bytes || isNaN(bytes)) {
-    console.log('🔍 DEBUG_FILESIZE - Valeur invalide, retourne 0 Ko');
     return '0.1 Ko'; // Retourner une taille minimale même si invalide
   }
   if (bytes === 0) {
-    console.log('🔍 DEBUG_FILESIZE - Valeur zéro, retourne 0 Ko');
     return '0.1 Ko'; // Retourner une taille minimale même si zéro
   }
 
@@ -51,7 +47,6 @@ const formatFileSize = (bytes) => {
   // Si la taille est très petite (< 100 octets) pour un vrai fichier,
   // supposons qu'elle est déjà en Ko et non en octets
   if (bytes < 100) {
-    console.log('🔍 DEBUG_FILESIZE - Taille suspicieusement petite, interprétée comme déjà en Ko:', bytes);
     // La taille est déjà en Ko, pas besoin de division initiale
     let size = bytes;
     let unitIndex = 0;
@@ -59,13 +54,11 @@ const formatFileSize = (bytes) => {
     // Pour les petites tailles (< 10), afficher une décimale pour plus de précision
     if (size < 10) {
       const result = `${size.toFixed(1)} ${sizes[unitIndex]}`;
-      console.log('🔍 DEBUG_FILESIZE - Résultat formaté (déjà en Ko):', result);
       return result;
     }
 
     // Pour les tailles plus grandes, arrondir à l'entier
     const result = `${Math.round(size)} ${sizes[unitIndex]}`;
-    console.log('🔍 DEBUG_FILESIZE - Résultat formaté (déjà en Ko):', result);
     return result;
   }
 
@@ -73,7 +66,6 @@ const formatFileSize = (bytes) => {
   let size = bytes / 1024;
   let unitIndex = 0;
 
-  console.log('🔍 DEBUG_FILESIZE - Taille initiale en Ko:', size);
 
   // Pour les très petits fichiers (moins de 0.1 Ko), afficher au moins 0.1 Ko
   if (size < 0.1) {
@@ -84,19 +76,16 @@ const formatFileSize = (bytes) => {
   while (size >= 1024 && unitIndex < sizes.length - 1) {
     size /= 1024;
     unitIndex++;
-    console.log('🔍 DEBUG_FILESIZE - Passage à unité supérieure:', size, sizes[unitIndex]);
   }
 
   // Pour les petites tailles (< 10), afficher une décimale pour plus de précision
   if (size < 10) {
     const result = `${size.toFixed(1)} ${sizes[unitIndex]}`;
-    console.log('🔍 DEBUG_FILESIZE - Résultat formaté (petit):', result);
     return result;
   }
 
   // Pour les tailles plus grandes, arrondir à l'entier
   const result = `${Math.round(size)} ${sizes[unitIndex]}`;
-  console.log('🔍 DEBUG_FILESIZE - Résultat formaté (grand):', result);
   return result;
 };
 
@@ -119,6 +108,16 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   const [menuMessageVisible, setMenuMessageVisible] = useState(false);
   const { isSmartphone } = useDeviceType();
   const messageTime = formatTimestamp(message.savedTimestamp);
+
+  // Debug log pour vérifier les propriétés du message
+  console.log('🔍 Message affiché:', {
+    id: message.id,
+    text: message.text,
+    message: message.message,
+    type: message.type,
+    isOwnMessage: isOwnMessage,
+    savedTimestamp: message.savedTimestamp
+  });
 
   /**
    * @function handleLongPress
@@ -190,28 +189,17 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                 message.fileType?.toLowerCase().includes('jpg') ||
                 message.fileType?.toLowerCase().includes('png');
 
-    console.log('🧐 DEBUG_MESSAGE - Données du fichier:', {
-      fileName: message.fileName,
-      fileType: message.fileType,
-      fileSize: message.fileSize,
-      fileSizeType: typeof message.fileSize,
-      hasBase64: !!message.base64,
-      base64Length: message.base64 ? message.base64.length : 0
-    });
-
     // Estimer la taille du fichier
     let fileSizeInBytes;
 
     // Option 1: Utiliser la taille fournie si elle est valide
     if (message.fileSize && !isNaN(parseInt(message.fileSize, 10))) {
       fileSizeInBytes = parseInt(message.fileSize, 10);
-      console.log('🔍 DEBUG_SIZE - Utilisation de la taille fournie:', fileSizeInBytes);
     }
     // Option 2: Estimer la taille à partir du base64 (environ 3/4 de la longueur)
     else if (message.base64) {
       // La taille approximative en octets est environ 3/4 de la longueur de la chaîne base64
       fileSizeInBytes = Math.ceil(message.base64.length * 0.75);
-      console.log('🔍 DEBUG_SIZE - Taille estimée depuis base64:', fileSizeInBytes);
     }
     // Option 3: Utiliser une valeur par défaut selon le type
     else {
@@ -223,7 +211,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
       } else {
         fileSizeInBytes = 100 * 1024; // ~100 Ko par défaut
       }
-      console.log('🔍 DEBUG_SIZE - Utilisation de la taille par défaut:', fileSizeInBytes);
     }
 
     const messageContent = (

@@ -6,7 +6,7 @@ import ChatMessage from './ChatMessage';
 import DocumentPreviewModal from '../modals/chat/DocumentPreviewModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import * as SecureStore from 'expo-secure-store';
-import { sendMessageApi, fetchMessageFile, deleteMessageApi } from '../../services/api/messageApi';
+import { sendMessageApi, fetchMessageFile, deleteMessageApi, editMessageApi } from '../../services/api/messageApi';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import DateBanner from './DateBanner';
 import { Text } from '../text/CustomText';
@@ -174,6 +174,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             return;
         }
 
+        console.log('🔍 DEBUG_WS - Message reçu:', JSON.stringify(messageContent, null, 2));
+
         // Si c'est un tableau de messages
         if (messageContent.type === 'messages' && Array.isArray(messageContent.messages)) {
             setMessages(prevMessages => {
@@ -181,11 +183,15 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     .filter(msg => !processedMessageIds.current.has(msg.id))
                     .map(msg => {
                         processedMessageIds.current.add(msg.id);
+
+                        // S'assurer que le texte est présent dans les deux propriétés
+                        const messageText = msg.message || '';
+
                         return {
                             id: msg.id?.toString() || Date.now().toString(),
                             type: msg.type || 'text',
-                            text: msg.message,
-                            message: msg.message,
+                            text: messageText,
+                            message: messageText,
                             savedTimestamp: msg.savedTimestamp || Date.now().toString(),
                             fileType: msg.fileType || 'none',
                             login: msg.login || 'unknown',
@@ -207,11 +213,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
         // Si c'est un message unique
         setMessages(prevMessages => {
+            // S'assurer que le texte est présent dans les deux propriétés
+            const messageText = messageContent.message || '';
+
             const newMessage = {
                 id: messageContent.id || Date.now().toString(),
                 type: messageContent.type || 'text',
-                text: messageContent.message,
-                message: messageContent.message,
+                text: messageText,
+                message: messageText,
                 savedTimestamp: messageContent.savedTimestamp || Date.now().toString(),
                 fileType: messageContent.fileType || 'none',
                 login: messageContent.login || 'unknown',
@@ -220,8 +229,24 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 username: messageContent.login === credentials?.login ? 'Me' : messageContent.login || 'Unknown'
             };
 
-            console.log('✅ Nouveau message ajouté:', newMessage.id);
-            return [...prevMessages, newMessage];
+            console.log('🔍 DEBUG_MSG - Nouveau message formaté:', {
+                id: newMessage.id,
+                text: newMessage.text,
+                message: newMessage.message
+            });
+
+            // Vérifier si ce message existe déjà (édition)
+            const messageExists = prevMessages.some(msg => msg.id === newMessage.id);
+
+            if (messageExists) {
+                console.log(`🔄 Message existant mis à jour (ID: ${newMessage.id})`);
+                return prevMessages.map(msg =>
+                    msg.id === newMessage.id ? newMessage : msg
+                );
+            } else {
+                console.log(`➕ Nouveau message ajouté (ID: ${newMessage.id})`);
+                return [...prevMessages, newMessage];
+            }
         });
         return;
     }
@@ -242,12 +267,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             return;
         }
 
+        console.log('🔍 DEBUG_NOTIF - Notification reçue:', JSON.stringify(messageContent, null, 2));
+
         setMessages(prevMessages => {
+            // S'assurer que le texte est présent dans les deux propriétés
+            const messageText = messageContent.message || '';
+
             const newMessage = {
                 id: messageContent.id || Date.now().toString(),
                 type: messageContent.type || 'text',
-                text: messageContent.message,
-                message: messageContent.message,
+                text: messageText,
+                message: messageText,
                 savedTimestamp: messageContent.savedTimestamp || Date.now().toString(),
                 fileType: messageContent.fileType || 'none',
                 login: messageContent.login || data.sender || 'unknown',
@@ -256,8 +286,24 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 username: (messageContent.login || data.sender) === credentials?.login ? 'Me' : (messageContent.login || data.sender || 'Unknown')
             };
 
-            console.log('✅ Nouveau message ajouté:', newMessage.id);
-            return [...prevMessages, newMessage];
+            console.log('🔍 DEBUG_NOTIF - Message formaté:', {
+                id: newMessage.id,
+                text: newMessage.text,
+                message: newMessage.message
+            });
+
+            // Vérifier si ce message existe déjà (édition)
+            const messageExists = prevMessages.some(msg => msg.id === newMessage.id);
+
+            if (messageExists) {
+                console.log(`🔄 Message existant mis à jour (ID: ${newMessage.id})`);
+                return prevMessages.map(msg =>
+                    msg.id === newMessage.id ? newMessage : msg
+                );
+            } else {
+                console.log(`➕ Nouveau message ajouté (ID: ${newMessage.id})`);
+                return [...prevMessages, newMessage];
+            }
         });
         return;
     }
@@ -390,6 +436,68 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         throw new Error(t('errors.noChannelSelected'));
       }
 
+      // Vérifier s'il s'agit d'une édition de message
+      const isEditing = messageData.isEditing === true && messageData.messageId;
+
+      // Si c'est une édition, utiliser la fonction d'édition
+      if (isEditing) {
+        console.log('✏️ Mode édition détecté, modification du message:', {
+          messageId: messageData.messageId,
+          newText: messageData.text,
+          oldMessage: messages.find(m => m.id === messageData.messageId)
+        });
+
+        // Nous récupérons les credentials
+        const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+        if (!credentialsStr) {
+          throw new Error(t('errors.noCredentialsFound'));
+        }
+
+        const userCredentials = JSON.parse(credentialsStr);
+
+        // Nous envoyons la requête d'édition
+        const response = await editMessageApi(messageData.messageId, messageData, userCredentials);
+
+        if (response.status === 'ok') {
+          console.log('✅ Message édité avec succès, réponse:', response);
+
+          // Mettre à jour le message localement immédiatement
+          setMessages(prevMessages => {
+            const updatedMessages = prevMessages.map(msg => {
+              if (msg.id === messageData.messageId) {
+                console.log('🔄 Mise à jour locale du message:', {
+                  avant: msg.text,
+                  après: messageData.text
+                });
+
+                // S'assurer que le texte du message est défini dans les deux propriétés
+                const updatedText = messageData.text || '';
+
+                return {
+                  ...msg,
+                  text: updatedText,
+                  message: updatedText,
+                  title: updatedText.substring(0, 50),
+                  savedTimestamp: Date.now()
+                };
+              }
+              return msg;
+            });
+
+            return updatedMessages;
+          });
+
+          // Réinitialiser l'état d'édition
+          setEditingMessage(null);
+
+          return;
+        } else {
+          throw new Error(t('errors.errorEditingMessage'));
+        }
+      }
+
+      // Pour un nouveau message (non-édition), on continue avec le code existant
+
       // We check the type of message
       if (messageData.type === 'file') {
         if (!messageData.base64) {
@@ -459,12 +567,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         type: 'text',
         message: typeof messageData === 'object' ? messageData.text : messageData
       };
-
-      console.log('🔍 DEBUG_FILESIZE_SEND - messageData:', {
-        type: messageData.type,
-        fileSize: messageData.type === 'file' ? messageData.fileSize : null,
-        fileSizeType: messageData.type === 'file' ? typeof messageData.fileSize : null
-      });
 
       // We send the message to the API
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
@@ -574,10 +676,31 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   }
 
   // We filter the messages
-  const validMessages = messages.filter(message =>
-    message &&
-    (message.text || message.message || message.type === 'file')
-  );
+  const validMessages = messages.filter(message => {
+    if (!message) {
+      console.log('📝 Message invalide: null ou undefined');
+      return false;
+    }
+
+    const hasText = !!message.text;
+    const hasMessageProp = !!message.message;
+    const isFileType = message.type === 'file';
+
+    const isValid = hasText || hasMessageProp || isFileType;
+
+    if (!isValid) {
+      console.log('📝 Message invalide:', {
+        id: message.id,
+        hasText,
+        hasMessageProp,
+        isFileType,
+        textValue: message.text,
+        messageValue: message.message
+      });
+    }
+
+    return isValid;
+  });
 
   return (
     <View style={styles.container}>
@@ -616,7 +739,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 if (currentDate !== prevDate) {
                   acc.push(
                     <DateBanner
-                      key={`date-${currentDate}-${index}`}
+                      key={`date-${currentDate}-${index}-${message.id}`}
                       date={currentDate}
                     />
                   );
@@ -624,8 +747,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
                 acc.push(
                   <ChatMessage
-                    key={message.id || `temp-${index}`}
-                    message={message}
+                    key={`msg-${message.id || index}-${index}`}
+                    message={{
+                      ...message,
+                      // S'assurer que text est toujours défini, en utilisant message comme fallback
+                      text: message.text || message.message || '',
+                    }}
                     isOwnMessage={message.isOwnMessage}
                     onFileClick={openDocumentPreviewModal}
                     onDeleteMessage={handleDeleteMessage}
