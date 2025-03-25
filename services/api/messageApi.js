@@ -102,13 +102,21 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
  */
 export const sendMessageApi = async (channelId, messageContent, userCredentials) => {
   try {
+    console.log('🔎 DEBUG-LEANCURE-1: Entrée dans sendMessageApi avec:', JSON.stringify({
+      channelId,
+      messageContent,
+      userCredentialsKeys: Object.keys(userCredentials)
+    }, null, 2));
+
     const timestamp = Date.now();
 
     // We check if the message content is a file
-    const isFile = typeof messageContent === 'object';
+    const isFile = typeof messageContent === 'object' && messageContent.type === 'file';
 
     // We get the message title
-    const messageTitle = isFile ? messageContent.fileName : messageContent.substring(0, 50);
+    const messageTitle = isFile ?
+      messageContent.fileName :
+      (typeof messageContent.message === 'string' ? messageContent.message.substring(0, 50) : 'Message');
 
     // If the message content is a file, we get the file type
     let fileType = isFile ? messageContent.fileType : null;
@@ -120,6 +128,8 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       fileType = 'png';
     }
 
+    console.log('🔎 DEBUG-LEANCURE-2: Avant création du body, messageContent =', JSON.stringify(messageContent, null, 2));
+
     // We create the body of the request
     const body = createApiRequest({
       'amaiia_msg_srv': {
@@ -127,7 +137,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
           'add': {
             'channelid': parseInt(channelId, 10),
             'title': messageTitle,
-            'details': messageContent.messageText || null,
+            'details': isFile ? messageContent.messageText : messageContent.message,
             'enddatets': timestamp + 99999,
             'file': isFile ? {
               'base64': messageContent.base64,
@@ -141,6 +151,8 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       }
     }, userCredentials.contractNumber, userCredentials.accessToken || "");
 
+    console.log('🔎 DEBUG-LEANCURE-3: Corps complet de la requête =', JSON.stringify(body, null, 2));
+
     // We get the API URL
     const apiUrl = await ENV.API_URL();
 
@@ -148,6 +160,8 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     const response = await axios.post(apiUrl, body, {
       timeout: 30000,
     });
+
+    console.log('🔎 DEBUG-LEANCURE-4: Réponse de l\'API =', JSON.stringify(response.data, null, 2));
 
     // We check if the response is valid
     if (response.status === 200) {
@@ -160,7 +174,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
         message: {
           id: timestamp,
           title: messageTitle,
-          message: messageContent.messageText || messageContent,
+          message: isFile ? messageContent.messageText : messageContent.message,
           savedTimestamp: timestamp,
           endTimestamp: timestamp + 99999,
           fileType: isFile ? fileType : 'none',

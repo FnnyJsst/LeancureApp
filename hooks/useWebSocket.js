@@ -195,7 +195,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
     // Handle the channel change
     useEffect(() => {
-        console.log('🔄 Changement de canaux détecté:', channels);
+        // console.log('🔄 Changement de canaux détecté:', channels);
         // If there are no channels, we clean the connection
         if (channels.length === 0) {
             cleanup();

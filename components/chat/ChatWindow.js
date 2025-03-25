@@ -450,7 +450,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // We add the temporary message
       setMessages(prevMessages => {
-        console.log('📥 Ajout du message temporaire aux messages existants');
+        // console.log('📥 Ajout du message temporaire aux messages existants');
         return [...prevMessages, tempMessage];
       });
 
@@ -460,7 +460,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         message: typeof messageData === 'object' ? messageData.text : messageData
       };
 
-      console.log('📤 Envoi du message à l\'API:', messageToSend);
+      console.log('🔎 DEBUG-LEANCURE-CHATWINDOW: messageToSend =', JSON.stringify(messageToSend, null, 2));
 
       // We send the message to the API
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
