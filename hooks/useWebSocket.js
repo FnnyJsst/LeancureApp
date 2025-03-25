@@ -67,9 +67,9 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 ]
             };
 
-            // console.log('📤 Données de souscription:', JSON.stringify(subscriptionData, null, 2));
+            // We send the subscription to the WebSocket server
             ws.current.send(JSON.stringify(subscriptionData));
-            // console.log('✅ Souscription envoyée avec succès');
+            // If there is an error, we log it
         } catch (error) {
             const errorDetails = {
                 name: error.name,
@@ -152,15 +152,12 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
             // We handle the notification event received from the WebSocket server
             ws.current.onmessage = (event) => {
-                console.log('📨 Message WebSocket reçu - données brutes:', event.data);
                 // We parse the notification event received from the WebSocket server
                 try {
                     const data = JSON.parse(event.data);
-                    console.log('📩 Notification reçue:', JSON.stringify(data, null, 2));
 
                     // If the notification type is refreshcontent, we refresh the messages
                     if (data.type === 'refreshcontent') {
-                        console.log('🔄 Rafraîchissement du contenu demandé');
                         refreshMessages();
                         return;
                     }
@@ -211,10 +208,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
         // If the current channel is different from the active channel, we change the channel
         if (cleanCurrentChannel !== cleanActiveChannel) {
-            console.log('📢 Changement de canal effectif:', {
-                ancien: cleanActiveChannel,
-                nouveau: cleanCurrentChannel
-            });
 
             // If the WebSocket connection is open, we close it
             if (ws.current) {
@@ -226,7 +219,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             activeChannel.current = currentChannel;
 
             // We establish a new connection
-            console.log('🔄 Établissement d\'une nouvelle connexion');
             connect();
         }
     }, [channels, connect, cleanup]);
@@ -258,7 +250,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             const messages = await fetchChannelMessages(cleanChannelId, credentials);
 
             if (onMessage && Array.isArray(messages)) {
-                console.log('📦 Messages récupérés (brut):', messages);
 
                 // We format the messages to match the expected format
                 const formattedData = {
@@ -332,7 +323,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                         ]
                     };
 
-                    console.log('📤 Envoi du message:', JSON.stringify(messageData, null, 2));
                     // We send the message to the WebSocket server
                     ws.current.send(JSON.stringify(messageData));
                     console.log('✅ Message envoyé avec succès');
