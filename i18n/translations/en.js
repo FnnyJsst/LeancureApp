@@ -191,6 +191,8 @@ export default {
     required: "This field is required",
     titleRequired: "Title is required",
     invalidUrl: "Invalid URL",
+    invalidResponse: "Invalid response format - missing data",
+    errorLoadingLoginInfo: "Error loading login info",
     passwordMismatch: "Passwords do not match",
     passwordTooShort: "Password must be at least 6 characters",
     success: "Success",

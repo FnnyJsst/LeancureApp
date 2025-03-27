@@ -193,6 +193,8 @@ export default {
     required: "Ce champ est obligatoire",
     titleRequired: "Le titre est obligatoire",
     invalidUrl: "URL invalide",
+    invalidResponse: "Format de réponse invalide - données manquantes",
+    errorLoadingLoginInfo: "Erreur lors du chargement des informations de connexion",
     passwordMismatch: "Les mots de passe ne correspondent pas",
     passwordTooShort: "Le mot de passe doit contenir 6+ caractères",
     success: "Succès",

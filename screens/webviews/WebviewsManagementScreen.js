@@ -13,6 +13,7 @@ import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import Entypo from '@expo/vector-icons/Entypo';
 import { useTranslation } from 'react-i18next';
+import { handleError, ErrorType } from '../../utils/errorHandling';
 
 /**
  * @component WebviewsManagementScreen
@@ -51,6 +52,7 @@ export default function WebviewsManagementScreen({
   const [selectedBinIndex, setSelectedBinIndex] = useState(null);
   const [selectedUpIndex, setSelectedUpIndex] = useState(null);
   const [selectedDownIndex, setSelectedDownIndex] = useState(null);
+  const [error, setError] = useState(null);
 
   /**
   * functions to open and close the different modals
@@ -82,20 +84,24 @@ export default function WebviewsManagementScreen({
    */
   const handleDeleteWebview = async (webviewToDelete) => {
     if (webviewToDelete) {
-      // Filter the channels to remove the one to delete
-      const updatedWebviews = selectedWebviews.filter(
-        channel => channel.href !== webviewToDelete.href
-      );
-      setSelectedWebviews(updatedWebviews);
-      saveSelectedWebviews(updatedWebviews);
-      closeDeleteModal();
-
-      // Save the updated channels in SecureStore
       try {
-        await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(updatedWebviews));
-      } catch (error) {
+        // Filter the channels to remove the one to delete
+        const updatedWebviews = selectedWebviews.filter(
+          channel => channel.href !== webviewToDelete.href
+        );
+        setSelectedWebviews(updatedWebviews);
+        saveSelectedWebviews(updatedWebviews);
+        closeDeleteModal();
 
-        throw error;
+        // Save the updated channels in SecureStore
+        await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(updatedWebviews));
+        setError(t('success.webviewDeleted'));
+      } catch (err) {
+        handleError(err, 'webviewsManagement.handleDeleteWebview', {
+          type: ErrorType.SYSTEM,
+          silent: false
+        });
+        setError(t('errors.errorDeletingWebview'));
       }
     }
   };
@@ -107,17 +113,24 @@ export default function WebviewsManagementScreen({
    * @param {number} index - The index of the channel to move up
    */
   const moveWebviewUp = (index) => {
-    // Check if we are not at the first channel
-    if (index > 0) {
-      // Create a copy of the selected channels
-      const updatedWebviews = [...selectedWebviews];
-      // Swap the channel with the one above
-      const temp = updatedWebviews[index - 1];
-      updatedWebviews[index - 1] = updatedWebviews[index];
-      updatedWebviews[index] = temp;
-      // Set the updated channels
-      setSelectedWebviews(updatedWebviews);
-      saveSelectedWebviews(updatedWebviews);
+    try {
+      // Check if we are not at the first channel
+      if (index > 0) {
+        // Create a copy of the selected channels
+        const updatedWebviews = [...selectedWebviews];
+        // Swap the channel with the one above
+        const temp = updatedWebviews[index - 1];
+        updatedWebviews[index - 1] = updatedWebviews[index];
+        updatedWebviews[index] = temp;
+        // Set the updated channels
+        setSelectedWebviews(updatedWebviews);
+        saveSelectedWebviews(updatedWebviews);
+      }
+    } catch (err) {
+      handleError(err, 'webviewsManagement.moveWebviewUp', {
+        type: ErrorType.SYSTEM,
+        silent: true
+      });
     }
   };
 
@@ -127,18 +140,25 @@ export default function WebviewsManagementScreen({
    * @param {number} index - The index of the channel to move down
    */
   const moveWebviewDown = (index) => {
-    // Check if we are not at the last channel
-    if (index < selectedWebviews.length - 1) {
-      // Create a copy of the selected channels
-      const updatedWebviews = [...selectedWebviews];
-      // Swap the channel with the one below
-      const temp = updatedWebviews[index + 1];
-      updatedWebviews[index + 1] = updatedWebviews[index];
-      updatedWebviews[index] = temp;
-      // Set the updated channels
-      setSelectedWebviews(updatedWebviews);
-      // Save the updated channels
-      saveSelectedWebviews(updatedWebviews);
+    try {
+      // Check if we are not at the last channel
+      if (index < selectedWebviews.length - 1) {
+        // Create a copy of the selected channels
+        const updatedWebviews = [...selectedWebviews];
+        // Swap the channel with the one below
+        const temp = updatedWebviews[index + 1];
+        updatedWebviews[index + 1] = updatedWebviews[index];
+        updatedWebviews[index] = temp;
+        // Set the updated channels
+        setSelectedWebviews(updatedWebviews);
+        // Save the updated channels
+        saveSelectedWebviews(updatedWebviews);
+      }
+    } catch (err) {
+      handleError(err, 'webviewsManagement.moveWebviewDown', {
+        type: ErrorType.SYSTEM,
+        silent: true
+      });
     }
   };
 
@@ -150,17 +170,26 @@ export default function WebviewsManagementScreen({
    * @param {string} newTitle - The new title
    */
   const handleEditWebviewModal = async (oldChannel, newUrl, newTitle) => {
-    // Create a copy of the selected channels
-    const updatedWebviews = selectedWebviews.map(channel => {
-      // Check if the channel href is the same as the old channel href
-      if (channel.href === oldChannel.href) {
-        return { ...channel, href: newUrl, title: newTitle };
-      }
-      return channel;
-    });
-    // Set and save the updated channels
-    setSelectedWebviews(updatedWebviews);
-    await saveSelectedWebviews(updatedWebviews);
+    try {
+      // Create a copy of the selected channels
+      const updatedWebviews = selectedWebviews.map(channel => {
+        // Check if the channel href is the same as the old channel href
+        if (channel.href === oldChannel.href) {
+          return { ...channel, href: newUrl, title: newTitle };
+        }
+        return channel;
+      });
+      // Set and save the updated channels
+      setSelectedWebviews(updatedWebviews);
+      await saveSelectedWebviews(updatedWebviews);
+      setError(t('success.webviewUpdated'));
+    } catch (err) {
+      handleError(err, 'webviewsManagement.handleEditWebviewModal', {
+        type: ErrorType.SYSTEM,
+        silent: false
+      });
+      setError(t('errors.errorEditingWebview'));
+    }
   };
 
   return (
@@ -197,6 +226,10 @@ export default function WebviewsManagementScreen({
         ]}>
           {t('screens.useButton')}
         </Text>
+      )}
+
+      {error && (
+        <Text style={styles.errorText}>{error}</Text>
       )}
 
       {/* Modal to import channels */}
@@ -472,5 +505,11 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     marginTop: 20,
     paddingHorizontal: '2%',
+  },
+  errorText: {
+    color: COLORS.red,
+    textAlign: 'center',
+    marginVertical: 10,
+    fontSize: SIZES.fonts.textTablet,
   },
 });

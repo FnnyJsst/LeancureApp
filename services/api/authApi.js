@@ -2,6 +2,7 @@ import axios from 'axios';
 import { ENV } from '../../config/env';
 import { createApiRequest } from './baseApi';
 import * as SecureStore from 'expo-secure-store';
+import { handleError, ErrorType, handleApiError } from '../../utils/errorHandling';
 
 /**
  * @function loginApi
@@ -10,13 +11,12 @@ import * as SecureStore from 'expo-secure-store';
  * @param {string} login - The login
  * @param {string} password - The password
  * @param {string} accessToken - The access token
- * @returns {Promise<Object>} - The login data
  */
 export const loginApi = async (contractNumber, login, password, accessToken = '') => {
   try {
     console.log('🔵 Tentative de connexion avec:', { contractNumber, login });
 
-    // Créer la requête une seule fois
+    // We create the request data
     const requestData = createApiRequest({
       'accounts': {
         'loginmsg': {
@@ -28,14 +28,14 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       },
     }, contractNumber, accessToken);
 
+    // We get the API URL and check if it ends with /ic.php
     let apiUrl = await ENV.API_URL();
     if (!apiUrl.endsWith('/ic.php')) {
       apiUrl = `${apiUrl}/ic.php`;
     }
     console.log('🔵 URL de l\'API:', apiUrl);
-    // console.log('🔵 Données envoyées:', JSON.stringify(requestData, null, 2));
 
-    // Utiliser requestData directement
+    // We send the request
     const loginResponse = await axios({
       method: 'POST',
       url: apiUrl,
@@ -46,28 +46,26 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       timeout: 10000,
       validateStatus: function (status) {
         console.log('🔵 Status reçu:', status);
-        return true; // accepte tous les status pour le debug
+        return true;
       },
-      maxRedirects: 0, // désactive les redirections pour le debug
+      maxRedirects: 0,
     });
 
-    console.log('🔵 Login response détaillée:', JSON.stringify(loginResponse.data, null, 2));
-
+    // We check if the response is valid
     if (!loginResponse.data?.cmd?.[0]?.accounts) {
-        throw new Error('Format de réponse invalide - données manquantes');
+        throw new Error(t('errors.invalidResponse'));
     }
 
     const accountsData = loginResponse.data.cmd[0].accounts;
-    // console.log('🔵 Données du compte:', JSON.stringify(accountsData, null, 2));
 
     if (!accountsData.loginmsg?.get?.data) {
-        throw new Error('Données de connexion manquantes dans la réponse');
+        throw new Error(t('errors.invalidResponse'));
     }
 
     const userData = accountsData.loginmsg.get.data;
     const accountApiKey = userData.accountapikey;
 
-    // Deuxième requête pour obtenir les droits
+    // We send the second request to get the rights of the user
     const channelsResponse = await axios({
       method: 'POST',
       url: await ENV.API_URL(),
@@ -91,7 +89,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       timeout: 10000,
     });
 
-    // Extraire les droits du groupe 4 (Groupe admin)
+    // Extract the rights of the group 4 (Admin group)
     const groupsData = channelsResponse.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data?.private?.groups;
     let userRights = null;
 
@@ -100,7 +98,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       console.log("Rights trouvés dans le groupe admin:", userRights);
     }
 
-    // Sauvegarder les credentials avec les droits
+    // Save the credentials with the rights
     const credentials = {
       contractNumber,
       login,
@@ -108,11 +106,6 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       accountApiKey,
       rights: userRights
     };
-
-    console.log("Sauvegarde des credentials:", {
-      ...credentials,
-      password: '***' // Masquer le mot de passe dans les logs
-    });
 
     await saveCredentials(credentials);
 
@@ -126,17 +119,14 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     };
 
   } catch (error) {
-    console.error('🔴 Error loginApi:', error);
-    console.error('🔴 Error details:', {
-        message: error.message,
-        code: error.code,
-        response: error.response,
-        request: error.request
+    handleApiError(error, 'auth.login', {
+      type: ErrorType.AUTH,
+      silent: false
     });
     return {
-        status: 500,
-        success: false,
-        error: `${error.message} (${error.code || 'no code'})`,
+      status: error.response?.status || 500,
+      success: false,
+      error: error.message || 'Erreur de connexion',
     };
   }
 };
@@ -152,13 +142,16 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
 export const saveCredentials = async (credentials) => {
   try {
     await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-    // Sauvegarder les droits séparément pour plus de sécurité
+    // Save the rights separately for more security
     if (credentials.rights) {
       await SecureStore.setItemAsync('userRights', credentials.rights);
     }
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde des credentials:', error);
-    throw new Error('Failed to save credentials');
+    handleError(error, 'auth.saveCredentials', {
+      type: ErrorType.SYSTEM,
+      silent: false
+    });
+    throw new Error(t('errors.errorSavingLoginInfo'));
   }
 };
 
@@ -172,7 +165,11 @@ export const getCredentials = async () => {
     const credentials = await SecureStore.getItemAsync('userCredentials');
     return credentials ? JSON.parse(credentials) : null;
   } catch (error) {
-    throw new Error('Failed to get credentials');
+    handleError(error, 'auth.getCredentials', {
+      type: ErrorType.SYSTEM,
+      silent: false
+    });
+    throw new Error(t('errors.errorLoadingLoginInfo'));
   }
 };
 
@@ -186,7 +183,10 @@ export const getUserRights = async () => {
     const credentials = await getCredentials();
     return credentials?.rights || null;
   } catch (error) {
-    console.error('Erreur lors de la récupération des droits:', error);
+    handleError(error, 'auth.getUserRights', {
+      type: ErrorType.SYSTEM,
+      silent: false
+    });
     return null;
   }
 };
@@ -204,7 +204,10 @@ export const clearSecureStorage = async () => {
     await SecureStore.deleteItemAsync('userRights');
     return true;
   } catch (error) {
-    console.error('🔴 Error clearing secure storage:', error);
+    handleError(error, 'auth.clearSecureStorage', {
+      type: ErrorType.SYSTEM,
+      silent: false
+    });
     return false;
   }
 };
