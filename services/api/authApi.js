@@ -14,7 +14,6 @@ import { handleError, ErrorType, handleApiError } from '../../utils/errorHandlin
  */
 export const loginApi = async (contractNumber, login, password, accessToken = '') => {
   try {
-    console.log('🔵 Tentative de connexion avec:', { contractNumber, login });
 
     // We create the request data
     const requestData = createApiRequest({
@@ -45,20 +44,14 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       },
       timeout: 10000,
       validateStatus: function (status) {
-        console.log('🔵 Status reçu:', status);
         return true;
       },
       maxRedirects: 0,
     });
 
-    // We check if the response is valid
-    if (!loginResponse.data?.cmd?.[0]?.accounts) {
-        throw new Error(t('errors.invalidResponse'));
-    }
-
     const accountsData = loginResponse.data.cmd[0].accounts;
 
-    if (!accountsData.loginmsg?.get?.data) {
+    if ((!loginResponse.data?.cmd?.[0]?.accounts) || (!accountsData.loginmsg?.get?.data)) {
         throw new Error(t('errors.invalidResponse'));
     }
 
@@ -95,10 +88,9 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
 
     if (groupsData && groupsData['4']) {
       userRights = groupsData['4'].rights;
-      console.log("Rights trouvés dans le groupe admin:", userRights);
     }
 
-    // Save the credentials with the rights
+    // We save the credentials with the rights in the secure storage
     const credentials = {
       contractNumber,
       login,
@@ -109,6 +101,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
 
     await saveCredentials(credentials);
 
+    // We return the credentials
     return {
       status: loginResponse.status,
       accountApiKey: accountApiKey,
@@ -126,7 +119,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     return {
       status: error.response?.status || 500,
       success: false,
-      error: error.message || 'Erreur de connexion',
+      error: error.message || t('errors.connectionError'),
     };
   }
 };
@@ -135,9 +128,6 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
  * @function saveCredentials
  * @description Saves the user credentials in secure storage
  * @param {Object} credentials - The credentials to save
- * @param {string} credentials.contractNumber - The contract number
- * @param {string} credentials.login - The login
- * @param {string} credentials.password - The hashed password
  */
 export const saveCredentials = async (credentials) => {
   try {
@@ -162,6 +152,7 @@ export const saveCredentials = async (credentials) => {
  */
 export const getCredentials = async () => {
   try {
+    // We get the credentials from the secure storage and parse it
     const credentials = await SecureStore.getItemAsync('userCredentials');
     return credentials ? JSON.parse(credentials) : null;
   } catch (error) {

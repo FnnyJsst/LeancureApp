@@ -257,6 +257,11 @@ export default {
     appFontLoadingError: "Error loading fonts",
     appSecureStoreError: "Error accessing secure storage",
     appDecryptionError: "Error decrypting data",
+    noGroupsFound: "No groups found",
+    messageNotDeleted: "Message not deleted",
+    messageNotEdited: "Message not edited",
+    hashPasswordError: "Error hashing password",
+    verifyPasswordError: "Error verifying password",
   },
   success: {
     messageDeleted: "Message deleted successfully",

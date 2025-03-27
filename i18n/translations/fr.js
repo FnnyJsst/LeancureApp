@@ -260,6 +260,11 @@ export default {
     appFontLoadingError: "Erreur lors du chargement des polices",
     appSecureStoreError: "Erreur lors de l'accès au stockage sécurisé",
     appDecryptionError: "Erreur lors du déchiffrement des données",
+    noGroupsFound: "Aucun groupe trouvé",
+    messageNotDeleted: "Message non supprimé",
+    messageNotEdited: "Message non modifié",
+    hashPasswordError: "Erreur lors du hashage du mot de passe",
+    verifyPasswordError: "Erreur lors de la vérification du mot de passe",
   },
   success: {
     messageDeleted: "Message supprimé avec succès",

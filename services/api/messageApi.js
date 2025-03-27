@@ -6,8 +6,8 @@ import { createApiRequest, createSignature } from './baseApi';
  * @function fetchUserChannels
  * @description Fetches the user's channels
  * @param {string} contractNumber - The contract number
- * @param {string} login - The login (unused)
- * @param {string} password - The password (unused)
+ * @param {string} login - The login
+ * @param {string} password - The password
  * @param {string} accessToken - The access token
  * @param {string} accountApiKey - The account API key
  * @returns {Promise<Object>} - The user's channels
@@ -46,8 +46,9 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
         'Content-Type': 'application/json',
       },
       timeout: 10000,
-      validateStatus: function (status) {
-        return true;
+      validateStatus: (status) => {
+        // We accept 200-299 (success) and also 400 to handle validation errors
+        return (status >= 200 && status < 300) || status === 400;
       },
     });
 
@@ -57,8 +58,7 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
     // We check if the data is valid
     if (!data?.private?.groups) {
       // If the data is not valid, we throw an error
-      console.error('❌ Pas de groupes trouvés dans la réponse');
-      return { status: 'error', message: 'No groups found' };
+      return { status: 'error', message: t('errors.noGroupsFound') };
     }
 
     // We format the groups and channels as expected by the Sidebar
@@ -84,7 +84,7 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
     };
 
   } catch (error) {
-    console.error('🔴 Error fetchUserChannels:', error);
+    console.error(error);
     return {
       status: 'error',
       message: error.message
@@ -144,25 +144,25 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       }
     }, userCredentials.contractNumber, userCredentials.accessToken || "");
 
-
-    // We get the API URL
+    // We get the API URL and send the request
     const apiUrl = await ENV.API_URL();
-
-    // We send the request to the API
     const response = await axios.post(apiUrl, body, {
       timeout: 30000,
     });
 
-    // We check if the response is valid
+    // If the response is valid, we return the message data
     if (response.status === 200) {
       if (typeof response.data === 'string' && response.data.includes('xdebug-error')) {
         throw new Error(t('error.serverError'));
       }
 
+      // On utilise l'ID du serveur au lieu du timestamp
+      const serverMessageId = response.data?.cmd?.[0]?.amaiia_msg_srv?.message?.add?.data?.messageid;
+
       return {
         status: 'ok',
         message: {
-          id: timestamp,
+          id: serverMessageId || timestamp, // Fallback sur timestamp si pas d'ID serveur
           title: messageTitle,
           message: isFile ? messageContent.messageText : messageContent.message,
           savedTimestamp: timestamp,
@@ -211,18 +211,15 @@ export const deleteMessageApi = async (messageId, userCredentials) => {
       }
     }, userCredentials.contractNumber);
 
-    // We get the API URL
+    // We get the API URL and send the request
     const apiUrl = await ENV.API_URL();
-
-    // We send the request to the API
     const response = await axios.post(apiUrl, body, {
-      timeout: 10000, // 10 secondes max
+      timeout: 10000,
     });
 
     if (response.status === 200) {
       return {
         status: 'ok',
-        // message: t('success.messageDeleted')
       };
     }
 
@@ -259,32 +256,23 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
       },
     }, userCredentials.contractNumber);
 
-    // We get the API URL
+    // We get the API URL and send the request
     const apiUrl = await ENV.API_URL();
-
-    // We send the request to the API
     const response = await axios.post(apiUrl, body);
-
-    // We check if the response is valid
-
 
     // If the response is valid, we get the messages
     if (response.status === 200) {
       // We get the data of the response
       const data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data;
       let channelMessages = [];
-
-      // We check if the data is valid
       if (data?.private?.groups) {
         // We loop through the groups
         for (const group of Object.values(data.private.groups)) {
-          // We check if the group has channels
+          // We check if the group has channels and loop through them
           if (group.channels) {
-            // We loop through the channels
             for (const [chId, channel] of Object.entries(group.channels)) {
-              // We check if the channel has messages
+              // We check if the channel has messages and we loop through them
               if (chId === channelId && channel.messages) {
-                // We loop through the messages
                 channelMessages = await Promise.all(
                   Object.entries(channel.messages).map(async ([id, msg]) => {
                     // We check if the message is our own message
@@ -395,17 +383,15 @@ export const editMessageApi = async (messageId, messageContent, userCredentials)
   try {
     const timestamp = Date.now();
 
-    console.log('🔍 DEBUG_EDIT - Contenu reçu pour édition:', JSON.stringify(messageContent, null, 2));
-
-    // Nous créons le titre à partir du contenu du message
+    // We create the title from the message content
     const messageTitle = typeof messageContent.text === 'string'
       ? messageContent.text.substring(0, 50)
       : 'Message édité';
 
-    // Nous récupérons le texte du message
+    // We get the message text
     const messageText = messageContent.text || '';
 
-    // Nous créons le body de la requête pour l'édition du message
+    // We create the body of the request for the message edit
     const body = createApiRequest({
       'amaiia_msg_srv': {
         'message': {
@@ -419,26 +405,19 @@ export const editMessageApi = async (messageId, messageContent, userCredentials)
       }
     }, userCredentials.contractNumber, userCredentials.accessToken || "");
 
-    console.log('✏️ Édition du message, envoi à l\'API:', {
-      messageId,
-      title: messageTitle,
-      details: messageText
-    });
-
-    // Nous envoyons la requête à l'API
+    // We send the request to the API
     const apiUrl = await ENV.API_URL();
     const response = await axios.post(apiUrl, body, {
       timeout: 30000,
     });
 
-    console.log('📝 Réponse de l\'API pour l\'édition:', response.data);
-
-    // Nous vérifions si la réponse est valide
+    // If the response is valid, we return the message data
     if (response.status === 200) {
       if (typeof response.data === 'string' && response.data.includes('xdebug-error')) {
-        throw new Error('Erreur serveur lors de l\'édition');
+        throw new Error(t('error.serverError'));
       }
 
+      // We return the message data
       return {
         status: 'ok',
         message: {
@@ -456,9 +435,8 @@ export const editMessageApi = async (messageId, messageContent, userCredentials)
       };
     }
 
-    throw new Error('Erreur lors de l\'édition du message');
+    throw new Error(t('error.messageNotEdited'));
   } catch (error) {
-    console.error('❌ Erreur lors de l\'édition du message:', error);
     throw error;
   }
 };
