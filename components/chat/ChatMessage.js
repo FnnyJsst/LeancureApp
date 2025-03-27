@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
 import MenuMessage from './MenuMessage';
+import { handleError, ErrorType } from '../../utils/errorHandling';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @function formatTimestamp
@@ -28,63 +30,59 @@ const formatTimestamp = (timestamp) => {
  * @returns {string} The formatted file size
  */
 const formatFileSize = (bytes) => {
-
-  // Si la valeur est une chaîne, essayer de la convertir en nombre
+  // If the value is a string, try to convert it to a number
   if (typeof bytes === 'string') {
     bytes = parseFloat(bytes);
   }
 
-  if (!bytes || isNaN(bytes)) {
-    return '0.1 Ko'; // Retourner une taille minimale même si invalide
-  }
-  if (bytes === 0) {
-    return '0.1 Ko'; // Retourner une taille minimale même si zéro
+  // If the value is not a number or is NaN, we return nothing
+  if (!bytes || isNaN(bytes) || bytes === 0) {
+    return '';
   }
 
   const k = 1024;
   const sizes = ['Ko', 'Mo', 'Go'];
 
-  // Si la taille est très petite (< 100 octets) pour un vrai fichier,
-  // supposons qu'elle est déjà en Ko et non en octets
+  // If the size is very small (< 100 bytes) for a real file,
+  // assume it is already in Ko and not in bytes
   if (bytes < 100) {
-    // La taille est déjà en Ko, pas besoin de division initiale
+    // The size is already in Ko, no need to divide by 1024
     let size = bytes;
     let unitIndex = 0;
 
-    // Pour les petites tailles (< 10), afficher une décimale pour plus de précision
+    // If the size is very small (< 10), display one decimal for more precision
     if (size < 10) {
       const result = `${size.toFixed(1)} ${sizes[unitIndex]}`;
       return result;
     }
 
-    // Pour les tailles plus grandes, arrondir à l'entier
+    // For larger sizes, round to the nearest integer
     const result = `${Math.round(size)} ${sizes[unitIndex]}`;
     return result;
   }
 
-  // Conversion normale en Ko comme base de départ
+  // Normal conversion to Ko as a starting point
   let size = bytes / 1024;
   let unitIndex = 0;
 
-
-  // Pour les très petits fichiers (moins de 0.1 Ko), afficher au moins 0.1 Ko
+  // If the size is very small (< 0.1 Ko), display at least 0.1 Ko
   if (size < 0.1) {
     return '0.1 Ko';
   }
 
-  // Conversion en unités supérieures si nécessaire
+  // Conversion to higher units if necessary
   while (size >= 1024 && unitIndex < sizes.length - 1) {
     size /= 1024;
     unitIndex++;
   }
 
-  // Pour les petites tailles (< 10), afficher une décimale pour plus de précision
+  // For very small sizes (< 10), display one decimal for more precision
   if (size < 10) {
     const result = `${size.toFixed(1)} ${sizes[unitIndex]}`;
     return result;
   }
 
-  // Pour les tailles plus grandes, arrondir à l'entier
+  // For larger sizes, round to the nearest integer
   const result = `${Math.round(size)} ${sizes[unitIndex]}`;
   return result;
 };
@@ -92,41 +90,49 @@ const formatFileSize = (bytes) => {
 /**
  * @component ChatMessage
  * @description A component that renders a message in the chat screen
- *
- * @param {Object} props - The properties of the component
  * @param {Object} props.message - The message to display
  * @param {boolean} props.isOwnMessage - Whether the message is own
  * @param {Function} props.onFileClick - The function to call when the file is clicked
  * @param {Function} props.onDeleteMessage - The function to call when the message is deleted
- * @param {string} props.userRights - The user rights for the message
- *
- * @example
- * <ChatMessage message={message} isOwnMessage={isOwnMessage} onFileClick={() => console.log('File clicked')} onDeleteMessage={() => console.log('Message deleted')} canDelete={true} userRights="3" />
+ * @param {string} props.userRights - The user rights for the message to determine if the user can delete someone else's message
  */
 export default function ChatMessage({ message, isOwnMessage, onFileClick, onDeleteMessage, onEditMessage, userRights }) {
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [menuMessageVisible, setMenuMessageVisible] = useState(false);
+
+  // Get the device type and the translation function
   const { isSmartphone } = useDeviceType();
+  const { t } = useTranslation();
+
+  // Format the timestamp to display in the chat message
   const messageTime = formatTimestamp(message.savedTimestamp);
 
-  // Debug log pour vérifier les propriétés du message
-  console.log('🔍 Message affiché:', {
-    id: message.id,
-    text: message.text,
-    message: message.message,
-    type: message.type,
-    isOwnMessage: isOwnMessage,
-    savedTimestamp: message.savedTimestamp
-  });
+  /**
+   * @description Handle message-related errors
+   * @param {Error} error - The error
+   * @param {string} source - The source
+   * @param {object} options - Additional options
+   */
+  const handleMessageError = (error, source, options = {}) => {
+    return handleError(error, `chatMessage.${source}`, {
+      type: ErrorType.SYSTEM,
+      silent: true,  // Silent errors by default to not overload the console
+      ...options
+    });
+  };
 
   /**
    * @function handleLongPress
-   * @description Handle the long press event to allow the user to delete the message
+   * @description Handle the long press event to allow the user to delete/edit the message
    */
   const handleLongPress = () => {
-    // Allow the user to delete the message if it is own or if the user has admin rights
-    if (isOwnMessage || userRights === 3) {
-      setMenuMessageVisible(true);
+    try {
+      // Allow the user to delete the message if it is own or if the user has admin rights
+      if (isOwnMessage || userRights === 3) {
+        setMenuMessageVisible(true);
+      }
+    } catch (error) {
+      handleMessageError(error, 'longPress');
     }
   };
 
@@ -135,8 +141,16 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
    * @description Handle the press event to allow the user to open the file
    */
   const handlePress = () => {
-    if (message.type === 'file') {
-      onFileClick(message);
+    try {
+      if (message.type === 'file') {
+        if (!message.id) {
+          handleMessageError('Message ID is missing', 'press.validation', { silent: false });
+          return;
+        }
+        onFileClick(message);
+      }
+    } catch (error) {
+      handleMessageError(error, 'press', { silent: false });
     }
   };
 
@@ -145,10 +159,19 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
    * @description Handle the delete event to allow the user to delete the message
    */
   const handleDelete = () => {
-    if (onDeleteMessage) {
-      onDeleteMessage(message.id);
+    try {
+      if (!message.id) {
+        handleMessageError('Message ID is missing', 'delete.validation', { silent: false });
+        return;
+      }
+
+      if (onDeleteMessage) {
+        onDeleteMessage(message.id);
+      }
+      setMenuMessageVisible(false);
+    } catch (error) {
+      handleMessageError(error, 'delete', { silent: false });
     }
-    setMenuMessageVisible(false);
   };
 
   /**
@@ -156,150 +179,194 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
    * @description Handle the edit event to allow the user to edit the message
    */
   const handleEdit = () => {
-    console.log('🖊️ handleEdit appelé avec:', {
-      messageId: message.id,
-      text: message.text,
-      type: message.type,
-      isOwnMessage: isOwnMessage
-    });
+    try {
+      if (!message.id) {
+        handleMessageError('Message ID is missing', 'edit.validation', { silent: false });
+        return;
+      }
 
-    if (onEditMessage) {
-      console.log('✅ onEditMessage est défini, appel de la fonction');
-      onEditMessage({
-        id: message.id,
-        text: message.text || '',
-        type: message.type,
-        fileInfo: message.type === 'file' ? {
-          fileName: message.fileName,
-          fileType: message.fileType,
-          fileSize: message.fileSize
-        } : null
-      });
-    } else {
-      console.log('❌ onEditMessage n\'est pas défini');
+      if (onEditMessage) {
+        onEditMessage({
+          id: message.id,
+          text: message.text || '',
+          type: message.type,
+          fileInfo: message.type === 'file' ? {
+            fileName: message.fileName,
+            fileType: message.fileType,
+            fileSize: message.fileSize
+          } : null
+        });
+      } else {
+        handleMessageError(
+          'Edit handler not defined',
+          'edit.handlerMissing',
+          { silent: false }
+        );
+      }
+      setMenuMessageVisible(false);
+    } catch (error) {
+      handleMessageError(error, 'edit', { silent: false });
     }
-    setMenuMessageVisible(false);
   };
 
-  // If the message is a file, we display the file preview
-  if (message.type === 'file') {
-    const isPDF = message.fileType?.toLowerCase().includes('pdf');
-    const isImage = message.fileType?.toLowerCase().includes('image/') ||
-                message.fileType?.toLowerCase().includes('jpeg') ||
-                message.fileType?.toLowerCase().includes('jpg') ||
-                message.fileType?.toLowerCase().includes('png');
+  try {
+    // If the message is a file, we display the file preview
+    if (message.type === 'file') {
+      const isPDF = message.fileType?.toLowerCase().includes('pdf');
+      const isImage = message.fileType?.toLowerCase().includes('image/') ||
+                  message.fileType?.toLowerCase().includes('jpeg') ||
+                  message.fileType?.toLowerCase().includes('jpg') ||
+                  message.fileType?.toLowerCase().includes('png');
 
-    // Estimer la taille du fichier
-    let fileSizeInBytes;
+      // Estimate the file size
+      let fileSizeInBytes;
 
-    // Option 1: Utiliser la taille fournie si elle est valide
-    if (message.fileSize && !isNaN(parseInt(message.fileSize, 10))) {
-      fileSizeInBytes = parseInt(message.fileSize, 10);
-    }
-    // Option 2: Estimer la taille à partir du base64 (environ 3/4 de la longueur)
-    else if (message.base64) {
-      // La taille approximative en octets est environ 3/4 de la longueur de la chaîne base64
-      fileSizeInBytes = Math.ceil(message.base64.length * 0.75);
-    }
-    // Option 3: Utiliser une valeur par défaut selon le type
-    else {
-      // Valeurs par défaut plus réalistes selon le type
-      if (isPDF) {
-        fileSizeInBytes = 150 * 1024; // ~150 Ko pour un PDF typique
-      } else if (isImage) {
-        fileSizeInBytes = 350 * 1024; // ~350 Ko pour une image typique
-      } else {
-        fileSizeInBytes = 100 * 1024; // ~100 Ko par défaut
+      // Option 1: Use the provided size if it is valid
+      if (message.fileSize && !isNaN(parseInt(message.fileSize, 10))) {
+        fileSizeInBytes = parseInt(message.fileSize, 10);
       }
-    }
+      // Option 2: Estimate the size from the base64 (approximately 3/4 of the length)
+      else if (message.base64) {
+        // The approximate size in bytes is approximately 3/4 of the length of the base64 string
+        fileSizeInBytes = Math.ceil(message.base64.length * 0.75);
+      }
+      // Option 3: Use a default value based on the type
+      else {
+        // Default values more realistic based on the type
+        if (isPDF) {
+          fileSizeInBytes = 150 * 1024; // ~150 Ko for a typical PDF
+        } else if (isImage) {
+          fileSizeInBytes = 350 * 1024; // ~350 Ko for a typical image
+        } else {
+          fileSizeInBytes = 100 * 1024; // ~100 Ko by default
+        }
+      }
 
-    const messageContent = (
-      <TouchableOpacity
-        onLongPress={handleLongPress}
-        onPress={handlePress}
-        delayLongPress={500}
-        style={[
-          styles.messageContainer,
-          isOwnMessage ? styles.ownMessage : styles.otherMessage,
-          styles.fileMessageContainer,
-          isOwnMessage && styles.ownFileMessageContainer,
-          message.isUnread && styles.unreadMessage,
-        ]}
-      >
-        <View
+      const messageContent = (
+        <TouchableOpacity
+          onLongPress={handleLongPress}
+          onPress={handlePress}
+          delayLongPress={500}
           style={[
-            styles.fileContainer,
-            isPDF && message.text && message.text !== message.fileName ? [
-              styles.darkContainer,
-              isOwnMessage && styles.ownDarkContainer
-            ] : null
+            styles.messageContainer,
+            isOwnMessage ? styles.ownMessage : styles.otherMessage,
+            styles.fileMessageContainer,
+            isOwnMessage && styles.ownFileMessageContainer,
+            message.isUnread && styles.unreadMessage,
           ]}
         >
-          {isPDF && (
-            <View style={[
-              styles.pdfPreviewContainer,
-              message.text && message.text !== message.fileName && styles.pdfPreviewWithText
-            ]}>
-              <View style={styles.fileHeader}>
-                <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
-                <View>
-                  <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="tail">
-                    {message.fileName || 'Document PDF'}
-                  </Text>
-                  <Text style={styles.fileSize}>
-                    {message.fileType?.toUpperCase() || 'PDF'} • {formatFileSize(fileSizeInBytes)}
-                  </Text>
+          <View
+            style={[
+              styles.fileContainer,
+              isPDF && message.text && message.text !== message.fileName ? [
+                styles.darkContainer,
+                isOwnMessage && styles.ownDarkContainer
+              ] : null
+            ]}
+          >
+            {isPDF && (
+              <View style={[
+                styles.pdfPreviewContainer,
+                message.text && message.text !== message.fileName && styles.pdfPreviewWithText
+              ]}>
+                <View style={styles.fileHeader}>
+                  <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
+                  <View>
+                    <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="tail">
+                      {message.fileName || 'Document PDF'}
+                    </Text>
+                    <Text style={styles.fileSize}>
+                      {message.fileType?.toUpperCase() || 'PDF'} • {formatFileSize(fileSizeInBytes)}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          )}
+            )}
 
-          {isImage && message.base64 && (
-            <View style={[
-              styles.imagePreviewContainer,
-              { height: Math.min(240, imageSize.height) }
-            ]}>
-              <Image
-                source={{
-                  uri: `data:${message.fileType};base64,${message.base64}`,
-                }}
-                style={[
-                  styles.preview,
-                  { height: Math.min(300, imageSize.height) }
-                ]}
-                resizeMode="contain"
-                onLoad={(event) => {
-                  const { width, height } = event.nativeEvent.source;
-                  const ratio = height / width;
-                  const newHeight = 200 * ratio;
-                  setImageSize({ width: 200, height: newHeight });
-                }}
-              />
-              <View style={styles.imageFileHeader}>
-                <Ionicons
-                  name="image-outline"
-                  size={25}
-                  color={COLORS.white}
+            {isImage && message.base64 && (
+              <View style={[
+                styles.imagePreviewContainer,
+                { height: Math.min(240, imageSize.height) }
+              ]}>
+                <Image
+                  source={{
+                    uri: `data:${message.fileType};base64,${message.base64}`,
+                  }}
+                  style={[
+                    styles.preview,
+                    { height: Math.min(300, imageSize.height) }
+                  ]}
+                  resizeMode="contain"
+                  onLoad={(event) => {
+                    const { width, height } = event.nativeEvent.source;
+                    const ratio = height / width;
+                    const newHeight = 200 * ratio;
+                    setImageSize({ width: 200, height: newHeight });
+                  }}
                 />
-                <View>
-                  <Text style={styles.pictureName} numberOfLines={1} ellipsizeMode="tail">
-                    {message.fileName || 'Image'}
-                  </Text>
-                  <Text style={styles.fileSize}>
-                    {message.fileType?.toUpperCase() || 'IMAGE'} • {formatFileSize(fileSizeInBytes)}
-                  </Text>
+                <View style={styles.imageFileHeader}>
+                  <Ionicons
+                    name="image-outline"
+                    size={25}
+                    color={COLORS.white}
+                  />
+                  <View>
+                    <Text style={styles.pictureName} numberOfLines={1} ellipsizeMode="tail">
+                      {message.fileName || 'Image'}
+                    </Text>
+                    <Text style={styles.fileSize}>
+                      {message.fileType?.toUpperCase() || 'IMAGE'} • {formatFileSize(fileSizeInBytes)}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
+            )}
+          </View>
+          {message.text && message.text !== message.fileName && (
+            <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
+              {message.text}
+            </Text>
           )}
+        </TouchableOpacity>
+      );
+
+      return (
+        <View style={styles.messageWrapper(isOwnMessage)}>
+          {menuMessageVisible && (
+            <>
+              <TouchableOpacity
+                style={styles.menuOverlay}
+                onPress={() => setMenuMessageVisible(false)}
+                activeOpacity={1}
+              />
+              <MenuMessage
+                onDelete={handleDelete}
+                onEdit={isOwnMessage ? handleEdit : null}
+                onClose={() => setMenuMessageVisible(false)}
+                style={[
+                  styles.menuMessageContainer,
+                  isOwnMessage ? styles.menuRight : styles.menuLeft
+                ]}
+              />
+            </>
+          )}
+          <View style={[
+            styles.messageHeader,
+            isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft,
+          ]}>
+            <Text style={[
+              styles.username,
+              isSmartphone && styles.usernameSmartphone,
+            ]}>{message.username}</Text>
+            <Text style={styles.timestamp}>{messageTime}</Text>
+          </View>
+
+          <View style={styles.messageContentWrapper}>
+            {messageContent}
+          </View>
         </View>
-        {message.text && message.text !== message.fileName && (
-          <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
-            {message.text}
-          </Text>
-        )}
-      </TouchableOpacity>
-    );
+      );
+    }
 
     return (
       <View style={styles.messageWrapper(isOwnMessage)}>
@@ -333,61 +400,41 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
         </View>
 
         <View style={styles.messageContentWrapper}>
-          {messageContent}
+          <TouchableOpacity
+            onLongPress={handleLongPress}
+            onPress={handlePress}
+            delayLongPress={500} // 500ms pour l'appui long
+            style={[
+              styles.messageContainer,
+              isOwnMessage ? styles.ownMessage : styles.otherMessage,
+              message.isUnread && styles.unreadMessage,
+            ]}
+          >
+            <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
+              {message.text}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  } catch (error) {
+    // Global error handling for the component rendering
+    handleMessageError(error, 'render', { silent: false });
+
+    // Fallback rendering in case of error
+    return (
+      <View style={styles.messageWrapper(isOwnMessage)}>
+        <View style={[
+          styles.messageContainer,
+          styles.errorMessage
+        ]}>
+          <Text style={styles.errorText}>
+            {t('errors.messageDisplayError')}
+          </Text>
         </View>
       </View>
     );
   }
-
-  return (
-    <View style={styles.messageWrapper(isOwnMessage)}>
-      {menuMessageVisible && (
-        <>
-          <TouchableOpacity
-            style={styles.menuOverlay}
-            onPress={() => setMenuMessageVisible(false)}
-            activeOpacity={1}
-          />
-          <MenuMessage
-            onDelete={handleDelete}
-            onEdit={isOwnMessage ? handleEdit : null}
-            onClose={() => setMenuMessageVisible(false)}
-            style={[
-              styles.menuMessageContainer,
-              isOwnMessage ? styles.menuRight : styles.menuLeft
-            ]}
-          />
-        </>
-      )}
-      <View style={[
-        styles.messageHeader,
-        isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft,
-      ]}>
-        <Text style={[
-          styles.username,
-          isSmartphone && styles.usernameSmartphone,
-        ]}>{message.username}</Text>
-        <Text style={styles.timestamp}>{messageTime}</Text>
-      </View>
-
-      <View style={styles.messageContentWrapper}>
-        <TouchableOpacity
-          onLongPress={handleLongPress}
-          onPress={handlePress}
-          delayLongPress={500} // 500ms pour l'appui long
-          style={[
-            styles.messageContainer,
-            isOwnMessage ? styles.ownMessage : styles.otherMessage,
-            message.isUnread && styles.unreadMessage,
-          ]}
-        >
-          <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
-            {message.text}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
 }
 
 const styles = StyleSheet.create({
@@ -479,7 +526,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.errorText,
   },
   pdfPreviewContainer: {
-    // padding: 8,
     width: '100%',
   },
   pdfPreviewWithText: {
@@ -561,4 +607,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     zIndex: 9998,
   },
+  errorMessage: {
+    backgroundColor: COLORS.gray850,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.burgundy,
+  },
+  errorText: {
+    color: COLORS.red,
+    fontSize: SIZES.fonts.smallTextSmartphone,
+  }
 });

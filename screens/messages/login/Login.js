@@ -110,11 +110,11 @@ export default function Login({ onNavigate, testID }) {
 
                 console.log('🔵 Réponse channels:', channelsResponse);
 
-                if (channelsResponse.status === 'ok' && channelsResponse.data?.private?.groups) {
+                if (channelsResponse.status === 'ok' && channelsResponse.privateGroups?.length > 0) {
                     onNavigate(SCREENS.CHAT);
                 } else {
                     console.error('❌ Erreur channels:', channelsResponse);
-                    setError('Erreur lors du chargement des canaux: ' + (channelsResponse.message || 'Erreur inconnue'));
+                    setError(t('errors.errorLoadingChannels'));
                 }
             } else {
                 setError('Identifiants invalides');
