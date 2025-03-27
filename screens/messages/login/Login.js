@@ -25,7 +25,9 @@ import { handleError, ErrorType } from '../../../utils/errorHandling';
  */
 export default function Login({ onNavigate, testID }) {
 
+    // We get the translations and the device type
     const { t } = useTranslation();
+    const { isSmartphone, isSmartphoneLandscape, isLandscape } = useDeviceType();
 
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -37,14 +39,9 @@ export default function Login({ onNavigate, testID }) {
     const [isSimplifiedLogin, setIsSimplifiedLogin] = useState(false);
     const [savedLoginInfo, setSavedLoginInfo] = useState(null);
 
-    const { isSmartphone, isSmartphoneLandscape, isLandscape } = useDeviceType();
-
     /**
      * @function handleLoginError
      * @description Handle login-related errors
-     * @param {Error} error - The error
-     * @param {string} source - The source of the error
-     * @returns {object} Formatted error
      */
     const handleLoginError = (error, source) => {
         return handleError(error, `login.${source}`, {
@@ -89,6 +86,7 @@ export default function Login({ onNavigate, testID }) {
                 return;
             }
 
+            // We login to the API
             const loginResponse = await loginApi(contractNumber, login, password);
 
             if (loginResponse.success) {
@@ -414,9 +412,6 @@ const styles = StyleSheet.create({
     loginContainerLandscape: {
         width: '55%',
     },
-    loginContainerLandscapeSmartphone: {
-        marginTop: 0,
-    },
     inputsContainer: {
         width: '100%',
         gap: 20,
@@ -449,12 +444,6 @@ const styles = StyleSheet.create({
     },
     checkboxContainer: {
         marginLeft: 15,
-    },
-    checkboxLabel: {
-        fontSize: SIZES.fonts.subtitleTablet,
-    },
-    checkboxLabelSmartphone: {
-        fontSize: SIZES.fonts.subtitleSmartphone,
     },
     buttonContainer: {
         alignSelf: 'center',

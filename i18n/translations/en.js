@@ -248,6 +248,13 @@ export default {
     messageValidationError: "Message validation error",
     messageProcessingError: "Message processing error",
     messageFormatError: "Message format error",
+    appInitializationError: "Error initializing application",
+    appNavigationError: "Navigation error",
+    appLogoutError: "Error during logout",
+    appSettingsError: "Error accessing settings",
+    appFontLoadingError: "Error loading fonts",
+    appSecureStoreError: "Error accessing secure storage",
+    appDecryptionError: "Error decrypting data",
   },
   success: {
     messageDeleted: "Message deleted successfully",

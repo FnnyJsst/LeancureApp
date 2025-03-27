@@ -251,6 +251,13 @@ export default {
     messageValidationError: "Erreur de validation du message",
     messageProcessingError: "Erreur de traitement du message",
     messageFormatError: "Erreur de format du message",
+    appInitializationError: "Erreur lors de l'initialisation de l'application",
+    appNavigationError: "Erreur lors de la navigation",
+    appLogoutError: "Erreur lors de la déconnexion",
+    appSettingsError: "Erreur lors de l'accès aux paramètres",
+    appFontLoadingError: "Erreur lors du chargement des polices",
+    appSecureStoreError: "Erreur lors de l'accès au stockage sécurisé",
+    appDecryptionError: "Erreur lors du déchiffrement des données",
   },
   success: {
     messageDeleted: "Message supprimé avec succès",

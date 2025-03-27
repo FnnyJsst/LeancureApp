@@ -26,10 +26,8 @@ import { useTimeout } from './hooks/useTimeout';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
-// import { VERSION } from './config/versioning/version';
-// import { V1_CONFIG } from './config/versioning/v1.config';
-// import { V2_CONFIG } from './config/versioning/v2.config';
-// import { usePushNotifications } from './services/notifications/notificationService';
+import { useTranslation } from 'react-i18next';
+import { handleError, ErrorType } from './utils/errorHandling';
 
 LogBox.ignoreLogs(['[expo-notifications]']);
 
@@ -39,15 +37,24 @@ console.log = (...args) => {
   }
 };
 
-// const CONFIG = VERSION === 'v1' ? V1_CONFIG : V2_CONFIG;
-
+/**
+ * @function handleAppError
+ * @description Handle application-related errors
+ */
+const handleAppError = (error, source) => {
+  return handleError(error, `app.${source}`, {
+    type: ErrorType.SYSTEM,
+    silent: false
+  });
+};
 
 /**
  * @component App
  * @description The main component of the app
  */
 export default function App({ testID, initialScreen }) {
-  // 1. TOUS les états d'abord, regroupés
+
+  // Fonts
   const [fontsLoaded] = useFonts({
     'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),
     'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),
@@ -65,13 +72,11 @@ export default function App({ testID, initialScreen }) {
   const [isMessagesHidden, setIsMessagesHidden] = useState(false);
   const [appInitialized, setAppInitialized] = useState(false);
 
-  // 2. Navigation hook
+  // Hooks
   const { navigate } = useNavigation(setCurrentScreen);
-
-  // 3. Timeout hook
+  const { t } = useTranslation();
   const { timeoutInterval, handleTimeoutSelection, loadTimeoutInterval } = useTimeout();
 
-  // 4. Webviews hook
   const {
     channels,
     selectedWebviews,
@@ -91,7 +96,6 @@ export default function App({ testID, initialScreen }) {
     clearSecureStore,
   } = useWebviews(setCurrentScreen);
 
-  // 5. Password hook
   const {
     password,
     isPasswordRequired,
@@ -105,7 +109,10 @@ export default function App({ testID, initialScreen }) {
     closePasswordDefineModal,
   } = useWebviewsPassword(navigate);
 
-  // 6. Callbacks
+  /**
+   * @function handleSettingsAccess
+   * @description Handles the settings access with or without password
+   */
   const handleSettingsAccess = useCallback(() => {
     if (isPasswordRequired) {
       setPasswordCheckModalVisible(true);
@@ -114,10 +121,18 @@ export default function App({ testID, initialScreen }) {
     }
   }, [isPasswordRequired, setPasswordCheckModalVisible, navigate]);
 
+  /**
+   * @function hideMessages
+   * @description Hides the messages section or the app
+   * @param {boolean} shouldHide - Whether to hide the messages
+   */
   const hideMessages = useCallback(async (shouldHide) => {
     try {
+      // We save the messages hidden state
       await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
       setIsMessagesHidden(shouldHide);
+
+      // If the messages are hidden, we navigate to the webview or the no url screen
       if (shouldHide) {
         setIsLoading(true);
         setTimeout(() => {
@@ -126,23 +141,27 @@ export default function App({ testID, initialScreen }) {
         }, 3000);
       }
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde du paramètre hideMessages:', error);
+      handleAppError(error, 'hideMessages');
     }
   }, [navigate, selectedWebviews]);
 
-  // 7. Effet d'initialisation principal
+  /**
+   * @description Initializes the app
+   */
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        // We initialize the translations
         await initI18n();
-        // console.log('✅ i18n initialisé');
         setIsI18nInitialized(true);
 
         try {
+          // We load the selected channels
           await loadSelectedChannels();
+          // We load the timeout interval
           await loadTimeoutInterval();
 
-          // Liste des écrans où on ne veut pas de redirection automatique
+          // List of screens where we don't want automatic redirection
           const intentionalScreens = [
             SCREENS.COMMON_SETTINGS,
             SCREENS.LOGIN,
@@ -151,34 +170,41 @@ export default function App({ testID, initialScreen }) {
             SCREENS.CHAT
           ];
 
-          // Ne pas naviguer si on est sur un écran intentionnel
           if (!intentionalScreens.includes(currentScreen)) {
-            const storedMessagesHidden = await SecureStore.getItemAsync('isMessagesHidden');
+            try {
+              const storedMessagesHidden = await SecureStore.getItemAsync('isMessagesHidden');
 
-            if (storedMessagesHidden === null) {
-              await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(false));
+              // If the messages hidden state is not set, we set it to false
+              if (storedMessagesHidden === null) {
+                await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(false));
+                setIsMessagesHidden(false);
+                setIsLoading(false);
+                navigate(SCREENS.APP_MENU);
+              } else {
+                // If the messages hidden state is set, we set the state and navigate to the app menu or the webview
+                const isHidden = JSON.parse(storedMessagesHidden);
+                setIsMessagesHidden(isHidden);
+                setIsLoading(false);
+
+                if (isHidden) {
+                  navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+                } else {
+                  navigate(SCREENS.APP_MENU);
+                }
+              }
+            } catch (error) {
+              handleAppError(error, 'secureStore');
               setIsMessagesHidden(false);
               setIsLoading(false);
               navigate(SCREENS.APP_MENU);
-            } else {
-              const isHidden = JSON.parse(storedMessagesHidden);
-              setIsMessagesHidden(isHidden);
-              setIsLoading(false);
-
-              if (isHidden) {
-                navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-              } else {
-                navigate(SCREENS.APP_MENU);
-              }
             }
           } else {
-            // Si on est sur un écran intentionnel, juste mettre à jour l'état sans navigation
             setIsLoading(false);
           }
 
         } catch (error) {
           if (error.message.includes('Could not decrypt')) {
-            console.log('🔐 Erreur de décryptage dans App.js, nettoyage complet...');
+            handleAppError(error, 'decryption');
             await clearSecureStore();
             setIsMessagesHidden(false);
             setIsLoading(false);
@@ -186,7 +212,7 @@ export default function App({ testID, initialScreen }) {
           }
         }
       } catch (error) {
-        console.error('❌ Erreur d\'initialisation:', error);
+        handleAppError(error, 'initialization');
         setIsI18nInitialized(true);
         setIsLoading(false);
         setIsMessagesHidden(false);
@@ -199,7 +225,21 @@ export default function App({ testID, initialScreen }) {
     initializeApp();
   }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews, clearSecureStore, currentScreen]);
 
-  // 8. Rendu conditionnel pour le ScreenSaver
+  /**
+   * @function handleChatLogout
+   * @description Handles the logout process inthe chat section
+   */
+  const handleChatLogout = async () => {
+    try {
+      await SecureStore.deleteItemAsync('savedLoginInfo');
+      navigate(SCREENS.LOGIN);
+    } catch (error) {
+      handleAppError(error, 'logout');
+      throw error;
+    }
+  };
+
+  // If the fonts are not loaded, the translations are not initialized or the isLoading is true, we return the ScreenSaver
   if (!fontsLoaded || !isI18nInitialized || isLoading) {
     return <ScreenSaver testID="screen-saver" />;
   }
@@ -208,7 +248,6 @@ export default function App({ testID, initialScreen }) {
    * @function handleImportWebviews
    * @description Handles the import of channels
    * @param {Array} newWebviews - The selected channels
-   * @returns {void}
    */
   const handleImportWebviews = (newWebviews) => {
     if (newWebviews && newWebviews.length > 0) {
@@ -359,20 +398,6 @@ export default function App({ testID, initialScreen }) {
     }
   };
 
-  /**
-   * @function handleChatLogout
-   * @description Handles the logout process inthe chat section
-   * @returns {void}
-   */
-  const handleChatLogout = async () => {
-    try {
-        await SecureStore.deleteItemAsync('savedLoginInfo');
-        navigate(SCREENS.LOGIN);
-    } catch (error) {
-        throw new Error('Error during logout:', error);
-    }
-  };
-
   return (
     <ErrorBoundary>
       <View style={styles.container} testID={testID || "app-root"}>
@@ -407,10 +432,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.gray950,
-    // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-  },
-  centerContent: {
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
