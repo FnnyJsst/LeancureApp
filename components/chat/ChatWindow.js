@@ -11,6 +11,7 @@ import { useWebSocket } from '../../hooks/useWebSocket';
 import DateBanner from './DateBanner';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
+import { handleError, ErrorType } from '../../utils/errorHandling';
 
 /**
  * @component ChatWindow
@@ -19,15 +20,11 @@ import { useTranslation } from 'react-i18next';
  * @param {Object} props.messages - The messages to display
  * @param {Function} props.onInputFocusChange - The function to call when the input focus changes
  */
-export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange, testID }) {
-
-  // Translation
+export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange }) {
   const { t } = useTranslation();
-
-  // Device type
   const { isSmartphone } = useDeviceType();
 
-  // Refs
+  // Refs are used to avoid re-rendering the component when the state changes
   const scrollViewRef = useRef();
   const updatingRef = useRef(false);
   const processedMessageIds = useRef(new Set());
@@ -45,8 +42,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [editingMessage, setEditingMessage] = useState(null);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
 
-  // Load the files of the messages
+  /**
+   * @description Load the files of the messages
+   */
   useEffect(() => {
+    // If the component is loaded, the credentials/channel/messages are set and the updatingRef is not current, we load the files
     if (!isLoading && credentials && channel && messages.length > 0 && !updatingRef.current) {
       // We filter the messages that need to be loaded
       const messagesNeedingFiles = messages.filter(msg =>
@@ -62,11 +62,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       // We load the files
       const loadFiles = async () => {
         updatingRef.current = true;
-        // We create a batch size
+        // We create a batch size to avoid loading all the files at once
         const batchSize = 3;
         // We create a copy of the messages
         const updatedMessages = [...messages];
-        // We create a flag to check if there are updates
         let hasUpdates = false;
 
         try {
@@ -78,6 +77,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             await Promise.all(
               batch.map(async (msg) => {
                 try {
+                  // We fetch the file of the message
                   const base64 = await fetchMessageFile(msg.id, {
                     channelid: parseInt(channel.id, 10),
                     ...msg,
@@ -85,6 +85,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
                   // We update the message
                   const index = updatedMessages.findIndex(m => m.id === msg.id);
+                  // If the message is found and the base64 is set, we update the message
                   if (index !== -1 && base64) {
                     updatedMessages[index] = {
                       ...updatedMessages[index],
@@ -94,17 +95,16 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     hasUpdates = true;
                   }
                 } catch (fileError) {
-                  throw new Error(t('errors.errorLoadingFile'), fileError);
+                  handleChatError(fileError, 'message.file', { silent: false });
                 }
               })
             );
           }
-
           // If there are updates, we update the messages
           if (hasUpdates) {
             setMessages(updatedMessages);
           }
-        // We finally set the updatingRef to false
+        // We finally set the updatingRef to false to avoid re-rendering the component when the state changes
         } finally {
           updatingRef.current = false;
         }
@@ -114,7 +114,9 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     }
   }, [isLoading, credentials, channel, messages]);
 
-  // Update the messages
+  /**
+   * @description Update the messages when the channel messages change
+   */
   useEffect(() => {
     if (channel && channelMessages) {
       // We update the messages only if there are new messages
@@ -125,199 +127,153 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   }, [channel?.id, channelMessages]);
 
   /**
+   * @description Handle chat-related errors
+   * @returns {object} Formatted error
+   */
+  const handleChatError = (error, source, options = {}) => {
+    return handleError(error, `chatWindow.${source}`, {
+      type: ErrorType.SYSTEM,
+      ...options
+    });
+  };
+
+  /**
+   * @function formatMessage
+   * @description Format a message for display
+   * @param {Object} msg - The raw message
+   * @param {Object} credentials - The user credentials
+   * @returns {Object} The formatted message
+   */
+  const formatMessage = (msg, credentials) => {
+    const messageText = msg.message || '';
+
+    return {
+      id: msg.id?.toString() || Date.now().toString(),
+      type: msg.type || 'text',
+      text: messageText,
+      message: messageText,
+      savedTimestamp: msg.savedTimestamp || Date.now().toString(),
+      fileType: msg.fileType || 'none',
+      login: msg.login || 'unknown',
+      isOwnMessage: msg.login === credentials?.login,
+      isUnread: false,
+      username: msg.login === credentials?.login ? 'Me' : (msg.login || 'Unknown'),
+      base64: msg.base64
+    };
+  };
+
+  /**
    * @function handleWebSocketMessage
    * @description Handle the WebSocket message
-   * @param {Object} data - The data of the message
    */
   const handleWebSocketMessage = useCallback((data) => {
-    console.log('📩 Message WebSocket reçu:', {
-      type: data.type,
-      hasNotification: !!data.notification,
-      messageId: data.message?.id || data.notification?.message?.id
-    });
+    try {
+      const messageId = data.message?.id || data.notification?.message?.id;
+      // If the message has already been processed, we ignore it
+      if (messageId && processedMessageIds.current.has(messageId)) {
+        return;
+      }
 
-    // On extrait l'ID du message
-    const messageId = data.message?.id || data.notification?.message?.id;
+      // We add the message ID to the list of processed messages
+      if (messageId) {
+        processedMessageIds.current.add(messageId);
+      }
 
-    // Si le message a déjà été traité, on l'ignore
-    if (messageId && processedMessageIds.current.has(messageId)) {
-      console.log('⚠️ Message déjà traité, ignoré:', messageId);
-      return;
-    }
-
-    // On ajoute l'ID du message à la liste des messages traités
-    if (messageId) {
-      processedMessageIds.current.add(messageId);
-    }
-
-    // Si le message est au format notification directe
-    if (data.type === 'notification' || data.type === 'message') {
+      // We check if the message is a notification or a message
+      if (data.type === 'notification' || data.type === 'message') {
+        // We extract the channel ID
         const channelId = data.filters?.values?.channel;
         const currentChannelId = channel?.id?.toString();
 
+        // If the current channel ID is not set, we throw an error
         if (!currentChannelId) {
-            console.log('❌ No current channel');
-            return;
+          handleChatError(t('errors.noCurrentChannel'), 'message.validation');
+          return;
         }
 
+        // We clean the received and current channel IDs
         const cleanReceivedChannelId = channelId?.toString()?.replace('channel_', '');
         const cleanCurrentChannelId = currentChannelId?.toString()?.replace('channel_', '');
 
+        // If the cleaned channel IDs are not the same, we throw an error
         if (cleanReceivedChannelId !== cleanCurrentChannelId) {
-            console.log('❌ Canal non correspondant après nettoyage, message ignoré');
-            return;
+          handleChatError(t('errors.channelMismatch'), 'message.validation');
+          return;
         }
 
+        // We extract the message content
         const messageContent = data.message;
+        // If the message content is not set, we throw an error
         if (!messageContent) {
-            console.log('❌ Pas de contenu de message');
-            return;
+          handleChatError(t('errors.noMessageContent'), 'message.validation');
+          return;
         }
 
-        console.log('🔍 DEBUG_WS - Message reçu:', JSON.stringify(messageContent, null, 2));
-
-        // Si c'est un tableau de messages
+        // If the message content is an array of messages, we update the messages
         if (messageContent.type === 'messages' && Array.isArray(messageContent.messages)) {
-            setMessages(prevMessages => {
-                const newMessages = messageContent.messages
-                    .filter(msg => !processedMessageIds.current.has(msg.id))
-                    .map(msg => {
-                        processedMessageIds.current.add(msg.id);
-
-                        // S'assurer que le texte est présent dans les deux propriétés
-                        const messageText = msg.message || '';
-
-                        return {
-                            id: msg.id?.toString() || Date.now().toString(),
-                            type: msg.type || 'text',
-                            text: messageText,
-                            message: messageText,
-                            savedTimestamp: msg.savedTimestamp || Date.now().toString(),
-                            fileType: msg.fileType || 'none',
-                            login: msg.login || 'unknown',
-                            isOwnMessage: msg.login === credentials?.login,
-                            isUnread: false,
-                            username: msg.login === credentials?.login ? 'Me' : (msg.login || 'Unknown'),
-                            base64: msg.base64
-                        };
-                    });
-
-                console.log('✅ Nouveaux messages uniques ajoutés:', newMessages.length);
-
-                return [...prevMessages, ...newMessages].sort((a, b) =>
-                    parseInt(a.savedTimestamp) - parseInt(b.savedTimestamp)
-                );
-            });
-            return;
+          setMessages(prevMessages => {
+            const newMessages = messageContent.messages
+              .filter(msg => !processedMessageIds.current.has(msg.id))
+              .map(msg => {
+                processedMessageIds.current.add(msg.id);
+                return formatMessage(msg, credentials);
+              });
+            return [...prevMessages, ...newMessages].sort((a, b) =>
+              parseInt(a.savedTimestamp) - parseInt(b.savedTimestamp)
+            );
+          });
+          return;
         }
 
-        // Si c'est un message unique
+        // If the message content is a unique message, we update the messages
         setMessages(prevMessages => {
-            // S'assurer que le texte est présent dans les deux propriétés
-            const messageText = messageContent.message || '';
-
-            const newMessage = {
-                id: messageContent.id || Date.now().toString(),
-                type: messageContent.type || 'text',
-                text: messageText,
-                message: messageText,
-                savedTimestamp: messageContent.savedTimestamp || Date.now().toString(),
-                fileType: messageContent.fileType || 'none',
-                login: messageContent.login || 'unknown',
-                isOwnMessage: messageContent.login === credentials?.login,
-                isUnread: false,
-                username: messageContent.login === credentials?.login ? 'Me' : messageContent.login || 'Unknown'
-            };
-
-            console.log('🔍 DEBUG_MSG - Nouveau message formaté:', {
-                id: newMessage.id,
-                text: newMessage.text,
-                message: newMessage.message
-            });
-
-            // Vérifier si ce message existe déjà (édition)
-            const messageExists = prevMessages.some(msg => msg.id === newMessage.id);
-
-            if (messageExists) {
-                console.log(`🔄 Message existant mis à jour (ID: ${newMessage.id})`);
-                return prevMessages.map(msg =>
-                    msg.id === newMessage.id ? newMessage : msg
-                );
-            } else {
-                console.log(`➕ Nouveau message ajouté (ID: ${newMessage.id})`);
-                return [...prevMessages, newMessage];
-            }
+          const newMessage = formatMessage(messageContent, credentials);
+          const messageExists = prevMessages.some(msg => msg.id === newMessage.id);
+          return messageExists
+            ? prevMessages.map(msg => msg.id === newMessage.id ? newMessage : msg)
+            : [...prevMessages, newMessage];
         });
         return;
-    }
+      }
 
-    // Si le message est au format notification imbriquée
-    if (data.notification) {
+      // If the message is in the format of a nested notification
+      if (data.notification) {
         const channelId = data.notification.filters?.values?.channel;
         const currentChannelId = channel ? channel.id.toString() : null;
 
         if (!currentChannelId || channelId !== currentChannelId) {
-            console.log('❌ Canal non correspondant, message ignoré');
-            return;
+          handleChatError(t('errors.channelMismatch'), 'message.validation');
+          return;
         }
-
+        // If the message content is not set, we return nothing
         const messageContent = data.notification.message;
         if (!messageContent) {
-            console.log('❌ Pas de contenu de message');
-            return;
+          return;
         }
 
-        console.log('🔍 DEBUG_NOTIF - Notification reçue:', JSON.stringify(messageContent, null, 2));
-
+        // We format the message
         setMessages(prevMessages => {
-            // S'assurer que le texte est présent dans les deux propriétés
-            const messageText = messageContent.message || '';
-
-            const newMessage = {
-                id: messageContent.id || Date.now().toString(),
-                type: messageContent.type || 'text',
-                text: messageText,
-                message: messageText,
-                savedTimestamp: messageContent.savedTimestamp || Date.now().toString(),
-                fileType: messageContent.fileType || 'none',
-                login: messageContent.login || data.sender || 'unknown',
-                isOwnMessage: (messageContent.login || data.sender) === credentials?.login,
-                isUnread: false,
-                username: (messageContent.login || data.sender) === credentials?.login ? 'Me' : (messageContent.login || data.sender || 'Unknown')
-            };
-
-            console.log('🔍 DEBUG_NOTIF - Message formaté:', {
-                id: newMessage.id,
-                text: newMessage.text,
-                message: newMessage.message
-            });
-
-            // Vérifier si ce message existe déjà (édition)
-            const messageExists = prevMessages.some(msg => msg.id === newMessage.id);
-
-            if (messageExists) {
-                console.log(`🔄 Message existant mis à jour (ID: ${newMessage.id})`);
-                return prevMessages.map(msg =>
-                    msg.id === newMessage.id ? newMessage : msg
-                );
-            } else {
-                console.log(`➕ Nouveau message ajouté (ID: ${newMessage.id})`);
-                return [...prevMessages, newMessage];
-            }
+          const newMessage = formatMessage(messageContent, credentials);
+          const messageExists = prevMessages.some(msg => msg.id === newMessage.id);
+          return messageExists
+            ? prevMessages.map(msg => msg.id === newMessage.id ? newMessage : msg)
+            : [...prevMessages, newMessage];
         });
         return;
-    }
+      }
 
-    console.log('⚠️ Format de message non reconnu:', data);
-  }, [channel, credentials]);
+    } catch (error) {
+      handleChatError(error, 'message.processing', { silent: false });
+    }
+  }, [channel, credentials, t]);
 
   /**
    * @function handleWebSocketError
    * @description Handle the WebSocket error
    */
   const handleWebSocketError = useCallback((error) => {
-    throw new Error(t('errors.errorWebSocket'), error);
-  }, [t]);
+    handleChatError(error, 'websocket', { silent: false });
+  }, []);
 
   /**
    * @function useWebSocket
@@ -334,31 +290,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   });
 
   /**
-   * @function useEffect
-   * @description We use the useEffect hook to update the messages when the channel messages change
-   */
-  useEffect(() => {
-    if (channel) {
-        console.log('📢 Changement de canal dans ChatWindow:', {
-            id: channel.id,
-            titre: channel.title,
-            canal: channel
-        });
-
-        // On force la réinitialisation des messages
-        setMessages([]);
-
-        // On met à jour les messages si disponibles
-        if (channelMessages && Array.isArray(channelMessages)) {
-            console.log('📥 Mise à jour des messages du canal:', channelMessages.length);
-            setMessages(channelMessages);
-        }
-    }
-  }, [channel?.id, channelMessages]);
-
-  /**
-   * @function useEffect
-   * @description We use the useEffect hook to close the WebSocket connection when the component unmounts
+   * @description Close the WebSocket connection when the component unmounts
    */
   useEffect(() => {
     return () => {
@@ -367,18 +299,15 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   }, [closeConnection]);
 
   /**
-   * @function useEffect
-   * @description We use the useEffect hook to update the messages when the channel messages change
+   * @description Update the messages when the channel messages change
    */
   useEffect(() => {
     const loadUserData = async () => {
       try {
         // We get the user credentials
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-        // We get the user rights
+        // We get the user rights and parse them
         const rightsStr = await SecureStore.getItemAsync('userRights');
-
-        // We parse the rights of the user
         const rights = rightsStr ? JSON.parse(rightsStr) : null;
 
         // If the credentials are found, we set the credentials and the rights
@@ -388,7 +317,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           setUserRights(rights);
         }
       } catch (error) {
-        throw new Error(t('errors.errorLoadingUserData'), error);
+        handleChatError(error, 'userData.loading', { silent: false });
       } finally {
         setIsLoading(false);
       }
@@ -399,12 +328,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   /**
    * @function openDocumentPreviewModal
-   * @description We open the document preview modal
-   * @param {Object} message - The message to open the document preview modal
+   * @description Open the document preview modal when a file is clicked
    */
   const openDocumentPreviewModal = (message) => {
     if (!message) return;
-
     setIsDocumentPreviewModalVisible(true);
     setSelectedFileUrl(message.uri);
     setSelectedFileName(message.fileName);
@@ -416,7 +343,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   /**
    * @function closeDocumentPreviewModal
-   * @description We close the document preview modal
+   * @description Close the document preview modal
    */
   const closeDocumentPreviewModal = () => {
     setIsDocumentPreviewModalVisible(false);
@@ -425,54 +352,42 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   /**
    * @function sendMessage
-   * @description We send a message to the channel
+   * @description Send a message to the channel
    * @param {Object} messageData - The message data
    */
   const sendMessage = useCallback(async (messageData) => {
     try {
-      console.log('🚀 Début de l\'envoi du message:', messageData);
-
+      // If the channel is not set, we throw an error
       if (!channel) {
-        throw new Error(t('errors.noChannelSelected'));
+        handleChatError(t('errors.noChannelSelected'), 'sendMessage.validation');
+        return;
       }
 
-      // Vérifier s'il s'agit d'une édition de message
+      // Check if the message is an edit
       const isEditing = messageData.isEditing === true && messageData.messageId;
 
-      // Si c'est une édition, utiliser la fonction d'édition
+      // If the message is an editing, use the editing function
       if (isEditing) {
-        console.log('✏️ Mode édition détecté, modification du message:', {
-          messageId: messageData.messageId,
-          newText: messageData.text,
-          oldMessage: messages.find(m => m.id === messageData.messageId)
-        });
-
-        // Nous récupérons les credentials
+        // We get the user credentials and parse them
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+        const userCredentials = JSON.parse(credentialsStr);
+        // If the credentials are not found, we throw an error
         if (!credentialsStr) {
-          throw new Error(t('errors.noCredentialsFound'));
+          handleChatError(t('errors.noCredentialsFound'), 'sendMessage.validation');
+          return;
         }
 
-        const userCredentials = JSON.parse(credentialsStr);
-
-        // Nous envoyons la requête d'édition
+        // We send the editing request
         const response = await editMessageApi(messageData.messageId, messageData, userCredentials);
 
+        // If the response is ok, we update the message locally immediately
         if (response.status === 'ok') {
-          console.log('✅ Message édité avec succès, réponse:', response);
-
-          // Mettre à jour le message localement immédiatement
+          // We update the message locally immediately
           setMessages(prevMessages => {
             const updatedMessages = prevMessages.map(msg => {
               if (msg.id === messageData.messageId) {
-                console.log('🔄 Mise à jour locale du message:', {
-                  avant: msg.text,
-                  après: messageData.text
-                });
-
-                // S'assurer que le texte du message est défini dans les deux propriétés
                 const updatedText = messageData.text || '';
-
+                // We update the message
                 return {
                   ...msg,
                   text: updatedText,
@@ -483,47 +398,40 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
               }
               return msg;
             });
-
             return updatedMessages;
           });
 
-          // Réinitialiser l'état d'édition
           setEditingMessage(null);
-
           return;
         } else {
-          throw new Error(t('errors.errorEditingMessage'));
+          handleChatError(t('errors.errorEditingMessage'), 'sendMessage.process');
         }
       }
 
-      // Pour un nouveau message (non-édition), on continue avec le code existant
-
+      // For a new message (non-editing), we continue with the existing code
       // We check the type of message
       if (messageData.type === 'file') {
         if (!messageData.base64) {
-          throw new Error(t('errors.invalidFile'));
+          handleChatError(t('errors.invalidFile'), 'sendMessage.validation');
         }
       } else {
-        // We check the text of the message
         const messageText = typeof messageData === 'object' ? messageData.text : messageData;
         // If the message text is invalid, we throw an error
         if (!messageText || messageText.trim() === '') {
-          throw new Error(t('errors.invalidMessageText'));
+          handleChatError(t('errors.invalidMessageText'), 'sendMessage.validation');
         }
       }
 
-      // We get the user credentials
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+      const userCredentials = JSON.parse(credentialsStr);
+
       // If the credentials are not found, we throw an error
       if (!credentialsStr) {
-        throw new Error(t('errors.noCredentialsFound'));
+        handleChatError(t('errors.noCredentialsFound'), 'sendMessage.validation');
       }
-
-      const userCredentials = JSON.parse(credentialsStr);
 
       // We create a temporary message with a unique ID
       const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      console.log('📝 Création du message temporaire avec ID:', tempId);
 
       const tempMessage = messageData.type === 'file' ? {
         id: tempId,
@@ -540,7 +448,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         isUnread: false,
         username: 'Me',
         isTemp: true,
-        _tempId: tempId // Ajout d'un identifiant unique pour le message temporaire
+        _tempId: tempId
       } : {
         id: tempId,
         type: 'text',
@@ -553,12 +461,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         isUnread: false,
         username: 'Me',
         isTemp: true,
-        _tempId: tempId // Ajout d'un identifiant unique pour le message temporaire
+        _tempId: tempId
       };
 
       // We add the temporary message
       setMessages(prevMessages => {
-        // console.log('📥 Ajout du message temporaire aux messages existants');
         return [...prevMessages, tempMessage];
       });
 
@@ -571,26 +478,21 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       // We send the message to the API
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
 
-      // console.log('📨 Réponse de l\'API:', response);
-
       // If the response is not ok, we remove the temporary message
       if (response.status !== 'ok') {
-        console.log('❌ Erreur de l\'API, suppression du message temporaire');
         setMessages(prevMessages =>
           prevMessages.filter(msg => msg._tempId !== tempId)
         );
-        throw new Error(t('errors.errorSendingMessage'));
+        handleChatError(t('errors.messageNotSent'), 'sendMessage.process');
       }
 
-      // Si la réponse est ok, on supprime le message temporaire
-      console.log('✅ Message envoyé avec succès, suppression du message temporaire');
       setMessages(prevMessages =>
         prevMessages.filter(msg => msg._tempId !== tempId)
       );
 
     } catch (error) {
-      console.error('❌ Erreur lors de l\'envoi du message:', error);
-      throw new Error(t('errors.errorSendingMessage'), error);
+      handleChatError(error, 'sendMessage.process', { silent: false });
+      throw error;
     }
   }, [channel, t]);
 
@@ -600,39 +502,46 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @param {String} messageId - The ID of the message to delete
    */
   const handleDeleteMessage = async (messageId) => {
-    const messageToDelete = messages.find(msg => msg.id === messageId);
-    const hasDeleteRights = userRights === "3";
-    const isOwnMessage = messageToDelete?.isOwnMessage;
-
-    // If the user does not have delete rights and the message is not own, we throw an error
-    if (!hasDeleteRights && !isOwnMessage) {
-      throw new Error(t('errors.noDeletePermission'));
-    }
-
     try {
-      // We send the message to deleteto the API
+      const messageToDelete = messages.find(msg => msg.id === messageId);
+      const hasDeleteRights = userRights === "3";
+      const isOwnMessage = messageToDelete?.isOwnMessage;
+
+      if (!hasDeleteRights && !isOwnMessage) {
+        handleChatError(t('errors.noDeletePermission'), 'deleteMessage.validation');
+        return;
+      }
+
       const response = await deleteMessageApi(messageId, credentials);
 
-      // If the response is ok, we update the messages
       if (response.status === 'ok') {
         const updatedMessages = messages.filter(msg => msg.id !== messageId);
         setMessages(updatedMessages);
       } else {
-        throw new Error(t('errors.errorDeletingMessage'));
+        handleChatError(t('errors.messageNotDeleted'), 'deleteMessage.process');
       }
     } catch (error) {
-      throw new Error(t('errors.errorDeletingMessage'), error);
+      handleChatError(error, 'deleteMessage.process', { silent: false });
+      throw error;
     }
   };
 
   const handleEditMessage = async (messageToEdit) => {
-    console.log('✏️ Message à éditer dans ChatWindow:', messageToEdit);
-    setEditingMessage(messageToEdit);
+    try {
+      if (!messageToEdit || !messageToEdit.id) {
+        handleChatError(t('errors.invalidMessageEdit'), 'editMessage.validation');
+        return;
+      }
+
+      setEditingMessage(messageToEdit);
+    } catch (error) {
+      handleChatError(error, 'editMessage.process');
+    }
   };
 
   /**
    * @function formatDate
-   * @description We format the date of a message
+   * @description Format the date of a message
    * @param {Object} timestamp - The timestamp of the message
    * @returns {String} The formatted date
    */
@@ -678,26 +587,13 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   // We filter the messages
   const validMessages = messages.filter(message => {
     if (!message) {
-      console.log('📝 Message invalide: null ou undefined');
       return false;
     }
 
     const hasText = !!message.text;
     const hasMessageProp = !!message.message;
     const isFileType = message.type === 'file';
-
     const isValid = hasText || hasMessageProp || isFileType;
-
-    if (!isValid) {
-      console.log('📝 Message invalide:', {
-        id: message.id,
-        hasText,
-        hasMessageProp,
-        isFileType,
-        textValue: message.text,
-        messageValue: message.message
-      });
-    }
 
     return isValid;
   });
@@ -712,19 +608,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
           >
             {(() => {
-              // If there are no messages, we return an empty message container
-              if (!messages || messages.length === 0) {
-                return (
-                  <View style={styles.emptyMessagesContainer}>
-                    <Text style={[
-                      styles.emptyMessagesText,
-                      isSmartphone && styles.emptyMessagesTextSmartphone
-                    ]}>
-                      {t('messages.noMessages')}
-                    </Text>
-                  </View>
-                );
-              }
 
               return validMessages.reduce((acc, message, index) => {
                 // If the message is not valid, we return the accumulator
@@ -750,7 +633,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     key={`msg-${message.id || index}-${index}`}
                     message={{
                       ...message,
-                      // S'assurer que text est toujours défini, en utilisant message comme fallback
                       text: message.text || message.message || '',
                     }}
                     isOwnMessage={message.isOwnMessage}
@@ -803,12 +685,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.gray950,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
   noChannelContainer: {
     alignItems: 'center',
     paddingTop: 50,
@@ -820,28 +696,9 @@ const styles = StyleSheet.create({
   noChannelTextSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
   },
-  channelDescription: {
-    fontSize: SIZES.fonts.textSmartphone,
-    color: COLORS.gray300,
-    marginTop: 4,
-  },
   messagesContainer: {
     flex: 1,
     padding: 10,
     marginBottom: 10,
-  },
-  emptyMessagesContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  emptyMessagesText: {
-    color: COLORS.gray600,
-    fontSize: SIZES.fonts.textTablet,
-    textAlign: 'center',
-  },
-  emptyMessagesTextSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
   },
 });

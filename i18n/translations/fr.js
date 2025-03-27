@@ -244,7 +244,13 @@ export default {
     emptyMessage: "Le message ne peut pas être vide",
     fileTypeNotAllowed: "Type de fichier non autorisé",
     filePickError: "Erreur lors de la sélection du fichier",
-    fileProcessingError: "Erreur lors du traitement du fichier"
+    fileProcessingError: "Erreur lors du traitement du fichier",
+    noCurrentChannel: "Aucun canal actuel",
+    channelMismatch: "Incompatibilité de canal",
+    noMessageContent: "Aucun contenu de message",
+    messageValidationError: "Erreur de validation du message",
+    messageProcessingError: "Erreur de traitement du message",
+    messageFormatError: "Erreur de format du message",
   },
   success: {
     messageDeleted: "Message supprimé avec succès",

@@ -241,7 +241,13 @@ export default {
     emptyMessage: "Message cannot be empty",
     fileTypeNotAllowed: "File type not allowed",
     filePickError: "Error picking file",
-    fileProcessingError: "Error processing file"
+    fileProcessingError: "Error processing file",
+    noCurrentChannel: "No current channel",
+    channelMismatch: "Channel mismatch",
+    noMessageContent: "No message content",
+    messageValidationError: "Message validation error",
+    messageProcessingError: "Message processing error",
+    messageFormatError: "Message format error",
   },
   success: {
     messageDeleted: "Message deleted successfully",
