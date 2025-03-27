@@ -11,11 +11,12 @@ import { Text } from '../../text/CustomText';
 import { fetchMessageFile } from '../../../services/api/messageApi';
 import * as SecureStore from 'expo-secure-store';
 import { ActivityIndicator } from 'react-native';
+import { handleError, ErrorType } from '../../../utils/errorHandling';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component DocumentPreviewModal
  * @description A component that renders a document preview in the chat
- *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
@@ -23,14 +24,20 @@ import { ActivityIndicator } from 'react-native';
  * @param {string} props.fileSize - The size of the file
  * @param {string} props.fileType - The type of the file
  * @param {string} props.base64 - The base64 of the file
- *
  */
 export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64: initialBase64, messageId, channelId }) {
-  const { isSmartphone, isSmartphoneLandscape, isLandscape, isTabletLandscape } = useDeviceType();
+
+  // We get the device type and translation
+  const { isSmartphone, isLandscape } = useDeviceType();
+  const { t } = useTranslation();
+
   const [error, setError] = useState(null);
   const [highQualityBase64, setHighQualityBase64] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  /**
+   * @description Loads the high quality image
+   */
   useEffect(() => {
     const isImageType = fileType?.toLowerCase().match(/jpg|jpeg|png|gif/);
 
@@ -39,11 +46,15 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
 
       try {
         setIsLoading(true);
+        //We get and parse the credentials
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-        if (!credentialsStr) throw new Error('No credentials found');
-
         const credentials = JSON.parse(credentialsStr);
 
+        if (!credentialsStr) {
+          throw new Error(t('errors.noCredentialsFound'));
+        }
+
+        //We fetch the high quality image
         const highQualityData = await fetchMessageFile(messageId, {
           channelid: channelId
         }, credentials);
@@ -52,7 +63,11 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
           setHighQualityBase64(highQualityData);
         }
       } catch (err) {
-        console.error('🔴 Erreur chargement image HD:', err);
+        handleError(err, 'documentPreview.loadHighQualityImage', {
+          type: ErrorType.SYSTEM,
+          silent: false
+        });
+        setError(t('errors.errorLoadingFile'));
       } finally {
         setIsLoading(false);
       }
@@ -61,7 +76,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
     if (visible && isImageType && messageId && channelId) {
       loadHighQualityImage();
     }
-  }, [visible, messageId, channelId, fileType]);
+  }, [visible, messageId, channelId, fileType, t]);
 
   /**
    * @function handleDownload
@@ -71,85 +86,89 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
     try {
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
+      //We write the file to the file system
       await FileSystem.writeAsStringAsync(fileUri, initialBase64, {
         encoding: FileSystem.EncodingType.Base64,
       });
+
+      //We share the file
       await Sharing.shareAsync(fileUri);
-      setError('File downloaded successfully');
+      setError(t('success.fileDownloaded'));
     } catch (downloadFileError) {
-      setError(`Error downloading file: ${downloadFileError.message}`);
+      handleError(downloadFileError, 'documentPreview.handleDownload', {
+        type: ErrorType.SYSTEM,
+        silent: false
+      });
+      setError(t('errors.errorLoadingFile'));
     }
   };
 
   /**
    * @function formatFileSize
-   * @description Formate la taille du fichier avec l'unité appropriée
+   * @description Formats the file size with the appropriate unit
    */
   const formatFileSize = () => {
-    // Calcul de la taille du fichier
-    let calculatedSize = 0;
+    try {
+      let calculatedSize = 0;
 
-    // Option 1: Utiliser la taille fournie si elle est valide
-    if (fileSize && !isNaN(parseInt(fileSize, 10))) {
-      calculatedSize = parseInt(fileSize, 10);
-      console.log('🔍 MODAL_SIZE - Utilisation de la taille fournie:', calculatedSize);
-    }
-    // Option 2: Estimer la taille à partir du base64
-    else if (initialBase64) {
-      // La taille approximative en octets est environ 3/4 de la longueur de la chaîne base64
-      calculatedSize = Math.ceil(initialBase64.length * 0.75);
-    }
-    // Option 3: Utiliser des valeurs par défaut selon le type
-    else {
-      if (fileType?.toLowerCase().includes('pdf')) {
-        calculatedSize = 150 * 1024; // ~150 Ko pour un PDF typique
-      } else if (fileType?.toLowerCase().match(/jpg|jpeg|png|gif/)) {
-        calculatedSize = 350 * 1024; // ~350 Ko pour une image typique
-      } else {
-        calculatedSize = 100 * 1024; // ~100 Ko par défaut
+      // Option 1: Use the provided size if it is valid
+      if (fileSize && !isNaN(parseInt(fileSize, 10))) {
+        calculatedSize = parseInt(fileSize, 10);
       }
-    }
+      // Option 2: Estimate the size from the base64
+      else if (initialBase64) {
+        calculatedSize = Math.ceil(initialBase64.length * 0.75);
+      }
+      // Option 3: Use default values based on the type
+      else {
+        if (fileType?.toLowerCase().includes('pdf')) {
+          calculatedSize = 150 * 1024; // ~150 Ko for a typical PDF
+        } else if (fileType?.toLowerCase().match(/jpg|jpeg|png|gif/)) {
+          calculatedSize = 350 * 1024; // ~350 Ko for a typical image
+        } else {
+          calculatedSize = 100 * 1024; // ~100 Ko by default
+        }
+      }
 
-    if (!calculatedSize) return '0 Ko';
+      if (!calculatedSize) return '0 Ko';
 
-    // Si la taille est très petite (< 100 octets) pour un vrai fichier,
-    // supposons qu'elle est déjà en Ko et non en octets
-    if (calculatedSize < 100) {
-      // La taille est déjà en Ko, pas besoin de division
-      const size = calculatedSize;
+      // If the size is very small (< 100 bytes) for a real file,
+      // assume it is already in Ko and not in bytes
+      if (calculatedSize < 100) {
+        const size = calculatedSize;
+        return size < 10 ? `${size.toFixed(1)} Ko` : `${Math.round(size)} Ko`;
+      }
 
-      // Pour les petites tailles, afficher une décimale
+      // Direct conversion to Ko, always start in Ko
+      const units = ['Ko', 'Mo', 'Go'];
+      let size = calculatedSize / 1024; // Direct conversion to Ko
+      let unitIndex = 0;
+
+      // For very small files (less than 0.1 Ko), display at least 0.1 Ko
+      if (size < 0.1) {
+        return '0.1 Ko';
+      }
+
+      // Increase in units if necessary
+      while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex++;
+      }
+
+      // For small sizes (< 10), display one decimal for more precision
       if (size < 10) {
-        return `${size.toFixed(1)} Ko`;
+        return `${size.toFixed(1)} ${units[unitIndex]}`;
       }
 
-      // Pour les tailles plus grandes, arrondir à l'entier
-      return `${Math.round(size)} Ko`;
+      // For larger sizes, round to the nearest integer
+      return `${Math.round(size)} ${units[unitIndex]}`;
+    } catch (err) {
+      handleError(err, 'documentPreview.formatFileSize', {
+        type: ErrorType.SYSTEM,
+        silent: true
+      });
+      return '0 Ko';
     }
-
-    // Conversion directe en Ko, toujours commencer en Ko
-    const units = ['Ko', 'Mo', 'Go'];
-    let size = calculatedSize / 1024; // Conversion directe en Ko
-    let unitIndex = 0;
-
-    // Pour les très petits fichiers (moins de 0.1 Ko), afficher au moins 0.1 Ko
-    if (size < 0.1) {
-      return '0.1 Ko';
-    }
-
-    // Monter en unités si nécessaire
-    while (size >= 1024 && unitIndex < units.length - 1) {
-      size /= 1024;
-      unitIndex++;
-    }
-
-    // Pour les petites tailles (< 10), afficher une décimale pour plus de précision
-    if (size < 10) {
-      return `${size.toFixed(1)} ${units[unitIndex]}`;
-    }
-
-    // Pour les tailles plus grandes, arrondir à l'entier
-    return `${Math.round(size)} ${units[unitIndex]}`;
   };
 
   /**
@@ -157,105 +176,112 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
    * @description A function to render the preview of the file
    */
   const renderPreview = () => {
-    if (fileType?.includes('pdf')) {
-      return (
-        <View style={styles.previewContainer}>
-          <WebView
-            source={{
-              html: `
-                <!DOCTYPE html>
-                <html>
-                  <head>
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js"></script>
-                    <style>
-                      body, html {
-                        margin: 0;
-                        padding: 0;
-                        width: 100%;
-                        height: 100%;
-                        background-color: white;
-                        overflow: hidden;
-                      }
-                      #viewer {
-                        width: 100%;
-                        height: 100%;
-                        overflow: hidden;
-                      }
-                    </style>
-                  </head>
-                  <body>
-                    <div id="viewer"></div>
-                    <script>
-                      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
-                      const loadingTask = pdfjsLib.getDocument({data: atob('${initialBase64}')});
-                      loadingTask.promise.then(function(pdf) {
-                        pdf.getPage(1).then(function(page) {
-                          const canvas = document.createElement('canvas');
-                          const context = canvas.getContext('2d');
-                          const viewport = page.getViewport({scale: 0.62});
+    try {
+      if (fileType?.includes('pdf')) {
+        return (
+          <View style={styles.previewContainer}>
+            <WebView
+              source={{
+                html: `
+                  <!DOCTYPE html>
+                  <html>
+                    <head>
+                      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                      <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+                      <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js"></script>
+                      <style>
+                        body, html {
+                          margin: 0;
+                          padding: 0;
+                          width: 100%;
+                          height: 100%;
+                          background-color: white;
+                          overflow: hidden;
+                        }
+                        #viewer {
+                          width: 100%;
+                          height: 100%;
+                          overflow: hidden;
+                        }
+                      </style>
+                    </head>
+                    <body>
+                      <div id="viewer"></div>
+                      <script>
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+                        const loadingTask = pdfjsLib.getDocument({data: atob('${initialBase64}')});
+                        loadingTask.promise.then(function(pdf) {
+                          pdf.getPage(1).then(function(page) {
+                            const canvas = document.createElement('canvas');
+                            const context = canvas.getContext('2d');
+                            const viewport = page.getViewport({scale: 0.62});
 
-                          canvas.width = viewport.width;
-                          canvas.height = viewport.height;
+                            canvas.width = viewport.width;
+                            canvas.height = viewport.height;
 
-                          const renderContext = {
-                            canvasContext: context,
-                            viewport: viewport
-                          };
+                            const renderContext = {
+                              canvasContext: context,
+                              viewport: viewport
+                            };
 
-                          document.getElementById('viewer').appendChild(canvas);
-                          page.render(renderContext);
+                            document.getElementById('viewer').appendChild(canvas);
+                            page.render(renderContext);
+                          });
                         });
-                      });
-                    </script>
-                  </body>
-                </html>
-              `,
-            }}
-            originWhitelist={['*']}
-            scalesPageToFit={true}
-            javaScriptEnabled={true}
-          />
-        </View>
-      );
-    } else if (fileType?.toLowerCase().match(/jpg|jpeg|png|gif/)) {
-      const mimeType = fileType.includes('jpg') || fileType.includes('jpeg')
-        ? 'image/jpeg'
-        : 'image/png';
+                      </script>
+                    </body>
+                  </html>
+                `,
+              }}
+              originWhitelist={['*']}
+              scalesPageToFit={true}
+              javaScriptEnabled={true}
+            />
+          </View>
+        );
+      } else if (fileType?.toLowerCase().match(/jpg|jpeg|png|gif/)) {
+        const mimeType = fileType.includes('jpg') || fileType.includes('jpeg')
+          ? 'image/jpeg'
+          : 'image/png';
 
-      const imageSource = {
-        uri: `data:${mimeType};base64,${highQualityBase64 || initialBase64}`,
-        // Ajout de propriétés pour forcer le rendu
-        cache: 'reload',
-        timestamp: Date.now()
-      };
+        const imageSource = {
+          uri: `data:${mimeType};base64,${highQualityBase64 || initialBase64}`,
+          cache: 'reload',
+          timestamp: Date.now()
+        };
 
-      return (
-        <View style={styles.imageWrapper}>
-          <Image
-            source={imageSource}
-            style={styles.image}
-            resizeMode="contain"
-            onError={(error) => {
-              console.error('🔴 Erreur chargement image:', {
-                error: error.nativeEvent,
-                sourceLength: imageSource.uri.length,
-                mimeType
-              });
-              setError('Erreur de chargement de l\'image');
-            }}
-          />
-          {isLoading && (
-            <View style={styles.loadingOverlay}>
-              <ActivityIndicator size="large" color={COLORS.orange} />
-            </View>
-          )}
-          {error && (
-            <Text style={styles.errorText}>{error}</Text>
-          )}
-        </View>
-      );
+        return (
+          <View style={styles.imageWrapper}>
+            <Image
+              source={imageSource}
+              style={styles.image}
+              resizeMode="contain"
+              onError={(error) => {
+                handleError(error, 'documentPreview.imageLoad', {
+                  type: ErrorType.SYSTEM,
+                  silent: false
+                });
+                setError(t('errors.errorLoadingFile'));
+              }}
+            />
+            {isLoading && (
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color={COLORS.orange} />
+              </View>
+            )}
+            {error && (
+              <Text style={styles.errorText}>{error}</Text>
+            )}
+          </View>
+        );
+      }
+    } catch (err) {
+      handleError(err, 'documentPreview.renderPreview', {
+        type: ErrorType.SYSTEM,
+        silent: false
+      });
+      setError(t('errors.errorLoadingFile'));
+      return null;
     }
   };
 
@@ -268,7 +294,6 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
     >
       <View style={[
         styles.modalContainer,
-        isSmartphoneLandscape && styles.modalContainerSmartphoneLandscape,
         isLandscape && styles.modalContainerLandscape,
       ]}>
         <View
@@ -305,7 +330,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
           {renderPreview()}
           <View style={styles.buttonContainer}>
             <Button
-              title="Download"
+              title={t('buttons.download')}
               variant="large"
               onPress={handleDownload}
               width="100%"
@@ -329,10 +354,6 @@ const styles = StyleSheet.create({
   modalContainerLandscape: {
     paddingBottom: '5%',
     paddingTop: '5%',
-  },
-  modalContainerSmartphoneLandscape: {
-    // paddingBottom: '5%',
-    // paddingTop: '5%',
   },
   modalContent: {
     flex: 1,
