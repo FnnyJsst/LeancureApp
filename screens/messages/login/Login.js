@@ -15,11 +15,11 @@ import { hashPassword } from '../../../utils/encryption';
 import { secureStore } from '../../../utils/encryption';
 import { Text } from '../../../components/text/CustomText';
 import { useTranslation } from 'react-i18next';
+import { handleError, ErrorType } from '../../../utils/errorHandling';
 
 /**
  * @component Login
  * @description Component to handle the login process and the persistence of the login data
- *
  * @param {Object} props - The properties of the component
  * @param {Function} props.onNavigate - Function to navigate between screens
  */
@@ -40,6 +40,20 @@ export default function Login({ onNavigate, testID }) {
     const { isSmartphone, isSmartphoneLandscape, isLandscape } = useDeviceType();
 
     /**
+     * @function handleLoginError
+     * @description Handle login-related errors
+     * @param {Error} error - The error
+     * @param {string} source - The source of the error
+     * @returns {object} Formatted error
+     */
+    const handleLoginError = (error, source) => {
+        return handleError(error, `login.${source}`, {
+            type: ErrorType.AUTH,
+            silent: false
+        });
+    };
+
+    /**
      * @function validateInputs
      * @description Validate the inputs of the login form
      * @returns {string} The error message if the inputs are not valid, otherwise null
@@ -49,7 +63,7 @@ export default function Login({ onNavigate, testID }) {
             return t('errors.fieldsRequired');
         }
         return null;
-    }, [contractNumber, login, password]);
+    }, [contractNumber, login, password, t]);
 
 
     /**
@@ -65,7 +79,8 @@ export default function Login({ onNavigate, testID }) {
             try {
                 await SecureStore.deleteItemAsync('userCredentials');
             } catch (error) {
-                throw error;
+                handleLoginError(error, 'cleanup');
+                return;
             }
 
             const validationError = validateInputs();
@@ -75,7 +90,6 @@ export default function Login({ onNavigate, testID }) {
             }
 
             const loginResponse = await loginApi(contractNumber, login, password);
-            console.log('🔵 Réponse login:', loginResponse);
 
             if (loginResponse.success) {
                 // Save the new credentials in the SecureStore
@@ -86,46 +100,43 @@ export default function Login({ onNavigate, testID }) {
                     accountApiKey: loginResponse.accountApiKey,
                 };
 
-                await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+                try {
+                    await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
 
-                // Save the login info if the checkbox is checked
-                if (isChecked) {
-                    await saveLoginInfo();
-                }
+                    // Save the login info if the checkbox is checked
+                    if (isChecked) {
+                        await saveLoginInfo();
+                    }
 
-                // Fetch the user channels
-                console.log('🔵 Récupération des canaux avec:', {
-                    contractNumber,
-                    login,
-                    accountApiKey: loginResponse.accountApiKey
-                });
+                    // Fetch the user channels
+                    const channelsResponse = await fetchUserChannels(
+                        contractNumber,
+                        login,
+                        password,
+                        '',
+                        loginResponse.accountApiKey
+                    );
 
-                const channelsResponse = await fetchUserChannels(
-                    contractNumber,
-                    login,
-                    password,
-                    '',
-                    loginResponse.accountApiKey
-                );
-
-                console.log('🔵 Réponse channels:', channelsResponse);
-
-                if (channelsResponse.status === 'ok' && channelsResponse.privateGroups?.length > 0) {
-                    onNavigate(SCREENS.CHAT);
-                } else {
-                    console.error('❌ Erreur channels:', channelsResponse);
-                    setError(t('errors.errorLoadingChannels'));
+                    // Navigate to the chat screen if the channels are loaded
+                    if (channelsResponse.status === 'ok') {
+                        onNavigate(SCREENS.CHAT);
+                    } else {
+                        setError(t('errors.errorLoadingChannels'));
+                    }
+                } catch (error) {
+                    handleLoginError(error, 'saveCredentials');
+                    setError(t('errors.errorSavingLoginInfo'));
                 }
             } else {
-                setError('Identifiants invalides');
+                setError(t('errors.invalidCredentials'));
             }
         } catch (loginError) {
-            console.error('🔴 Erreur login:', loginError);
-            setError('Échec de la connexion: ' + loginError.message);
+            handleLoginError(loginError, 'process');
+            setError(t('errors.loginFailed'));
         } finally {
             setIsLoading(false);
         }
-    }, [contractNumber, login, password, isChecked, onNavigate, saveLoginInfo, validateInputs]);
+    }, [contractNumber, login, password, isChecked, onNavigate, saveLoginInfo, validateInputs, t]);
 
 
     /**
@@ -133,7 +144,7 @@ export default function Login({ onNavigate, testID }) {
      * @description Handle the simplified login process when the user has saved login info
      */
     const handleSimplifiedLogin = useCallback(async () => {
-        if (!savedLoginInfo) {return;}
+        if (!savedLoginInfo) return;
 
         setIsLoading(true);
         try {
@@ -141,19 +152,25 @@ export default function Login({ onNavigate, testID }) {
             const loginResponse = await loginApi(contractNumber, login, password);
 
             if (loginResponse && loginResponse.status === 200) {
-                await secureStore.saveCredentials({
-                    contractNumber,
-                    login,
-                    password: hashPassword(password),
-                    accountApiKey: loginResponse.accountApiKey,
-                });
+                try {
+                    await secureStore.saveCredentials({
+                        contractNumber,
+                        login,
+                        password: hashPassword(password),
+                        accountApiKey: loginResponse.accountApiKey,
+                    });
 
-                const channelsResponse = await fetchUserChannels(contractNumber, login, password, '', loginResponse.accountApiKey);
+                    const channelsResponse = await fetchUserChannels(contractNumber, login, password, '', loginResponse.accountApiKey);
 
-                if (channelsResponse.status === 'ok') {
-                    onNavigate(SCREENS.CHAT);
-                } else {
-                    setError(t('errors.errorLoadingChannels'));
+                    if (channelsResponse.status === 'ok') {
+                        onNavigate(SCREENS.CHAT);
+                    } else {
+                        setError(t('errors.errorLoadingChannels'));
+                        setIsSimplifiedLogin(false);
+                    }
+                } catch (error) {
+                    handleLoginError(error, 'saveCredentials');
+                    setError(t('errors.errorSavingLoginInfo'));
                     setIsSimplifiedLogin(false);
                 }
             } else {
@@ -161,12 +178,13 @@ export default function Login({ onNavigate, testID }) {
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
+            handleLoginError(error, 'simplifiedLogin');
             setError(t('errors.loginFailed'));
             setIsSimplifiedLogin(false);
         } finally {
             setIsLoading(false);
         }
-    }, [savedLoginInfo, onNavigate]);
+    }, [savedLoginInfo, onNavigate, t]);
 
     /**
      * @function saveLoginInfo
@@ -186,7 +204,7 @@ export default function Login({ onNavigate, testID }) {
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            console.error(t('errors.errorSavingLoginInfo'), error);
+            handleLoginError(error, 'saveLoginInfo');
             throw error;
         }
     }, [isChecked, contractNumber, login, password]);
@@ -205,8 +223,8 @@ export default function Login({ onNavigate, testID }) {
                     setIsSimplifiedLogin(true);
                     setContractNumber(parsedInfo.contractNumber);
                 }
-            } catch (savedLoginError) {
-                throw savedLoginError;
+            } catch (error) {
+                handleLoginError(error, 'checkSavedLogin');
             } finally {
                 setIsInitialLoading(false);
             }
