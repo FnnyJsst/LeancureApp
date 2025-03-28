@@ -5,25 +5,22 @@ import { COLORS } from '../../constants/style';
 /**
  * @component ScreenSaver
  * @description Displays the screen saver
- *
- * @returns {JSX.Element} - A JSX element
- *
- * @example
- * <ScreenSaver />
  */
 export default function ScreenSaver() {
-  // Créer une valeur d'animation pour l'opacité
+  // Create an animation value for the opacity
   const fadeAnim = new Animated.Value(0);
 
+  /**
+   * @description Entry animation in fade
+   */
   useEffect(() => {
-    // Animation d'entrée en fondu
     Animated.sequence([
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 1000,
         useNativeDriver: true,
       }),
-      // Maintenir l'image visible pendant 4 secondes
+      // Keep the image visible for 4 seconds
       Animated.delay(4000),
     ]).start();
   }, []);
@@ -52,7 +49,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 999, // S'assurer qu'il est au-dessus de tout
+    zIndex: 999,
   },
   imageContainer: {
     flex: 1,

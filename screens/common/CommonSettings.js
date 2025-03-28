@@ -13,13 +13,13 @@ import ChangeServerAddressModal from '../../components/modals/common/ChangeServe
 /**
  * @component CommonSettings
  * @description A component that renders the common settings of the app
- *
  * @param {Function} onBackPress - The function to call when the back button is pressed
  * @param {Function} onHideMessages - The function to call when the hide messages action is performed
  * @param {boolean} isMessagesHidden - Whether the messages are hidden
  */
 const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
 
+    // Device type detection
     const { isSmartphone, isLandscape } = useDeviceType();
 
     const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
@@ -40,7 +40,7 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
     };
 
     /**
-     * functions to open and close the change server address modal
+     * @description Functions to open and close the change server address modal
      */
     const openChangeServerAddressModal = () => {
         setChangeServerAddressModalVisible(true);
