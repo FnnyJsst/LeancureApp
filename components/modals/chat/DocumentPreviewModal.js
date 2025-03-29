@@ -85,16 +85,16 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
 
   /**
    * @function parseCSV
-   * @description Parse le contenu CSV en tableau de données
+   * @description Parse the CSV content into an array of data
    */
   const parseCSV = (base64Content) => {
     try {
-      // Décoder le base64 en texte
+      // Decode the base64 content to text
       const decodedContent = Buffer.from(base64Content, 'base64').toString('utf8');
-      // Diviser en lignes
+      // Split into lines
       const lines = decodedContent.split('\n');
 
-      // Parser chaque ligne en colonnes
+      // Parse each line into columns
       const data = lines.map(line => {
         const columns = [];
         let currentColumn = '';
@@ -105,7 +105,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
           const char = line[i];
 
           if (char === '"') {
-            // Gérer les guillemets échappés
+            // Handle escaped quotes
             if (line[i + 1] === '"') {
               currentColumn += '"';
               i += 2;
@@ -123,12 +123,12 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
           }
         }
 
-        // Ajouter la dernière colonne
+        // Add the last column
         columns.push(currentColumn.trim());
         return columns;
       }).filter(row => row.length > 0); // Filtrer les lignes vides
 
-      // Séparer les en-têtes des données
+      // Split the headers from the data
       const headers = data[0] || [];
       const rows = data.slice(1);
 
@@ -137,7 +137,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         rows
       };
     } catch (error) {
-      console.error('Erreur lors du parsing CSV:', error);
+      console.error('Error parsing CSV:', error);
       return {
         headers: [],
         rows: []
@@ -147,7 +147,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
 
   /**
    * @function useEffect
-   * @description Charge et parse le CSV quand le modal s'ouvre
+   * @description Load and parse the CSV when the modal opens
    */
   useEffect(() => {
     if (visible && fileType?.toLowerCase().includes('csv') && initialBase64) {
@@ -255,7 +255,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
 
   /**
    * @function renderCSVPreview
-   * @description Affiche la prévisualisation du CSV
+   * @description Display the CSV preview
    */
   const renderCSVPreview = () => {
     if (!csvData.headers || !csvData.rows.length) return null;
@@ -268,7 +268,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       <View style={styles.csvContainer}>
         <ScrollView horizontal style={styles.csvScrollView}>
           <View style={styles.csvTable}>
-            {/* En-têtes */}
+            {/* Headers */}
             <View style={styles.csvHeader}>
               {csvData.headers.map((header, index) => (
                 <View key={index} style={styles.csvHeaderCell}>
@@ -276,7 +276,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                 </View>
               ))}
             </View>
-            {/* Données */}
+            {/* Data */}
             {currentData.map((row, rowIndex) => (
               <View key={rowIndex} style={styles.csvRow}>
                 {row.map((cell, cellIndex) => (
@@ -603,7 +603,6 @@ const styles = StyleSheet.create({
   fileSize: {
     color: COLORS.white,
     fontSize: SIZES.fonts.textTablet,
-    // marginLeft: 8,
   },
   fileSizeSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,

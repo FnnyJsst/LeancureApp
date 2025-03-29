@@ -214,6 +214,18 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
     setSelectedFile(null);
   };
 
+  /**
+   * @function handleKeyPress
+   * @description A function to handle the key press of the input
+   */
+  const handleKeyPress = (event) => {
+    console.log('event', event);
+    if (event.nativeEvent.key === 'Enter') {
+      console.log('Enter key pressed');
+      handleSend();
+    }
+  };
+
   return (
     <>
       <View style={[styles.container, isSmartphone && styles.smartphoneContainer]}>
@@ -254,7 +266,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
               placeholderTextColor={COLORS.gray600}
               value={message}
               onChangeText={setMessage}
-              multiline
+              multiline={false}
               onFocus={handleFocus}
               onBlur={handleBlur}
               autoCapitalize="none"
@@ -262,6 +274,10 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
               textAlignVertical="center"
               allowFontScaling={false}
               maxFontSizeMultiplier={1}
+              cursorColor={COLORS.gray600}
+              onSubmitEditing={handleSend}
+              returnKeyType="send"
+              returnKeyLabel="send"
             />
             {isEditing && (
               <TouchableOpacity
@@ -292,7 +308,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
           <Ionicons
             name="send-outline"
             size={isSmartphone ? 18 : 24}
-            color={(message.trim() || selectedFile) ? COLORS.orange : COLORS.white}
+            color={(message.trim() || selectedFile) ? COLORS.orange : COLORS.gray300}
             style={styles.sendIcon}
           />
         </TouchableOpacity>
