@@ -40,11 +40,7 @@ export const handleError = (error, source, options = {}) => {
 
   // Log in the console
   if (!silent) {
-    const emoji = type === ErrorType.API ? '🌐' :
-                type === ErrorType.WEBSOCKET ? '🔌' :
-                type === ErrorType.AUTH ? '🔒' : '❌';
-
-    console.error(`${emoji} [${source}] ${formattedError.message}`);
+    console.error(`[${source}] ${formattedError.message}`);
   }
 
   // Call the callback if provided
