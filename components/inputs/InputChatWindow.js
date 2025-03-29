@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
  */
 const  FilePreview = ({ file, onRemove }) => {
 
+  // Device type hook
   const { isSmartphone } = useDeviceType();
 
   return (

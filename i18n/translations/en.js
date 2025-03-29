@@ -145,6 +145,7 @@ export default {
     connecting: "Connecting...",
     switchAccount: "Switch account",
     edit: "Edit",
+    download: "Download",
   },
 
   titles: {

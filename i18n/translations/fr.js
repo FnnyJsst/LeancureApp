@@ -146,6 +146,7 @@ export default {
     connecting: "Connexion...",
     switchAccount: "Changer de compte",
     edit: "Modifier",
+    download: "Télécharger",
   },
 
   titles: {

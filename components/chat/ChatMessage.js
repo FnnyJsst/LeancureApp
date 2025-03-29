@@ -213,6 +213,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
     // If the message is a file, we display the file preview
     if (message.type === 'file') {
       const isPDF = message.fileType?.toLowerCase().includes('pdf');
+      const isCSV = message.fileType?.toLowerCase().includes('csv');
       const isImage = message.fileType?.toLowerCase().includes('image/') ||
                   message.fileType?.toLowerCase().includes('jpeg') ||
                   message.fileType?.toLowerCase().includes('jpg') ||
@@ -235,6 +236,8 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
         // Default values more realistic based on the type
         if (isPDF) {
           fileSizeInBytes = 150 * 1024; // ~150 Ko for a typical PDF
+        } else if (isCSV) {
+          fileSizeInBytes = 100 * 1024; // ~100 Ko for a typical CSV
         } else if (isImage) {
           fileSizeInBytes = 350 * 1024; // ~350 Ko for a typical image
         } else {
@@ -258,13 +261,13 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
           <View
             style={[
               styles.fileContainer,
-              isPDF && message.text && message.text !== message.fileName ? [
+              (isPDF || isCSV) && message.text && message.text !== message.fileName ? [
                 styles.darkContainer,
                 isOwnMessage && styles.ownDarkContainer
               ] : null
             ]}
           >
-            {isPDF && (
+            {(isPDF || isCSV) && (
               <View style={[
                 styles.pdfPreviewContainer,
                 message.text && message.text !== message.fileName && styles.pdfPreviewWithText
@@ -273,10 +276,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                   <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
                   <View>
                     <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="tail">
-                      {message.fileName || 'Document PDF'}
+                      {message.fileName || (isPDF ? 'PDF' : 'CSV')}
                     </Text>
                     <Text style={styles.fileSize}>
-                      {message.fileType?.toUpperCase() || 'PDF'} • {formatFileSize(fileSizeInBytes)}
+                      {message.fileType?.toUpperCase() || (isPDF ? 'PDF' : 'CSV')} • {formatFileSize(fileSizeInBytes)}
                     </Text>
                   </View>
                 </View>

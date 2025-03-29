@@ -133,6 +133,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @returns {object} Formatted error
    */
   const handleChatError = (error, source, options = {}) => {
+    const { t } = useTranslation();
     return handleError(error, `chatWindow.${source}`, {
       type: ErrorType.SYSTEM,
       ...options
@@ -380,15 +381,19 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = useCallback(async (messageData) => {
     try {
+      console.log('=== Début sendMessage ===');
+      console.log('MessageData reçu:', messageData);
 
       // If the channel is not set, we throw an error
       if (!channel) {
+        console.log('Erreur: Pas de channel sélectionné');
         handleChatError(t('errors.noChannelSelected'), 'sendMessage.validation');
         return;
       }
 
       // Check if the message is an edit of an existing message
       const isEditing = messageData.isEditing === true && messageData.messageId;
+      console.log('Est-ce une édition?', isEditing);
 
       // If the message is an editing, use the editing function
       if (isEditing) {
@@ -397,12 +402,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         const userCredentials = JSON.parse(credentialsStr);
         // If the credentials are not found, we throw an error
         if (!credentialsStr) {
+          console.log('Erreur: Pas de credentials trouvés pour l\'édition');
           handleChatError(t('errors.noCredentialsFound'), 'sendMessage.validation');
           return;
         }
 
         // We send the editing request
         const response = await editMessageApi(messageData.messageId, messageData, userCredentials);
+        console.log('Réponse de l\'édition:', response);
 
         // If the response is ok, we update the message locally immediately
         if (response.status === 'ok') {
@@ -428,6 +435,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           setEditingMessage(null);
           return;
         } else {
+          console.log('Erreur lors de l\'édition du message');
           handleChatError(t('errors.errorEditingMessage'), 'sendMessage.process');
         }
       }
@@ -435,23 +443,41 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       // For a new message (non-editing), we continue with the existing code
       // We check the type of message
       if (messageData.type === 'file') {
+        console.log('Message de type fichier détecté');
+        console.log('Type de fichier:', messageData.fileType);
+        console.log('Nom du fichier:', messageData.fileName);
+        console.log('Taille du fichier:', messageData.fileSize);
+
         if (!messageData.base64) {
+          console.log('Erreur: Pas de base64 pour le fichier');
           handleChatError(t('errors.invalidFile'), 'sendMessage.validation');
+          return;
+        }
+
+        if (messageData.fileType === 'csv') {
+          console.log('Traitement spécial pour un fichier CSV');
+          console.log('Contenu CSV (premiers caractères):', messageData.base64.substring(0, 100));
         }
       } else {
         const messageText = typeof messageData === 'object' ? messageData.text : messageData;
+        console.log('Message texte:', messageText);
         // If the message text is invalid, we throw an error
         if (!messageText || messageText.trim() === '') {
+          console.log('Erreur: Message texte invalide');
           handleChatError(t('errors.invalidMessageText'), 'sendMessage.validation');
+          return;
         }
       }
 
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       const userCredentials = JSON.parse(credentialsStr);
+      console.log('Credentials récupérés:', userCredentials?.login);
 
       // If the credentials are not found, we throw an error
       if (!credentialsStr) {
+        console.log('Erreur: Pas de credentials trouvés');
         handleChatError(t('errors.noCredentialsFound'), 'sendMessage.validation');
+        return;
       }
 
       // We send the message
@@ -459,25 +485,28 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         type: 'text',
         message: typeof messageData === 'object' ? messageData.text : messageData
       };
+      console.log('Message préparé pour l\'envoi:', messageToSend);
 
       // We send the message to the API
+      console.log('Envoi du message à l\'API...');
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
+      console.log('Réponse de l\'API:', response);
 
       // If the response is not ok, we throw an error
       if (response.status !== 'ok') {
+        console.log('Erreur: Le message n\'a pas été envoyé');
         handleChatError(t('errors.messageNotSent'), 'sendMessage.process');
         return;
       }
 
-      // If the response is ok, we add the message to the list
-      if (response.message) {
-        setMessages(prevMessages => {
-          const newMessages = [...prevMessages, response.message];
-          return newMessages;
-        });
-      }
+      // On ne met plus à jour directement la liste des messages
+      // Le message sera ajouté via le WebSocket
+      console.log('Message envoyé avec succès, attente de la confirmation WebSocket');
+
+      console.log('=== Fin sendMessage ===');
 
     } catch (error) {
+      console.error('Erreur dans sendMessage:', error);
       handleChatError(error, 'sendMessage.process', { silent: false });
       throw error;
     }

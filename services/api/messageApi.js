@@ -117,6 +117,8 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     let fileType = isFile ? messageContent.fileType : null;
     if (fileType === 'application/pdf') {
       fileType = 'pdf';
+    } else if (fileType === 'text/csv') {
+      fileType = 'csv';
     } else if (fileType === 'image/jpeg') {
       fileType = 'jpg';
     } else if (fileType === 'image/png') {
@@ -156,13 +158,12 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
         throw new Error(t('error.serverError'));
       }
 
-      // On utilise l'ID du serveur au lieu du timestamp
       const serverMessageId = response.data?.cmd?.[0]?.amaiia_msg_srv?.message?.add?.data?.messageid;
 
       return {
         status: 'ok',
         message: {
-          id: serverMessageId || timestamp, // Fallback sur timestamp si pas d'ID serveur
+          id: serverMessageId || timestamp,
           title: messageTitle,
           message: isFile ? messageContent.messageText : messageContent.message,
           savedTimestamp: timestamp,
