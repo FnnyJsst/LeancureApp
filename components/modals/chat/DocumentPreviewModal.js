@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Modal, View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
@@ -13,6 +13,7 @@ import * as SecureStore from 'expo-secure-store';
 import { ActivityIndicator } from 'react-native';
 import { handleError, ErrorType } from '../../../utils/errorHandling';
 import { useTranslation } from 'react-i18next';
+import { Buffer } from 'buffer';
 
 /**
  * @component DocumentPreviewModal
@@ -34,6 +35,10 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
   const [error, setError] = useState(null);
   const [highQualityBase64, setHighQualityBase64] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [csvData, setCsvData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
 
   /**
    * @description Loads the high quality image
@@ -77,6 +82,81 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       loadHighQualityImage();
     }
   }, [visible, messageId, channelId, fileType, t]);
+
+  /**
+   * @function parseCSV
+   * @description Parse le contenu CSV en tableau de données
+   */
+  const parseCSV = (base64Content) => {
+    try {
+      // Décoder le base64 en texte
+      const decodedContent = Buffer.from(base64Content, 'base64').toString('utf8');
+      // Diviser en lignes
+      const lines = decodedContent.split('\n');
+
+      // Parser chaque ligne en colonnes
+      const data = lines.map(line => {
+        const columns = [];
+        let currentColumn = '';
+        let isInQuotes = false;
+        let i = 0;
+
+        while (i < line.length) {
+          const char = line[i];
+
+          if (char === '"') {
+            // Gérer les guillemets échappés
+            if (line[i + 1] === '"') {
+              currentColumn += '"';
+              i += 2;
+            } else {
+              isInQuotes = !isInQuotes;
+              i++;
+            }
+          } else if (char === ',' && !isInQuotes) {
+            columns.push(currentColumn.trim());
+            currentColumn = '';
+            i++;
+          } else {
+            currentColumn += char;
+            i++;
+          }
+        }
+
+        // Ajouter la dernière colonne
+        columns.push(currentColumn.trim());
+        return columns;
+      }).filter(row => row.length > 0); // Filtrer les lignes vides
+
+      // Séparer les en-têtes des données
+      const headers = data[0] || [];
+      const rows = data.slice(1);
+
+      return {
+        headers,
+        rows
+      };
+    } catch (error) {
+      console.error('Erreur lors du parsing CSV:', error);
+      return {
+        headers: [],
+        rows: []
+      };
+    }
+  };
+
+  /**
+   * @function useEffect
+   * @description Charge et parse le CSV quand le modal s'ouvre
+   */
+  useEffect(() => {
+    if (visible && fileType?.toLowerCase().includes('csv') && initialBase64) {
+      const { headers, rows } = parseCSV(initialBase64);
+      setCsvData({ headers, rows });
+      setTotalPages(Math.ceil(rows.length / rowsPerPage));
+      setCurrentPage(1);
+    }
+  }, [visible, fileType, initialBase64]);
 
   /**
    * @function handleDownload
@@ -123,6 +203,8 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       else {
         if (fileType?.toLowerCase().includes('pdf')) {
           calculatedSize = 150 * 1024; // ~150 Ko for a typical PDF
+        } else if (fileType?.toLowerCase().includes('csv')) {
+          calculatedSize = 100 * 1024; // ~100 Ko for a typical CSV
         } else if (fileType?.toLowerCase().match(/jpg|jpeg|png|gif/)) {
           calculatedSize = 350 * 1024; // ~350 Ko for a typical image
         } else {
@@ -169,6 +251,65 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       });
       return '0 Ko';
     }
+  };
+
+  /**
+   * @function renderCSVPreview
+   * @description Affiche la prévisualisation du CSV
+   */
+  const renderCSVPreview = () => {
+    if (!csvData.headers || !csvData.rows.length) return null;
+
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    const currentData = csvData.rows.slice(startIndex, endIndex);
+
+    return (
+      <View style={styles.csvContainer}>
+        <ScrollView horizontal style={styles.csvScrollView}>
+          <View style={styles.csvTable}>
+            {/* En-têtes */}
+            <View style={styles.csvHeader}>
+              {csvData.headers.map((header, index) => (
+                <View key={index} style={styles.csvHeaderCell}>
+                  <Text style={styles.csvHeaderText}>{header}</Text>
+                </View>
+              ))}
+            </View>
+            {/* Données */}
+            {currentData.map((row, rowIndex) => (
+              <View key={rowIndex} style={styles.csvRow}>
+                {row.map((cell, cellIndex) => (
+                  <View key={cellIndex} style={styles.csvCell}>
+                    <Text style={styles.csvCellText}>{cell}</Text>
+                  </View>
+                ))}
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+        {/* Pagination */}
+        <View style={styles.paginationContainer}>
+          <TouchableOpacity
+            style={[styles.paginationButton, currentPage === 1 && styles.paginationButtonDisabled]}
+            onPress={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+          >
+            <Text style={styles.paginationButtonText}>←</Text>
+          </TouchableOpacity>
+          <Text style={styles.paginationText}>
+            {t('pagination.page')} {currentPage} / {totalPages}
+          </Text>
+          <TouchableOpacity
+            style={[styles.paginationButton, currentPage === totalPages && styles.paginationButtonDisabled]}
+            onPress={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+          >
+            <Text style={styles.paginationButtonText}>→</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
   };
 
   /**
@@ -237,6 +378,12 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
               scalesPageToFit={true}
               javaScriptEnabled={true}
             />
+          </View>
+        );
+      } else if (fileType?.toLowerCase().includes('csv')) {
+        return (
+          <View style={styles.previewContainer}>
+            {renderCSVPreview()}
           </View>
         );
       } else if (fileType?.toLowerCase().match(/jpg|jpeg|png|gif/)) {
@@ -309,21 +456,30 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
           </TouchableOpacity>
 
           <View style={styles.fileHeader}>
-            <Ionicons
-              name={fileType?.includes('pdf') ? 'document-outline' : 'image-outline'}
-              size={24}
-              color={COLORS.white}
-            />
-            <View style={styles.fileInfo}>
-              <Text
-                style={[styles.fileName, isSmartphone && styles.fileNameSmartphone]}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {fileName}
+            <View style={styles.fileTypeContainer}>
+              <Ionicons
+                name={
+                  fileType?.includes('pdf') ? 'document-outline' :
+                  fileType?.toLowerCase().includes('csv') ? 'document-text-outline' :
+                  'image-outline'
+                }
+                size={24}
+                color={COLORS.white}
+              />
+              <Text style={[styles.fileType, isSmartphone && styles.fileTypeSmartphone]}>
+                {fileType?.includes('pdf') ? 'PDF' :
+                 fileType?.toLowerCase().includes('csv') ? 'CSV' :
+                 'Image'}
               </Text>
+            </View>
+            <View style={styles.fileSizeContainer}>
+              {/* <Ionicons
+                name="cloud-download-outline"
+                size={20}
+                color={COLORS.white}
+              /> */}
               <Text style={[styles.fileSize, isSmartphone && styles.fileSizeSmartphone]}>
-                {fileType?.includes('pdf') ? 'PDF' : 'Image'} • {formatFileSize()}
+                {formatFileSize()}
               </Text>
             </View>
           </View>
@@ -417,23 +573,37 @@ const styles = StyleSheet.create({
   fileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingRight: 50,
   },
-  fileInfo: {
-    marginLeft: 10,
-    flex: 1,
+  fileTypeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.gray700,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: SIZES.borderRadius.medium,
   },
-  fileName: {
+  fileSizeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.gray700,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: SIZES.borderRadius.medium,
+  },
+  fileType: {
     color: COLORS.white,
     fontSize: SIZES.fonts.textTablet,
-    fontWeight: '500',
+    marginLeft: 8,
   },
-  fileNameSmartphone: {
+  fileTypeSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
   },
   fileSize: {
-    color: COLORS.gray300,
+    color: COLORS.white,
     fontSize: SIZES.fonts.textTablet,
-    marginTop: 2,
+    // marginLeft: 8,
   },
   fileSizeSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
@@ -456,5 +626,74 @@ const styles = StyleSheet.create({
   errorText: {
     color: COLORS.red,
     marginTop: 10,
-  }
+  },
+  csvContainer: {
+    flex: 1,
+    backgroundColor: COLORS.gray850,
+    borderRadius: SIZES.borderRadius.medium,
+    overflow: 'hidden',
+  },
+  csvScrollView: {
+    flex: 1,
+  },
+  csvTable: {
+    padding: 10,
+  },
+  csvHeader: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray700,
+    paddingBottom: 8,
+    marginBottom: 8,
+  },
+  csvHeaderCell: {
+    padding: 8,
+    minWidth: 150,
+  },
+  csvHeaderText: {
+    color: COLORS.orange,
+    fontWeight: 'bold',
+    fontSize: SIZES.fonts.textTablet,
+  },
+  csvRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray700,
+    paddingVertical: 4,
+  },
+  csvCell: {
+    padding: 8,
+    minWidth: 150,
+  },
+  csvCellText: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.textTablet,
+  },
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray700,
+  },
+  paginationButton: {
+    backgroundColor: COLORS.orange,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: SIZES.borderRadius.medium,
+    marginHorizontal: 10,
+  },
+  paginationButtonDisabled: {
+    backgroundColor: COLORS.gray700,
+  },
+  paginationButtonText: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.textTablet,
+  },
+  paginationText: {
+    color: COLORS.white,
+    fontSize: SIZES.fonts.textTablet,
+    marginHorizontal: 10,
+  },
 });
