@@ -70,8 +70,10 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     const userData = accountsData.loginmsg.get.data;
     const accountApiKey = userData.accountapikey;
     const refreshToken = userData.refresh_token;
+    const accessToken = userData.access_token;
     console.log('🔵 AccountApiKey obtenue:', accountApiKey);
     console.log('🔵 Refresh token obtenu:', refreshToken ? 'présent' : 'absent');
+    console.log('🔵 Access token obtenu:', accessToken ? 'présent' : 'absent');
 
     // We send the second request to get the rights of the user
     console.log('🔵 Envoi de la requête pour les droits...');
@@ -122,7 +124,8 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       password,
       accountApiKey,
       rights: userRights,
-      refreshToken
+      refreshToken,
+      accessToken
     };
 
     await saveCredentials(credentials);
@@ -133,6 +136,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       status: loginResponse.status,
       accountApiKey: accountApiKey,
       refreshToken: refreshToken,
+      accessToken: accessToken,
       firstname: userData.firstname || '',
       lastname: userData.lastname || '',
       rights: userRights,

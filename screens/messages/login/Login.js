@@ -69,7 +69,12 @@ export default function Login({ onNavigate, testID }) {
      */
     const handleLogin = useCallback(async () => {
         try {
-            console.log('🔵 Début du processus de connexion');
+            console.log('🔵 ===== DÉBUT DU PROCESSUS DE CONNEXION =====');
+            console.log('🔵 Paramètres de connexion:', {
+                contractNumber,
+                login,
+                hasPassword: !!password
+            });
             setIsLoading(true);
             setError('');
 
@@ -91,44 +96,35 @@ export default function Login({ onNavigate, testID }) {
             }
             console.log('✅ Validation des champs réussie');
 
-            console.log('🔵 Appel de loginApi avec les paramètres:', {
-                contractNumber,
-                login,
-                hasPassword: !!password
+            // Première tentative de connexion avec accessToken vide
+            console.log('🔵 Première tentative de connexion (sans accessToken)...');
+            const loginResponse = await loginApi(contractNumber, login, password, '');
+            console.log('🔵 Réponse de la première tentative:', {
+                success: loginResponse.success,
+                status: loginResponse.status,
+                hasAccountApiKey: !!loginResponse.accountApiKey,
+                hasRefreshToken: !!loginResponse.refreshToken,
+                refreshToken: loginResponse.refreshToken ? `${loginResponse.refreshToken.substring(0, 10)}...${loginResponse.refreshToken.substring(loginResponse.refreshToken.length - 10)}` : 'absent',
+                accessToken: loginResponse.accessToken ? `${loginResponse.accessToken.substring(0, 10)}...${loginResponse.accessToken.substring(loginResponse.accessToken.length - 10)}` : 'absent'
             });
-            const loginResponse = await loginApi(contractNumber, login, password);
 
             if (loginResponse.success) {
                 console.log('✅ Login réussi:', {
                     status: loginResponse.status,
                     accountApiKey: loginResponse.accountApiKey,
-                    hasRights: !!loginResponse.rights
+                    hasRights: !!loginResponse.rights,
+                    refreshToken: loginResponse.refreshToken ? `${loginResponse.refreshToken.substring(0, 10)}...${loginResponse.refreshToken.substring(loginResponse.refreshToken.length - 10)}` : 'absent',
+                    accessToken: loginResponse.accessToken ? `${loginResponse.accessToken.substring(0, 10)}...${loginResponse.accessToken.substring(loginResponse.accessToken.length - 10)}` : 'absent'
                 });
 
-                console.log('🔵 Vérification du refresh token...');
-                const refreshTokenResponse = await checkRefreshToken(
-                    contractNumber,
-                    loginResponse.accountApiKey,
-                    loginResponse.refreshToken
-                );
-
-                if (!refreshTokenResponse.success) {
-                    console.log('❌ Refresh token invalide:', refreshTokenResponse.error);
-                    setError('Session expirée. Veuillez vous reconnecter.');
-                    return;
-                }
-                console.log('✅ Refresh token valide:', {
-                    hasData: !!refreshTokenResponse.data,
-                    hasRefreshToken: !!refreshTokenResponse.data?.refresh_token
-                });
-
-                // Save the new credentials in the SecureStore
+                // Sauvegarde des credentials avec le refresh token et l'access token
                 const credentials = {
                     contractNumber,
                     login,
                     password: hashPassword(password),
                     accountApiKey: loginResponse.accountApiKey,
-                    refreshToken: refreshTokenResponse.data.refresh_token
+                    refreshToken: loginResponse.refreshToken,
+                    accessToken: loginResponse.accessToken
                 };
 
                 console.log('🔵 Sauvegarde des credentials...');
@@ -142,15 +138,19 @@ export default function Login({ onNavigate, testID }) {
                     console.log('✅ Informations de connexion sauvegardées avec succès');
                 }
 
-                // Fetch the user channels
+                // Fetch the user channels with the access token
                 console.log('🔵 Chargement des canaux...');
                 const channelsResponse = await fetchUserChannels(
                     contractNumber,
                     login,
                     password,
-                    '',
+                    loginResponse.accessToken,
                     loginResponse.accountApiKey
                 );
+                console.log('🔵 Réponse du chargement des canaux:', {
+                    status: channelsResponse.status,
+                    hasChannels: !!channelsResponse.channels
+                });
 
                 // Navigate to the chat screen if the channels are loaded
                 if (channelsResponse.status === 'ok') {
@@ -161,11 +161,82 @@ export default function Login({ onNavigate, testID }) {
                     setError('Error loading channels');
                 }
             } else {
-                console.log('❌ Échec de la connexion:', {
-                    status: loginResponse.status,
-                    error: loginResponse.error
+                // Si la première tentative échoue, on essaie avec le refresh token
+                console.log('🔵 Première tentative échouée, vérification du refresh token...');
+                const refreshTokenResponse = await checkRefreshToken(
+                    contractNumber,
+                    loginResponse.accountApiKey,
+                    loginResponse.refreshToken
+                );
+                console.log('🔵 Réponse de la vérification du refresh token:', {
+                    success: refreshTokenResponse.success,
+                    hasData: !!refreshTokenResponse.data,
+                    hasRefreshToken: !!refreshTokenResponse.data?.refresh_token,
+                    refreshToken: refreshTokenResponse.data?.refresh_token ? `${refreshTokenResponse.data.refresh_token.substring(0, 10)}...${refreshTokenResponse.data.refresh_token.substring(refreshTokenResponse.data.refresh_token.length - 10)}` : 'absent',
+                    accessToken: refreshTokenResponse.data?.access_token ? `${refreshTokenResponse.data.access_token.substring(0, 10)}...${refreshTokenResponse.data.access_token.substring(refreshTokenResponse.data.access_token.length - 10)}` : 'absent'
                 });
-                setError('Invalid credentials');
+
+                if (!refreshTokenResponse.success) {
+                    console.log('❌ Refresh token invalide:', refreshTokenResponse.error);
+                    setError('Session expirée. Veuillez vous reconnecter.');
+                    return;
+                }
+                console.log('✅ Refresh token valide, nouvelle tentative de connexion...');
+
+                // Deuxième tentative avec le nouveau refresh token et access token
+                const retryLoginResponse = await loginApi(
+                    contractNumber,
+                    login,
+                    password,
+                    refreshTokenResponse.data.refresh_token
+                );
+                console.log('🔵 Réponse de la deuxième tentative:', {
+                    success: retryLoginResponse.success,
+                    status: retryLoginResponse.status,
+                    hasAccountApiKey: !!retryLoginResponse.accountApiKey,
+                    accessToken: retryLoginResponse.accessToken ? `${retryLoginResponse.accessToken.substring(0, 10)}...${retryLoginResponse.accessToken.substring(retryLoginResponse.accessToken.length - 10)}` : 'absent'
+                });
+
+                if (retryLoginResponse.success) {
+                    // Sauvegarde des nouveaux credentials
+                    const credentials = {
+                        contractNumber,
+                        login,
+                        password: hashPassword(password),
+                        accountApiKey: retryLoginResponse.accountApiKey,
+                        refreshToken: refreshTokenResponse.data.refresh_token,
+                        accessToken: retryLoginResponse.accessToken
+                    };
+
+                    console.log('🔵 Sauvegarde des nouveaux credentials...');
+                    await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+                    console.log('✅ Nouveaux credentials sauvegardés avec succès');
+
+                    // Chargement des canaux avec le nouveau refresh token et access token
+                    console.log('🔵 Chargement des canaux avec le nouveau refresh token et access token...');
+                    const channelsResponse = await fetchUserChannels(
+                        contractNumber,
+                        login,
+                        password,
+                        retryLoginResponse.accessToken,
+                        retryLoginResponse.accountApiKey
+                    );
+                    console.log('🔵 Réponse du chargement des canaux:', {
+                        status: channelsResponse.status,
+                        hasChannels: !!channelsResponse.channels
+                    });
+
+                    if (channelsResponse.status === 'ok') {
+                        console.log('✅ Canaux chargés avec succès, navigation vers le chat');
+                        onNavigate(SCREENS.CHAT);
+                    } else {
+                        console.log('❌ Erreur lors du chargement des canaux:', channelsResponse);
+                        setError('Error loading channels');
+                    }
+                } else {
+                    console.log('❌ Échec de la deuxième tentative de connexion');
+                    setError('Invalid credentials');
+                }
             }
         } catch (loginError) {
             console.log('❌ Erreur lors du processus de connexion:', {
@@ -175,7 +246,7 @@ export default function Login({ onNavigate, testID }) {
             setError('Login failed');
         } finally {
             setIsLoading(false);
-            console.log('🔵 Processus de connexion terminé');
+            console.log('🔵 ===== FIN DU PROCESSUS DE CONNEXION =====');
         }
     }, [contractNumber, login, password, isChecked, onNavigate, saveLoginInfo, validateInputs]);
 
@@ -185,45 +256,85 @@ export default function Login({ onNavigate, testID }) {
      * @description Handle the simplified login process when the user has saved login info
      */
     const handleSimplifiedLogin = useCallback(async () => {
-        if (!savedLoginInfo) return;
+        if (!savedLoginInfo) {
+            console.log('❌ Pas d\'informations de connexion sauvegardées');
+            return;
+        }
+
+        console.log('🔵 ===== DÉBUT DU PROCESSUS DE CONNEXION SIMPLIFIÉE =====');
+        console.log('🔵 Informations de connexion sauvegardées:', {
+            contractNumber: savedLoginInfo.contractNumber,
+            login: savedLoginInfo.login,
+            hasPassword: !!savedLoginInfo.password
+        });
 
         setIsLoading(true);
         try {
             const { contractNumber, login, password } = savedLoginInfo;
-            const loginResponse = await loginApi(contractNumber, login, password);
+            console.log('🔵 Tentative de connexion avec les informations sauvegardées...');
+            const loginResponse = await loginApi(contractNumber, login, password, '');
+            console.log('🔵 Réponse de la tentative de connexion:', {
+                success: loginResponse.success,
+                status: loginResponse.status,
+                hasAccountApiKey: !!loginResponse.accountApiKey,
+                hasRefreshToken: !!loginResponse.refreshToken,
+                refreshToken: loginResponse.refreshToken ? `${loginResponse.refreshToken.substring(0, 10)}...${loginResponse.refreshToken.substring(loginResponse.refreshToken.length - 10)}` : 'absent',
+                accessToken: loginResponse.accessToken ? `${loginResponse.accessToken.substring(0, 10)}...${loginResponse.accessToken.substring(loginResponse.accessToken.length - 10)}` : 'absent'
+            });
 
             if (loginResponse && loginResponse.status === 200) {
                 try {
+                    console.log('🔵 Sauvegarde des credentials...');
                     await secureStore.saveCredentials({
                         contractNumber,
                         login,
                         password: hashPassword(password),
                         accountApiKey: loginResponse.accountApiKey,
+                        refreshToken: loginResponse.refreshToken,
+                        accessToken: loginResponse.accessToken
+                    });
+                    console.log('✅ Credentials sauvegardés avec succès');
+
+                    console.log('🔵 Chargement des canaux...');
+                    const channelsResponse = await fetchUserChannels(
+                        contractNumber,
+                        login,
+                        password,
+                        loginResponse.accessToken,
+                        loginResponse.accountApiKey
+                    );
+                    console.log('🔵 Réponse du chargement des canaux:', {
+                        status: channelsResponse.status,
+                        hasChannels: !!channelsResponse.channels
                     });
 
-                    const channelsResponse = await fetchUserChannels(contractNumber, login, password, '', loginResponse.accountApiKey);
-
                     if (channelsResponse.status === 'ok') {
+                        console.log('✅ Canaux chargés avec succès, navigation vers le chat');
                         onNavigate(SCREENS.CHAT);
                     } else {
+                        console.log('❌ Erreur lors du chargement des canaux:', channelsResponse);
                         setError(t('errors.errorLoadingChannels'));
                         setIsSimplifiedLogin(false);
                     }
                 } catch (error) {
+                    console.log('❌ Erreur lors de la sauvegarde des credentials:', error.message);
                     handleLoginError(error, 'saveCredentials');
                     setError(t('errors.errorSavingLoginInfo'));
                     setIsSimplifiedLogin(false);
                 }
             } else {
+                console.log('❌ Échec de la connexion:', loginResponse);
                 setError(t('errors.invalidCredentials'));
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
+            console.log('❌ Erreur lors du processus de connexion simplifiée:', error.message);
             handleLoginError(error, 'simplifiedLogin');
             setError(t('errors.loginFailed'));
             setIsSimplifiedLogin(false);
         } finally {
             setIsLoading(false);
+            console.log('🔵 ===== FIN DU PROCESSUS DE CONNEXION SIMPLIFIÉE =====');
         }
     }, [savedLoginInfo, onNavigate, t]);
 
