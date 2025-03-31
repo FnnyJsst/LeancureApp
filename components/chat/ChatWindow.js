@@ -44,6 +44,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [editingMessage, setEditingMessage] = useState(null);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
 
+  // WebSocket hook
+  const { closeConnection } = useWebSocket({
+    onMessage: handleWebSocketMessage,
+    onError: handleWebSocketError,
+    channels: channel ? [`channel_${channel.id}`] : [],
+    subscriptions: channel ? [{
+      type: 'channel',
+      id: channel.id
+    }] : []
+  });
+
   /**
    * @description Load the files of the messages
    */
@@ -298,20 +309,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const handleWebSocketError = useCallback((error) => {
     handleChatError(error, 'websocket', { silent: false });
   }, []);
-
-  /**
-   * @function useWebSocket
-   * @description Initialize the WebSocket with the current channel
-   */
-  const { closeConnection } = useWebSocket({
-    onMessage: handleWebSocketMessage,
-    onError: handleWebSocketError,
-    channels: channel ? [`channel_${channel.id}`] : [],
-    subscriptions: channel ? [{
-      type: 'channel',
-      id: channel.id
-    }] : []
-  });
 
   /**
    * @description Close the WebSocket connection when the component unmounts

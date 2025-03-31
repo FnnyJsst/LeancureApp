@@ -14,7 +14,6 @@ import { handleError, ErrorType } from '../utils/errorHandling';
  * @returns {Object} - Methods to interact with the WebSocket
  */
 export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
-
     // We get the translation function
     const { t } = useTranslation();
 

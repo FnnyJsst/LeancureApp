@@ -7,7 +7,7 @@ import SimplifiedLogin from './SimplifiedLogin';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SCREENS } from '../../../constants/screens';
-import { loginApi } from '../../../services/api/authApi';
+import { loginApi, checkRefreshToken } from '../../../services/api/authApi';
 import { fetchUserChannels } from '../../../services/api/messageApi';
 import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 import GradientBackground from '../../../components/backgrounds/GradientBackground';
@@ -69,72 +69,115 @@ export default function Login({ onNavigate, testID }) {
      */
     const handleLogin = useCallback(async () => {
         try {
+            console.log('🔵 Début du processus de connexion');
             setIsLoading(true);
             setError('');
 
             // Clean up the SecureStore in case of previous error
             try {
+                console.log('🔵 Nettoyage du SecureStore...');
                 await SecureStore.deleteItemAsync('userCredentials');
+                console.log('✅ SecureStore nettoyé avec succès');
             } catch (error) {
-                handleLoginError(error, 'cleanup');
-                return;
+                console.log('❌ Erreur lors du nettoyage du SecureStore:', error.message);
+                throw error;
             }
 
             const validationError = validateInputs();
             if (validationError) {
+                console.log('❌ Erreur de validation:', validationError);
                 setError(validationError);
                 return;
             }
+            console.log('✅ Validation des champs réussie');
 
-            // We login to the API
+            console.log('🔵 Appel de loginApi avec les paramètres:', {
+                contractNumber,
+                login,
+                hasPassword: !!password
+            });
             const loginResponse = await loginApi(contractNumber, login, password);
 
             if (loginResponse.success) {
+                console.log('✅ Login réussi:', {
+                    status: loginResponse.status,
+                    accountApiKey: loginResponse.accountApiKey,
+                    hasRights: !!loginResponse.rights
+                });
+
+                console.log('🔵 Vérification du refresh token...');
+                const refreshTokenResponse = await checkRefreshToken(
+                    contractNumber,
+                    loginResponse.accountApiKey,
+                    loginResponse.refreshToken
+                );
+
+                if (!refreshTokenResponse.success) {
+                    console.log('❌ Refresh token invalide:', refreshTokenResponse.error);
+                    setError('Session expirée. Veuillez vous reconnecter.');
+                    return;
+                }
+                console.log('✅ Refresh token valide:', {
+                    hasData: !!refreshTokenResponse.data,
+                    hasRefreshToken: !!refreshTokenResponse.data?.refresh_token
+                });
+
                 // Save the new credentials in the SecureStore
                 const credentials = {
                     contractNumber,
                     login,
                     password: hashPassword(password),
                     accountApiKey: loginResponse.accountApiKey,
+                    refreshToken: refreshTokenResponse.data.refresh_token
                 };
 
-                try {
-                    await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+                console.log('🔵 Sauvegarde des credentials...');
+                await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+                console.log('✅ Credentials sauvegardés avec succès');
 
-                    // Save the login info if the checkbox is checked
-                    if (isChecked) {
-                        await saveLoginInfo();
-                    }
+                // Save the login info if the checkbox is checked
+                if (isChecked) {
+                    console.log('🔵 Sauvegarde des informations de connexion...');
+                    await saveLoginInfo();
+                    console.log('✅ Informations de connexion sauvegardées avec succès');
+                }
 
-                    // Fetch the user channels
-                    const channelsResponse = await fetchUserChannels(
-                        contractNumber,
-                        login,
-                        password,
-                        '',
-                        loginResponse.accountApiKey
-                    );
+                // Fetch the user channels
+                console.log('🔵 Chargement des canaux...');
+                const channelsResponse = await fetchUserChannels(
+                    contractNumber,
+                    login,
+                    password,
+                    '',
+                    loginResponse.accountApiKey
+                );
 
-                    // Navigate to the chat screen if the channels are loaded
-                    if (channelsResponse.status === 'ok') {
-                        onNavigate(SCREENS.CHAT);
-                    } else {
-                        setError(t('errors.errorLoadingChannels'));
-                    }
-                } catch (error) {
-                    handleLoginError(error, 'saveCredentials');
-                    setError(t('errors.errorSavingLoginInfo'));
+                // Navigate to the chat screen if the channels are loaded
+                if (channelsResponse.status === 'ok') {
+                    console.log('✅ Canaux chargés avec succès, navigation vers le chat');
+                    onNavigate(SCREENS.CHAT);
+                } else {
+                    console.log('❌ Erreur lors du chargement des canaux:', channelsResponse);
+                    setError('Error loading channels');
                 }
             } else {
-                setError(t('errors.invalidCredentials'));
+                console.log('❌ Échec de la connexion:', {
+                    status: loginResponse.status,
+                    error: loginResponse.error
+                });
+                setError('Invalid credentials');
             }
         } catch (loginError) {
-            handleLoginError(loginError, 'process');
-            setError(t('errors.loginFailed'));
+            console.log('❌ Erreur lors du processus de connexion:', {
+                message: loginError.message,
+                stack: loginError.stack
+            });
+            setError('Login failed');
         } finally {
             setIsLoading(false);
+            console.log('🔵 Processus de connexion terminé');
         }
-    }, [contractNumber, login, password, isChecked, onNavigate, saveLoginInfo, validateInputs, t]);
+    }, [contractNumber, login, password, isChecked, onNavigate, saveLoginInfo, validateInputs]);
 
 
     /**

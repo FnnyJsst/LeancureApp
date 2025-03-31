@@ -188,6 +188,8 @@ export default function App({ testID, initialScreen }) {
 
                 if (isHidden) {
                   navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+                } else {
+                  navigate(SCREENS.APP_MENU);
                 }
               }
             } catch (error) {
