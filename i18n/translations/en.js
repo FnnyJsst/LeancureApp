@@ -87,8 +87,8 @@ export default {
       channelTitle: "Enter channel title",
       channelUrl: "Enter channel URL",
       import: {
-      importChannels: "Import channels",
-      importUrl: "Enter an URL to import channels",
+        importChannels: "Import channels",
+        importUrl: "Enter an URL",
       },
       edit: {
         editChannel: "Edit channel",

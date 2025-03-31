@@ -312,7 +312,7 @@ export default function SettingsWebviews({
         </View>
         <View style={styles.titleContainer}>
           <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
-            {t('titles.version') + ' 1.0.0'}
+            {t('titles.version') + ' 2.0.0'}
           </Text>
         </View>
       </ScrollView>

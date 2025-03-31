@@ -89,7 +89,7 @@ export default {
       channelUrl: "Entrez l'URL de la chaîne",
       import: {
         importChannels: "Importer ses chaînes",
-        importUrl: "Entrez une URL pour importer des chaînes",
+        importUrl: "Entrez une URL",
       },
       edit: {
         editChannel: "Modifier une chaîne",

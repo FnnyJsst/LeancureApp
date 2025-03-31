@@ -8,16 +8,12 @@ import { Text } from '../text/CustomText';
 /**
  * @component CheckBox
  * @description A component that renders a checkbox
- *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.checked - Whether the checkbox is checked
  * @param {Function} props.onPress - The function to call when the checkbox is pressed
  * @param {string} props.label - The label of the checkbox
  * @param {boolean} props.disabled - Whether the checkbox is disabled
  * @param {Object} props.style - The style of the checkbox
- *
- * @example
- * <CheckBox checked={checked} onPress={() => console.log('Checkbox pressed')} label="Checkbox label" />
  */
 export default function CheckBox({
   checked,
@@ -27,6 +23,7 @@ export default function CheckBox({
   style,
 }) {
 
+  // Hooks to define the device type
   const { isSmartphone } = useDeviceType();
 
   return (
@@ -52,7 +49,6 @@ export default function CheckBox({
         <Text style={[
           styles.label,
           isSmartphone && styles.labelSmartphone,
-          disabled && styles.labelDisabled,
         ]}>
           {label}
         </Text>
@@ -90,8 +86,5 @@ const styles = StyleSheet.create({
   },
   labelSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
-  },
-  labelDisabled: {
-    color: COLORS.gray300,
   },
 });
