@@ -12,21 +12,16 @@ import { useTranslation } from 'react-i18next';
 /**
  * @component PasswordDefineModal
  * @description A component that renders a modal for setting a password
- *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onSubmitPassword - The function to call when the password is submitted
  * @param {Function} props.onDisablePassword - The function to call when the password is disabled
- *
- * @example
- * <PasswordDefineModal visible={visible} onClose={() => console.log('Modal closed')} onSubmitPassword={() => console.log('Password submitted')} onDisablePassword={() => console.log('Password disabled')} />
  */
 export default function PasswordDefineModal({ visible, onClose, onSubmitPassword, onDisablePassword, testID  }) {
 
   const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTablet } = useDeviceType();
 
   // State management for the password and the alert
   const [password, setPassword] = useState('');
@@ -97,7 +92,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
   return (
     <>
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={visible}
         onRequestClose={handleClose}
@@ -114,6 +109,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
               isSmartphone && styles.modalContentSmartphone,
               isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
               isTabletPortrait && styles.modalContentTabletPortrait,
+              isLowResTablet && styles.modalContentLowResTablet,
             ]}>
             <TitleModal title={t('modals.webview.password.enterPassword')} />
             <View style={[
@@ -202,8 +198,9 @@ const styles = StyleSheet.create({
   modalContainerSmartphone: {
     paddingBottom: 'auto',
   },
-
-  //Content styles
+  modalContainerLowResTablet: {
+    paddingBottom: 'auto',
+  },
   modalContentSmartphone: {
     width: '95%',
     padding: 15,
@@ -215,8 +212,6 @@ const styles = StyleSheet.create({
     width: '60%',
     padding: 20,
   },
-
-  //Input styles
   inputContainer: {
     gap: 15,
   },

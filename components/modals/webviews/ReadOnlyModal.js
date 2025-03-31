@@ -9,20 +9,16 @@ import { useTranslation } from 'react-i18next';
 /**
  * @component ReadOnly
  * @description A component that renders a modal for setting the read-only mode
- *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onToggleReadOnly - The function to call when the read-only mode is toggled
- *
- * @example
- * <ReadOnly visible={visible} onClose={() => console.log('Modal closed')} onToggleReadOnly={() => console.log('Read-only mode toggled')} />
  */
 export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID }) {
 
+  // Translation
   const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait, isLowResTablet } = useDeviceType();
 
   /**
    * @function handleYes
@@ -44,7 +40,7 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
 
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
@@ -57,6 +53,7 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
           isTabletPortrait && styles.modalContentTabletPortrait,
+          isLowResTablet && styles.modalContentLowResTablet,
         ]}>
           <View style={[
             styles.titleContainer,
@@ -73,14 +70,14 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
             <Button
               title={t('buttons.yes')}
               backgroundColor={COLORS.orange}
-              width={isSmartphone ? '20%' : '22%'}
+              width={isSmartphone ? '23%' : '26%'}
               onPress={handleYes}
             />
             <Button
               title={t('buttons.no')}
               backgroundColor={COLORS.gray950}
               color={COLORS.gray300}
-              width={isSmartphone ? '20%' : '22%'}
+              width={isSmartphone ? '23%' : '26%'}
               onPress={handleNo}
             />
           </View>
@@ -91,13 +88,15 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
 }
 
 const styles = StyleSheet.create({
-  //Container styles
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.backgroundModal,
     paddingBottom: '20%',
+  },
+  modalContentLowResTablet: {
+    width: '60%',
   },
   modalContent: {
     width: '40%',
@@ -116,8 +115,6 @@ const styles = StyleSheet.create({
   modalContentTabletPortrait: {
     width: '60%',
   },
-
-  //Title styles
   titleContainer: {
     marginBottom: 20,
   },
@@ -132,7 +129,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.biggerTextSmartphone,
   },
 
-  //Button styles
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
