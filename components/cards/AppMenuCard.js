@@ -7,8 +7,6 @@ import { Text } from '../text/CustomText';
 /**
  * @component AppMenuCard
  * @description A component that renders the cards used in the app menu
- *
- * @param {Object} props - The properties of the component
  * @param {string} props.title - The title of the card
  * @param {ReactNode} props.icon - The icon of the card
  * @param {Function} props.onPress - The function to call when the card is pressed

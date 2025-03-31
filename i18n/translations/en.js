@@ -162,6 +162,7 @@ export default {
     welcomeBack: "Welcome back",
     noNameGroup: "Group without name",
     noNameChannel: "Channel without name",
+    version: "Version",
   },
 
   settings: {
