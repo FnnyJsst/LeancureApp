@@ -263,6 +263,10 @@ export default {
     messageNotEdited: "Message not edited",
     hashPasswordError: "Error hashing password",
     verifyPasswordError: "Error verifying password",
+    addressCannotBeEmpty: "Address cannot be empty",
+    invalidUrlFormat: "Invalid URL format",
+    invalidProtocol: "The protocol must be http or https",
+    saveServerAddressError: "Error saving the server address",
   },
   success: {
     messageDeleted: "Message deleted successfully",

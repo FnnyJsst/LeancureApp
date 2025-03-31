@@ -266,6 +266,10 @@ export default {
     messageNotEdited: "Message non modifié",
     hashPasswordError: "Erreur lors du hashage du mot de passe",
     verifyPasswordError: "Erreur lors de la vérification du mot de passe",
+    addressCannotBeEmpty: "L'adresse ne peut pas être vide",
+    invalidUrlFormat: "Format d'URL invalide",
+    invalidProtocol: "Le protocole doit être http ou https",
+    saveServerAddressError: "Erreur lors de la sauvegarde de l'adresse du serveur",
   },
   success: {
     messageDeleted: "Message supprimé avec succès",

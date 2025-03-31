@@ -196,7 +196,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
         onSendMessage({
           text: message.trim()
         });
-        console.log('🔄 Message envoyé:', message.trim());
       }
     }
 

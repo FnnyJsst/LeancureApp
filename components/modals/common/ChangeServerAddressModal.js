@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Modal, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import InputModal from '../../inputs/InputModal';
@@ -7,6 +7,7 @@ import { SIZES, COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
 import { Ionicons } from '@expo/vector-icons';
 import { ENV } from '../../../config/env';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @function ChangeServerAddressModal
@@ -19,7 +20,31 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
   const [serverAddress, setServerAddress] = useState('');
   const [error, setError] = useState('');
 
+  // Translation and device type hooks
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
+  const { t } = useTranslation();
+
+  /**
+   * @function loadCurrentServerAddress
+   * @description This function loads the current server address to display it in the input
+   */
+  useEffect(() => {
+    const loadCurrentServerAddress = async () => {
+      try {
+        // We get the current server address from the storage
+        const currentUrl = await ENV.API_URL();
+        // We remove the /ic.php from the URL for display
+        const baseUrl = currentUrl.replace('/ic.php', '');
+        setServerAddress(baseUrl);
+      } catch (error) {
+        console.error('Erreur lors du chargement de l\'adresse du serveur:', error);
+      }
+    };
+
+    if (visible) {
+      loadCurrentServerAddress();
+    }
+  }, [visible]);
 
   /**
    * @function handleSave
@@ -29,20 +54,21 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
     try {
       //If the server address is empty, set the error
       if (!serverAddress.trim()) {
-        setError('Address cannot be empty');
+        setError(t('error.addressCannotBeEmpty'));
         return;
       }
 
       // Validate the URL
       try {
+
         const url = new URL(serverAddress.trim());
         //If the URL is invalid, set the error
         if (!url.protocol || !url.host) {
-          setError('Invalid URL format');
+          setError(t('error.invalidUrlFormat'));
           return;
         }
         if (!['http:', 'https:'].includes(url.protocol)) {
-          setError('Le protocole doit être http ou https');
+          setError(t('error.invalidProtocol'));
           return;
         }
 
@@ -58,7 +84,7 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
         setError('Error saving the data in the storage');
       }
     } catch (saveServerAddressError) {
-      setError('Error saving the server address');
+      setError(t('error.saveServerAddressError'));
     }
   };
 
@@ -156,7 +182,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   errorText: {
-    color: COLORS.error,
+    color: COLORS.red,
     fontSize: SIZES.fonts.smallText,
     marginTop: 8,
     textAlign: 'center',
