@@ -15,8 +15,6 @@ import CryptoJS from 'crypto-js';
  */
 export const loginApi = async (contractNumber, login, password, accessToken = '') => {
   try {
-    console.log('🔵 Début de loginApi');
-    console.log('🔵 Paramètres reçus:', { contractNumber, login, accessToken: accessToken ? 'présent' : 'absent' });
 
     // We create the request data
     const requestData = createApiRequest({
@@ -35,10 +33,8 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     if (!apiUrl.endsWith('/ic.php')) {
       apiUrl = `${apiUrl}/ic.php`;
     }
-    console.log('🔵 URL de l\'API:', apiUrl);
 
     // We send the request
-    console.log('🔵 Envoi de la requête de login...');
     const loginResponse = await axios({
       method: 'POST',
       url: apiUrl,
@@ -53,17 +49,9 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       maxRedirects: 0,
     });
 
-    console.log('🔵 Réponse reçue:', {
-      status: loginResponse.status,
-      hasData: !!loginResponse.data,
-      hasCmd: !!loginResponse.data?.cmd?.[0],
-      hasAccounts: !!loginResponse.data?.cmd?.[0]?.accounts
-    });
-
     const accountsData = loginResponse.data.cmd[0].accounts;
 
     if ((!loginResponse.data?.cmd?.[0]?.accounts) || (!accountsData.loginmsg?.get?.data)) {
-        console.log('❌ Réponse invalide:', loginResponse.data);
         throw new Error(t('errors.invalidResponse'));
     }
 
@@ -71,12 +59,8 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     const accountApiKey = userData.accountapikey;
     const refreshToken = userData.refresh_token;
     const accessToken = userData.access_token;
-    console.log('🔵 AccountApiKey obtenue:', accountApiKey);
-    console.log('🔵 Refresh token obtenu:', refreshToken ? 'présent' : 'absent');
-    console.log('🔵 Access token obtenu:', accessToken ? 'présent' : 'absent');
 
     // We send the second request to get the rights of the user
-    console.log('🔵 Envoi de la requête pour les droits...');
     const channelsResponse = await axios({
       method: 'POST',
       url: await ENV.API_URL(),
@@ -100,21 +84,12 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       timeout: 10000,
     });
 
-    console.log('🔵 Réponse des droits reçue:', {
-      status: channelsResponse.status,
-      hasData: !!channelsResponse.data,
-      hasCmd: !!channelsResponse.data?.cmd?.[0]
-    });
-
     // Extract the rights of the group 4 (Admin group)
     const groupsData = channelsResponse.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data?.private?.groups;
     let userRights = null;
 
     if (groupsData && groupsData['4']) {
       userRights = groupsData['4'].rights;
-      console.log('🔵 Droits utilisateur obtenus:', userRights);
-    } else {
-      console.log('⚠️ Aucun droit trouvé pour le groupe 4');
     }
 
     // We save the credentials with the rights in the secure storage
@@ -129,7 +104,6 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     };
 
     await saveCredentials(credentials);
-    console.log('🔵 Credentials sauvegardés');
 
     // We return the credentials
     return {
@@ -238,26 +212,24 @@ export const clearSecureStorage = async () => {
 
 /**
  * @function checkRefreshToken
- * @description Vérifie la validité du refresh token
- * @param {string} contractNumber - Le numéro de contrat
- * @param {string} accountApiKey - La clé API du compte
- * @param {string} refreshToken - Le refresh token
- * @returns {Promise<Object>} - La réponse de l'API
+ * @description Checks if the refresh token is valid
+ * @param {string} contractNumber - The contract number
+ * @param {string} accountApiKey - The account API key
+ * @param {string} refreshToken - The refresh token
+ * @returns {Promise<Object>} - The response of the API
  */
 export const checkRefreshToken = async (contractNumber, accountApiKey, refreshToken) => {
   try {
-    console.log('🔵 Début de checkRefreshToken');
-    console.log('🔵 Paramètres reçus:', {
-      contractNumber,
-      accountApiKey,
-      hasRefreshToken: !!refreshToken
-    });
 
     const timestamp = Date.now();
+    // We create the data to hash
     const data = `accounts/token/refresh/${timestamp}/`;
+    // We hash the data
     const hash = CryptoJS.HmacSHA256(data, contractNumber);
+    // We convert the hash to a hexadecimal string
     const hashHex = hash.toString(CryptoJS.enc.Hex);
 
+    // We create the request data
     const requestData = {
       "api-version": "2",
       "api-contract-number": contractNumber,
@@ -266,6 +238,7 @@ export const checkRefreshToken = async (contractNumber, accountApiKey, refreshTo
       "api-signature-timestamp": timestamp,
       "client-type": "mobile",
       "client-login": "admin",
+      // We don't need to send the access token because it's already in the request
       "client-token": "",
       "cmd": [{
         "accounts": {
@@ -279,8 +252,9 @@ export const checkRefreshToken = async (contractNumber, accountApiKey, refreshTo
       }]
     };
 
-    console.log('🔵 Envoi de la requête de vérification du refresh token...');
     const apiUrl = await ENV.API_URL();
+
+    // We send the request
     const response = await axios({
       method: 'POST',
       url: apiUrl,
@@ -294,14 +268,11 @@ export const checkRefreshToken = async (contractNumber, accountApiKey, refreshTo
       }
     });
 
-    console.log('🔵 Réponse de vérification du refresh token:', {
-      status: response.status,
-      hasData: !!response.data?.cmd?.[0]?.accounts?.token?.refresh?.data,
-      success: response.data?.cmd?.[0]?.accounts?.token?.refresh?.data !== undefined
-    });
-
+    // We return the response
     return {
+      // We check if the response is successful
       success: response.data?.cmd?.[0]?.accounts?.token?.refresh?.data !== undefined,
+      // We return the data
       data: response.data?.cmd?.[0]?.accounts?.token?.refresh?.data
     };
   } catch (error) {

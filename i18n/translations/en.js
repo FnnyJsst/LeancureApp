@@ -272,6 +272,9 @@ export default {
     saveServerAddressError: "Error saving the server address",
     enterUrl: "Please enter an URL",
     invalidUrl: "Invalid URL",
+    errorLoadingChannels: "Error loading channels",
+    sessionExpired: "Session expired. Please reconnect.",
+    loginFailed: "Login failed",
   },
   success: {
     messageDeleted: "Message deleted successfully",

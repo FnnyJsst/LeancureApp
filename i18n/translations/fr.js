@@ -274,6 +274,9 @@ export default {
     saveServerAddressError: "Erreur lors de la sauvegarde de l'adresse du serveur",
     enterUrl: "Veuillez entrer une URL",
     invalidUrl: "URL invalide",
+    errorLoadingChannels: "Erreur lors du chargement des canaux",
+    sessionExpired: "Session expirée. Veuillez vous reconnecter.",
+    loginFailed: "Connexion impossible",
   },
   success: {
     messageDeleted: "Message supprimé avec succès",
