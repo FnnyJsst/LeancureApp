@@ -7,17 +7,12 @@ import { Text } from '../text/CustomText';
 /**
  * @component Button
  * @description A component that renders a button for the app
- *
- * @param {Object} props - The properties of the component
  * @param {string} props.title - The title of the button
  * @param {string} [props.backgroundColor = COLORS.orange] - The background color of the button
  * @param {string} [props.textColor = COLORS.white] - The text color of the button
  * @param {Function} props.onPress - The function to call when the button is pressed
  * @param {number} [props.width] - The width of the button
  * @param {string} [props.variant = 'default'] - The variant of the button - "large" for a large button, "default" for a small one
- *
- * @example
- * <Button title="Click me" onPress={() => console.log('Button pressed')} />
  */
 export default function Button({
   title,

@@ -20,7 +20,6 @@ import { useTranslation } from 'react-i18next';
  * @component SettingsWebviews
  * @description Displays the settings for the webviews
  * @param {Function} onNavigate - A function to navigate to a screen
- * @param {Function} onSettingsAccess - A function to handle the settings access
  * @param {Array} selectedWebviews - The list of selected channels
  * @param {string} refreshOption - The refresh option
  * @param {Function} handlePasswordSubmit - A function to handle the password submit
