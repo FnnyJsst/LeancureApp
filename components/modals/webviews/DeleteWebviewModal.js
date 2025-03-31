@@ -1,29 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Modal, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES, SIZES } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component DeleteWebviewModal
  * @description A component that renders a modal for deleting a webview
- *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.handleDelete - The function to call when the webview is deleted
- * @example
- * <DeleteWebviewModal visible={visible} onClose={() => console.log('Modal closed')} handleDelete={() => console.log('Webview deleted')} />
  */
 export default function DeleteWebviewModal({ visible, onClose, handleDelete, testID }) {
 
   // Hook to determine the device type and orientation
-  const { isSmartphonePortrait, isSmartphoneLandscape, isSmartphone, isTabletPortrait } = useDeviceType();
+  const { isSmartphonePortrait, isSmartphoneLandscape, isSmartphone, isTabletPortrait, isLowResTablet } = useDeviceType();
+
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const { t } = useTranslation();
+
+  const handleDeleteWithLoading = async () => {
+    setIsDeleting(true);
+    try {
+      await handleDelete();
+    } catch (error) {
+      throw new Error('Erreur lors de la suppression:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
@@ -33,6 +45,8 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
       <View style={MODAL_STYLES.modalContainer}>
         <View style={[
           MODAL_STYLES.content,
+          isSmartphone && styles.modalContentSmartphone,
+          isLowResTablet && styles.modalContentLowResTablet,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
           isTabletPortrait && styles.modalContentTabletPortrait,
@@ -45,22 +59,27 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
             <Text style={[
               styles.title,
               isSmartphone && styles.titleSmartphone,
-            ]}>Are you sure you want to delete this channel?</Text>
+            ]}>{t('settings.webview.deleteChannel')}</Text>
           </View>
           <View style={MODAL_STYLES.buttonContainer}>
             <Button
-              title="Cancel"
+              title={t('buttons.cancel')}
               backgroundColor={COLORS.gray650}
               color={COLORS.white}
-              width="22%"
+              width={isSmartphone ? '27%' : '30%'}
               onPress={onClose}
             />
             <Button
-              title="Delete"
+              title={t('buttons.delete')}
               backgroundColor={COLORS.orange}
               color={COLORS.white}
-              width="22%"
-              onPress={() => handleDelete()}
+              width={isSmartphone ? '27%' : '30%'}
+              onPress={handleDeleteWithLoading}
+              disabled={isDeleting}
+              icon={isDeleting ?
+                <ActivityIndicator size="small" color={COLORS.white} /> :
+                null
+              }
             />
           </View>
         </View>

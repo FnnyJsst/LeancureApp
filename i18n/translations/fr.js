@@ -141,6 +141,7 @@ export default {
     no: "Non",
     yes: "Oui",
     import: "Importer",
+    importing: "Importation...",
     importChannels: "Importer des chaînes",
     doNotUse: "Ne pas utiliser",
     connecting: "Connexion...",
@@ -181,6 +182,7 @@ export default {
       readOnlyDescription: "Accès aux canaux sans possibilité de modification",
       password: "Mot de passe",
       passwordDescription: "Définir un mot de passe pour accéder aux paramètres",
+      deleteChannel: "Êtes-vous sûr de vouloir supprimer ce canal ?",
     },
     common: {
       showHide: "Afficher/masquer les messages",
@@ -270,6 +272,8 @@ export default {
     invalidUrlFormat: "Format d'URL invalide",
     invalidProtocol: "Le protocole doit être http ou https",
     saveServerAddressError: "Erreur lors de la sauvegarde de l'adresse du serveur",
+    enterUrl: "Veuillez entrer une URL",
+    invalidUrl: "URL invalide",
   },
   success: {
     messageDeleted: "Message supprimé avec succès",

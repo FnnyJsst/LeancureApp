@@ -3,6 +3,7 @@ import { Modal, View, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
+import CustomAlert from './CustomAlert';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,24 +13,24 @@ import { useTranslation } from 'react-i18next';
 /**
  * @component ImportWebviewModal
  * @description A component that renders a modal for importing channels
- *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onImport - The function to call when the channels are imported
- *
- * @example
- * <ImportWebviewModal visible={visible} onClose={() => console.log('Modal closed')} onImport={() => console.log('Channels imported')} />
  */
 const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
+
+  // Translation
   const { t } = useTranslation();
-  // State management for the URL, error and channels
+
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTablet } = useDeviceType();
 
   /**
    * @function validateUrl
@@ -77,57 +78,90 @@ const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
     return links;
   };
 
-  /**
+   /**
    * @function handleDownload
    * @description A function to handle the download of channels from URL
    */
-  const handleDownload = () => {
+   const handleDownload = async () => {
     if (!url) {
-      setError('Please enter an URL');
+      setError(t('errors.enterUrl'));
       return;
     }
 
-    // Validate the URL
     if (!validateUrl(url)) {
-      setError('Invalid URL');
+      setError(t('errors.invalidUrl'));
       return;
     }
 
-    // Build the full URL
-    const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
-    fetch(fullUrl)
-      .then(response => {
-        // Get the content type
-        const contentType = response.headers.get('content-type');
-        // If the content type is JSON, return the JSON
-        if (contentType && contentType.includes('application/json')) {
-          return response.json();
-        // If the content type is HTML, return the HTML
-        } else if (contentType && contentType.includes('text/html')) {
-          return response.text();
-        } else {
-          throw new Error(`Invalid content type: ${contentType}`);
+    setIsImporting(true);
+    setError('');
+
+    try {
+      // We get the full URL and fetch it
+      const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
+      const response = await fetch(fullUrl);
+
+      // We get the content type
+      const contentType = response.headers.get('content-type');
+
+      // If the content type is not defined, we throw an error
+      if (!contentType) {
+        setError(t('errors.contentTypeNotDefined'));
+        return;
+      }
+
+      let data;
+      // If the content type is JSON, we parse it
+      if (contentType.includes('application/json')) {
+        data = await response.json();
+        // We check if the data is an array
+        if (!Array.isArray(data)) {
+          setError(t('errors.invalidResponseFormat'));
+          return;
         }
-      })
-      .then(data => {
-        // If the data is a string, extract the channels links and titles
-        if (typeof data === 'string') {
-          const extractedChannels = parseHtml(data);
-          // If no channels are found, set the error message
-          if (extractedChannels.length === 0) {
-            setError('No channels found at this URL');
-            return;
-          }
-          // Import the channels
-          onImport(extractedChannels);
+      } else if (contentType.includes('text/html')) {
+        data = await response.text();
+      } else {
+        setError(t('errors.invalidContentType'));
+        return;
+      }
+
+      // If the data is a string, we parse it
+      if (typeof data === 'string') {
+        const extractedChannels = parseHtml(data);
+
+        if (extractedChannels.length === 0) {
+          setError(t('errors.noChannelsFound'));
+          return;
+        }
+
+        const newChannels = extractedChannels.filter(newChannel =>
+          !selectedWebviews.some(existingChannel =>
+            existingChannel.href === newChannel.href
+          )
+        );
+
+        // If there are no new channels, we show an alert
+        if (newChannels.length === 0) {
+          setShowAlert(true);
+        } else {
+
+          await onImport(newChannels);
           onClose();
-        } else {
-          setError('Invalid response format');
         }
-      })
-      .catch(fetchError => {
-        setError(`Error during the download of channels: ${fetchError.message}`);
-      });
+      } else {
+        setError(t('errors.invalidResponseFormat'));
+      }
+    } catch (error) {
+      setError(t('errors.errorDuringDownload'));
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleCloseAlert = () => {
+    setShowAlert(false);
+    handleClose();
   };
 
   /**
@@ -141,68 +175,83 @@ const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
   };
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={handleClose}
-      statusBarTranslucent={true}
-      testID="import-modal"
-    >
-      <View style={MODAL_STYLES.modalContainer}>
-        <View style={[
-            MODAL_STYLES.content,
-            isSmartphone && styles.modalContentSmartphone,
-            isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-            isTabletPortrait && styles.modalContentTabletPortrait,
-          ]}>
-          <TitleModal title={t('modals.webview.import.importChannels')}/>
-          <InputModal
-            placeholder={t('modals.webview.import.importUrl')}
-            value={url}
-            onChangeText={handleUrlChange}
-            // We set the secureTextEntry to false so the user can see the URL
-            secureTextEntry={false}
-            icon={
-              <Ionicons
-                name="link-outline"
-                size={20}
-                color={isFocused ? COLORS.orange : COLORS.gray300}
-              />
-            }
-          />
-          {error ? (
-            <View style={[
-              styles.errorContainer,
-            ]}>
-              <Text style={[
-                styles.errorText,
-                isSmartphone && styles.smallTextSmartphone,
-              ]}>{error}</Text>
-            </View>
-          ) : null}
+    <>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={visible}
+        onRequestClose={handleClose}
+        statusBarTranslucent={true}
+        testID="import-modal"
+      >
+        <View style={MODAL_STYLES.modalContainer}>
           <View style={[
-            MODAL_STYLES.buttonContainer,
-          ]}>
-            <Button
-              title={t('buttons.cancel')}
-              onPress={handleClose}
-              backgroundColor={COLORS.gray950}
-              textColor={COLORS.gray300}
-              width={isSmartphone ? '23%' : '26%'}
-              testID="cancel-import-button"
+              MODAL_STYLES.content,
+              isSmartphone && styles.modalContentSmartphone,
+              isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+              isTabletPortrait && styles.modalContentTabletPortrait,
+            ]}>
+            <TitleModal title={t('modals.webview.import.importChannels')}/>
+            <InputModal
+              placeholder={t('modals.webview.import.importUrl')}
+              value={url}
+              onChangeText={handleUrlChange}
+              // We set the secureTextEntry to false so the user can see the URL
+              secureTextEntry={false}
+              icon={
+                <Ionicons
+                  name="link-outline"
+                  size={20}
+                  color={isFocused ? COLORS.orange : COLORS.gray300}
+                />
+              }
             />
-            <Button
-              title={t('buttons.import')}
-              onPress={handleDownload}
-              backgroundColor={COLORS.orange}
-              width={isSmartphone ? '23%' : '26%'}
-              testID="save-import-button"
-            />
+            {error ? (
+              <View style={[
+                styles.errorContainer,
+              ]}>
+                <Text style={[
+                  styles.errorText,
+                  isSmartphone && styles.smallTextSmartphone,
+                ]}>{error}</Text>
+              </View>
+            ) : null}
+            <View style={[
+              MODAL_STYLES.buttonContainer,
+            ]}>
+              <Button
+                title={t('buttons.cancel')}
+                onPress={handleClose}
+                backgroundColor={COLORS.gray950}
+                textColor={COLORS.gray300}
+                width={isSmartphone ? '23%' : '26%'}
+                testID="cancel-import-button"
+              />
+              <Button
+                title={isImporting ? t('buttons.importing') : t('buttons.import')}
+                onPress={handleDownload}
+                backgroundColor={COLORS.orange}
+                width={isSmartphone ? '26%' : '29%'}
+                disabled={isImporting}
+                icon={isImporting ?
+                  <ActivityIndicator size="small" color={COLORS.white} /> :
+                  null
+                }
+                testID="save-import-button"
+              />
+            </View>
           </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+      <CustomAlert
+        visible={showAlert}
+        title={t('alerts.information')}
+        message={t('alerts.allChannelsAlreadyImported')}
+        onClose={handleCloseAlert}
+        onConfirm={handleCloseAlert}
+        type="success"
+      />
+    </>
   );
 };
 

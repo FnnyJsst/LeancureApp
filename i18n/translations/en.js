@@ -140,6 +140,7 @@ export default {
     no: "No",
     yes: "Yes",
     import: "Import",
+    importing: "Importing...",
     importChannels: "Import channels",
     doNotUse: "Do not use",
     connecting: "Connecting...",
@@ -181,6 +182,7 @@ export default {
       readOnlyDescription: "Access to channels without the ability to modify them",
       password: "Password",
       passwordDescription: "Define a password to access the settings",
+      deleteChannel: "Are you sure you want to delete this channel?",
     },
     common: {
       showHide: "Show/hide messages",
@@ -268,6 +270,8 @@ export default {
     invalidUrlFormat: "Invalid URL format",
     invalidProtocol: "The protocol must be http or https",
     saveServerAddressError: "Error saving the server address",
+    enterUrl: "Please enter an URL",
+    invalidUrl: "Invalid URL",
   },
   success: {
     messageDeleted: "Message deleted successfully",

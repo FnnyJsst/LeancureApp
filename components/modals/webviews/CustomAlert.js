@@ -5,27 +5,22 @@ import TitleModal from '../../../components/text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES,COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
-import { useTranslation } from 'react-i18next';
 
 /**
  * @component CustomAlert
  * @description A component that renders a custom alert
- *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the alert is visible
  * @param {string} props.title - The title of the alert
  * @param {string} props.message - The message of the alert
  * @param {Function} props.onClose - The function to call when the alert is closed
  * @param {Function} props.onConfirm - The function to call when the alert is confirmed
  * @param {string} props.type - The type of the alert
- *
- * @example
- * <CustomAlert visible={true} title="Alert" message="This is an alert" onClose={() => console.log('Alert closed')} onConfirm={() => console.log('Alert confirmed')} type="error" />
  */
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error', testID }) {
-  const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait } = useDeviceType();
 
-  const { t } = useTranslation();
+  // We get the device type
+  const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait, isLowResTablet } = useDeviceType();
+
   return (
     <Modal
       animationType="fade"
@@ -38,6 +33,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
         <View style={[
           styles.modalContent,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
+          isLowResTablet && styles.modalContentLowResTablet,
           isLandscape && styles.modalContentLandscape,
           isTabletPortrait && styles.modalContentTabletPortrait,
         ]}>
@@ -49,7 +45,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
                 title="OK"
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
-                width="22%"
+                width={isSmartphone ? '23%' : '26%'}
                 onPress={onConfirm}
                 testID="alert-confirm-button"
               />
@@ -58,7 +54,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
                 title="Close"
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
-                width="22%"
+                width={isSmartphone ? '23%' : '26%'}
                 onPress={onClose}
                 testID="alert-close-button"
               />
@@ -78,15 +74,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 1)',
   },
   modalContent: {
-    width: '60%',
+    width: '40%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
   },
+  modalContentSmartphone: {
+    width: '60%',
+  },
   modalContentLandscape: {
     width: '40%',
+  },
+  modalContentLowResTablet: {
+    width: '60%',
   },
   modalContentSmartphonePortrait: {
     width: '80%',
