@@ -6,7 +6,7 @@
     "orientation": "default",
     "userInterfaceStyle": "light",
     "splash": {
-      "backgroundColor": "#FFFFFF"
+      "backgroundColor": "#000000"
     },
     "plugins": [
       [
@@ -35,7 +35,10 @@
       "expo-font",
       "expo-file-system",
       "expo-media-library",
-      "expo-localization"
+      "expo-localization",
+      [
+        "./plugins/withAndroidSecurityConfig"
+      ]
     ],
     "ios": {
       "supportsTablet": true
@@ -44,7 +47,13 @@
       "package": "com.fnnyjsst.react_native",
       "adaptiveIcon": {
         "backgroundColor": "#e5e5e5"
-      }
+      },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "INTERNET"
+      ]
     },
     "assetBundlePatterns": [
       "**/*"
@@ -62,7 +71,8 @@
     "androidNavigationBar": {
       "backgroundColor": "#000000",
       "barStyle": "light-content"
-    }
+    },
+    "developmentClient":  {}
   },
   "resolutions": {
     "@expo/config-plugins": "7.8.0",
