@@ -95,6 +95,7 @@ export default {
         importChannels: "Import channels",
         importUrl: "Enter an URL",
         importFullUrl: "Import full URL",
+        importOffline: "Import channels from offline mode",
       },
       edit: {
         editChannel: "Edit channel",

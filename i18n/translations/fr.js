@@ -96,6 +96,7 @@ export default {
         importChannels: "Importer ses chaînes",
         importUrl: "Entrez une URL",
         importFullUrl: "Importer une URL complète",
+        importOffline: "Importer des chaînes en mode hors ligne",
       },
       edit: {
         editChannel: "Modifier une chaîne",

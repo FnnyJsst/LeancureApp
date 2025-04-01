@@ -44,6 +44,7 @@ export default function Login({ onNavigate, testID }) {
      * @description Handle login-related errors
      */
     const handleLoginError = (error, source) => {
+        console.log(`[Login] Erreur dans ${source}:`, error);
         return handleError(error, `login.${source}`, {
             type: ErrorType.AUTH,
             silent: false
@@ -56,6 +57,7 @@ export default function Login({ onNavigate, testID }) {
      * @returns {string} The error message if the inputs are not valid, otherwise null
      */
     const validateInputs = useCallback(() => {
+        console.log('[Login] Validation des inputs:', { contractNumber, login, password: password ? '***' : '' });
         if (!contractNumber || !login || !password) {
             return t('errors.fieldsRequired');
         }
@@ -69,29 +71,35 @@ export default function Login({ onNavigate, testID }) {
      */
     const handleLogin = useCallback(async () => {
         try {
+            console.log('[Login] Début du processus de connexion');
             setIsLoading(true);
             setError('');
 
-            // Clean up the SecureStore in case of previous error
             try {
+                console.log('[Login] Nettoyage du SecureStore');
                 await SecureStore.deleteItemAsync('userCredentials');
             } catch (error) {
+                console.log('[Login] Erreur lors du nettoyage du SecureStore:', error);
                 throw error;
             }
 
             const validationError = validateInputs();
             if (validationError) {
+                console.log('[Login] Erreur de validation:', validationError);
                 setError(validationError);
                 return;
             }
 
-            // We first try to login with the access token
+            console.log('[Login] Tentative de connexion avec l\'access token');
             const loginResponse = await loginApi(contractNumber, login, password, '');
+            console.log('[Login] Réponse de loginApi:', {
+                success: loginResponse.success,
+                status: loginResponse.status,
+                error: loginResponse.error
+            });
 
-            // We save the credentials
             if (loginResponse.success) {
-
-                // We save the credentials, the refresh token and the access token in the secure storage
+                console.log('[Login] Connexion réussie, sauvegarde des credentials');
                 const credentials = {
                     contractNumber,
                     login,
@@ -102,13 +110,14 @@ export default function Login({ onNavigate, testID }) {
                 };
 
                 await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+                console.log('[Login] Credentials sauvegardés');
 
-                // Save the login info if the checkbox is checked
                 if (isChecked) {
+                    console.log('[Login] Sauvegarde des informations de connexion');
                     await saveLoginInfo();
                 }
 
-                // Fetch the user channels with the access token
+                console.log('[Login] Récupération des canaux utilisateur');
                 const channelsResponse = await fetchUserChannels(
                     contractNumber,
                     login,
@@ -116,36 +125,51 @@ export default function Login({ onNavigate, testID }) {
                     loginResponse.accessToken,
                     loginResponse.accountApiKey
                 );
+                console.log('[Login] Réponse de fetchUserChannels:', {
+                    status: channelsResponse.status,
+                    channelsCount: channelsResponse.channels?.length
+                });
 
-                // Navigate to the chat screen if the channels are loaded
                 if (channelsResponse.status === 'ok') {
+                    console.log('[Login] Navigation vers l\'écran de chat');
                     onNavigate(SCREENS.CHAT);
                 } else {
+                    console.log('[Login] Erreur lors du chargement des canaux');
                     setError(t('errors.errorLoadingChannels'));
                 }
             } else {
-                // If the first attempt fails, we try with the refresh token
+                console.log('[Login] Échec de la première tentative, tentative avec le refresh token');
                 const refreshTokenResponse = await checkRefreshToken(
                     contractNumber,
                     loginResponse.accountApiKey,
                     loginResponse.refreshToken
                 );
+                console.log('[Login] Réponse de checkRefreshToken:', {
+                    success: refreshTokenResponse.success,
+                    error: refreshTokenResponse.error
+                });
 
                 if (!refreshTokenResponse.success) {
+                    console.log('[Login] Échec du refresh token');
                     setError(t('errors.sessionExpired'));
                     return;
                 }
 
-                // Second attempt with the new refresh token and access token
+                console.log('[Login] Deuxième tentative de connexion avec le nouveau refresh token');
                 const retryLoginResponse = await loginApi(
                     contractNumber,
                     login,
                     password,
                     refreshTokenResponse.data.refresh_token
                 );
+                console.log('[Login] Réponse de la deuxième tentative:', {
+                    success: retryLoginResponse.success,
+                    status: retryLoginResponse.status,
+                    error: retryLoginResponse.error
+                });
 
                 if (retryLoginResponse.success) {
-                    // We save the new credentials
+                    console.log('[Login] Deuxième tentative réussie, sauvegarde des nouveaux credentials');
                     const credentials = {
                         contractNumber,
                         login,
@@ -155,10 +179,10 @@ export default function Login({ onNavigate, testID }) {
                         accessToken: retryLoginResponse.accessToken
                     };
 
-                    // We save the new credentials in the secure storage
                     await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+                    console.log('[Login] Nouveaux credentials sauvegardés');
 
-                    // We load the channels with the new refresh token and access token
+                    console.log('[Login] Récupération des canaux avec les nouveaux tokens');
                     const channelsResponse = await fetchUserChannels(
                         contractNumber,
                         login,
@@ -166,23 +190,30 @@ export default function Login({ onNavigate, testID }) {
                         retryLoginResponse.accessToken,
                         retryLoginResponse.accountApiKey
                     );
+                    console.log('[Login] Réponse de fetchUserChannels (deuxième tentative):', {
+                        status: channelsResponse.status,
+                        channelsCount: channelsResponse.channels?.length
+                    });
 
-                    // We navigate to the chat screen if the channels are loaded
                     if (channelsResponse.status === 'ok') {
+                        console.log('[Login] Navigation vers l\'écran de chat');
                         onNavigate(SCREENS.CHAT);
                     } else {
+                        console.log('[Login] Erreur lors du chargement des canaux (deuxième tentative)');
                         setError(t('errors.errorLoadingChannels'));
                     }
                 } else {
+                    console.log('[Login] Échec de la deuxième tentative');
                     setError(t('errors.invalidCredentials'));
                 }
             }
         } catch (loginError) {
+            console.log('[Login] Erreur générale:', loginError);
             setError(t('errors.loginFailed'));
         } finally {
             setIsLoading(false);
         }
-    }, [contractNumber, login, password, isChecked, onNavigate, saveLoginInfo, validateInputs]);
+    }, [contractNumber, login, password, isChecked, onNavigate, saveLoginInfo, validateInputs, t]);
 
 
     /**
