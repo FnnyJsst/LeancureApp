@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, StyleSheet, Text, StatusBar, Platform, ActivityIndicator } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsWebviews from './screens/webviews/SettingsWebviews';
@@ -72,6 +72,7 @@ export default function App({ testID, initialScreen }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMessagesHidden, setIsMessagesHidden] = useState(false);
   const [appInitialized, setAppInitialized] = useState(false);
+  const isMessagesHiddenRef = useRef(false);
 
   // Hooks
   const { navigate } = useNavigation(setCurrentScreen);
@@ -151,18 +152,30 @@ export default function App({ testID, initialScreen }) {
    */
   useEffect(() => {
     const initializeApp = async () => {
-      if (appInitialized) return;
+      console.log('[App] Début de l\'initialisation');
+      const startTime = Date.now();
+
+      if (appInitialized) {
+        console.log('[App] L\'application est déjà initialisée');
+        return;
+      }
 
       try {
         // We initialize the translations
+        console.log('[App] Début de l\'initialisation des traductions');
+        const i18nStartTime = Date.now();
         await initI18n();
         setIsI18nInitialized(true);
+        console.log(`[App] Initialisation des traductions terminée en ${Date.now() - i18nStartTime}ms`);
 
         // We load the selected channels and timeout interval
+        console.log('[App] Début du chargement des données');
+        const dataStartTime = Date.now();
         await Promise.all([
           loadSelectedChannels(),
           loadTimeoutInterval()
         ]);
+        console.log(`[App] Chargement des données terminé en ${Date.now() - dataStartTime}ms`);
 
         // List of screens where we don't want automatic redirection
         const intentionalScreens = [
@@ -178,6 +191,8 @@ export default function App({ testID, initialScreen }) {
 
         if (!intentionalScreens.includes(currentScreen)) {
           try {
+            console.log('[App] Début du chargement de l\'état des messages');
+            const messagesStartTime = Date.now();
             const storedMessagesHidden = await SecureStore.getItemAsync('isMessagesHidden');
             const isHidden = storedMessagesHidden ? JSON.parse(storedMessagesHidden) : false;
 
@@ -187,14 +202,18 @@ export default function App({ testID, initialScreen }) {
 
             setIsMessagesHidden(isHidden);
             setIsLoading(false);
+            console.log(`[App] Chargement de l'état des messages terminé en ${Date.now() - messagesStartTime}ms`);
 
             // Only navigate if we're not already on the correct screen
             if (isHidden && currentScreen !== SCREENS.WEBVIEW && currentScreen !== SCREENS.NO_URL) {
+              console.log('[App] Navigation vers WebView/NoUrl');
               navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
             } else if (!isHidden && currentScreen !== SCREENS.APP_MENU) {
+              console.log('[App] Navigation vers AppMenu');
               navigate(SCREENS.APP_MENU);
             }
           } catch (error) {
+            console.error('[App] Erreur lors du chargement de l\'état des messages:', error);
             handleAppError(error, 'secureStore');
             setIsMessagesHidden(false);
             setIsLoading(false);
@@ -208,6 +227,7 @@ export default function App({ testID, initialScreen }) {
 
       } catch (error) {
         if (error.message.includes('Could not decrypt')) {
+          console.error('[App] Erreur de décryptage:', error);
           handleAppError(error, 'decryption');
           await clearSecureStore();
           setIsMessagesHidden(false);
@@ -218,29 +238,43 @@ export default function App({ testID, initialScreen }) {
         }
       } finally {
         setAppInitialized(true);
+        console.log(`[App] Initialisation totale terminée en ${Date.now() - startTime}ms`);
       }
     };
 
     initializeApp();
-  }, [appInitialized]); // Only depend on appInitialized
+  }, [appInitialized]);
 
   // Effet pour gérer les changements d'état de isMessagesHidden
   useEffect(() => {
     if (!appInitialized) return;
 
     const handleMessagesHiddenChange = async () => {
+      // Vérifier si la valeur a réellement changé
+      if (isMessagesHiddenRef.current === isMessagesHidden) return;
+
+      console.log('[App] Changement de l\'état isMessagesHidden:', isMessagesHidden);
+      const startTime = Date.now();
+
       try {
         await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(isMessagesHidden));
+        console.log(`[App] Sauvegarde de l'état isMessagesHidden terminée en ${Date.now() - startTime}ms`);
+
+        // Mettre à jour la ref
+        isMessagesHiddenRef.current = isMessagesHidden;
 
         // Si les messages sont cachés et qu'on est sur l'AppMenu, on navigue vers la WebView
         if (isMessagesHidden && currentScreen === SCREENS.APP_MENU) {
+          console.log('[App] Navigation vers WebView/NoUrl (messages cachés)');
           navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
         }
         // Si les messages ne sont plus cachés et qu'on est sur la WebView, on navigue vers l'AppMenu
         else if (!isMessagesHidden && currentScreen === SCREENS.WEBVIEW) {
+          console.log('[App] Navigation vers AppMenu (messages visibles)');
           navigate(SCREENS.APP_MENU);
         }
       } catch (error) {
+        console.error('[App] Erreur lors de la mise à jour de isMessagesHidden:', error);
         handleAppError(error, 'updateMessagesHidden');
       }
     };
