@@ -5,7 +5,6 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import Header from '../../Header';
 import SettingsCard from '../../cards/SettingsCard';
 import { Ionicons } from '@expo/vector-icons';
-import Sidebar from '../../navigation/Sidebar';
 import TimeOutModal from './TimeOutModal';
 import { Text } from '../../text/CustomText';
 
@@ -24,6 +23,7 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
   const { isSmartphone, isLandscape } = useDeviceType();
   const [currentSection, setCurrentSection] = useState('settings');
   const [timeOutModal, setTimeOutModal] = useState(false);
+
   /**
    * @function toggleMenu
    * @description Toggles the menu
@@ -46,16 +46,6 @@ export default function SettingsMessage({ onNavigate, isExpanded, setIsExpanded,
         showMenuIcon={true}
         onNavigate={onNavigate}
         toggleMenu={toggleMenu}
-      />
-      <Sidebar
-        onChannelSelect={() => {}}
-        selectedGroup={null}
-        onGroupSelect={() => {}}
-        isExpanded={isExpanded}
-        toggleMenu={toggleMenu}
-        onNavigate={onNavigate}
-        currentSection={currentSection}
-        onLogout={handleChatLogout}
       />
       <View style={styles.pageContainer}>
         <View style={styles.headerContainer}>
@@ -99,37 +89,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   headerContainer: {
-    marginBottom: 0,
     marginTop: 20,
-    marginLeft: 30,
-    justifyContent: 'flex-start',
+    marginBottom: 30,
   },
   header: {
+    fontSize: SIZES.fonts.titleTablet,
+    fontWeight: SIZES.fontWeight.bold,
     color: COLORS.white,
-    fontSize: SIZES.fonts.headerTablet,
-    fontWeight: SIZES.fontWeight.semibold,
-    marginBottom: 20,
-    alignSelf: 'flex-start',
   },
   headerSmartphone: {
-    fontSize: SIZES.fonts.headerSmartphone,
+    fontSize: SIZES.fonts.titleSmartphone,
   },
   configContainer: {
-    backgroundColor: COLORS.gray850,
-    borderRadius: SIZES.borderRadius.xLarge,
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    marginHorizontal: 15,
-    alignSelf: 'center',
-    marginVertical: 12,
-    borderWidth: 1,
-    borderColor: COLORS.gray650,
-    width: '95%',
+    gap: 20,
   },
   configContainerSmartphone: {
-    marginVertical: 8,
+    gap: 15,
   },
   configContainerLandscape: {
-    marginHorizontal: 50,
+    gap: 25,
   },
 });

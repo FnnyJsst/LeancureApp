@@ -7,6 +7,7 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
+import Header from '../../components/Header';
 
 /**
  * @component WebviewScreen
@@ -41,20 +42,14 @@ export default function WebviewScreen({
 
   return (
     <View style={styles.container}>
-      {/* If messages are not hidden, display the back button so we can go back to the app menu */}
       {!isMessagesHidden && (
-        <View style={styles.customHeaderContainer}>
-          <TouchableOpacity
-            style={[styles.backButton, isSmartphone && styles.backButtonSmartphone]}
-            onPress={() => onNavigate(SCREENS.APP_MENU)}
-          >
-            <Ionicons
-              name="close-outline"
-              size={isSmartphone ? 20 : 24}
-              color={COLORS.white}
-            />
-          </TouchableOpacity>
-        </View>
+        <Header
+          title=""
+          showBackButton={true}
+          onBackPress={() => onNavigate(SCREENS.APP_MENU)}
+          showMenuIcon={false}
+          transparent={true}
+        />
       )}
       <WebView
         ref={webViewRef}
@@ -77,45 +72,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.gray900,
   },
-  customHeaderContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 15,
-  },
-  backButton: {
-    backgroundColor: COLORS.charcoal,
-    width: 30,
-    height: 30,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-    marginTop: 10,
-  },
-  backButtonSmartphone: {
-    width: 40,
-    height: 40,
-  },
-  headerTitle: {
-    color: COLORS.white,
-    fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: SIZES.fontWeight.bold,
-  },
   webview: {
     flex: 1,
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
-    padding: 15,
+    bottom: 20,
+    right: 20,
   },
 });

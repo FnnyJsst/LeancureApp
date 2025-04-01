@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, DeviceEventEmitter, BackHandler } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
@@ -476,10 +476,6 @@ export default function App({ testID, initialScreen }) {
           visible={passwordCheckModalVisible}
           onClose={() => setPasswordCheckModalVisible(false)}
           onSubmit={handlePasswordCheck}
-        />
-
-        <Sidebar
-          onLogout={handleChatLogout}
         />
 
         <View accessible={true} testID="settings-button">

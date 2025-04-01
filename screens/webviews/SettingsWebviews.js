@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { ScrollView, View, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import SettingsCard from '../../components/cards/SettingsCard';
@@ -13,7 +12,16 @@ import { SCREENS } from '../../constants/screens';
 import { Text } from '../../components/text/CustomText';
 import { useTranslation } from 'react-i18next';
 
-
+/**
+ * Memoized components to prevent unnecessary re-renders
+ * This optimization is particularly important for modals and cards
+ * that don't need to re-render unless their props change
+ */
+const MemoizedAutoRefreshModal = memo(AutoRefreshModal);
+const MemoizedReadOnlyModal = memo(ReadOnlyModal);
+const MemoizedPasswordDefineModal = memo(PasswordDefineModal);
+const MemoizedHideMessagesModal = memo(HideMessagesModal);
+const MemoizedSettingsCard = memo(SettingsCard);
 
 /**
  * @component SettingsWebviews
@@ -44,58 +52,42 @@ export default function SettingsWebviews({
   onToggleHideMessages,
   testID,
 }) {
-
-  // Device type variables
+  const { t } = useTranslation();
   const { isSmartphone, isLandscape, isSmartphonePortrait } = useDeviceType();
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [isPasswordDefineModalVisible, setPasswordDefineModalVisible] = useState(false);
-  const [isReadOnlyModalVisible, setReadOnlyModalVisible] = useState(false);
-  const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
-
-  const { t } = useTranslation();
+  /**
+   * Consolidated modal state management
+   * Using a single state object instead of multiple useState calls
+   * reduces the number of re-renders and simplifies state updates
+   */
+  const [modalState, setModalState] = useState({
+    autoRefresh: false,
+    passwordDefine: false,
+    readOnly: false,
+    hideMessages: false
+  });
 
   /**
-   * @function handleQuitApp
-   * @description Handles the quit app action
+   * Memoized callbacks to prevent unnecessary re-renders
+   * These functions are only recreated when their dependencies change
    */
-  const handleQuitApp = () => {
+  const handleQuitApp = useCallback(() => {
     BackHandler.exitApp();
-  };
+  }, []);
 
-  /**
-   * @functions
-   * @description Open and close the different modals
-   */
-  const openModal = () => setModalVisible(true);
-
-  const openPasswordDefineModal = () => setPasswordDefineModalVisible(true);
-
-  const closePasswordDefineModal = () => setPasswordDefineModalVisible(false);
-
-  const openReadOnlyModal = () => setReadOnlyModalVisible(true);
-
-  const closeReadOnlyModal = () => setReadOnlyModalVisible(false);
-
-  /**
-   * @function handleBackPress
-   * @description Handles the arrow back button
-   */
-  const handleBackPress = () => {
+  const handleBackPress = useCallback(() => {
     if (selectedWebviews && selectedWebviews.length > 0) {
       onNavigate(SCREENS.WEBVIEW);
     } else {
       onNavigate(SCREENS.NO_URL);
     }
-  };
+  }, [selectedWebviews, onNavigate]);
 
   /**
-   * @function formatRefreshOption
-   * @description Formats the refresh option and displays it in a readable format
-   * @param {string} option - The refresh option
-   * @returns {string} - The formatted refresh option
+   * Memoized function to format the refresh option text
+   * Only recreated when the translation function changes
    */
-  const formatRefreshOption = (option) => {
+  const formatRefreshOption = useCallback((option) => {
     if (!option || option === 'never') {
       return t('modals.webview.refresh.never');
     }
@@ -114,21 +106,48 @@ export default function SettingsWebviews({
       : `every${number}min`;
 
     return t(`modals.webview.refresh.${key}`);
-  };
+  }, [t]);
 
   /**
-   * @function handleToggleHideMessages
-   * @description Handles the toggle hide messages action
-   * @param {boolean} value - The value to toggle
+   * Memoized function to handle hiding messages
+   * Includes error handling and modal state management
    */
-  const handleToggleHideMessages = async (value) => {
+  const handleToggleHideMessages = useCallback(async (value) => {
     try {
-      setHideMessagesModalVisible(false);
+      setModalState(prev => ({ ...prev, hideMessages: false }));
       await onToggleHideMessages(value);
     } catch (error) {
       throw error;
     }
-  };
+  }, [onToggleHideMessages]);
+
+  /**
+   * Memoized function to update modal state
+   * Uses functional updates to ensure state updates are based on the latest state
+   */
+  const updateModalState = useCallback((key, value) => {
+    setModalState(prev => ({ ...prev, [key]: value }));
+  }, []);
+
+  /**
+   * Memoized modal open handlers
+   * Each function is memoized to prevent unnecessary re-renders
+   */
+  const openModal = useCallback(() => {
+    updateModalState('autoRefresh', true);
+  }, [updateModalState]);
+
+  const openPasswordDefineModal = useCallback(() => {
+    updateModalState('passwordDefine', true);
+  }, [updateModalState]);
+
+  const openReadOnlyModal = useCallback(() => {
+    updateModalState('readOnly', true);
+  }, [updateModalState]);
+
+  const openHideMessagesModal = useCallback(() => {
+    updateModalState('hideMessages', true);
+  }, [updateModalState]);
 
   return (
     <View testID={testID}>
@@ -147,23 +166,14 @@ export default function SettingsWebviews({
           </TouchableOpacity>
         </View>
 
-        <View
-          testID={testID}
-          style={[
-          styles.pageContainer,
-          isSmartphonePortrait && styles.pageContainerSmartphonePortrait,
-        ]}>
+        <View testID={testID} style={[styles.pageContainer, isSmartphonePortrait && styles.pageContainerSmartphonePortrait]}>
           <View style={styles.titleContainer}>
             <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
               {t('titles.app')}
             </Text>
           </View>
-          <View style={[
-            styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape,
-          ]}>
-            <SettingsCard
+          <View style={[styles.configContainer, isSmartphone && styles.configContainerSmartphone, isLandscape && styles.configContainerLandscape]}>
+            <MemoizedSettingsCard
               title={t('settings.webview.quit')}
               iconBackgroundColor={COLORS.burgundy}
               icon={
@@ -183,12 +193,8 @@ export default function SettingsWebviews({
               {t('titles.channels')}
             </Text>
           </View>
-          <View style={[
-            styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape,
-          ]}>
-            <SettingsCard
+          <View style={[styles.configContainer, isSmartphone && styles.configContainerSmartphone, isLandscape && styles.configContainerLandscape]}>
+            <MemoizedSettingsCard
               title={t('settings.webview.management')}
               description={t('settings.webview.managementDescription')}
               icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
@@ -197,7 +203,7 @@ export default function SettingsWebviews({
             <View style={styles.separator} />
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
-                <SettingsCard
+                <MemoizedSettingsCard
                   title={t('settings.webview.autoRefresh')}
                   description={t('settings.webview.autoRefreshDescription')}
                   icon={<Ionicons name="reload-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
@@ -209,10 +215,7 @@ export default function SettingsWebviews({
                 style={styles.baseToggle}
                 onPress={openModal}
               >
-                <Text style={[
-                  styles.text,
-                  isSmartphone && styles.textSmartphone,
-                ]}>
+                <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
                   {formatRefreshOption(refreshOption)}
                 </Text>
               </TouchableOpacity>
@@ -223,14 +226,10 @@ export default function SettingsWebviews({
               {t('titles.security')}
             </Text>
           </View>
-          <View style={[
-            styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape,
-          ]}>
+          <View style={[styles.configContainer, isSmartphone && styles.configContainerSmartphone, isLandscape && styles.configContainerLandscape]}>
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
-                <SettingsCard
+                <MemoizedSettingsCard
                   title={t('settings.webview.readOnly')}
                   description={t('settings.webview.readOnlyDescription')}
                   icon={<Ionicons name="eye-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
@@ -242,10 +241,7 @@ export default function SettingsWebviews({
                 style={styles.baseToggle}
                 onPress={openReadOnlyModal}
               >
-                <Text style={[
-                  styles.text,
-                  isSmartphone && styles.textSmartphone,
-                ]}>
+                <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
                   {isReadOnly ? t('buttons.yes') : t('buttons.no')}
                 </Text>
               </TouchableOpacity>
@@ -253,7 +249,7 @@ export default function SettingsWebviews({
             <View style={styles.separator} />
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
-                <SettingsCard
+                <MemoizedSettingsCard
                   title={t('settings.webview.password')}
                   description={t('settings.webview.passwordDescription')}
                   icon={<Ionicons name="lock-closed-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
@@ -265,26 +261,19 @@ export default function SettingsWebviews({
                 style={styles.baseToggle}
                 onPress={openPasswordDefineModal}
               >
-                <Text style={[
-                  styles.text,
-                  isSmartphone && styles.textSmartphone,
-                ]}>
+                <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
                   {isPasswordRequired ? t('buttons.yes') : t('buttons.no')}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>{t('titles.messages')}</Text>
+            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>{t('titles.messages')}</Text>
           </View>
-          <View style={[
-            styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone,
-            isLandscape && styles.configContainerLandscape,
-          ]}>
+          <View style={[styles.configContainer, isSmartphone && styles.configContainerSmartphone, isLandscape && styles.configContainerLandscape]}>
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
-                <SettingsCard
+                <MemoizedSettingsCard
                   title={t('settings.common.showHide')}
                   iconBackgroundColor={COLORS.borderColor}
                   icon={
@@ -295,13 +284,13 @@ export default function SettingsWebviews({
                     />
                   }
                   description={t('settings.common.showHideDescription')}
-                  onPress={() => setHideMessagesModalVisible(true)}
+                  onPress={openHideMessagesModal}
                   testID="open-hide-messages-button"
                 />
               </View>
               <TouchableOpacity
                 style={styles.baseToggle}
-                onPress={() => setHideMessagesModalVisible(true)}
+                onPress={openHideMessagesModal}
               >
                 <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
                   {isMessagesHidden ? t('buttons.hide') : t('buttons.show')}
@@ -316,35 +305,40 @@ export default function SettingsWebviews({
           </Text>
         </View>
       </ScrollView>
-      {/* Modals */}
-      <AutoRefreshModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+
+      {/* Modals mémorisés */}
+      <MemoizedAutoRefreshModal
+        visible={modalState.autoRefresh}
+        onClose={() => updateModalState('autoRefresh', false)}
         onSelectOption={handleSelectOption}
         testID={testID}
       />
-      <ReadOnlyModal
-        visible={isReadOnlyModalVisible}
-        onClose={closeReadOnlyModal}
+      <MemoizedReadOnlyModal
+        visible={modalState.readOnly}
+        onClose={() => updateModalState('readOnly', false)}
         onToggleReadOnly={toggleReadOnly}
         testID={testID}
       />
-      <PasswordDefineModal
-        visible={isPasswordDefineModalVisible}
-        onClose={closePasswordDefineModal}
+      <MemoizedPasswordDefineModal
+        visible={modalState.passwordDefine}
+        onClose={() => updateModalState('passwordDefine', false)}
         onSubmitPassword={handlePasswordSubmit}
         onDisablePassword={disablePassword}
         testID="password-define-modal"
       />
-        <HideMessagesModal
-          visible={hideMessagesModalVisible}
-          onClose={() => setHideMessagesModalVisible(false)}
-          onToggleHideMessages={handleToggleHideMessages}
-        />
+      <MemoizedHideMessagesModal
+        visible={modalState.hideMessages}
+        onClose={() => updateModalState('hideMessages', false)}
+        onToggleHideMessages={handleToggleHideMessages}
+      />
     </View>
   );
 }
 
+/**
+ * Styles defined outside the component to prevent recreation on each render
+ * This is a performance optimization as StyleSheet.create is expensive
+ */
 const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
@@ -352,9 +346,6 @@ const styles = StyleSheet.create({
   },
   pageContainerSmartphonePortrait: {
     paddingHorizontal: 4,
-  },
-  settingsContentContainer: {
-    flex: 1,
   },
   configContainer: {
     backgroundColor: COLORS.gray850,
