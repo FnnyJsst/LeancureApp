@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import ImportWebviewModal from '../../components/modals/webviews/ImportWebviewModal';
+import ImportFullUrlModal from '../../components/modals/webviews/ImportFullUrlModal';
 import EditWebviewModal from '../../components/modals/webviews/EditWebviewModal';
 import DeleteWebviewModal from '../../components/modals/webviews/DeleteWebviewModal';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -11,7 +12,6 @@ import { Text } from '../../components/text/CustomText';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
-import Entypo from '@expo/vector-icons/Entypo';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../utils/errorHandling';
 
@@ -43,6 +43,7 @@ export default function WebviewsManagementScreen({
   const { isTablet, isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
 
   const [isImportModalVisible, setImportModalVisible] = useState(false);
+  const [isImportFullUrlModalVisible, setImportFullUrlModalVisible] = useState(false);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const [webviewToEdit, setWebviewToEdit] = useState(null);
@@ -59,6 +60,8 @@ export default function WebviewsManagementScreen({
   */
   const openImportModal = () => setImportModalVisible(true);
   const closeImportModal = () => setImportModalVisible(false);
+  const openImportFullUrlModal = () => setImportFullUrlModalVisible(true);
+  const closeImportFullUrlModal = () => setImportFullUrlModalVisible(false);
 
   const openEditModal = (channel) => {
     setWebviewToEdit(channel);
@@ -209,7 +212,7 @@ export default function WebviewsManagementScreen({
           <View style={styles.headerIconsContainer}>
             <TouchableOpacity
               testID="add-button"
-              onPress={openImportModal}
+              onPress={openImportFullUrlModal}
             >
               <AntDesign
                 name="plus"
@@ -245,7 +248,12 @@ export default function WebviewsManagementScreen({
         <Text style={styles.errorText}>{error}</Text>
       )}
 
-      {/* Modal to import channels */}
+      {/* Modals to import channels */}
+      <ImportFullUrlModal
+        visible={isImportFullUrlModalVisible}
+        onClose={closeImportFullUrlModal}
+        // onImport={onImport}
+      />
       <ImportWebviewModal
         visible={isImportModalVisible}
         onClose={closeImportModal}
