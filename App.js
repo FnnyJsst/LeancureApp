@@ -167,7 +167,10 @@ export default function App({ testID, initialScreen }) {
             SCREENS.LOGIN,
             SCREENS.WEBVIEW,
             SCREENS.NO_URL,
-            SCREENS.CHAT
+            SCREENS.CHAT,
+            SCREENS.WEBVIEWS_MANAGEMENT,
+            SCREENS.WEBVIEWS_LIST,
+            SCREENS.SETTINGS
           ];
 
           if (!intentionalScreens.includes(currentScreen)) {
