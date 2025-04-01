@@ -28,6 +28,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from './utils/errorHandling';
+import { WebView } from 'react-native-webview';
 
 LogBox.ignoreLogs(['[expo-notifications]']);
 
@@ -150,83 +151,102 @@ export default function App({ testID, initialScreen }) {
    */
   useEffect(() => {
     const initializeApp = async () => {
+      if (appInitialized) return;
+
       try {
         // We initialize the translations
         await initI18n();
         setIsI18nInitialized(true);
 
-        try {
-          // We load the selected channels
-          await loadSelectedChannels();
-          // We load the timeout interval
-          await loadTimeoutInterval();
+        // We load the selected channels and timeout interval
+        await Promise.all([
+          loadSelectedChannels(),
+          loadTimeoutInterval()
+        ]);
 
-          // List of screens where we don't want automatic redirection
-          const intentionalScreens = [
-            SCREENS.COMMON_SETTINGS,
-            SCREENS.LOGIN,
-            SCREENS.WEBVIEW,
-            SCREENS.NO_URL,
-            SCREENS.CHAT,
-            SCREENS.WEBVIEWS_MANAGEMENT,
-            SCREENS.WEBVIEWS_LIST,
-            SCREENS.SETTINGS
-          ];
+        // List of screens where we don't want automatic redirection
+        const intentionalScreens = [
+          SCREENS.COMMON_SETTINGS,
+          SCREENS.LOGIN,
+          SCREENS.WEBVIEW,
+          SCREENS.NO_URL,
+          SCREENS.CHAT,
+          SCREENS.WEBVIEWS_MANAGEMENT,
+          SCREENS.WEBVIEWS_LIST,
+          SCREENS.SETTINGS
+        ];
 
-          if (!intentionalScreens.includes(currentScreen)) {
-            try {
-              const storedMessagesHidden = await SecureStore.getItemAsync('isMessagesHidden');
+        if (!intentionalScreens.includes(currentScreen)) {
+          try {
+            const storedMessagesHidden = await SecureStore.getItemAsync('isMessagesHidden');
+            const isHidden = storedMessagesHidden ? JSON.parse(storedMessagesHidden) : false;
 
-              // If the messages hidden state is not set, we set it to false
-              if (storedMessagesHidden === null) {
-                await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(false));
-                setIsMessagesHidden(false);
-                setIsLoading(false);
-                navigate(SCREENS.APP_MENU);
-              } else {
-                // If the messages hidden state is set, we set the state and navigate to the app menu or the webview
-                const isHidden = JSON.parse(storedMessagesHidden);
-                setIsMessagesHidden(isHidden);
-                setIsLoading(false);
+            if (storedMessagesHidden === null) {
+              await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(false));
+            }
 
-                if (isHidden) {
-                  navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-                } else {
-                  navigate(SCREENS.APP_MENU);
-                }
-              }
-            } catch (error) {
-              handleAppError(error, 'secureStore');
-              setIsMessagesHidden(false);
-              setIsLoading(false);
+            setIsMessagesHidden(isHidden);
+            setIsLoading(false);
+
+            // Only navigate if we're not already on the correct screen
+            if (isHidden && currentScreen !== SCREENS.WEBVIEW && currentScreen !== SCREENS.NO_URL) {
+              navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+            } else if (!isHidden && currentScreen !== SCREENS.APP_MENU) {
               navigate(SCREENS.APP_MENU);
             }
-          } else {
-            setIsLoading(false);
-          }
-
-        } catch (error) {
-          if (error.message.includes('Could not decrypt')) {
-            handleAppError(error, 'decryption');
-            await clearSecureStore();
+          } catch (error) {
+            handleAppError(error, 'secureStore');
             setIsMessagesHidden(false);
             setIsLoading(false);
+            if (currentScreen !== SCREENS.APP_MENU) {
+              navigate(SCREENS.APP_MENU);
+            }
+          }
+        } else {
+          setIsLoading(false);
+        }
+
+      } catch (error) {
+        if (error.message.includes('Could not decrypt')) {
+          handleAppError(error, 'decryption');
+          await clearSecureStore();
+          setIsMessagesHidden(false);
+          setIsLoading(false);
+          if (currentScreen !== SCREENS.APP_MENU) {
             navigate(SCREENS.APP_MENU);
           }
         }
-      } catch (error) {
-        handleAppError(error, 'initialization');
-        setIsI18nInitialized(true);
-        setIsLoading(false);
-        setIsMessagesHidden(false);
-        if (!intentionalScreens.includes(currentScreen)) {
-          navigate(SCREENS.APP_MENU);
-        }
+      } finally {
+        setAppInitialized(true);
       }
     };
 
     initializeApp();
-  }, [loadSelectedChannels, loadTimeoutInterval, navigate, selectedWebviews, clearSecureStore, currentScreen]);
+  }, [appInitialized]); // Only depend on appInitialized
+
+  // Effet pour gérer les changements d'état de isMessagesHidden
+  useEffect(() => {
+    if (!appInitialized) return;
+
+    const handleMessagesHiddenChange = async () => {
+      try {
+        await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(isMessagesHidden));
+
+        // Si les messages sont cachés et qu'on est sur l'AppMenu, on navigue vers la WebView
+        if (isMessagesHidden && currentScreen === SCREENS.APP_MENU) {
+          navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+        }
+        // Si les messages ne sont plus cachés et qu'on est sur la WebView, on navigue vers l'AppMenu
+        else if (!isMessagesHidden && currentScreen === SCREENS.WEBVIEW) {
+          navigate(SCREENS.APP_MENU);
+        }
+      } catch (error) {
+        handleAppError(error, 'updateMessagesHidden');
+      }
+    };
+
+    handleMessagesHiddenChange();
+  }, [isMessagesHidden, appInitialized, currentScreen, navigate, selectedWebviews]);
 
   /**
    * @function handleChatLogout
@@ -270,7 +290,11 @@ export default function App({ testID, initialScreen }) {
           <AppMenu
             onNavigate={(screen) => {
               if (screen === SCREENS.WEBVIEW) {
-                navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+                if (selectedWebviews?.length > 0) {
+                  navigate(SCREENS.WEBVIEW);
+                } else {
+                  navigate(SCREENS.NO_URL);
+                }
               } else if (screen === SCREENS.SETTINGS) {
                 handleSettingsAccess();
               } else {

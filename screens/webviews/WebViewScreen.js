@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Webview } from 'react-native-webview';
+import WebView from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
 import { SCREENS } from '../../constants/screens';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -56,10 +56,14 @@ export default function WebviewScreen({
           </TouchableOpacity>
         </View>
       )}
-      <Webview
+      <WebView
         ref={webViewRef}
         source={{ uri: url }}
         style={styles.webview}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        startInLoadingState={true}
+        scalesPageToFit={true}
       />
       <View style={styles.buttonContainer}>
         <ParameterButton onPress={onSettingsAccess} testID="settings-button" />
