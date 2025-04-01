@@ -206,16 +206,29 @@ export default function WebviewsManagementScreen({
           />
         </TouchableOpacity>
         {!isReadOnly && (
-          <TouchableOpacity
-            testID="import-button"
-            onPress={openImportModal}
-          >
-            <Entypo
-              name="add-to-list"
-              size={isSmartphone ? 24 : 28}
-              color={COLORS.white}
-            />
-          </TouchableOpacity>
+          <View style={styles.headerIconsContainer}>
+            <TouchableOpacity
+              testID="add-button"
+              onPress={openImportModal}
+            >
+              <AntDesign
+                name="plus"
+                size={isSmartphone ? 20 : 24}
+                color={COLORS.white}
+                style={{ marginRight: 30 }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              testID="import-button"
+              onPress={openImportModal}
+            >
+              <AntDesign
+                name="bars"
+                size={isSmartphone ? 20 : 24}
+                color={COLORS.white}
+              />
+            </TouchableOpacity>
+          </View>
         )}
       </View>
 
@@ -511,5 +524,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 10,
     fontSize: SIZES.fonts.textTablet,
+  },
+  headerIconsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
