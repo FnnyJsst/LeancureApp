@@ -57,12 +57,16 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
    * @description A function to handle the import of the URL
    */
   const handleImport = async () => {
+    console.log('[ImportFullUrlModal] Début de l\'importation avec URL:', url);
+
     if (!url) {
+      console.log('[ImportFullUrlModal] Erreur: URL vide');
       setError(t('errors.enterUrl'));
       return;
     }
 
     if (!validateUrl(url)) {
+      console.log('[ImportFullUrlModal] Erreur: URL invalide');
       setError(t('errors.invalidUrl'));
       return;
     }
@@ -71,9 +75,13 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
     setError('');
 
     try {
+      console.log('[ImportFullUrlModal] Tentative d\'importation...');
       await onImport(url);
+      console.log('[ImportFullUrlModal] Import réussi');
       handleClose();
     } catch (error) {
+      console.error('[ImportFullUrlModal] Erreur détaillée:', error);
+      console.error('[ImportFullUrlModal] Stack trace:', error.stack);
       setError(t('errors.errorDuringImport'));
     } finally {
       setIsImporting(false);
@@ -106,9 +114,9 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
             isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
             isTabletPortrait && styles.modalContentTabletPortrait,
           ]}>
-          <TitleModal title={t('modals.webview.import.importUrl')}/>
+          <TitleModal title={t('modals.webview.import.importFullUrl')}/>
           <InputModal
-            placeholder={t('modals.webview.import.enterUrl')}
+            placeholder={t('modals.webview.import.importUrl')}
             value={url}
             onChangeText={handleUrlChange}
             secureTextEntry={false}
@@ -141,7 +149,7 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
               title={isImporting ? t('buttons.importing') : t('buttons.import')}
               onPress={handleImport}
               backgroundColor={COLORS.orange}
-              width={isSmartphone ? '26%' : '29%'}
+              width={isSmartphone ? '27%' : '29%'}
               disabled={isImporting}
               icon={isImporting ?
                 <ActivityIndicator size="small" color={COLORS.white} /> :

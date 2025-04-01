@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Modal, StyleSheet } from 'react-native';
+import { View, Modal, StyleSheet, ActivityIndicator } from 'react-native';
 import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { COLORS, MODAL_STYLES, SIZES } from '../../../constants/style';

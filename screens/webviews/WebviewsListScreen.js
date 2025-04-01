@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, memo, useCallback, useMemo } from 'react';
+import { View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
 import Button from '../../components/buttons/Button';
@@ -16,15 +16,12 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} onBack - A function to navigate to a screen
  * @param {Function} onBackPress - A function to navigate to a screen
  * @returns {JSX.Element} - A JSX element
- *
- * @example
- * <WebviewsListScreen channels={channels} selectedWebviews={selectedWebviews} onBack={onBack} onBackPress={onBackPress} />
  */
 export default function WebviewsListScreen({ channels, selectedWebviews, onBack, onBackPress }) {
 
   const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isLandscape, isSmartphoneLandscape } = useDeviceType();
 
   // States related to the channels list
   const [localSelectedChannels, setLocalSelectedChannels] = useState([]);
@@ -83,7 +80,7 @@ export default function WebviewsListScreen({ channels, selectedWebviews, onBack,
 
   return (
     <View style={styles.pageContainer}>
-      <View style={styles.customHeaderContainer}>
+      <View style={[styles.customHeaderContainer, isSmartphoneLandscape && styles.customHeaderContainerSmartphoneLandscape]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={onBackPress}
@@ -96,7 +93,7 @@ export default function WebviewsListScreen({ channels, selectedWebviews, onBack,
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('buttons.importChannels')}</Text>
       </View>
-      <View style={[styles.listContainer, isLandscape && styles.listContainerLandscape]}>
+      <View style={[styles.listContainer, isLandscape && styles.listContainerLandscape, isSmartphone && styles.listContainerSmartphone]}>
         <FlatList
           data={availableChannels}
           keyExtractor={(item) => item.href}
@@ -161,6 +158,9 @@ const styles = StyleSheet.create({
   listContainerLandscape: {
     paddingHorizontal: 50,
   },
+  listContainerSmartphone: {
+    paddingTop: 0,
+  },
   buttonContainer: {
     bottom: 30,
     alignItems: 'center',
@@ -171,6 +171,9 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 15,
     marginBottom: 20,
+  },
+  customHeaderContainerSmartphoneLandscape: {
+    marginBottom: 0,
   },
   backButton: {
     backgroundColor: '#271E1E',

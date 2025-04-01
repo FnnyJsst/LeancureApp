@@ -72,6 +72,7 @@ export default function App({ testID, initialScreen }) {
   const [isMessagesHidden, setIsMessagesHidden] = useState(false);
   const [appInitialized, setAppInitialized] = useState(false);
   const isMessagesHiddenRef = useRef(false);
+  const [channels, setChannels] = useState([]);
 
   // Hooks
   const { navigate } = useNavigation(setCurrentScreen);
@@ -79,7 +80,7 @@ export default function App({ testID, initialScreen }) {
   const { timeoutInterval, handleTimeoutSelection, loadTimeoutInterval } = useTimeout();
 
   const {
-    channels,
+    channels: webviewChannels,
     selectedWebviews,
     webViewUrl,
     refreshInterval,
@@ -286,11 +287,29 @@ export default function App({ testID, initialScreen }) {
   /**
    * @function handleImportWebviews
    * @description Handles the import of channels
-   * @param {Array} newWebviews - The selected channels
+   * @param {Array|string} newWebviews - The selected channels or a single URL
    */
   const handleImportWebviews = (newWebviews) => {
-    if (newWebviews && newWebviews.length > 0) {
-      handleSelectChannels(newWebviews);
+    console.log('[App] handleImportWebviews appelé avec:', newWebviews);
+
+    if (typeof newWebviews === 'string') {
+      // Si c'est une URL unique, créer un objet webview et l'ajouter directement
+      const newWebview = {
+        href: newWebviews,
+        title: newWebviews // On utilise l'URL comme titre par défaut
+      };
+      console.log('[App] Création d\'un nouveau webview:', newWebview);
+      handleSelectChannels([newWebview]);
+      // On reste sur l'écran de gestion des webviews
+      navigate(SCREENS.WEBVIEWS_MANAGEMENT);
+    } else if (Array.isArray(newWebviews) && newWebviews.length > 0) {
+      // Si c'est un tableau de webviews, on les ajoute à la liste des webviews sélectionnés
+      console.log('[App] Ajout des nouvelles chaînes:', newWebviews);
+      handleSelectChannels([...selectedWebviews, ...newWebviews]);
+      // On vide le state channels
+      setChannels([]);
+      // On retourne à l'écran de gestion des webviews
+      navigate(SCREENS.WEBVIEWS_MANAGEMENT);
     }
   };
 
@@ -364,9 +383,9 @@ export default function App({ testID, initialScreen }) {
       case SCREENS.WEBVIEWS_MANAGEMENT:
         return (
           <WebviewsManagementScreen
-            onImport={navigateToChannelsList}
+            onImport={handleImportWebviews}
             selectedWebviews={selectedWebviews}
-            setSelectedWebviews={selectedWebviews}
+            setSelectedWebviews={handleSelectChannels}
             saveSelectedWebviews={saveSelectedWebviews}
             onNavigate={navigate}
             onNavigateToWebview={navigateToWebview}
@@ -377,7 +396,7 @@ export default function App({ testID, initialScreen }) {
       case SCREENS.WEBVIEWS_LIST:
         return (
           <WebviewsListScreen
-            channels={channels}
+            channels={channels || []}
             selectedWebviews={selectedWebviews}
             onBack={handleImportWebviews}
             onBackPress={() => navigate(SCREENS.WEBVIEWS_MANAGEMENT)}

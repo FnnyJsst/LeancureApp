@@ -173,7 +173,6 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
 
       //We share the file
       await Sharing.shareAsync(fileUri);
-      setError(t('success.fileDownloaded'));
     } catch (downloadFileError) {
       handleError(downloadFileError, 'documentPreview.handleDownload', {
         type: ErrorType.SYSTEM,

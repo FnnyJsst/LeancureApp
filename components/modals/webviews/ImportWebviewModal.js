@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, View, StyleSheet } from 'react-native';
+import { Modal, View, StyleSheet, ActivityIndicator } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
@@ -17,8 +17,9 @@ import { useTranslation } from 'react-i18next';
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onImport - The function to call when the channels are imported
+ * @param {Array} props.selectedWebviews - The currently selected webviews
  */
-const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
+const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [], testID }) => {
 
   // Translation
   const { t } = useTranslation();
@@ -83,12 +84,16 @@ const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
    * @description A function to handle the download of channels from URL
    */
    const handleDownload = async () => {
+    console.log('[ImportWebviewModal] Début du téléchargement avec URL:', url);
+
     if (!url) {
+      console.log('[ImportWebviewModal] Erreur: URL vide');
       setError(t('errors.enterUrl'));
       return;
     }
 
     if (!validateUrl(url)) {
+      console.log('[ImportWebviewModal] Erreur: URL invalide');
       setError(t('errors.invalidUrl'));
       return;
     }
@@ -99,13 +104,19 @@ const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
     try {
       // We get the full URL and fetch it
       const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
+      console.log('[ImportWebviewModal] Tentative de fetch avec URL complète:', fullUrl);
+
       const response = await fetch(fullUrl);
+      console.log('[ImportWebviewModal] Réponse reçue, status:', response.status);
+      console.log('[ImportWebviewModal] Headers:', response.headers);
 
       // We get the content type
       const contentType = response.headers.get('content-type');
+      console.log('[ImportWebviewModal] Content-Type:', contentType);
 
       // If the content type is not defined, we throw an error
       if (!contentType) {
+        console.log('[ImportWebviewModal] Erreur: Content-Type non défini');
         setError(t('errors.contentTypeNotDefined'));
         return;
       }
@@ -113,24 +124,33 @@ const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
       let data;
       // If the content type is JSON, we parse it
       if (contentType.includes('application/json')) {
+        console.log('[ImportWebviewModal] Parsing JSON...');
         data = await response.json();
+        console.log('[ImportWebviewModal] Données JSON reçues:', data);
         // We check if the data is an array
         if (!Array.isArray(data)) {
+          console.log('[ImportWebviewModal] Erreur: Format de réponse invalide (pas un tableau)');
           setError(t('errors.invalidResponseFormat'));
           return;
         }
       } else if (contentType.includes('text/html')) {
+        console.log('[ImportWebviewModal] Parsing HTML...');
         data = await response.text();
+        console.log('[ImportWebviewModal] Données HTML reçues, longueur:', data.length);
       } else {
+        console.log('[ImportWebviewModal] Erreur: Type de contenu non supporté:', contentType);
         setError(t('errors.invalidContentType'));
         return;
       }
 
       // If the data is a string, we parse it
       if (typeof data === 'string') {
+        console.log('[ImportWebviewModal] Début du parsing HTML...');
         const extractedChannels = parseHtml(data);
+        console.log('[ImportWebviewModal] Chaînes extraites:', extractedChannels);
 
         if (extractedChannels.length === 0) {
+          console.log('[ImportWebviewModal] Erreur: Aucune chaîne trouvée');
           setError(t('errors.noChannelsFound'));
           return;
         }
@@ -140,19 +160,25 @@ const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
             existingChannel.href === newChannel.href
           )
         );
+        console.log('[ImportWebviewModal] Nouvelles chaînes filtrées:', newChannels);
 
         // If there are no new channels, we show an alert
         if (newChannels.length === 0) {
+          console.log('[ImportWebviewModal] Aucune nouvelle chaîne à importer');
           setShowAlert(true);
         } else {
-
+          console.log('[ImportWebviewModal] Import des nouvelles chaînes...');
           await onImport(newChannels);
+          console.log('[ImportWebviewModal] Import réussi');
           onClose();
         }
       } else {
+        console.log('[ImportWebviewModal] Erreur: Format de données invalide');
         setError(t('errors.invalidResponseFormat'));
       }
     } catch (error) {
+      console.error('[ImportWebviewModal] Erreur détaillée:', error);
+      console.error('[ImportWebviewModal] Stack trace:', error.stack);
       setError(t('errors.errorDuringDownload'));
     } finally {
       setIsImporting(false);
@@ -224,14 +250,14 @@ const ImportWebviewModal = ({ visible, onClose, onImport, testID }) => {
                 onPress={handleClose}
                 backgroundColor={COLORS.gray950}
                 textColor={COLORS.gray300}
-                width={isSmartphone ? '23%' : '26%'}
+                width={isSmartphone ? '27%' : '26%'}
                 testID="cancel-import-button"
               />
               <Button
                 title={isImporting ? t('buttons.importing') : t('buttons.import')}
                 onPress={handleDownload}
                 backgroundColor={COLORS.orange}
-                width={isSmartphone ? '26%' : '29%'}
+                width={isSmartphone ? '27%' : '29%'}
                 disabled={isImporting}
                 icon={isImporting ?
                   <ActivityIndicator size="small" color={COLORS.white} /> :

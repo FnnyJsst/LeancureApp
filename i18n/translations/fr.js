@@ -13,6 +13,11 @@ export default {
     loading: "Chargement..."
   },
 
+  alerts: {
+    information: "Information",
+    allChannelsAlreadyImported: "Toutes les chaînes sont déjà importées",
+  },
+
   auth: {
     signIn: "Connectez-vous à votre compte",
     contractNumber: "Entrez votre numéro de contrat",
@@ -90,6 +95,7 @@ export default {
       import: {
         importChannels: "Importer ses chaînes",
         importUrl: "Entrez une URL",
+        importFullUrl: "Importer une URL complète",
       },
       edit: {
         editChannel: "Modifier une chaîne",
@@ -277,6 +283,8 @@ export default {
     errorLoadingChannels: "Erreur lors du chargement des canaux",
     sessionExpired: "Session expirée. Veuillez vous reconnecter.",
     loginFailed: "Connexion impossible",
+    errorDuringImport: "Erreur lors de l'importation",
+    errorDuringDownload: "Erreur lors du téléchargement",
   },
   success: {
     messageDeleted: "Message supprimé avec succès",

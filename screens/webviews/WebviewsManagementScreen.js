@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useCallback, useMemo, memo } from 'react';
+import { View, StyleSheet, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import ImportWebviewModal from '../../components/modals/webviews/ImportWebviewModal';
 import ImportFullUrlModal from '../../components/modals/webviews/ImportFullUrlModal';
 import EditWebviewModal from '../../components/modals/webviews/EditWebviewModal';
@@ -27,6 +27,192 @@ import { handleError, ErrorType } from '../../utils/errorHandling';
  * @param {Function} onImport - A function to import channels
  */
 
+// Composant WebviewItem mémorisé
+const WebviewItem = memo(({
+  channel,
+  index,
+  isReadOnly,
+  isSmartphone,
+  isTablet,
+  isSmartphonePortrait,
+  isLandscape,
+  onNavigateToWebview,
+  onMoveUp,
+  onMoveDown,
+  onEdit,
+  onDelete,
+  selectedTitleId,
+  selectedUpIndex,
+  selectedDownIndex,
+  selectedPencilIndex,
+  selectedBinIndex,
+  setSelectedTitleId,
+  setSelectedUpIndex,
+  setSelectedDownIndex,
+  setSelectedPencilIndex,
+  setSelectedBinIndex
+}) => {
+  // Mémorisation des styles pour éviter les recalculs
+  const containerStyle = useMemo(() => [
+    styles.channelContainer,
+    isSmartphone && styles.channelContainerSmartphone,
+  ], [isSmartphone]);
+
+  const titleContainerStyle = useMemo(() => [
+    styles.titleContainer,
+    isSmartphone && styles.titleContainerSmartphone,
+  ], [isSmartphone]);
+
+  const textStyle = useMemo(() => [
+    styles.text,
+    isSmartphone && styles.textSmartphone,
+    selectedTitleId === channel.href && styles.textSelected,
+  ], [isSmartphone, selectedTitleId, channel.href]);
+
+  const controlsContainerStyle = useMemo(() => [
+    styles.controlsContainer,
+    isSmartphone && styles.controlsContainerSmartphone,
+  ], [isSmartphone]);
+
+  const arrowContainerStyle = useMemo(() => [
+    styles.arrowContainer,
+    isSmartphone && styles.arrowContainerSmartphone,
+    isLandscape && styles.arrowContainerLandscape,
+  ], [isSmartphone, isLandscape]);
+
+  const iconsContainerStyle = useMemo(() => [
+    styles.iconsContainer,
+    isSmartphone && styles.iconsContainerSmartphone,
+    isLandscape && styles.iconsContainerLandscape,
+  ], [isSmartphone, isLandscape]);
+
+  // Mémorisation des callbacks pour éviter les re-rendus inutiles
+  const handlePressIn = useCallback(() => {
+    setSelectedTitleId(channel.href);
+  }, [channel.href, setSelectedTitleId]);
+
+  const handlePressOut = useCallback(() => {
+    setSelectedTitleId(null);
+  }, [setSelectedTitleId]);
+
+  const handleMoveUpPress = useCallback(() => {
+    onMoveUp(index);
+  }, [onMoveUp, index]);
+
+  const handleMoveDownPress = useCallback(() => {
+    onMoveDown(index);
+  }, [onMoveDown, index]);
+
+  const handleEditPress = useCallback(() => {
+    onEdit(channel);
+  }, [onEdit, channel]);
+
+  const handleDeletePress = useCallback(() => {
+    onDelete(channel);
+  }, [onDelete, channel]);
+
+  return (
+    <View
+      testID={`webview-container-${index}`}
+      style={containerStyle}
+    >
+      <TouchableOpacity
+        testID={`webview-item-${index}`}
+        style={titleContainerStyle}
+        onPress={() => onNavigateToWebview(channel.href)}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+      >
+        <Text
+          style={textStyle}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          {channel.title}
+        </Text>
+      </TouchableOpacity>
+
+      {!isReadOnly && (
+        <View style={controlsContainerStyle}>
+          <View style={arrowContainerStyle}>
+            <TouchableOpacity
+              testID={`move-up-${index}`}
+              onPress={handleMoveUpPress}
+              onPressIn={() => setSelectedUpIndex(index)}
+              onPressOut={() => setSelectedUpIndex(null)}
+              style={styles.arrowButton}
+            >
+              <AntDesign
+                name="up"
+                size={isTablet ? 30 : 23}
+                style={[
+                  { marginRight: isSmartphonePortrait ? 0 : 15 },
+                  { color: selectedUpIndex === index ? COLORS.orange : COLORS.gray300 },
+                ]}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              testID={`move-down-${index}`}
+              onPress={handleMoveDownPress}
+              onPressIn={() => setSelectedDownIndex(index)}
+              onPressOut={() => setSelectedDownIndex(null)}
+              style={styles.arrowButton}
+            >
+              <AntDesign
+                name="down"
+                size={isTablet ? 30 : 23}
+                style={[
+                  { marginLeft: isSmartphonePortrait ? 0 : 15 },
+                  { marginRight: isSmartphonePortrait ? 0 : 15 },
+                  { color: selectedDownIndex === index ? COLORS.orange : COLORS.gray300 },
+                ]}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={iconsContainerStyle}>
+            <TouchableOpacity
+              testID={`edit-button-${index}`}
+              onPress={handleEditPress}
+              onPressIn={() => setSelectedPencilIndex(index)}
+              onPressOut={() => setSelectedPencilIndex(null)}
+              style={styles.iconButton}
+            >
+              <EvilIcons
+                name="pencil"
+                size={isTablet ? 40 : 29}
+                style={[
+                  { marginRight: isSmartphonePortrait ? 0 : 15 },
+                  { color: isTablet && selectedPencilIndex === index ? COLORS.orange : COLORS.gray300 },
+                ]}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              testID={`delete-button-${index}`}
+              onPress={handleDeletePress}
+              onPressIn={() => setSelectedBinIndex(index)}
+              onPressOut={() => setSelectedBinIndex(null)}
+              style={styles.iconButton}
+            >
+              <Ionicons
+                name="trash-outline"
+                size={isTablet ? 30 : 23}
+                style={{ color: selectedBinIndex === index ? COLORS.orange : COLORS.gray300 }}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+    </View>
+  );
+});
+
+// Mémoriser les composants modaux
+const MemoizedImportFullUrlModal = memo(ImportFullUrlModal);
+const MemoizedImportWebviewModal = memo(ImportWebviewModal);
+const MemoizedEditWebviewModal = memo(EditWebviewModal);
+const MemoizedDeleteWebviewModal = memo(DeleteWebviewModal);
+
 export default function WebviewsManagementScreen({
   onNavigate,
   selectedWebviews,
@@ -37,68 +223,77 @@ export default function WebviewsManagementScreen({
   onImport,
   testID,
 }) {
-
   const { t } = useTranslation();
-  // Customized hook to determine the device type and orientation
   const { isTablet, isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
 
-  const [isImportModalVisible, setImportModalVisible] = useState(false);
-  const [isImportFullUrlModalVisible, setImportFullUrlModalVisible] = useState(false);
-  const [isEditModalVisible, setEditModalVisible] = useState(false);
-  const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [webviewToEdit, setWebviewToEdit] = useState(null);
-  const [webviewToDelete, setWebviewToDelete] = useState(null);
-  const [selectedTitleId, setSelectedTitleId] = useState(null);
-  const [selectedPencilIndex, setSelectedPencilIndex] = useState(null);
-  const [selectedBinIndex, setSelectedBinIndex] = useState(null);
-  const [selectedUpIndex, setSelectedUpIndex] = useState(null);
-  const [selectedDownIndex, setSelectedDownIndex] = useState(null);
+  // Ajout de l'état error
   const [error, setError] = useState(null);
 
-  /**
-  * functions to open and close the different modals
-  */
-  const openImportModal = () => setImportModalVisible(true);
-  const closeImportModal = () => setImportModalVisible(false);
-  const openImportFullUrlModal = () => setImportFullUrlModalVisible(true);
-  const closeImportFullUrlModal = () => setImportFullUrlModalVisible(false);
+  // Regrouper tous les états des modales dans un seul objet
+  const [modalState, setModalState] = useState({
+    import: false,
+    importFullUrl: false,
+    edit: false,
+    delete: false,
+    webviewToEdit: null,
+    webviewToDelete: null
+  });
 
-  const openEditModal = (channel) => {
-    setWebviewToEdit(channel);
-    setEditModalVisible(true);
-  };
+  // Regrouper les états de sélection dans un seul objet
+  const [selectionState, setSelectionState] = useState({
+    titleId: null,
+    pencilIndex: null,
+    binIndex: null,
+    upIndex: null,
+    downIndex: null
+  });
 
-  const closeEditModal = () => {
-    setEditModalVisible(false);
-    setWebviewToEdit(null);
-  };
+  // Fonction pour mettre à jour l'état des modales
+  const updateModalState = useCallback((key, value) => {
+    setModalState(prev => ({ ...prev, [key]: value }));
+  }, []);
 
-  const openDeleteModal = (channel) => {
-    setWebviewToDelete(channel);
-    setDeleteModalVisible(true);
-  };
+  // Fonction pour mettre à jour l'état de sélection
+  const updateSelectionState = useCallback((key, value) => {
+    setSelectionState(prev => ({ ...prev, [key]: value }));
+  }, []);
 
-  const closeDeleteModal = () => setDeleteModalVisible(false);
+  // Mémoriser les fonctions de gestion des modales
+  const handleOpenModal = useCallback((modalType) => {
+    updateModalState(modalType, true);
+  }, [updateModalState]);
 
-  /**
-   * @function handleDeleteWebview
-   * @description Deletes a channel from the list
-   * @param {Object} webviewToDelete - The channel to delete
-   */
-  const handleDeleteWebview = async (webviewToDelete) => {
+  const handleCloseModal = useCallback((modalType) => {
+    updateModalState(modalType, false);
+    if (modalType === 'edit') {
+      updateModalState('webviewToEdit', null);
+    } else if (modalType === 'delete') {
+      updateModalState('webviewToDelete', null);
+    }
+  }, [updateModalState]);
+
+  const handleEdit = useCallback((channel) => {
+    updateModalState('webviewToEdit', channel);
+    updateModalState('edit', true);
+  }, [updateModalState]);
+
+  const handleDelete = useCallback((channel) => {
+    updateModalState('webviewToDelete', channel);
+    updateModalState('delete', true);
+  }, [updateModalState]);
+
+  // Mémoriser les fonctions de gestion des webviews
+  const handleDeleteWebview = useCallback(async (webviewToDelete) => {
     if (webviewToDelete) {
       try {
-        // Filter the channels to remove the one to delete
         const updatedWebviews = selectedWebviews.filter(
           channel => channel.href !== webviewToDelete.href
         );
         setSelectedWebviews(updatedWebviews);
-        saveSelectedWebviews(updatedWebviews);
-        closeDeleteModal();
-
-        // Save the updated channels in SecureStore
+        await saveSelectedWebviews(updatedWebviews);
         await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(updatedWebviews));
-        setError(t('success.webviewDeleted'));
+        handleCloseModal('delete');
+        setError(null); // Réinitialiser l'erreur en cas de succès
       } catch (err) {
         handleError(err, 'webviewsManagement.handleDeleteWebview', {
           type: ErrorType.SYSTEM,
@@ -107,63 +302,86 @@ export default function WebviewsManagementScreen({
         setError(t('errors.errorDeletingWebview'));
       }
     }
-  };
+  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, handleCloseModal, t]);
 
+  // Mémorisation du rendu des items
+  const renderItem = useCallback(({ item, index }) => (
+    <WebviewItem
+      channel={item}
+      index={index}
+      isReadOnly={isReadOnly}
+      isSmartphone={isSmartphone}
+      isTablet={isTablet}
+      isSmartphonePortrait={isSmartphonePortrait}
+      isLandscape={isLandscape}
+      onNavigateToWebview={onNavigateToWebview}
+      onMoveUp={handleMoveUp}
+      onMoveDown={handleMoveDown}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      selectedTitleId={selectionState.titleId}
+      selectedUpIndex={selectionState.upIndex}
+      selectedDownIndex={selectionState.downIndex}
+      selectedPencilIndex={selectionState.pencilIndex}
+      selectedBinIndex={selectionState.binIndex}
+      setSelectedTitleId={(value) => updateSelectionState('titleId', value)}
+      setSelectedUpIndex={(value) => updateSelectionState('upIndex', value)}
+      setSelectedDownIndex={(value) => updateSelectionState('downIndex', value)}
+      setSelectedPencilIndex={(value) => updateSelectionState('pencilIndex', value)}
+      setSelectedBinIndex={(value) => updateSelectionState('binIndex', value)}
+    />
+  ), [
+    isReadOnly,
+    isSmartphone,
+    isTablet,
+    isSmartphonePortrait,
+    isLandscape,
+    onNavigateToWebview,
+    handleMoveUp,
+    handleMoveDown,
+    handleEdit,
+    handleDelete,
+    selectionState,
+    updateSelectionState
+  ]);
 
-  /**
-   * @function moveWebviewUp
-   * @description Moves a channel up in the list
-   * @param {number} index - The index of the channel to move up
-   */
-  const moveWebviewUp = (index) => {
+  // Mémorisation de la fonction d'extraction de clé
+  const keyExtractor = useCallback((item, index) => `${item.href}-${index}`, []);
+
+  // Fonction pour vérifier les doublons
+  const isDuplicate = useCallback((newWebview) => {
+    return selectedWebviews.some(webview => webview.href === newWebview.href);
+  }, [selectedWebviews]);
+
+  // Fonction pour gérer l'import
+  const handleImport = useCallback(async (newWebviews) => {
     try {
-      // Check if we are not at the first channel
-      if (index > 0) {
-        // Create a copy of the selected channels
-        const updatedWebviews = [...selectedWebviews];
-        // Swap the channel with the one above
-        const temp = updatedWebviews[index - 1];
-        updatedWebviews[index - 1] = updatedWebviews[index];
-        updatedWebviews[index] = temp;
-        // Set the updated channels
-        setSelectedWebviews(updatedWebviews);
-        saveSelectedWebviews(updatedWebviews);
+      // Si c'est une URL directe
+      if (typeof newWebviews === 'string') {
+        const webview = { href: newWebviews, title: newWebviews };
+        if (!isDuplicate(webview)) {
+          const updatedWebviews = [...selectedWebviews, webview];
+          setSelectedWebviews(updatedWebviews);
+          await saveSelectedWebviews(updatedWebviews);
+        }
+      }
+      // Si c'est un tableau de webviews
+      else if (Array.isArray(newWebviews)) {
+        const uniqueWebviews = newWebviews.filter(webview => !isDuplicate(webview));
+        if (uniqueWebviews.length > 0) {
+          const updatedWebviews = [...selectedWebviews, ...uniqueWebviews];
+          setSelectedWebviews(updatedWebviews);
+          await saveSelectedWebviews(updatedWebviews);
+        }
       }
     } catch (err) {
-      handleError(err, 'webviewsManagement.moveWebviewUp', {
+      handleError(err, 'webviewsManagement.handleImport', {
         type: ErrorType.SYSTEM,
-        silent: true
+        silent: false
       });
+      setError(t('errors.errorImportingWebview'));
     }
-  };
-
-  /**
-   * @function moveWebviewDown
-   * @description Moves a channel down in the list
-   * @param {number} index - The index of the channel to move down
-   */
-  const moveWebviewDown = (index) => {
-    try {
-      // Check if we are not at the last channel
-      if (index < selectedWebviews.length - 1) {
-        // Create a copy of the selected channels
-        const updatedWebviews = [...selectedWebviews];
-        // Swap the channel with the one below
-        const temp = updatedWebviews[index + 1];
-        updatedWebviews[index + 1] = updatedWebviews[index];
-        updatedWebviews[index] = temp;
-        // Set the updated channels
-        setSelectedWebviews(updatedWebviews);
-        // Save the updated channels
-        saveSelectedWebviews(updatedWebviews);
-      }
-    } catch (err) {
-      handleError(err, 'webviewsManagement.moveWebviewDown', {
-        type: ErrorType.SYSTEM,
-        silent: true
-      });
-    }
-  };
+  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, isDuplicate]);
 
   /**
    * @function handleEditWebviewModal
@@ -185,7 +403,6 @@ export default function WebviewsManagementScreen({
       // Set and save the updated channels
       setSelectedWebviews(updatedWebviews);
       await saveSelectedWebviews(updatedWebviews);
-      setError(t('success.webviewUpdated'));
     } catch (err) {
       handleError(err, 'webviewsManagement.handleEditWebviewModal', {
         type: ErrorType.SYSTEM,
@@ -194,6 +411,29 @@ export default function WebviewsManagementScreen({
       setError(t('errors.errorEditingWebview'));
     }
   };
+
+  // Ajout des fonctions de déplacement
+  const handleMoveUp = useCallback((index) => {
+    if (index > 0) {
+      const updatedWebviews = [...selectedWebviews];
+      const temp = updatedWebviews[index - 1];
+      updatedWebviews[index - 1] = updatedWebviews[index];
+      updatedWebviews[index] = temp;
+      setSelectedWebviews(updatedWebviews);
+      saveSelectedWebviews(updatedWebviews);
+    }
+  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews]);
+
+  const handleMoveDown = useCallback((index) => {
+    if (index < selectedWebviews.length - 1) {
+      const updatedWebviews = [...selectedWebviews];
+      const temp = updatedWebviews[index + 1];
+      updatedWebviews[index + 1] = updatedWebviews[index];
+      updatedWebviews[index] = temp;
+      setSelectedWebviews(updatedWebviews);
+      saveSelectedWebviews(updatedWebviews);
+    }
+  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews]);
 
   return (
     <View style={styles.pageContainer}>
@@ -212,7 +452,7 @@ export default function WebviewsManagementScreen({
           <View style={styles.headerIconsContainer}>
             <TouchableOpacity
               testID="add-button"
-              onPress={openImportFullUrlModal}
+              onPress={() => handleOpenModal('importFullUrl')}
             >
               <AntDesign
                 name="plus"
@@ -223,7 +463,7 @@ export default function WebviewsManagementScreen({
             </TouchableOpacity>
             <TouchableOpacity
               testID="import-button"
-              onPress={openImportModal}
+              onPress={() => handleOpenModal('import')}
             >
               <AntDesign
                 name="bars"
@@ -248,161 +488,51 @@ export default function WebviewsManagementScreen({
         <Text style={styles.errorText}>{error}</Text>
       )}
 
-      {/* Modals to import channels */}
-      <ImportFullUrlModal
-        visible={isImportFullUrlModalVisible}
-        onClose={closeImportFullUrlModal}
-        // onImport={onImport}
+      {/* Modals mémorisés */}
+      <MemoizedImportFullUrlModal
+        visible={modalState.importFullUrl}
+        onClose={() => handleCloseModal('importFullUrl')}
+        onImport={handleImport}
       />
-      <ImportWebviewModal
-        visible={isImportModalVisible}
-        onClose={closeImportModal}
-        onImport={onImport}
+      <MemoizedImportWebviewModal
+        visible={modalState.import}
+        onClose={() => handleCloseModal('import')}
+        onImport={handleImport}
+        selectedWebviews={selectedWebviews}
         testID={testID}
       />
-      {/* Modal to edit a channel */}
-      <EditWebviewModal
+      <MemoizedEditWebviewModal
         testID={testID}
-        visible={isEditModalVisible}
-        onClose={closeEditModal}
-        initialUrl={webviewToEdit?.href}
-        initialTitle={webviewToEdit?.title}
-        onSave={(newUrl, newTitle) => handleEditWebviewModal(webviewToEdit, newUrl, newTitle)}
+        visible={modalState.edit}
+        onClose={() => handleCloseModal('edit')}
+        initialUrl={modalState.webviewToEdit?.href}
+        initialTitle={modalState.webviewToEdit?.title}
+        onSave={(newUrl, newTitle) => handleEditWebviewModal(modalState.webviewToEdit, newUrl, newTitle)}
       />
-      {/* Modal to delete a webview */}
-      <DeleteWebviewModal
+      <MemoizedDeleteWebviewModal
         testID={testID}
-        visible={isDeleteModalVisible}
-        onClose={closeDeleteModal}
-        handleDelete={() => handleDeleteWebview(webviewToDelete)}
+        visible={modalState.delete}
+        onClose={() => handleCloseModal('delete')}
+        handleDelete={() => handleDeleteWebview(modalState.webviewToDelete)}
       />
+
       {/* List of channels */}
-      <ScrollView>
-        <View style={styles.channelsContainer}>
-          {selectedWebviews && selectedWebviews.map((channel, index) => (
-            <View
-              testID={`webview-container-${index}`}
-              style={[
-                styles.channelContainer,
-                isSmartphone && styles.channelContainerSmartphone,
-              ]}
-              key={channel.href}
-            >
-              <TouchableOpacity
-                testID={`webview-item-${index}`}
-                style={[
-                  styles.titleContainer,
-                  isSmartphone && styles.titleContainerSmartphone,
-                ]}
-                // Navigate to the webview with the channel href
-                onPress={() => onNavigateToWebview(channel.href)}
-                // Set the selected title id
-                onPressIn={() => setSelectedTitleId(channel.href)}
-                // Reset the selected title id
-                onPressOut={() => setSelectedTitleId(null)}
-              >
-                <Text
-                  style={[
-                    styles.text,
-                    isSmartphone && styles.textSmartphone,
-                    selectedTitleId === channel.href && styles.textSelected,
-                  ]}
-                  numberOfLines={1}
-                  // Add an ellipsis at the end of the text if it is too long
-                  ellipsizeMode="tail"
-                >
-                  {channel.title}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Check if the user is not read only */}
-              {!isReadOnly && (
-                <View style={[
-                  styles.controlsContainer,
-                  isSmartphone && styles.controlsContainerSmartphone,
-                ]}>
-                  <View style={[
-                    styles.arrowContainer,
-                    isSmartphone && styles.arrowContainerSmartphone,
-                    isLandscape && styles.arrowContainerLandscape,
-                  ]}>
-                  <TouchableOpacity
-                    testID={`move-up-${index}`}
-                    onPress={() => moveWebviewUp(index)}
-                    onPressIn={() => setSelectedUpIndex(index)}
-                    onPressOut={() => setSelectedUpIndex(null)}
-                    style={styles.arrowButton}
-                  >
-                    <AntDesign
-                      name="up"
-                      size={isTablet ? 30 : 23}
-                      style={[
-                        { marginRight: isSmartphonePortrait ? 0 : 15 },
-                        { color: selectedUpIndex === index ? COLORS.orange : COLORS.gray300 },
-                      ]}
-                    />
-                  </TouchableOpacity>
-                <TouchableOpacity
-                  testID={`move-down-${index}`}
-                  onPress={() => moveWebviewDown(index)}
-                  onPressIn={() => setSelectedDownIndex(index)}
-                  onPressOut={() => setSelectedDownIndex(null)}
-                  style={styles.arrowButton}
-                >
-                  <AntDesign
-                    name="down"
-                    size={isTablet ? 30 : 23}
-                    style={[
-                      { marginLeft: isSmartphonePortrait ? 0 : 15 },
-                      { marginRight: isSmartphonePortrait ? 0 : 15 },
-                      { color: selectedDownIndex === index ? COLORS.orange : COLORS.gray300 },
-                    ]}
-                  />
-                </TouchableOpacity>
-                  </View>
-
-                  <View style={[
-                    styles.iconsContainer,
-                    isSmartphone && styles.iconsContainerSmartphone,
-                    isLandscape && styles.iconsContainerLandscape,
-                  ]}>
-                  <TouchableOpacity
-                    testID={`edit-button-${index}`}
-                    onPress={() => openEditModal(channel)}
-                    onPressIn={() => setSelectedPencilIndex(index)}
-                    onPressOut={() => setSelectedPencilIndex(null)}
-                    style={styles.iconButton}
-                  >
-                    <EvilIcons
-                      name="pencil"
-                      size={isTablet ? 40 : 29}
-                      style={[
-                        { marginRight: isSmartphonePortrait ? 0 : 15 },
-                        { color: isTablet && selectedPencilIndex === index ? COLORS.orange : COLORS.gray300 },
-                      ]}
-                    />
-                  </TouchableOpacity>
-                  {/* Delete a channel */}
-                  <TouchableOpacity
-                    testID={`delete-button-${index}`}
-                    onPress={() => openDeleteModal(channel)}
-                    onPressIn={() => setSelectedBinIndex(index)}
-                    onPressOut={() => setSelectedBinIndex(null)}
-                    style={styles.iconButton}
-                  >
-                    <Ionicons
-                      name="trash-outline"
-                      size={isTablet ? 30 : 23}
-                      style={{ color: selectedBinIndex === index ? COLORS.orange : COLORS.gray300 }}
-                    />
-                  </TouchableOpacity>
-                  </View>
-                </View>
-              )}
-            </View>
-          ))}
-        </View>
-      </ScrollView>
+      <FlatList
+        data={selectedWebviews}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        contentContainerStyle={styles.channelsContainer}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        removeClippedSubviews={true}
+        getItemLayout={(data, index) => ({
+          length: isSmartphone ? 65 : 75,
+          offset: (isSmartphone ? 65 : 75) * index,
+          index,
+        })}
+      />
     </View>
   );
 }

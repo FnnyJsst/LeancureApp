@@ -13,6 +13,11 @@ export default {
     loading: "Loading..."
   },
 
+  alerts: {
+    information: "Information",
+    allChannelsAlreadyImported: "All channels already imported",
+  },
+
   auth: {
     signIn: "Sign in to your account",
     contractNumber: "Enter your contract number",
@@ -89,6 +94,7 @@ export default {
       import: {
         importChannels: "Import channels",
         importUrl: "Enter an URL",
+        importFullUrl: "Import full URL",
       },
       edit: {
         editChannel: "Edit channel",
@@ -275,6 +281,8 @@ export default {
     errorLoadingChannels: "Error loading channels",
     sessionExpired: "Session expired. Please reconnect.",
     loginFailed: "Login failed",
+    errorDuringImport: "Error during import",
+    errorDuringDownload: "Error during download",
   },
   success: {
     messageDeleted: "Message deleted successfully",
