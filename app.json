@@ -18,8 +18,11 @@
       [
         "expo-notifications",
         {
+          "icon": "./assets/images/logo.png",
           "color": "#ffffff",
           "mode": "default",
+          "androidMode": "default",
+          "androidCollapsedTitle": "Nouvelle notification",
           "firebaseCloudMessaging": {
             "enabled": true
           }
@@ -53,7 +56,8 @@
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
         "INTERNET"
-      ]
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "assetBundlePatterns": [
       "**/*"
