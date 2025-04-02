@@ -28,14 +28,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from './utils/errorHandling';
+import { useNotifications } from './hooks/useNotifications';
+import NotificationTestButton from './components/NotificationTestButton';
+import './config/firebase';
 
-LogBox.ignoreLogs(['[expo-notifications]']);
-
-console.log = (...args) => {
-  if (__DEV__) {
-    console.info(...args);
-  }
-};
 
 /**
  * @function handleAppError
@@ -78,6 +74,7 @@ export default function App({ testID, initialScreen }) {
   const { navigate } = useNavigation(setCurrentScreen);
   const { t } = useTranslation();
   const { timeoutInterval, handleTimeoutSelection, loadTimeoutInterval } = useTimeout();
+  const { expoPushToken, channels: notificationChannels, notification, sendNotification } = useNotifications();
 
   const {
     channels: webviewChannels,
@@ -481,6 +478,8 @@ export default function App({ testID, initialScreen }) {
         <View accessible={true} testID="settings-button">
           <Ionicons />
         </View>
+
+        <NotificationTestButton />
       </View>
     </ErrorBoundary>
   );

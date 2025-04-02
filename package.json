@@ -29,6 +29,7 @@
     "expo-secure-store": "~12.8.1",
     "expo-sharing": "~11.10.0",
     "expo-system-ui": "~2.9.4",
+    "firebase": "^11.6.0",
     "graphql": "^16.10.0",
     "htmlparser2": "^9.1.0",
     "i18next": "^24.2.2",

@@ -1,56 +1,58 @@
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import { useEffect, useState } from 'react';
-import { Platform } from 'react-native';
-import Constants from 'expo-constants';
+// import * as Notifications from 'expo-notifications';
+// import * as Device from 'expo-device';
+// import { useEffect, useState } from 'react';
+// import { Platform } from 'react-native';
+// import Constants from 'expo-constants';
 
-export default function usePushNotifications() {
-  const [expoPushToken, setExpoPushToken] = useState(null);
+// export default function usePushNotifications() {
+//   const [expoPushToken, setExpoPushToken] = useState(null);
 
-  useEffect(() => {
-    async function registerForPushNotificationsAsync() {
-      try {
+//   useEffect(() => {
+//     async function registerForPushNotificationsAsync() {
+//       try {
 
-        if (Platform.OS === 'android') {
-          await Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-          });
-        }
+//         if (Platform.OS === 'android') {
+//           await Notifications.setNotificationChannelAsync('default', {
+//             name: 'default',
+//             importance: Notifications.AndroidImportance.MAX,
+//             vibrationPattern: [0, 250, 250, 250],
+//           });
+//         }
 
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
+//         const { status: existingStatus } = await Notifications.getPermissionsAsync();
+//         let finalStatus = existingStatus;
 
-        if (existingStatus !== 'granted') {
-          const { status } = await Notifications.requestPermissionsAsync();
-          finalStatus = status;
-        }
+//         if (existingStatus !== 'granted') {
+//           const { status } = await Notifications.requestPermissionsAsync();
+//           finalStatus = status;
+//         }
 
-        if (finalStatus !== 'granted') {
-          return;
-        }
+//         if (finalStatus !== 'granted') {
+//           return;
+//         }
 
-        try {
-          const projectId = Constants.expoConfig.extra.eas.projectId;
+//         try {
+//           const projectId = Constants.expoConfig.extra.eas.projectId;
 
-          const token = await Notifications.getExpoPushTokenAsync({
-            projectId: projectId,
-          });
+//           const token = await Notifications.getExpoPushTokenAsync({
+//             projectId: projectId,
+//           });
 
-          console.log('✅ Token obtenu:', token);
-          setExpoPushToken(token.data);
-        } catch (tokenError) {
-          // console.error('🔴 Erreur token spécifique:', tokenError);
-        }
+//           console.log('✅ Token obtenu:', token);
+//           setExpoPushToken(token.data);
+//         } catch (tokenError) {
+//           // console.error('🔴 Erreur token spécifique:', tokenError);
+//         }
 
-      } catch (error) {
-        // console.error('🔴 Erreur globale:', error);
-      }
-    }
+//       } catch (error) {
+//         // console.error('🔴 Erreur globale:', error);
+//       }
+//     }
 
-    registerForPushNotificationsAsync();
-  }, []);
+//     registerForPushNotificationsAsync();
+//   }, []);
 
-  return expoPushToken;
-}
+//   return expoPushToken;
+// }
+
+
