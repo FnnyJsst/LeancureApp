@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from './utils/errorHandling';
 import { registerForPushNotificationsAsync } from './services/notificationService';
 import { clearSecureStore } from './utils/secureStore';
-import '../config/firebase'; // Import de la configuration Firebase
+import './config/firebase';
 
 
 /**
@@ -278,18 +278,24 @@ export default function App({ testID, initialScreen }) {
   useEffect(() => {
     const initializeNotifications = async () => {
       try {
-        // Nettoyage du SecureStore au démarrage
-        await clearSecureStore();
+        // Attendre que Firebase soit initialisé
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Initialisation des notifications après le nettoyage
+        // Nettoyer le SecureStore
+        console.log('🧹 Nettoyage du SecureStore...');
+        await clearSecureStore();
+        console.log('✅ SecureStore nettoyé avec succès');
+
+        // Initialiser les notifications
+        console.log('🔔 Initialisation des notifications...');
         const token = await registerForPushNotificationsAsync();
         if (token) {
-          console.log('Notifications initialisées avec succès');
+          console.log('✅ Notifications initialisées avec succès');
         } else {
-          console.log('Échec de l\'initialisation des notifications');
+          console.log('❌ Échec de l\'initialisation des notifications');
         }
       } catch (error) {
-        console.error('Erreur lors de l\'initialisation:', error);
+        console.error('❌ Erreur lors de l\'initialisation:', error);
       }
     };
 

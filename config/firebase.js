@@ -10,7 +10,12 @@ const firebaseConfig = {
   appId: ENV.FIREBASE_APP_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+let app;
+try {
+  app = initializeApp(firebaseConfig);
+  console.log('✅ Firebase initialisé avec succès');
+} catch (error) {
+  console.error('❌ Erreur lors de l\'initialisation de Firebase:', error);
+}
 
 export default app;

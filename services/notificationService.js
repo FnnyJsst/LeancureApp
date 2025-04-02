@@ -3,7 +3,7 @@ import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import { ENV } from '../config/env';
 import * as SecureStore from 'expo-secure-store';
-import '../config/firebase'; // Import de la configuration Firebase
+import '../config/firebase'; // Le chemin est correct ici car le fichier est dans services/
 
 // Notifications handler
 Notifications.setNotificationHandler({
@@ -20,52 +20,55 @@ Notifications.setNotificationHandler({
  */
 export const registerForPushNotificationsAsync = async () => {
   try {
-    let token;
+    console.log('🔔 Début de l\'enregistrement des notifications...');
 
-    if (Device.isDevice) {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-
-      if (finalStatus !== 'granted') {
-        console.log('Permission refusée pour les notifications push');
-        return null;
-      }
-
-      // Gestion de la promesse avec try/catch
-      try {
-        // Configuration du canal de notification pour Android
-        if (Platform.OS === 'android') {
-          await Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-          });
-        }
-
-        token = (await Notifications.getExpoPushTokenAsync({
-          projectId: ENV.EXPO_PROJECT_ID,
-        })).data;
-
-        // Stockage du token
-        await SecureStore.setItemAsync('pushToken', token);
-        console.log('Token de notification enregistré:', token);
-        return token;
-      } catch (tokenError) {
-        console.error('Erreur lors de la récupération du token:', tokenError);
-        return null;
-      }
-    } else {
-      console.log('Les notifications push ne sont pas supportées sur les émulateurs');
+    if (!Device.isDevice) {
+      console.log('⚠️ Les notifications ne sont pas supportées sur les émulateurs');
       return null;
     }
+
+    // Vérification des permissions
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== 'granted') {
+      console.log('🔔 Demande de permission pour les notifications...');
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') {
+      console.log('❌ Permission refusée pour les notifications push');
+      return null;
+    }
+
+    // Configuration du canal Android
+    if (Platform.OS === 'android') {
+      console.log('🔔 Configuration du canal Android...');
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+
+    // Récupération du token
+    console.log('🔔 Récupération du token push...');
+    const tokenData = await Notifications.getExpoPushTokenAsync({
+      projectId: ENV.EXPO_PROJECT_ID,
+    });
+
+    const token = tokenData.data;
+    console.log('✅ Token push récupéré:', token);
+
+    // Stockage du token
+    await SecureStore.setItemAsync('pushToken', token);
+    console.log('✅ Token enregistré dans le SecureStore');
+
+    return token;
   } catch (error) {
-    console.error('Erreur lors de l\'enregistrement des notifications:', error);
+    console.error('❌ Erreur lors de l\'enregistrement des notifications:', error);
     return null;
   }
 };
