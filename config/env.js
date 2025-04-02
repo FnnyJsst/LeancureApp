@@ -87,5 +87,12 @@ export const ENV = {
             console.error('🔴 Erreur lors de la récupération de l\'URL WebSocket:', error);
             return 'ws://192.168.77.101:8000';
         }
-    }
+    },
+
+    FIREBASE_API_KEY: "votre_api_key",
+    FIREBASE_AUTH_DOMAIN: "votre_auth_domain",
+    FIREBASE_PROJECT_ID: "votre_project_id",
+    FIREBASE_STORAGE_BUCKET: "votre_storage_bucket",
+    FIREBASE_MESSAGING_SENDER_ID: "votre_messaging_sender_id",
+    FIREBASE_APP_ID: "votre_app_id"
 };
