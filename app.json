@@ -18,7 +18,9 @@
       [
         "expo-notifications",
         {
+          "icon": "./assets/notification-icon.png",
           "color": "#ffffff",
+          "sounds": ["./assets/notification-sound.wav"],
           "mode": "default",
           "firebaseCloudMessaging": {
             "enabled": true
@@ -53,7 +55,8 @@
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
         "INTERNET"
-      ]
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "assetBundlePatterns": [
       "**/*"
