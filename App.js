@@ -276,6 +276,33 @@ export default function App({ testID, initialScreen }) {
     }
   };
 
+  useEffect(() => {
+    const initializeNotifications = async () => {
+      try {
+        // Attendre que Firebase soit initialisé
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Nettoyer le SecureStore
+        console.log('🧹 Nettoyage du SecureStore...');
+        await clearSecureStore();
+        console.log('✅ SecureStore nettoyé avec succès');
+
+        // Initialiser les notifications
+        console.log('🔔 Initialisation des notifications...');
+        const token = await registerForPushNotificationsAsync();
+        if (token) {
+          console.log('✅ Notifications initialisées avec succès');
+        } else {
+          console.log('❌ Échec de l\'initialisation des notifications');
+        }
+      } catch (error) {
+        console.error('❌ Erreur lors de l\'initialisation:', error);
+      }
+    };
+
+    initializeNotifications();
+  }, []);
+
   // If the fonts are not loaded, the translations are not initialized or the isLoading is true, we return the ScreenSaver
   if (!fontsLoaded || !isI18nInitialized || isLoading) {
     return <ScreenSaver testID="screen-saver" />;

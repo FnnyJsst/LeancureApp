@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../services/api/messageApi';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../utils/errorHandling';
+import { scheduleNotification } from '../services/notificationService';
 
 /**
  * Personalized hook to handle WebSocket connections
@@ -154,22 +155,37 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
             // We handle the notification event received from the WebSocket server
             ws.current.onmessage = (event) => {
-                // We parse the notification event received from the WebSocket server
                 try {
                     const data = JSON.parse(event.data);
 
-                    // If the notification type is refreshcontent, we refresh the messages
                     if (data.type === 'refreshcontent') {
                         refreshMessages();
                         return;
                     }
 
-                    // If the notification is valid, we call the onMessage callback
                     if (data && typeof data === 'object' && onMessage) {
+                        // D'abord, traiter le message normalement
                         onMessage(data);
+
+                        // Ensuite, essayer d'envoyer la notification
+                        try {
+                            if (data.message && data.message.type === 'messages') {
+                                const lastMessage = data.message.messages[data.message.messages.length - 1];
+                                if (lastMessage && !lastMessage.isOwnMessage) {
+                                    scheduleNotification(
+                                        'Nouveau message',
+                                        `${lastMessage.username}: ${lastMessage.message}`,
+                                        { channelId: activeChannel.current }
+                                    ).catch(error => {
+                                        console.log('Erreur lors de l\'envoi de la notification:', error);
+                                    });
+                                }
+                            }
+                        } catch (notificationError) {
+                            console.log('Erreur lors de la gestion de la notification:', notificationError);
+                        }
                     }
                 } catch (error) {
-                    // If the message is not valid, we log the error
                     handleWSError(
                         { ...error, data: event.data },
                         'message.parsing'
