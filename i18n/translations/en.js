@@ -284,6 +284,7 @@ export default {
     loginFailed: "Login failed",
     errorDuringImport: "Error during import",
     errorDuringDownload: "Error during download",
+    noChannelsFound: "No channels found",
   },
   success: {
     messageDeleted: "Message deleted successfully",

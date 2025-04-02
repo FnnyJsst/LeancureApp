@@ -93,7 +93,7 @@ export default {
       channelTitle: "Entrez le titre de la chaîne",
       channelUrl: "Entrez l'URL de la chaîne",
       import: {
-        importChannels: "Importer ses chaînes",
+        importChannels: "Importer des chaînes",
         importUrl: "Entrez une URL",
         importFullUrl: "Importer une URL complète",
         importOffline: "Importer des chaînes en mode hors ligne",
@@ -286,6 +286,7 @@ export default {
     loginFailed: "Connexion impossible",
     errorDuringImport: "Erreur lors de l'importation",
     errorDuringDownload: "Erreur lors du téléchargement",
+    noChannelsFound: "Aucune chaîne trouvée",
   },
   success: {
     messageDeleted: "Message supprimé avec succès",

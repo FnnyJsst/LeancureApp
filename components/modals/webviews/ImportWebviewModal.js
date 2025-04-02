@@ -133,6 +133,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
         console.log('[ImportWebviewModal] Parsing HTML...');
         data = await response.text();
         console.log('[ImportWebviewModal] Données HTML reçues, longueur:', data.length);
+        console.log('[ImportWebviewModal] Données HTML reçues:', data);
       } else {
         console.log('[ImportWebviewModal] Erreur: Type de contenu non supporté:', contentType);
         setError(t('errors.invalidContentType'));

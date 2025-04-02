@@ -444,7 +444,7 @@ export default function WebviewsManagementScreen({
         >
           <Ionicons
             name="close-outline"
-            size={isSmartphone ? 24 : 28}
+            size={isSmartphone ? 26 : 28}
             color={COLORS.white}
           />
         </TouchableOpacity>
@@ -456,9 +456,9 @@ export default function WebviewsManagementScreen({
             >
               <AntDesign
                 name="plus"
-                size={isSmartphone ? 20 : 24}
+                size={isSmartphone ? 22 : 24}
                 color={COLORS.white}
-                style={{ marginRight: 30 }}
+                style={{ marginRight: 40 }}
               />
             </TouchableOpacity>
             <TouchableOpacity
@@ -467,8 +467,10 @@ export default function WebviewsManagementScreen({
             >
               <AntDesign
                 name="bars"
-                size={isSmartphone ? 20 : 24}
+                size={isSmartphone ? 22 : 24}
                 color={COLORS.white}
+                style={{ marginRight: 10 }}
+
               />
             </TouchableOpacity>
           </View>
