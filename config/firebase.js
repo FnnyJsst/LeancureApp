@@ -1,11 +1,12 @@
 import { initializeApp } from 'firebase/app';
+import { ENV } from './env';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBed_Zd-irYhqd8xF10e_LfygdTuAD_Zz0",
-  projectId: "leancure-app",
-  storageBucket: "leancure-app.firebasestorage.app",
-  messagingSenderId: "627566161284",
-  appId: "1:627566161284:android:d1bdce9014a28a70efc1d1"
+  apiKey: ENV.FIREBASE_API_KEY,
+  projectId: ENV.FIREBASE_PROJECT_ID,
+  storageBucket: ENV.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: ENV.FIREBASE_MESSAGING_SENDER_ID,
+  appId: ENV.FIREBASE_APP_ID
 };
 
 // Initialize Firebase
