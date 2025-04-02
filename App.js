@@ -28,14 +28,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from './utils/errorHandling';
+import { registerForPushNotificationsAsync } from './services/notificationService';
+import { clearSecureStore } from './utils/secureStore';
+import '../config/firebase'; // Import de la configuration Firebase
 
-LogBox.ignoreLogs(['[expo-notifications]']);
-
-console.log = (...args) => {
-  if (__DEV__) {
-    console.info(...args);
-  }
-};
 
 /**
  * @function handleAppError
@@ -278,6 +274,27 @@ export default function App({ testID, initialScreen }) {
       throw error;
     }
   };
+
+  useEffect(() => {
+    const initializeNotifications = async () => {
+      try {
+        // Nettoyage du SecureStore au démarrage
+        await clearSecureStore();
+
+        // Initialisation des notifications après le nettoyage
+        const token = await registerForPushNotificationsAsync();
+        if (token) {
+          console.log('Notifications initialisées avec succès');
+        } else {
+          console.log('Échec de l\'initialisation des notifications');
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'initialisation:', error);
+      }
+    };
+
+    initializeNotifications();
+  }, []);
 
   // If the fonts are not loaded, the translations are not initialized or the isLoading is true, we return the ScreenSaver
   if (!fontsLoaded || !isI18nInitialized || isLoading) {
