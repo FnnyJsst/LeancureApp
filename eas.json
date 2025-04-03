@@ -13,6 +13,9 @@
         "env": {
           "ANDROID_NDK_HOME": "/opt/android/ndk/25c"
         }
+      },
+      "env": {
+        "GOOGLE_SERVICES_JSON": "google-services.json"
       }
     },
     "preview": {
@@ -24,6 +27,9 @@
         "env": {
           "ANDROID_NDK_HOME": "/opt/android/ndk/25c"
         }
+      },
+      "env": {
+        "GOOGLE_SERVICES_JSON": "google-services.json"
       }
     },
     "production": {
@@ -34,6 +40,9 @@
         "env": {
           "ANDROID_NDK_HOME": "/opt/android/ndk/25c"
         }
+      },
+      "env": {
+        "GOOGLE_SERVICES_JSON": "google-services.json"
       }
     }
   },

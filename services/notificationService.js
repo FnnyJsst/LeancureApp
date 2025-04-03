@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 import { ENV } from '../config/env';
 import * as SecureStore from 'expo-secure-store';
 import '../config/firebase'; // Le chemin est correct ici car le fichier est dans services/
+import CryptoJS from 'crypto-js';
 
 // Notifications handler
 Notifications.setNotificationHandler({
@@ -29,12 +30,14 @@ export const registerForPushNotificationsAsync = async () => {
 
     // Vérification des permissions
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
+    console.log('🔔 Statut actuel des permissions:', existingStatus);
 
+    let finalStatus = existingStatus;
     if (existingStatus !== 'granted') {
       console.log('🔔 Demande de permission pour les notifications...');
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
+      console.log('🔔 Nouveau statut des permissions:', status);
     }
 
     if (finalStatus !== 'granted') {
@@ -62,9 +65,21 @@ export const registerForPushNotificationsAsync = async () => {
     const token = tokenData.data;
     console.log('✅ Token push récupéré:', token);
 
-    // Stockage du token
-    await SecureStore.setItemAsync('pushToken', token);
-    console.log('✅ Token enregistré dans le SecureStore');
+    // Vérification des credentials
+    const credentials = await SecureStore.getItemAsync('userCredentials');
+    if (!credentials) {
+      console.log('❌ Aucune information d\'utilisateur trouvée dans SecureStore');
+      return token; // On retourne le token même si on ne peut pas le synchroniser
+    }
+
+    // Synchronisation avec l'API
+    console.log('🔔 Début de la synchronisation avec l\'API...');
+    const syncResult = await synchronizeTokenWithAPI(token);
+    if (syncResult) {
+      console.log('✅ Token synchronisé avec succès');
+    } else {
+      console.log('❌ Échec de la synchronisation du token');
+    }
 
     return token;
   } catch (error) {
@@ -72,7 +87,6 @@ export const registerForPushNotificationsAsync = async () => {
     return null;
   }
 };
-
 
 export const scheduleNotification = async (title, body, data = {}) => {
   await Notifications.scheduleNotificationAsync({
@@ -94,4 +108,83 @@ export const handleNotificationReceived = (notification) => {
 export const handleNotificationResponse = (response) => {
   console.log('Réponse à la notification:', response);
   // You can add here the logic to handle the notification response
+};
+
+export const synchronizeTokenWithAPI = async (token) => {
+  try {
+    console.log('🔔 Début de la synchronisation du token...');
+
+    // Récupérer les informations de l'utilisateur depuis SecureStore
+    const credentials = await SecureStore.getItemAsync('userCredentials');
+    if (!credentials) {
+      console.log('❌ Aucune information d\'utilisateur trouvée dans SecureStore');
+      return false;
+    }
+
+    const { contractNumber, accountApiKey, accessToken } = JSON.parse(credentials);
+    console.log('✅ Informations utilisateur récupérées:', {
+      contractNumber: contractNumber ? '***' : null,
+      hasAccountApiKey: !!accountApiKey,
+      hasAccessToken: !!accessToken
+    });
+
+    const timestamp = Date.now();
+    const data = `amaiia_msg_srv/notifications/synchronize/${timestamp}/`;
+    const hash = CryptoJS.HmacSHA256(data, contractNumber);
+    const hashHex = hash.toString(CryptoJS.enc.Hex);
+
+    const body = {
+      "api-version": "2",
+      "api-contract-number": contractNumber,
+      "api-signature": hashHex,
+      "api-signature-hash": "sha256",
+      "api-signature-timestamp": timestamp,
+      "client-type": "mobile",
+      "client-login": "admin",
+      "client-token": accessToken,
+      "cmd": [
+        {
+          "amaiia_msg_srv": {
+            "notifications": {
+              "synchronize": {
+                "action": "add",
+                "accountapikey": accountApiKey,
+                "token": token
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    console.log('🔔 Envoi de la requête de synchronisation...');
+    const response = await fetch(ENV.API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error('❌ Erreur lors de la synchronisation:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData
+      });
+      throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+    }
+
+    const responseData = await response.json();
+    console.log('✅ Token synchronisé avec succès:', {
+      status: response.status,
+      hasResponseData: !!responseData
+    });
+
+    return true;
+  } catch (error) {
+    console.error('❌ Erreur lors de la synchronisation du token:', error);
+    return false;
+  }
 };

@@ -28,9 +28,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from './utils/errorHandling';
-import { useNotifications } from './hooks/useNotifications';
-import NotificationTestButton from './components/NotificationTestButton';
 import './config/firebase';
+import { registerForPushNotificationsAsync, handleNotificationReceived, handleNotificationResponse } from './services/notificationService';
 
 
 /**
@@ -74,7 +73,6 @@ export default function App({ testID, initialScreen }) {
   const { navigate } = useNavigation(setCurrentScreen);
   const { t } = useTranslation();
   const { timeoutInterval, handleTimeoutSelection, loadTimeoutInterval } = useTimeout();
-  const { expoPushToken, channels: notificationChannels, notification, sendNotification } = useNotifications();
 
   const {
     channels: webviewChannels,
@@ -279,21 +277,10 @@ export default function App({ testID, initialScreen }) {
   useEffect(() => {
     const initializeNotifications = async () => {
       try {
-        // Attendre que Firebase soit initialisé
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Nettoyer le SecureStore
-        console.log('🧹 Nettoyage du SecureStore...');
-        await clearSecureStore();
-        console.log('✅ SecureStore nettoyé avec succès');
-
-        // Initialiser les notifications
         console.log('🔔 Initialisation des notifications...');
         const token = await registerForPushNotificationsAsync();
         if (token) {
-          console.log('✅ Notifications initialisées avec succès');
-        } else {
-          console.log('❌ Échec de l\'initialisation des notifications');
+          console.log('✅ Token obtenu dans App.js :', token);
         }
       } catch (error) {
         console.error('❌ Erreur lors de l\'initialisation:', error);
@@ -506,7 +493,7 @@ export default function App({ testID, initialScreen }) {
           <Ionicons />
         </View>
 
-        <NotificationTestButton />
+        {/* <NotificationTestButton /> */}
       </View>
     </ErrorBoundary>
   );

@@ -16,6 +16,10 @@ import { secureStore } from '../../../utils/encryption';
 import { Text } from '../../../components/text/CustomText';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../../utils/errorHandling';
+import { registerForPushNotificationsAsync } from '../../../services/notificationService';
+import { Notifications } from 'react-native';
+import { ENV } from '../../../config/env';
+import { synchronizeTokenWithAPI } from '../../../services/notificationService';
 
 /**
  * @component Login
@@ -131,6 +135,31 @@ export default function Login({ onNavigate, testID }) {
                 });
 
                 if (channelsResponse.status === 'ok') {
+                    // Obtenir le token de notification
+                    console.log('[Login] Début de l\'obtention du token de notification');
+                    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+                    let finalStatus = existingStatus;
+
+                    if (existingStatus !== 'granted') {
+                        const { status } = await Notifications.requestPermissionsAsync();
+                        finalStatus = status;
+                    }
+
+                    if (finalStatus === 'granted') {
+                        const tokenData = await Notifications.getExpoPushTokenAsync({
+                            projectId: ENV.EXPO_PROJECT_ID,
+                        });
+                        console.log('[Login] Token obtenu:', tokenData.data);
+
+                        // Synchroniser le token
+                        const syncResult = await synchronizeTokenWithAPI(tokenData.data);
+                        if (syncResult) {
+                            console.log('[Login] Token de notification synchronisé avec succès');
+                        } else {
+                            console.log('[Login] Échec de la synchronisation du token de notification');
+                        }
+                    }
+
                     console.log('[Login] Navigation vers l\'écran de chat');
                     onNavigate(SCREENS.CHAT);
                 } else {
