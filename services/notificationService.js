@@ -5,6 +5,8 @@ import { ENV } from '../config/env';
 import * as SecureStore from 'expo-secure-store';
 import '../config/firebase'; // Le chemin est correct ici car le fichier est dans services/
 import CryptoJS from 'crypto-js';
+import axios from 'axios';
+import { createApiRequest } from '../services/api/baseApi';
 
 // Notifications handler
 Notifications.setNotificationHandler({
@@ -97,78 +99,74 @@ export const handleNotificationResponse = (response) => {
 export const synchronizeTokenWithAPI = async (token) => {
   try {
     console.log('🔔 Début de la synchronisation du token...');
+    console.log('🔔 Token à synchroniser:', token);
 
-    // Récupérer les informations de l'utilisateur depuis SecureStore
-    const credentials = await SecureStore.getItemAsync('userCredentials');
-    if (!credentials) {
-      console.log('❌ Aucune information d\'utilisateur trouvée dans SecureStore');
+    // Récupération des credentials
+    const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+    console.log('🔔 Credentials trouvés:', !!credentialsStr);
+
+    if (!credentialsStr) {
+      console.log('❌ Pas de credentials trouvés dans le SecureStore');
       return false;
     }
 
-    const { contractNumber, accountApiKey, accessToken } = JSON.parse(credentials);
+    const credentials = JSON.parse(credentialsStr);
     console.log('✅ Informations utilisateur récupérées:', {
-      contractNumber: contractNumber ? '***' : null,
-      hasAccountApiKey: !!accountApiKey,
-      hasAccessToken: !!accessToken
+      contractNumber: credentials.contractNumber,
+      hasAccessToken: !!credentials.accessToken,
+      hasAccountApiKey: !!credentials.accountApiKey
     });
 
-    const timestamp = Date.now();
-    const data = `amaiia_msg_srv/notifications/synchronize/${timestamp}/`;
-    const hash = CryptoJS.HmacSHA256(data, contractNumber);
-    const hashHex = hash.toString(CryptoJS.enc.Hex);
-
-    const body = {
-      "api-version": "2",
-      "api-contract-number": contractNumber,
-      "api-signature": hashHex,
-      "api-signature-hash": "sha256",
-      "api-signature-timestamp": timestamp,
-      "client-type": "mobile",
-      "client-login": "admin",
-      "client-token": accessToken,
-      "cmd": [
-        {
-          "amaiia_msg_srv": {
-            "notifications": {
-              "synchronize": {
-                "action": "add",
-                "accountapikey": accountApiKey,
-                "token": token
-              }
-            }
+    // Construction de la requête
+    const body = createApiRequest({
+      'amaiia_msg_srv': {
+        'notifications': {
+          'synchronize': {
+            'action': 'add',
+            'accountapikey': credentials.accountApiKey,
+            'token': token
           }
         }
-      ]
-    };
+      }
+    }, credentials.contractNumber, credentials.accessToken);
 
+    console.log('🔔 URL de l\'API:', await ENV.API_URL());
+    console.log('🔔 Corps de la requête:', JSON.stringify(body, null, 2));
+
+    // Envoi de la requête
     console.log('🔔 Envoi de la requête de synchronisation...');
-    const response = await fetch(ENV.API_URL, {
-      method: 'POST',
+    const response = await axios.post(await ENV.API_URL(), body, {
+      timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
+      }
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      console.error('❌ Erreur lors de la synchronisation:', {
-        status: response.status,
-        statusText: response.statusText,
-        errorData
-      });
-      throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-    }
-
-    const responseData = await response.json();
-    console.log('✅ Token synchronisé avec succès:', {
+    console.log('🔔 Réponse de l\'API:', {
       status: response.status,
-      hasResponseData: !!responseData
+      statusText: response.statusText,
+      data: response.data
     });
 
-    return true;
+    if (response.status === 200) {
+      console.log('✅ Token synchronisé avec succès');
+      return true;
+    } else {
+      console.log('❌ Erreur de synchronisation:', response.statusText);
+      return false;
+    }
   } catch (error) {
-    console.error('❌ Erreur lors de la synchronisation du token:', error);
+    console.error('❌ Erreur détaillée lors de la synchronisation du token:', {
+      message: error.message,
+      code: error.code,
+      response: error.response?.data,
+      status: error.response?.status,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers
+      }
+    });
     return false;
   }
 };

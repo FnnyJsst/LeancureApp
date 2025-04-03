@@ -16,8 +16,7 @@ import { secureStore } from '../../../utils/encryption';
 import { Text } from '../../../components/text/CustomText';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../../utils/errorHandling';
-import { registerForPushNotificationsAsync } from '../../../services/notificationService';
-import { Notifications } from 'react-native';
+import * as Notifications from 'expo-notifications';
 import { ENV } from '../../../config/env';
 import { synchronizeTokenWithAPI } from '../../../services/notificationService';
 
@@ -260,20 +259,33 @@ export default function Login({ onNavigate, testID }) {
         try {
             // We get the saved login info
             const { contractNumber, login, password } = savedLoginInfo;
+
+            // We clean the SecureStore first
+            try {
+                console.log('[Login] Nettoyage du SecureStore');
+                await SecureStore.deleteItemAsync('userCredentials');
+            } catch (error) {
+                console.log('[Login] Erreur lors du nettoyage du SecureStore:', error);
+                throw error;
+            }
+
             // We login with the saved credentials
             const loginResponse = await loginApi(contractNumber, login, password, '');
 
             // If the login is successful, we save the credentials and navigate to the chat screen
-            if (loginResponse && loginResponse.status === 200) {
+            if (loginResponse && loginResponse.success) {
                 try {
-                    await secureStore.saveCredentials({
+                    const credentials = {
                         contractNumber,
                         login,
                         password: hashPassword(password),
                         accountApiKey: loginResponse.accountApiKey,
                         refreshToken: loginResponse.refreshToken,
                         accessToken: loginResponse.accessToken
-                    });
+                    };
+
+                    await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+                    console.log('[Login] Credentials sauvegardés');
 
                     const channelsResponse = await fetchUserChannels(
                         contractNumber,
@@ -285,6 +297,32 @@ export default function Login({ onNavigate, testID }) {
 
                     // If the channels are loaded, we navigate to the chat screen
                     if (channelsResponse.status === 'ok') {
+                        // Obtenir le token de notification
+                        console.log('[Login] Début de l\'obtention du token de notification');
+                        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+                        let finalStatus = existingStatus;
+
+                        if (existingStatus !== 'granted') {
+                            const { status } = await Notifications.requestPermissionsAsync();
+                            finalStatus = status;
+                        }
+
+                        if (finalStatus === 'granted') {
+                            const tokenData = await Notifications.getExpoPushTokenAsync({
+                                projectId: ENV.EXPO_PROJECT_ID,
+                            });
+                            console.log('[Login] Token obtenu:', tokenData.data);
+
+                            // Synchroniser le token
+                            const syncResult = await synchronizeTokenWithAPI(tokenData.data);
+                            if (syncResult) {
+                                console.log('[Login] Token de notification synchronisé avec succès');
+                            } else {
+                                console.log('[Login] Échec de la synchronisation du token de notification');
+                            }
+                        }
+
+                        console.log('[Login] Navigation vers l\'écran de chat');
                         onNavigate(SCREENS.CHAT);
                     } else {
                         setError(t('errors.errorLoadingChannels'));
