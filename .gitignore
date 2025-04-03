@@ -18,6 +18,7 @@ leancure-app-firebase-adminsdk.json.json
 # Node modules
 node_modules/
 npm-debug.*
+npm-debug.*
 
 # Expo
 .expo/
@@ -44,6 +45,28 @@ web-build/
 .DS_Store
 *.pem
 
+# Android/IntelliJ
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+*.keystore
+!debug.keystore
+
+# iOS
+pods/
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+!default.mode1v3
+!default.mode2v3
+!default.pbxuser
+!default.perspectivev3
 # Android/IntelliJ
 build/
 .idea

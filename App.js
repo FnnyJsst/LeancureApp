@@ -73,6 +73,7 @@ export default function App({ testID, initialScreen }) {
   const { navigate } = useNavigation(setCurrentScreen);
   const { t } = useTranslation();
   const { timeoutInterval, handleTimeoutSelection, loadTimeoutInterval } = useTimeout();
+  const { expoPushToken, channels: notificationChannels, notification, sendNotification } = useNotifications();
 
   const {
     channels: webviewChannels,
@@ -284,6 +285,7 @@ export default function App({ testID, initialScreen }) {
         }
       } catch (error) {
         console.error('❌ Erreur lors de l\'initialisation:', error);
+        console.error('❌ Erreur lors de l\'initialisation:', error);
       }
     };
 
@@ -492,6 +494,8 @@ export default function App({ testID, initialScreen }) {
         <View accessible={true} testID="settings-button">
           <Ionicons />
         </View>
+
+        <NotificationTestButton />
 
         {/* <NotificationTestButton /> */}
       </View>
