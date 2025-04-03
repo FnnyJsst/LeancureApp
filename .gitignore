@@ -4,6 +4,7 @@
 leancure-app-firebase-adminsdk-fbsvc-3581b075ee.json
 google-services.json
 leancure-app-firebase-adminsdk.json.json
+*.json.json
 
 # Env files
 .env
