@@ -63,7 +63,7 @@ export const registerForPushNotificationsAsync = async () => {
     });
 
     const token = tokenData.data;
-    console.log('✅ Token push récupéré:', token);
+    console.log('✅ Token push récupéré :', token);
 
     // Vérification des credentials
     const credentials = await SecureStore.getItemAsync('userCredentials');

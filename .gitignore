@@ -1,5 +1,10 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
+# Secrets
+.secrets/
+.secrets/*
+config/.env
+
 # Firebase
 leancure-app-firebase-adminsdk-fbsvc-3581b075ee.json
 google-services.json
