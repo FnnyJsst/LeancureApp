@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Sidebar from '../../components/navigation/Sidebar';
 import ChatWindow from '../../components/chat/ChatWindow';
@@ -7,6 +7,7 @@ import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../../services/api/messageApi';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../utils/errorHandling';
+import { useWebSocket } from '../../hooks/useWebSocket';
 
 /**
  * @component ChatScreen
@@ -29,6 +30,80 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const [unreadChannels, setUnreadChannels] = useState({});
   const [editingMessage, setEditingMessage] = useState(null);
 
+  // Gestion des messages WebSocket
+  const handleWebSocketMessage = useCallback((data) => {
+    console.log('📨 Message WebSocket reçu dans ChatScreen:', data);
+
+    if (data.message && data.message.type === 'messages') {
+      const newMessages = data.message.messages;
+      console.log('📨 Nouveaux messages à ajouter:', newMessages);
+
+      setChannelMessages(prevMessages => {
+        // Création d'un Set des IDs des messages existants pour éviter les doublons
+        const existingMessageIds = new Set(prevMessages.map(msg => msg.id));
+
+        // Filtrage des nouveaux messages pour ne garder que ceux qui n'existent pas déjà
+        const uniqueNewMessages = newMessages.filter(msg => !existingMessageIds.has(msg.id));
+
+        if (uniqueNewMessages.length === 0) {
+          console.log('ℹ️ Aucun nouveau message à ajouter');
+          return prevMessages;
+        }
+
+        console.log('➕ Ajout de', uniqueNewMessages.length, 'nouveaux messages');
+        return [...prevMessages, ...uniqueNewMessages];
+      });
+    }
+  }, []);
+
+  // Initialisation du WebSocket
+  const { sendMessage, closeConnection, isConnected } = useWebSocket({
+    onMessage: handleWebSocketMessage,
+    onError: (error) => {
+      console.error('❌ Erreur WebSocket dans ChatScreen:', error);
+    },
+    channels: selectedChannel ? [`channel_${selectedChannel.id}`] : []
+  });
+
+  // Rafraîchissement des messages
+  const refreshMessages = useCallback(async () => {
+    try {
+      console.log('🔄 Rafraîchissement des messages pour le canal:', selectedChannel?.id);
+
+      if (!selectedChannel) {
+        console.log('⚠️ Aucun canal sélectionné');
+        return;
+      }
+
+      const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+      if (!credentialsStr) {
+        console.log('❌ Pas de credentials trouvés');
+        return;
+      }
+
+      const credentials = JSON.parse(credentialsStr);
+      const messages = await fetchChannelMessages(selectedChannel.id, credentials);
+
+      console.log('📥 Messages récupérés:', messages.length);
+      setChannelMessages(messages);
+    } catch (error) {
+      console.error('❌ Erreur lors du rafraîchissement des messages:', error);
+    }
+  }, [selectedChannel]);
+
+  // Effet pour charger les messages initiaux
+  useEffect(() => {
+    refreshMessages();
+  }, [selectedChannel, refreshMessages]);
+
+  // Effet pour nettoyer la connexion WebSocket
+  useEffect(() => {
+    return () => {
+      console.log('🧹 Nettoyage de la connexion WebSocket');
+      closeConnection();
+    };
+  }, [closeConnection]);
+
   /**
    * @description Handle chat-related errors
    * @param {Error} error - The error
@@ -42,63 +117,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       ...options
     });
   };
-
-  /**
-   * @function useEffect
-   * @description Loads the initial messages of the channel
-   */
-  useEffect(() => {
-    // Check if the component is mounted
-    let isMounted = true;
-
-    // Fetch messages from the channel
-    const fetchMessages = async () => {
-      try {
-        // If the component is not mounted or the channel is not selected, we don't fetch messages
-        if (!isMounted || !selectedChannel) return;
-
-        // Get the user credentials
-        const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-        if (!credentialsStr) {
-          handleChatError(
-            t('errors.noCredentialsFound'),
-            'fetchMessages.credentials',
-            { silent: true }
-          );
-          return;
-        }
-
-        // Parse the credentials
-        const credentials = JSON.parse(credentialsStr);
-
-        // Fetch the messages
-        const messages = await fetchChannelMessages(selectedChannel.id, credentials);
-
-        // If there are no messages, we set the channel messages to an empty array
-        if (!messages || messages.length === 0) {
-          setChannelMessages([]);
-          return;
-        }
-
-        // If the component is mounted, we set the channel messages
-        if (isMounted) {
-          setChannelMessages(messages);
-        }
-      } catch (error) {
-        // If there is an error, we handle it and set empty messages
-        handleChatError(error, 'fetchMessages.process');
-        setChannelMessages([]);
-      }
-    };
-
-    // Fetch the messages
-    fetchMessages();
-
-    // Return a cleanup function
-    return () => {
-      isMounted = false;
-    };
-  }, [selectedChannel]);
 
   // Toggle the sidebar menu
   const toggleMenu = () => {

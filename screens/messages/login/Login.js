@@ -236,8 +236,8 @@ export default function Login({ onNavigate, testID }) {
                     setError(t('errors.invalidCredentials'));
                 }
             }
-        } catch (loginError) {
-            console.log('[Login] Erreur générale:', loginError);
+        } catch (error) {
+            console.log('[Login] Erreur générale:', error);
             setError(t('errors.loginFailed'));
         } finally {
             setIsLoading(false);

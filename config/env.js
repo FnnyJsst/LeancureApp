@@ -80,12 +80,12 @@ export const ENV = {
             }
 
             // URL par défaut pour le développement
-            const defaultWsUrl = 'ws://192.168.77.101:8000';
+            const defaultWsUrl = 'ws://192.168.1.67:8000';
             // console.log('✅ Utilisation de l\'URL WebSocket par défaut:', defaultWsUrl);
             return defaultWsUrl;
         } catch (error) {
             console.error('🔴 Erreur lors de la récupération de l\'URL WebSocket:', error);
-            return 'ws://192.168.77.101:8000';
+            return 'ws://192.168.1.67:8000';
         }
     },
 

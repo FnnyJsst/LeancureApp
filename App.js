@@ -73,7 +73,6 @@ export default function App({ testID, initialScreen }) {
   const { navigate } = useNavigation(setCurrentScreen);
   const { t } = useTranslation();
   const { timeoutInterval, handleTimeoutSelection, loadTimeoutInterval } = useTimeout();
-  const { expoPushToken, channels: notificationChannels, notification, sendNotification } = useNotifications();
 
   const {
     channels: webviewChannels,
@@ -275,20 +274,20 @@ export default function App({ testID, initialScreen }) {
     }
   };
 
-  useEffect(() => {
-    const initializeNotifications = async () => {
-      try {
-        console.log('🔔 Initialisation des notifications...');
-        const token = await registerForPushNotificationsAsync();
-        if (token) {
-          console.log('✅ Token obtenu dans App.js :', token);
-        }
-      } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation:', error);
-        console.error('❌ Erreur lors de l\'initialisation:', error);
+  const initializeNotifications = async () => {
+    try {
+      console.log('🔔 Initialisation des notifications...');
+      const token = await registerForPushNotificationsAsync();
+      if (token) {
+        console.log('✅ Token obtenu dans App.js :', token);
+        // On ne synchronise pas ici, ce sera fait après la connexion
       }
-    };
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des notifications:', error);
+    }
+  };
 
+  useEffect(() => {
     initializeNotifications();
   }, []);
 
@@ -494,10 +493,6 @@ export default function App({ testID, initialScreen }) {
         <View accessible={true} testID="settings-button">
           <Ionicons />
         </View>
-
-        <NotificationTestButton />
-
-        {/* <NotificationTestButton /> */}
       </View>
     </ErrorBoundary>
   );

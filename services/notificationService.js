@@ -22,7 +22,6 @@ Notifications.setNotificationHandler({
 export const registerForPushNotificationsAsync = async () => {
   try {
     console.log('🔔 Début de l\'enregistrement des notifications...');
-    console.log('🔔 Début de l\'enregistrement des notifications...');
 
     if (!Device.isDevice) {
       console.log('⚠️ Les notifications ne sont pas supportées sur les émulateurs');
@@ -45,21 +44,7 @@ export const registerForPushNotificationsAsync = async () => {
       console.log('❌ Permission refusée pour les notifications push');
       return null;
     }
-    if (finalStatus !== 'granted') {
-      console.log('❌ Permission refusée pour les notifications push');
-      return null;
-    }
 
-    // Configuration du canal Android
-    if (Platform.OS === 'android') {
-      console.log('🔔 Configuration du canal Android...');
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
-    }
     // Configuration du canal Android
     if (Platform.OS === 'android') {
       console.log('🔔 Configuration du canal Android...');
@@ -80,25 +65,8 @@ export const registerForPushNotificationsAsync = async () => {
     const token = tokenData.data;
     console.log('✅ Token push récupéré :', token);
 
-    // Vérification des credentials
-    const credentials = await SecureStore.getItemAsync('userCredentials');
-    if (!credentials) {
-      console.log('❌ Aucune information d\'utilisateur trouvée dans SecureStore');
-      return token; // On retourne le token même si on ne peut pas le synchroniser
-    }
-
-    // Synchronisation avec l'API
-    console.log('🔔 Début de la synchronisation avec l\'API...');
-    const syncResult = await synchronizeTokenWithAPI(token);
-    if (syncResult) {
-      console.log('✅ Token synchronisé avec succès');
-    } else {
-      console.log('❌ Échec de la synchronisation du token');
-    }
-
     return token;
   } catch (error) {
-    console.error('❌ Erreur lors de l\'enregistrement des notifications:', error);
     console.error('❌ Erreur lors de l\'enregistrement des notifications:', error);
     return null;
   }

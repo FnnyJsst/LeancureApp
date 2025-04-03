@@ -58,20 +58,26 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
      * @description Send the subscription to the WebSocket server
      */
     const sendSubscription = useCallback(async () => {
-        //If the WebSocket connection is not open or there are no channels, return null
-        if (!ws.current || ws.current.readyState !== WebSocket.OPEN || !channels.length) {
-            return;
-        }
-
-        // Clean the channels
-        const cleanChannels = channels.map(channel =>
-            typeof channel === 'string' ?
-                channel.replace('channel_', '') :
-                channel.toString()
-        );
-
-        // Send the subscription to the WebSocket server to receive messages from the channels
         try {
+            // Vérification plus robuste de l'état de la connexion
+            if (!ws.current || !channels.length) {
+                console.log('❌ Impossible d\'envoyer la souscription: WebSocket non initialisé ou pas de canaux');
+                return;
+            }
+
+            if (ws.current.readyState !== WebSocket.OPEN) {
+                console.log('❌ Impossible d\'envoyer la souscription: WebSocket non connecté');
+                return;
+            }
+
+            // Clean the channels
+            const cleanChannels = channels.map(channel =>
+                typeof channel === 'string' ?
+                    channel.replace('channel_', '') :
+                    channel.toString()
+            );
+
+            // Send the subscription to the WebSocket server to receive messages from the channels
             const subscriptionData = {
                 "sender": "client",
                 "subscriptions": [
@@ -87,9 +93,8 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 ]
             };
 
-            // We send the subscription to the WebSocket server
+            console.log('📤 Envoi de la souscription pour les canaux:', cleanChannels);
             ws.current.send(JSON.stringify(subscriptionData));
-            // If there is an error, we log it
         } catch (error) {
             handleWSError(error, 'sendSubscription');
         }
@@ -97,9 +102,16 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
     // Connect to the WebSocket server
     const connect = useCallback(async () => {
-        //If the connection is already in progress or the connection is already open, return null
-        if (isConnecting.current || ws.current?.readyState === WebSocket.OPEN) {
+        // Vérification plus robuste de l'état de la connexion
+        if (isConnecting.current) {
+            console.log('⚠️ Connexion déjà en cours...');
             return;
+        }
+
+        // Nettoyage de la connexion existante
+        if (ws.current) {
+            console.log('🧹 Nettoyage de la connexion existante');
+            cleanup();
         }
 
         // Try to connect to the WebSocket server
@@ -107,7 +119,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             isConnecting.current = true;
             // We get the WebSocket URL from the environment variables
             const wsUrl = await ENV.WS_URL();
-            console.log('🌐 URL WebSocket:', wsUrl);
+            console.log('🌐 Tentative de connexion à:', wsUrl);
 
             // We create a new WebSocket instance
             ws.current = new WebSocket(wsUrl);
@@ -117,10 +129,8 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 console.log('🟢 WebSocket connecté avec succès. État:', ws.current.readyState);
                 isConnecting.current = false;
                 setIsConnected(true);
-                // We send the subscription to the WebSocket server to receive messages from the channels
-                setTimeout(() => {
-                    sendSubscription();
-                }, 1000);
+                // Envoi immédiat de la souscription
+                sendSubscription();
             };
 
             // We handle the connection close event
@@ -136,66 +146,91 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 // We clean the connection
                 cleanup();
 
-                // If the WebSocket is not closed normally, we log the error
-                if (event.code !== 1000) { // 1000 = normal closure
-                    handleWSError(
-                        `WebSocket fermé avec le code ${event.code}${event.reason ? ': ' + event.reason : ''}`,
-                        'connection.close',
-                        { silent: false }
-                    );
+                // Si la déconnexion n'est pas normale, on essaie de se reconnecter
+                if (event.code !== 1000) {
+                    console.log('🔄 Tentative de reconnexion dans 3 secondes...');
+                    setTimeout(() => {
+                        connect();
+                    }, 3000);
                 }
             };
 
             // We handle the connection error event
             ws.current.onerror = (error) => {
+                console.error('❌ Erreur WebSocket:', error);
                 handleWSError(error, 'connection.error');
-                // We clean the connection
-                cleanup();
+                // On essaie de se reconnecter
+                setTimeout(() => {
+                    connect();
+                }, 3000);
             };
 
             // We handle the notification event received from the WebSocket server
             ws.current.onmessage = (event) => {
                 try {
+                    console.log('📨 Message brut reçu:', event.data);
                     const data = JSON.parse(event.data);
+                    console.log('📨 Message parsé:', data);
 
                     if (data.type === 'refreshcontent') {
+                        console.log('🔄 Rafraîchissement du contenu demandé');
                         refreshMessages();
                         return;
                     }
 
-                    if (data && typeof data === 'object' && onMessage) {
-                        // D'abord, traiter le message normalement
-                        onMessage(data);
-
-                        // Ensuite, essayer d'envoyer la notification
-                        try {
-                            if (data.message && data.message.type === 'messages') {
-                                const lastMessage = data.message.messages[data.message.messages.length - 1];
-                                if (lastMessage && !lastMessage.isOwnMessage) {
-                                    scheduleNotification(
-                                        'Nouveau message',
-                                        `${lastMessage.username}: ${lastMessage.message}`,
-                                        { channelId: activeChannel.current }
-                                    ).catch(error => {
-                                        console.log('Erreur lors de l\'envoi de la notification:', error);
-                                    });
-                                }
+                    if (data && typeof data === 'object') {
+                        // Vérification du format du message
+                        if (data.message && data.message.type === 'messages') {
+                            console.log('📨 Message de type "messages" reçu:', data.message);
+                            if (onMessage) {
+                                onMessage(data);
                             }
-                        } catch (notificationError) {
-                            console.log('Erreur lors de la gestion de la notification:', notificationError);
+                        } else if (data.type === 'notification') {
+                            console.log('📨 Notification reçue:', data);
+                            if (onMessage) {
+                                onMessage(data);
+                            }
+                        } else {
+                            console.log('⚠️ Format de message non reconnu:', data);
                         }
+                    } else {
+                        console.log('⚠️ Message reçu non valide:', data);
                     }
                 } catch (error) {
+                    console.error('❌ Erreur lors du traitement du message:', error);
                     handleWSError(
                         { ...error, data: event.data },
                         'message.parsing'
                     );
                 }
             };
+
+            // Ajout d'un ping pour maintenir la connexion active
+            const pingInterval = setInterval(() => {
+                if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+                    try {
+                        console.log('🏓 Envoi d\'un ping');
+                        ws.current.send(JSON.stringify({ type: 'ping' }));
+                    } catch (error) {
+                        console.log('❌ Erreur lors de l\'envoi du ping:', error);
+                    }
+                }
+            }, 30000); // Ping toutes les 30 secondes
+
+            // Nettoyage de l'intervalle lors de la déconnexion
+            ws.current.onclose = (event) => {
+                clearInterval(pingInterval);
+                // ... reste du code existant ...
+            };
+
         } catch (error) {
             // If the connection is not created, we log the error
             handleWSError(error, 'connection.create');
             isConnecting.current = false;
+            // On essaie de se reconnecter
+            setTimeout(() => {
+                connect();
+            }, 3000);
         }
     }, [onMessage, sendSubscription, cleanup]);
 
@@ -216,17 +251,11 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
         // If the current channel is different from the active channel, we change the channel
         if (cleanCurrentChannel !== cleanActiveChannel) {
-
-            // If the WebSocket connection is open, we close it
-            if (ws.current) {
-                ws.current.close();
-                ws.current = null;
-            }
-
+            console.log('🔄 Changement de canal:', cleanCurrentChannel);
             // We update the active channel
             activeChannel.current = currentChannel;
 
-            // We establish a new connection
+            // On se reconnecte pour s'assurer d'avoir une connexion propre
             connect();
         }
     }, [channels, connect, cleanup]);
