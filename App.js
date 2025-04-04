@@ -30,6 +30,8 @@ import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from './utils/errorHandling';
 import './config/firebase';
 import { registerForPushNotificationsAsync, handleNotificationReceived, handleNotificationResponse } from './services/notificationService';
+import * as Notifications from 'expo-notifications';
+// import NotificationTest from './components/NotificationTest';
 
 
 /**
@@ -280,7 +282,6 @@ export default function App({ testID, initialScreen }) {
       const token = await registerForPushNotificationsAsync();
       if (token) {
         console.log('✅ Token obtenu dans App.js :', token);
-        // On ne synchronise pas ici, ce sera fait après la connexion
       }
     } catch (error) {
       console.error('❌ Erreur lors de l\'initialisation des notifications:', error);
@@ -289,6 +290,47 @@ export default function App({ testID, initialScreen }) {
 
   useEffect(() => {
     initializeNotifications();
+
+    // Configuration du gestionnaire de notifications
+    console.log("Configuration du gestionnaire de notifications...");
+
+    // Force la vérification des permissions au démarrage
+    (async () => {
+      const { status } = await Notifications.getPermissionsAsync();
+      console.log("Statut des permissions:", status);
+
+      // Ajout d'un listener de débogage
+      const subscription = Notifications.addPushTokenListener(token => {
+        console.log("💬 Token push mis à jour:", token);
+      });
+
+      return () => subscription.remove();
+    })();
+
+    // Configuration des écouteurs de notification
+    const notificationReceivedSubscription = Notifications.addNotificationReceivedListener(notification => {
+      console.log('📬 Notification reçue dans App.js:', {
+        title: notification.request.content.title,
+        body: notification.request.content.body,
+        data: notification.request.content.data
+      });
+    });
+
+    const notificationResponseSubscription = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('👆 Notification cliquée dans App.js:', {
+        actionIdentifier: response.actionIdentifier,
+        notification: response.notification
+      });
+    });
+
+    return () => {
+      if (notificationReceivedSubscription) {
+        notificationReceivedSubscription.remove();
+      }
+      if (notificationResponseSubscription) {
+        notificationResponseSubscription.remove();
+      }
+    };
   }, []);
 
   // If the fonts are not loaded, the translations are not initialized or the isLoading is true, we return the ScreenSaver
@@ -476,6 +518,11 @@ export default function App({ testID, initialScreen }) {
     <ErrorBoundary>
       <View style={styles.container} testID={testID || "app-root"}>
         {renderWebviewScreen()}
+
+        {/* <View style={styles.floatingTest}>
+        <NotificationTest />
+      </View> */}
+
 
         <PasswordDefineModal
           visible={isPasswordDefineModalVisible}

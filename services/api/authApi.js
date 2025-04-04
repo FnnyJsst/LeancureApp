@@ -38,6 +38,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
 
     // We send the request
     console.log('[Auth] Envoi de la requête de connexion');
+
     const loginResponse = await axios({
       method: 'POST',
       url: apiUrl,
@@ -76,6 +77,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
 
     // We send the second request to get the rights of the user
     console.log('[Auth] Récupération des droits utilisateur');
+
     const channelsResponse = await axios({
       method: 'POST',
       url: await ENV.API_URL(),
@@ -275,6 +277,7 @@ export const checkRefreshToken = async (contractNumber, accountApiKey, refreshTo
       }]
     };
 
+    console.log('[Auth] Request data:', requestData);
     const apiUrl = await ENV.API_URL();
     console.log('[Auth] Envoi de la requête de refresh token');
     const response = await axios({

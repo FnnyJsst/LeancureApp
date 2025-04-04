@@ -1,4 +1,12 @@
 import * as SecureStore from 'expo-secure-store';
+import {
+  FIREBASE_API_KEY,
+  FIREBASE_PROJECT_ID,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_APP_ID,
+  EXPO_PROJECT_ID
+} from '@env';
 
 const DEFAULT_API_URL = process.env.API_URL;
 
@@ -89,10 +97,11 @@ export const ENV = {
         }
     },
 
-    FIREBASE_API_KEY: "votre_api_key",
-    FIREBASE_AUTH_DOMAIN: "votre_auth_domain",
-    FIREBASE_PROJECT_ID: "votre_project_id",
-    FIREBASE_STORAGE_BUCKET: "votre_storage_bucket",
-    FIREBASE_MESSAGING_SENDER_ID: "votre_messaging_sender_id",
-    FIREBASE_APP_ID: "votre_app_id"
+    FIREBASE_API_KEY,
+    FIREBASE_AUTH_DOMAIN: `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
+    FIREBASE_PROJECT_ID,
+    FIREBASE_STORAGE_BUCKET,
+    FIREBASE_MESSAGING_SENDER_ID,
+    FIREBASE_APP_ID,
+    EXPO_PROJECT_ID
 };

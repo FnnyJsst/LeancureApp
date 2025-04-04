@@ -41,17 +41,24 @@ export function useNotifications() {
     };
   }, []);
 
-  const sendNotification = async () => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Nouveau message 📬",
-        body: 'Vous avez reçu un nouveau message',
-        data: { data: 'goes here' },
-      },
-      trigger: { seconds: 2 },
-    });
-  };
-
+  // const sendNotification = async () => {
+  //   await Notifications.scheduleNotificationAsync({
+  //     content: {
+  //       title: "Nouveau message 📬",
+  //       body: 'Vous avez reçu un nouveau message',
+  //       data: { data: 'goes here' },
+  //     },
+  //     trigger: { seconds: 2 },
+  //   });
+  // };
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "TEST LOCAL",
+      body: "Notification locale - " + new Date().toTimeString(),
+      data: { test: true },
+    },
+    trigger: null,
+  });
   return {
     expoPushToken,
     notification,

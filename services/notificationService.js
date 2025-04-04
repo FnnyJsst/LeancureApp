@@ -75,15 +75,21 @@ export const registerForPushNotificationsAsync = async () => {
 };
 
 export const scheduleNotification = async (title, body, data = {}) => {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title,
-      body,
-      data,
-      sound: true,
-    },
-    trigger: null, // Immediate notification
-  });
+  try {
+    console.log('Envoi d\'une notification locale:', { title, body, data });
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title,
+        body,
+        data: { ...data, timestamp: new Date().toISOString() },
+        sound: true,
+      },
+      trigger: null, // Notification immédiate
+    });
+    console.log('Notification locale envoyée avec succès');
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de la notification locale:', error);
+  }
 };
 
 export const handleNotificationReceived = (notification) => {

@@ -1,30 +1,44 @@
-const fetch = require('node-fetch');
+const axios = require('axios');
 
 async function sendTestNotification(token) {
   const message = {
     to: token,
     sound: 'default',
-    title: 'Test de notification',
-    body: 'Ceci est un test de notification',
-    data: { testData: 'test' },
+    title: '⚠️ TEST URGENT ⚠️',
+    body: 'Ceci est un test IMPORTANT - ' + new Date().toTimeString(),
+    priority: 'high',
+    badge: 1,
+    _displayInForeground: true,
+    android: {
+      channelId: 'default',
+      priority: 'max',
+      sound: true,
+      vibrate: [0, 250, 250, 250],
+      color: '#FF0000',
+      icon: 'ic_launcher',
+      sticky: true
+    },
+    data: {
+      urgent: true,
+      timestamp: Date.now()
+    },
   };
 
+  console.log('Envoi de la notification à:', token);
   try {
-    const response = await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
+    const response = await axios.post('https://exp.host/--/api/v2/push/send', message, {
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(message),
+        'Accept': 'application/json',
+      }
     });
-
-    const result = await response.json();
-    console.log('Résultat de l\'envoi de notification:', result);
+    console.log('Réponse:', response.data);
+    return response.data;
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de la notification:', error);
+    console.error('Erreur:', error.response?.data || error.message);
+    return null;
   }
 }
 
-// Remplacer par votre token Expo
-const expoPushToken = 'ExponentPushToken[UjmgiqJ63T-hAu33bUl_J8]';
-sendTestNotification(expoPushToken);
+const token = 'ExponentPushToken[p2kWoeC5a_byJGml37Q7gh]';
+sendTestNotification(token);
