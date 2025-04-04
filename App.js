@@ -16,10 +16,8 @@ import { SCREENS } from './constants/screens';
 import { COLORS } from './constants/style';
 import { useNavigation } from './hooks/useNavigation';
 import * as SecureStore from 'expo-secure-store';
-import Sidebar from './components/navigation/Sidebar';
 import { useWebviews } from './hooks/useWebviews';
 import { useWebviewsPassword } from './hooks/useWebViewsPassword';
-import { LogBox } from 'react-native';
 import { useFonts } from 'expo-font';
 import CommonSettings from './screens/common/CommonSettings';
 import { useTimeout } from './hooks/useTimeout';
@@ -31,7 +29,6 @@ import { handleError, ErrorType } from './utils/errorHandling';
 import './config/firebase';
 import { registerForPushNotificationsAsync } from './services/notificationService';
 import * as Notifications from 'expo-notifications';
-// import NotificationTest from './components/NotificationTest';
 
 
 /**
@@ -307,21 +304,20 @@ export default function App({ testID, initialScreen }) {
       return () => subscription.remove();
     })();
 
-    // Configuration des écouteurs de notification
-    const notificationReceivedSubscription = Notifications.addNotificationReceivedListener(notification => {
-      console.log('📬 Notification reçue dans App.js:', {
-        title: notification.request.content.title,
-        body: notification.request.content.body,
-        data: notification.request.content.data
-      });
-    });
+    // const notificationReceivedSubscription = Notifications.addNotificationReceivedListener(notification => {
+    //   console.log('📬 Notification reçue dans App.js:', {
+    //     title: notification.request.content.title,
+    //     body: notification.request.content.body,
+    //     data: notification.request.content.data
+    //   });
+    // });
 
-    const notificationResponseSubscription = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log('👆 Notification cliquée dans App.js:', {
-        actionIdentifier: response.actionIdentifier,
-        notification: response.notification
-      });
-    });
+    // const notificationResponseSubscription = Notifications.addNotificationResponseReceivedListener(response => {
+    //   console.log('👆 Notification cliquée dans App.js:', {
+    //     actionIdentifier: response.actionIdentifier,
+    //     notification: response.notification
+    //   });
+    // });
 
     return () => {
       if (notificationReceivedSubscription) {
