@@ -29,7 +29,7 @@ import { initI18n } from './i18n';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from './utils/errorHandling';
 import './config/firebase';
-import { registerForPushNotificationsAsync, handleNotificationReceived, handleNotificationResponse } from './services/notificationService';
+import { registerForPushNotificationsAsync } from './services/notificationService';
 import * as Notifications from 'expo-notifications';
 // import NotificationTest from './components/NotificationTest';
 
