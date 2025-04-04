@@ -288,18 +288,10 @@ export default function App({ testID, initialScreen }) {
   useEffect(() => {
     initializeNotifications();
 
-    // Configuration du gestionnaire de notifications
-    console.log("Configuration du gestionnaire de notifications...");
-
-    // Force la vérification des permissions au démarrage
+    // Force the check of the permissions at the start
     (async () => {
       const { status } = await Notifications.getPermissionsAsync();
-      console.log("Statut des permissions:", status);
-
-      // Ajout d'un listener de débogage
-      const subscription = Notifications.addPushTokenListener(token => {
-        console.log("💬 Token push mis à jour:", token);
-      });
+      // console.log("Statut des permissions:", status);
 
       return () => subscription.remove();
     })();
@@ -514,11 +506,6 @@ export default function App({ testID, initialScreen }) {
     <ErrorBoundary>
       <View style={styles.container} testID={testID || "app-root"}>
         {renderWebviewScreen()}
-
-        {/* <View style={styles.floatingTest}>
-        <NotificationTest />
-      </View> */}
-
 
         <PasswordDefineModal
           visible={isPasswordDefineModalVisible}
