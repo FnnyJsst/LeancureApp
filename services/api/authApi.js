@@ -15,7 +15,6 @@ import CryptoJS from 'crypto-js';
  */
 export const loginApi = async (contractNumber, login, password, accessToken = '') => {
   try {
-    console.log('[Auth] Début de la tentative de connexion:', { contractNumber, login, accessToken: accessToken ? '***' : '' });
 
     // We create the request data
     const requestData = createApiRequest({
@@ -75,9 +74,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       hasAccessToken: !!accessToken
     });
 
-    // We send the second request to get the rights of the user
-    console.log('[Auth] Récupération des droits utilisateur');
-
+    // We send the second request to get the rights of the user ()
     const channelsResponse = await axios({
       method: 'POST',
       url: await ENV.API_URL(),
