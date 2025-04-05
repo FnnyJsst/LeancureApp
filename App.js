@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, StyleSheet, DeviceEventEmitter, BackHandler } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
@@ -26,10 +26,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from './utils/errorHandling';
-import './config/firebase';
 import { registerForPushNotificationsAsync } from './services/notificationService';
 import * as Notifications from 'expo-notifications';
 import { cleanSecureStore } from './services/api/authApi';
+import './config/firebase';
 
 
 /**
@@ -59,6 +59,7 @@ export default function App({ testID, initialScreen }) {
     'Raleway-Bold': require('./assets/fonts/raleway.bold.ttf'),
     'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),
   });
+
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
   const [currentScreen, setCurrentScreen] = useState(initialScreen);
   const [isLoading, setIsLoading] = useState(true);
@@ -111,6 +112,7 @@ export default function App({ testID, initialScreen }) {
    * @description Handles the settings access with or without password
    */
   const handleSettingsAccess = useCallback(() => {
+    // If the password is required, we show the password check modal, else we navigate to the settings screen
     if (isPasswordRequired) {
       setPasswordCheckModalVisible(true);
     } else {
@@ -142,7 +144,7 @@ export default function App({ testID, initialScreen }) {
     } catch (error) {
       console.log('❌ [App] Erreur lors du changement de visibilité des messages:', error.message);
 
-      // Vérifier si c'est une erreur de déchiffrement
+      // If the error is a decryption error, we clean the secure store
       if (error.message && (
         error.message.includes('decrypt') ||
         error.message.includes('decipher') ||
@@ -151,9 +153,8 @@ export default function App({ testID, initialScreen }) {
         console.log('🧹 [App] Erreur de déchiffrement dans hideMessages, nettoyage...');
         try {
           await cleanSecureStore();
-          console.log('✅ [App] SecureStore nettoyé avec succès');
 
-          // On réessaie de sauvegarder après nettoyage
+          // We try to save again after cleaning
           await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
           setIsMessagesHidden(shouldHide);
 

@@ -220,37 +220,6 @@ export const getUserRights = async () => {
 };
 
 /**
- * @function clearSecureStorage
- * @description Clears the secure storage when the user logs out
- */
-export const clearSecureStorage = async () => {
-  try {
-    // List of all keys used in the application
-    const keysToDelete = [
-      'userCredentials',
-      'savedLoginInfo',
-      'custom_api_url',
-      'isMessagesHidden',
-      'userRights'
-    ];
-
-    for (const key of keysToDelete) {
-      await SecureStore.deleteItemAsync(key);
-      console.log(`🗑️ Clé '${key}' supprimée avec succès`);
-    }
-
-    console.log('🗑️ Stockage sécurisé entièrement nettoyé');
-    return true;
-  } catch (error) {
-    handleError(error, 'auth.clearSecureStorage', {
-      type: ErrorType.SYSTEM,
-      silent: false
-    });
-    return false;
-  }
-};
-
-/**
  * @function cleanSecureStore
  * @description Nettoie le SecureStore en cas d'erreur de déchiffrement
  * @returns {Promise<boolean>} True si le nettoyage a réussi, false sinon

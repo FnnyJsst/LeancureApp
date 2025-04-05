@@ -7,7 +7,7 @@ import { fetchUserChannels } from '../../services/api/messageApi';
 import * as SecureStore from 'expo-secure-store';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../text/CustomText';
-import { clearSecureStorage } from '../../services/api/authApi';
+import { cleanSecureStore } from '../../services/api/authApi';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -85,7 +85,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         const credentials = await SecureStore.getItemAsync('userCredentials');
 
         if (!credentials) {
-          await clearSecureStorage();
+          await cleanSecureStore();
           if (onNavigate) {onNavigate(SCREENS.LOGIN);}
           return;
         }
@@ -102,12 +102,12 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           }
         } catch (error) {
           if (error.message.includes('Could not decrypt')) {
-            await clearSecureStorage();
+            await cleanSecureStore();
             if (onNavigate) {onNavigate(SCREENS.LOGIN);}
           }
         }
       } catch (error) {
-        await clearSecureStorage();
+        await cleanSecureStore();
         if (onNavigate) {onNavigate(SCREENS.LOGIN);}
       } finally {
         setLoading(false);
