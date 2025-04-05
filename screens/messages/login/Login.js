@@ -7,7 +7,7 @@ import SimplifiedLogin from './SimplifiedLogin';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SCREENS } from '../../../constants/screens';
-import { loginApi, checkRefreshToken } from '../../../services/api/authApi';
+import { loginApi, checkRefreshToken, cleanSecureStore } from '../../../services/api/authApi';
 import { fetchUserChannels } from '../../../services/api/messageApi';
 import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 import GradientBackground from '../../../components/backgrounds/GradientBackground';
@@ -83,7 +83,23 @@ export default function Login({ onNavigate, testID }) {
                 await SecureStore.deleteItemAsync('userCredentials');
             } catch (error) {
                 console.log('[Login] Erreur lors du nettoyage du SecureStore:', error);
-                throw error;
+
+                // Si c'est une erreur de déchiffrement, on nettoie le SecureStore
+                if (error.message && (
+                    error.message.includes('decrypt') ||
+                    error.message.includes('decipher') ||
+                    error.message.includes('decryption')
+                )) {
+                    console.log('[Login] Erreur de déchiffrement détectée, nettoyage complet...');
+                    try {
+                        await cleanSecureStore();
+                        console.log('[Login] SecureStore nettoyé avec succès');
+                    } catch (cleanError) {
+                        console.error('[Login] Erreur lors du nettoyage du SecureStore:', cleanError);
+                    }
+                } else {
+                    throw error;
+                }
             }
 
             const validationError = validateInputs();
@@ -384,7 +400,27 @@ export default function Login({ onNavigate, testID }) {
                     setContractNumber(parsedInfo.contractNumber);
                 }
             } catch (error) {
-                handleLoginError(error, 'checkSavedLogin');
+                console.log('[Login] Erreur lors de la vérification des informations sauvegardées:', error);
+
+                // Si c'est une erreur de déchiffrement, on nettoie le SecureStore
+                if (error.message && (
+                    error.message.includes('decrypt') ||
+                    error.message.includes('decipher') ||
+                    error.message.includes('decryption')
+                )) {
+                    console.log('[Login] Erreur de déchiffrement détectée, nettoyage du SecureStore...');
+                    try {
+                        await cleanSecureStore();
+                        console.log('[Login] SecureStore nettoyé avec succès après erreur de déchiffrement');
+                        // On réinitialise l'état pour forcer la connexion manuelle
+                        setIsSimplifiedLogin(false);
+                        setSavedLoginInfo(null);
+                    } catch (cleanError) {
+                        console.error('[Login] Erreur lors du nettoyage du SecureStore:', cleanError);
+                    }
+                } else {
+                    handleLoginError(error, 'checkSavedLogin');
+                }
             } finally {
                 setIsInitialLoading(false);
             }

@@ -225,17 +225,65 @@ export const getUserRights = async () => {
  */
 export const clearSecureStorage = async () => {
   try {
-    await SecureStore.deleteItemAsync('userCredentials');
-    await SecureStore.deleteItemAsync('savedLoginInfo');
-    await SecureStore.deleteItemAsync('custom_api_url');
-    await SecureStore.deleteItemAsync('isMessagesHidden');
-    await SecureStore.deleteItemAsync('userRights');
+    // List of all keys used in the application
+    const keysToDelete = [
+      'userCredentials',
+      'savedLoginInfo',
+      'custom_api_url',
+      'isMessagesHidden',
+      'userRights'
+    ];
+
+    for (const key of keysToDelete) {
+      await SecureStore.deleteItemAsync(key);
+      console.log(`🗑️ Clé '${key}' supprimée avec succès`);
+    }
+
+    console.log('🗑️ Stockage sécurisé entièrement nettoyé');
     return true;
   } catch (error) {
     handleError(error, 'auth.clearSecureStorage', {
       type: ErrorType.SYSTEM,
       silent: false
     });
+    return false;
+  }
+};
+
+/**
+ * @function cleanSecureStore
+ * @description Nettoie le SecureStore en cas d'erreur de déchiffrement
+ * @returns {Promise<boolean>} True si le nettoyage a réussi, false sinon
+ */
+export const cleanSecureStore = async () => {
+  try {
+    console.log('🧹 Début du nettoyage du SecureStore en cas d\'erreur');
+
+    // Liste des clés susceptibles d'être problématiques
+    const keysToClean = [
+      'userCredentials',
+      'savedLoginInfo',
+      'custom_api_url',
+      'isMessagesHidden',
+      'userRights'
+    ];
+
+    // Suppression des clés une par une avec gestion d'erreur individuelle
+    for (const key of keysToClean) {
+      try {
+        await SecureStore.deleteItemAsync(key);
+        console.log(`✅ Clé '${key}' supprimée avec succès`);
+      } catch (keyError) {
+        console.log(`⚠️ Erreur lors de la suppression de la clé '${key}':`, keyError.message);
+        // On continue malgré l'erreur sur une clé spécifique
+      }
+    }
+
+    console.log('✅ Nettoyage du SecureStore terminé');
+    return true;
+  } catch (error) {
+    console.error('❌ Erreur lors du nettoyage du SecureStore:', error.message);
+    // Ne pas utiliser handleError car cela pourrait créer une boucle si le problème est lié au SecureStore
     return false;
   }
 };

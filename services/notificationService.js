@@ -47,7 +47,6 @@ export const registerForPushNotificationsAsync = async () => {
 
     // We configure the Android channel
     if (Platform.OS === 'android') {
-      console.log('🔔 Configuration du canal Android...');
       await Notifications.setNotificationChannelAsync('default', {
         name: 'default',
         importance: Notifications.AndroidImportance.MAX,
@@ -146,12 +145,6 @@ export const synchronizeTokenWithAPI = async (token) => {
         'Content-Type': 'application/json',
       }
     });
-
-    // console.log('🔔 Réponse de l\'API:', {
-    //   status: response.status,
-    //   statusText: response.statusText,
-    //   data: response.data
-    // });
 
     if (response.status === 200) {
       console.log('✅ Token synchronisé avec succès');

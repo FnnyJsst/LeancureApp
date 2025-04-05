@@ -29,6 +29,7 @@ import { handleError, ErrorType } from './utils/errorHandling';
 import './config/firebase';
 import { registerForPushNotificationsAsync } from './services/notificationService';
 import * as Notifications from 'expo-notifications';
+import { cleanSecureStore } from './services/api/authApi';
 
 
 /**
@@ -124,6 +125,8 @@ export default function App({ testID, initialScreen }) {
    */
   const hideMessages = useCallback(async (shouldHide) => {
     try {
+      console.log(`[App] Changement de visibilité des messages: ${shouldHide ? 'masquer' : 'afficher'}`);
+
       // We save the messages hidden state
       await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
       setIsMessagesHidden(shouldHide);
@@ -137,7 +140,37 @@ export default function App({ testID, initialScreen }) {
         }, 3000);
       }
     } catch (error) {
-      handleAppError(error, 'hideMessages');
+      console.log('❌ [App] Erreur lors du changement de visibilité des messages:', error.message);
+
+      // Vérifier si c'est une erreur de déchiffrement
+      if (error.message && (
+        error.message.includes('decrypt') ||
+        error.message.includes('decipher') ||
+        error.message.includes('decryption')
+      )) {
+        console.log('🧹 [App] Erreur de déchiffrement dans hideMessages, nettoyage...');
+        try {
+          await cleanSecureStore();
+          console.log('✅ [App] SecureStore nettoyé avec succès');
+
+          // On réessaie de sauvegarder après nettoyage
+          await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
+          setIsMessagesHidden(shouldHide);
+
+          if (shouldHide) {
+            setIsLoading(true);
+            setTimeout(() => {
+              setIsLoading(false);
+              navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+            }, 3000);
+          }
+        } catch (cleanError) {
+          console.error('❌ [App] Erreur lors du nettoyage dans hideMessages:', cleanError);
+          handleAppError(cleanError, 'hideMessages.clean');
+        }
+      } else {
+        handleAppError(error, 'hideMessages');
+      }
     }
   }, [navigate, selectedWebviews]);
 
@@ -209,10 +242,31 @@ export default function App({ testID, initialScreen }) {
         }
 
       } catch (error) {
-        if (error.message.includes('Could not decrypt')) {
+        if (error.message && (
+            error.message.includes('Could not decrypt') ||
+            error.message.includes('decrypt') ||
+            error.message.includes('decipher') ||
+            error.message.includes('decryption'))
+        ) {
+          console.log('🧹 [App] Erreur de déchiffrement détectée, nettoyage du SecureStore...');
           handleAppError(error, 'decryption');
-          await clearSecureStore();
+          try {
+            // Utilisez cleanSecureStore au lieu de clearSecureStore
+            await cleanSecureStore();
+            console.log('✅ [App] SecureStore nettoyé avec succès après erreur de déchiffrement');
+          } catch (cleanError) {
+            console.error('❌ [App] Erreur lors du nettoyage du SecureStore:', cleanError);
+          }
+
+          // Réinitialisation des états après nettoyage
           setIsMessagesHidden(false);
+          setIsLoading(false);
+          if (currentScreen !== SCREENS.APP_MENU) {
+            navigate(SCREENS.APP_MENU);
+          }
+        } else {
+          // Autres types d'erreurs
+          handleAppError(error, 'initApp');
           setIsLoading(false);
           if (currentScreen !== SCREENS.APP_MENU) {
             navigate(SCREENS.APP_MENU);
@@ -252,7 +306,28 @@ export default function App({ testID, initialScreen }) {
           navigate(SCREENS.APP_MENU);
         }
       } catch (error) {
-        handleAppError(error, 'updateMessagesHidden');
+        console.log('❌ [App] Erreur lors de la mise à jour de isMessagesHidden:', error.message);
+
+        // Vérifier si c'est une erreur de déchiffrement
+        if (error.message && (
+          error.message.includes('decrypt') ||
+          error.message.includes('decipher') ||
+          error.message.includes('decryption')
+        )) {
+          console.log('🧹 [App] Erreur de déchiffrement détectée dans handleMessagesHiddenChange, nettoyage...');
+          try {
+            await cleanSecureStore();
+            console.log('✅ [App] SecureStore nettoyé avec succès');
+
+            // On réessaie de sauvegarder après nettoyage
+            await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(isMessagesHidden));
+            isMessagesHiddenRef.current = isMessagesHidden;
+          } catch (cleanError) {
+            console.error('❌ [App] Erreur lors du nettoyage dans handleMessagesHiddenChange:', cleanError);
+          }
+        } else {
+          handleAppError(error, 'updateMessagesHidden');
+        }
       }
     };
 
@@ -273,52 +348,73 @@ export default function App({ testID, initialScreen }) {
     }
   };
 
-  const initializeNotifications = async () => {
-    try {
-      console.log('🔔 Initialisation des notifications...');
-      const token = await registerForPushNotificationsAsync();
-      if (token) {
-        console.log('✅ Token obtenu dans App.js :', token);
-      }
-    } catch (error) {
-      console.error('❌ Erreur lors de l\'initialisation des notifications:', error);
-    }
-  };
-
   useEffect(() => {
-    initializeNotifications();
+    // Initialisation
+    let subscription = null;
 
-    // Force the check of the permissions at the start
-    (async () => {
-      const { status } = await Notifications.getPermissionsAsync();
-      // console.log("Statut des permissions:", status);
+    // Configuration des notifications
+    const setupNotifications = async () => {
+      try {
+        console.log('🔔 Initialisation des notifications...');
+        const token = await registerForPushNotificationsAsync();
+        if (token) {
+          console.log('✅ Token obtenu dans App.js :', token);
+        }
 
-      return () => subscription.remove();
-    })();
-
-    // const notificationReceivedSubscription = Notifications.addNotificationReceivedListener(notification => {
-    //   console.log('📬 Notification reçue dans App.js:', {
-    //     title: notification.request.content.title,
-    //     body: notification.request.content.body,
-    //     data: notification.request.content.data
-    //   });
-    // });
-
-    // const notificationResponseSubscription = Notifications.addNotificationResponseReceivedListener(response => {
-    //   console.log('👆 Notification cliquée dans App.js:', {
-    //     actionIdentifier: response.actionIdentifier,
-    //     notification: response.notification
-    //   });
-    // });
-
-    return () => {
-      if (notificationReceivedSubscription) {
-        notificationReceivedSubscription.remove();
-      }
-      if (notificationResponseSubscription) {
-        notificationResponseSubscription.remove();
+        // Vérification des permissions
+        const { status } = await Notifications.getPermissionsAsync();
+        console.log("🔔 Statut des permissions:", status);
+      } catch (error) {
+        console.error('❌ Erreur lors de l\'initialisation des notifications:', error);
       }
     };
+
+    // Appel de la fonction d'initialisation
+    setupNotifications();
+
+    // Configuration d'un seul abonnement pour éviter les problèmes
+    subscription = Notifications.addNotificationReceivedListener(notification => {
+      console.log('📬 Notification reçue dans App.js:', {
+        title: notification.request.content.title,
+        body: notification.request.content.body,
+        data: notification.request.content.data
+      });
+    });
+
+    // Fonction de nettoyage qui ne dépend que de variables définies dans ce scope
+    return () => {
+      if (subscription) {
+        subscription.remove();
+      }
+    };
+  }, []);
+
+  // Nettoyage préventif du SecureStore au démarrage de l'application
+  useEffect(() => {
+    const preventDecryptionErrors = async () => {
+      try {
+        // On vérifie d'abord si on peut accéder à une clé sensible
+        try {
+          await SecureStore.getItemAsync('isMessagesHidden');
+          console.log('✅ [App] Vérification préventive: SecureStore accessible');
+        } catch (checkError) {
+          // Si une erreur de déchiffrement est détectée, on nettoie
+          if (checkError.message && (
+            checkError.message.includes('decrypt') ||
+            checkError.message.includes('decipher') ||
+            checkError.message.includes('decryption')
+          )) {
+            console.log('🔄 [App] Erreur de déchiffrement détectée au démarrage, nettoyage préventif...');
+            await cleanSecureStore();
+            console.log('✅ [App] Nettoyage préventif terminé');
+          }
+        }
+      } catch (error) {
+        console.error('❌ [App] Erreur lors du nettoyage préventif:', error);
+      }
+    };
+
+    preventDecryptionErrors();
   }, []);
 
   // If the fonts are not loaded, the translations are not initialized or the isLoading is true, we return the ScreenSaver
@@ -494,6 +590,7 @@ export default function App({ testID, initialScreen }) {
             onHideMessages={hideMessages}
             hideMessages={isMessagesHidden}
             isMessagesHidden={isMessagesHidden}
+            onNavigate={navigate}
           />
         );
 

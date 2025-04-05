@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Text } from '../../components/text/CustomText';
 import { FONTS } from '../../constants/style';
 import Header from '../../components/Header';
@@ -9,6 +9,9 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import SettingsCard from '../../components/cards/SettingsCard';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
 import ChangeServerAddressModal from '../../components/modals/common/ChangeServerAddressModal';
+import { cleanSecureStore } from '../../services/api/authApi';
+import { SCREENS } from '../../constants/screens';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component CommonSettings
@@ -16,11 +19,13 @@ import ChangeServerAddressModal from '../../components/modals/common/ChangeServe
  * @param {Function} onBackPress - The function to call when the back button is pressed
  * @param {Function} onHideMessages - The function to call when the hide messages action is performed
  * @param {boolean} isMessagesHidden - Whether the messages are hidden
+ * @param {Function} onNavigate - The function to navigate to other screens
  */
-const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
+const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavigate }) => {
 
     // Device type detection
     const { isSmartphone, isLandscape } = useDeviceType();
+    const { t } = useTranslation();
 
     const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
     const [changeServerAddressModalVisible, setChangeServerAddressModalVisible] = useState(false);
@@ -48,6 +53,49 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
 
     const closeChangeServerAddressModal = () => {
         setChangeServerAddressModalVisible(false);
+    };
+
+    /**
+     * @function handleCleanStorage
+     * @description Handles the clean storage action
+     */
+    const handleCleanStorage = async () => {
+        Alert.alert(
+            t('titles.confirm'),
+            t('messages.confirmCleanStorage'),
+            [
+                {
+                    text: t('buttons.cancel'),
+                    style: 'cancel'
+                },
+                {
+                    text: t('buttons.confirm'),
+                    onPress: async () => {
+                        try {
+                            console.log('🧹 Nettoyage du stockage sécurisé...');
+                            const result = await cleanSecureStore();
+                            if (result) {
+                                Alert.alert(
+                                    t('titles.success'),
+                                    t('messages.storageCleanedSuccess'),
+                                    [
+                                        {
+                                            text: 'OK',
+                                            onPress: () => onNavigate && onNavigate(SCREENS.LOGIN)
+                                        }
+                                    ]
+                                );
+                            } else {
+                                Alert.alert(t('titles.error'), t('messages.storageCleanedError'));
+                            }
+                        } catch (error) {
+                            console.error('❌ Erreur lors du nettoyage du stockage:', error);
+                            Alert.alert(t('titles.error'), t('messages.storageCleanedError'));
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     return (
@@ -109,6 +157,32 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
                             }
                             description="Change the server address of the app"
                             onPress={openChangeServerAddressModal}
+                        />
+                    </View>
+                </View>
+            </View>
+            <View style={styles.titleContainer}>
+                <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>Dépannage</Text>
+            </View>
+            <View style={[
+                styles.configContainer,
+                isSmartphone && styles.configContainerSmartphone,
+                isLandscape && styles.configContainerLandscape,
+            ]}>
+                <View style={styles.rowContainer}>
+                    <View style={styles.leftContent}>
+                        <SettingsCard
+                            title="Réinitialiser le stockage sécurisé"
+                            iconBackgroundColor={COLORS.burgundy}
+                            icon={
+                                <Ionicons
+                                    name="refresh-outline"
+                                    size={isSmartphone ? 22 : 28}
+                                    color={COLORS.red}
+                                />
+                            }
+                            description="Nettoyer le stockage en cas d'erreurs de déchiffrement"
+                            onPress={handleCleanStorage}
                         />
                     </View>
                 </View>
