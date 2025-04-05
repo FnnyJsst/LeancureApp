@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 export default function ChangeServerAddressModal({ visible, onClose }) {
   const [serverAddress, setServerAddress] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   // Translation and device type hooks
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
@@ -43,6 +44,9 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
 
     if (visible) {
       loadCurrentServerAddress();
+      // Réinitialisation des messages
+      setError('');
+      setSuccess('');
     }
   }, [visible]);
 
@@ -52,6 +56,10 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
    */
   const handleSave = async () => {
     try {
+      // Réinitialisation des messages
+      setError('');
+      setSuccess('');
+
       //If the server address is empty, set the error
       if (!serverAddress.trim()) {
         setError(t('error.addressCannotBeEmpty'));
@@ -60,7 +68,6 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
 
       // Validate the URL
       try {
-
         const url = new URL(serverAddress.trim());
         //If the URL is invalid, set the error
         if (!url.protocol || !url.host) {
@@ -79,7 +86,14 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
 
         //We save the URL
         await ENV.setCustomApiUrl(finalUrl);
-        onClose();
+
+        // Affichage d'un message de succès
+        setSuccess(t('success.serverAddressChanged'));
+
+        // Fermeture de la modal après 1.5 secondes
+        setTimeout(() => {
+          onClose();
+        }, 1500);
       } catch (storageError) {
         setError('Error saving the data in the storage');
       }
@@ -107,7 +121,11 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
             <Text style={[styles.titleText, isSmartphone && styles.titleTextSmartphone]}>
               Change the server address
             </Text>
+            <Text style={styles.infoText}>
+              {t('info.websocketAddressWillBeUpdated')}
+            </Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {success ? <Text style={styles.successText}>{success}</Text> : null}
           </View>
           <InputModal
             placeholder="Enter the new server address"
@@ -137,7 +155,6 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
 }
 
 const styles = StyleSheet.create({
-
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -152,9 +169,9 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.xxLarge,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
-},
+  },
   modalContentSmartphonePortrait: {
-  width: '95%',
+    width: '95%',
   },
   modalContentSmartphoneLandscape: {
     width: '50%',
@@ -175,14 +192,30 @@ const styles = StyleSheet.create({
   titleTextSmartphone: {
     fontSize: SIZES.fonts.biggerTextSmartphone,
   },
+  infoText: {
+    fontSize: SIZES.fonts.smallText,
+    color: COLORS.gray400,
+    marginTop: 8,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 20,
     width: '100%',
   },
+  buttonContainerSmartphone: {
+    justifyContent: 'space-between',
+  },
   errorText: {
     color: COLORS.red,
+    fontSize: SIZES.fonts.smallText,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  successText: {
+    color: COLORS.greenSuccess,
     fontSize: SIZES.fonts.smallText,
     marginTop: 8,
     textAlign: 'center',

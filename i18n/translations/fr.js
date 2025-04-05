@@ -199,6 +199,15 @@ export default {
     }
   },
 
+  info: {
+    websocketAddressWillBeUpdated: "L'adresse de connexion WebSocket sera mise à jour pour correspondre à cette adresse de serveur.",
+  },
+
+  success: {
+    messageDeleted: "Message supprimé avec succès",
+    serverAddressChanged: "Adresse du serveur mise à jour avec succès !",
+  },
+
   errors: {
     required: "Ce champ est obligatoire",
     titleRequired: "Le titre est obligatoire",
@@ -287,8 +296,5 @@ export default {
     errorDuringImport: "Erreur lors de l'importation",
     errorDuringDownload: "Erreur lors du téléchargement",
     noChannelsFound: "Aucune chaîne trouvée",
-  },
-  success: {
-    messageDeleted: "Message supprimé avec succès",
   }
 }

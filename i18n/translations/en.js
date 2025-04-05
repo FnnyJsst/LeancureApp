@@ -198,6 +198,18 @@ export default {
       changeServerDescription: "Change the server address of the app",
     }
   },
+
+  // New section for information messages
+  info: {
+    websocketAddressWillBeUpdated: "WebSocket connection address will be updated to match this server address.",
+  },
+
+  // New section for success messages
+  success: {
+    serverAddressChanged: "Server address updated successfully!",
+    messageDeleted: "Message deleted successfully",
+  },
+
   errors: {
     required: "This field is required",
     titleRequired: "Title is required",
@@ -286,7 +298,4 @@ export default {
     errorDuringDownload: "Error during download",
     noChannelsFound: "No channels found",
   },
-  success: {
-    messageDeleted: "Message deleted successfully",
-  }
 }
