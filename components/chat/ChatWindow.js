@@ -12,6 +12,7 @@ import DateBanner from './DateBanner';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../utils/errorHandling';
+import { playNotificationSound } from '../../services/notificationService';
 
 /**
  * @component ChatWindow
@@ -160,6 +161,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const formatMessage = (msg, credentials) => {
     const messageText = msg.message || '';
+    const isOwnMessageByLogin = msg.login === credentials?.login;
+    const isOwnMessageFlag = msg.isOwnMessage === true;
+
+    // Pour le débogage
+    console.log('💬 Formatage message:', {
+      id: msg.id,
+      login: msg.login,
+      userLogin: credentials?.login,
+      isOwnMessageByLogin,
+      isOwnMessageFlag
+    });
 
     return {
       id: msg.id?.toString() || Date.now().toString(),
@@ -169,9 +181,9 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       savedTimestamp: msg.savedTimestamp || Date.now().toString(),
       fileType: msg.fileType || 'none',
       login: msg.login || 'unknown',
-      isOwnMessage: msg.login === credentials?.login,
+      isOwnMessage: isOwnMessageByLogin,
       isUnread: false,
-      username: msg.login === credentials?.login ? 'Me' : (msg.login || 'Unknown'),
+      username: isOwnMessageByLogin ? 'Me' : (msg.login || 'Unknown'),
       base64: msg.base64
     };
   };
@@ -180,12 +192,19 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @function handleWebSocketMessage
    * @description Handle the WebSocket message
    */
-  const handleWebSocketMessage = useCallback((data) => {
+  const handleWebSocketMessage = useCallback(async (data) => {
     try {
       const messageId = data.message?.id || data.notification?.message?.id;
 
+      console.log('📨 Message WebSocket reçu:', JSON.stringify({
+        type: data.type,
+        messageId,
+        channel: data.filters?.values?.channel
+      }));
+
       // If the message has already been processed, we ignore it
       if (messageId && processedMessageIds.current.has(messageId)) {
+        console.log('⏭️ Message déjà traité, ignoré:', messageId);
         return;
       }
 
@@ -224,6 +243,25 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           handleChatError(t('errors.noMessageContent'), 'message.validation');
           return;
         }
+
+        // Enrichissement du message avec les informations nécessaires pour la détection des messages propres
+        messageContent.channelId = cleanReceivedChannelId;
+
+        // Si nous avons des credentials et un login, nous pouvons pré-déterminer si c'est un message propre
+        if (credentials && credentials.login && messageContent.login) {
+          messageContent.isOwnMessage = messageContent.login === credentials.login;
+        }
+
+        console.log('📨 Message formaté pour notification:', JSON.stringify({
+          id: messageContent.id,
+          login: messageContent.login,
+          isOwnMessage: messageContent.isOwnMessage,
+          channelId: cleanReceivedChannelId
+        }));
+
+        // On vérifie si la notification doit être jouée selon nos conditions
+        // La variable globale currentlyViewedChannel sera utilisée automatiquement
+        await playNotificationSound(messageContent, null, credentials);
 
         // If the message content is an array of messages, we update the messages
         if (messageContent.type === 'messages' && Array.isArray(messageContent.messages)) {
@@ -280,6 +318,25 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         if (!messageContent) {
           return;
         }
+
+        // Enrichissement du message avec les informations nécessaires pour le filtrage des notifications
+        messageContent.channelId = channelId;
+
+        // Si nous avons des credentials et un login, nous pouvons pré-déterminer si c'est un message propre
+        if (credentials && credentials.login && messageContent.login) {
+          messageContent.isOwnMessage = messageContent.login === credentials.login;
+        }
+
+        console.log('📨 Notification imbriquée formatée:', JSON.stringify({
+          id: messageContent.id,
+          login: messageContent.login,
+          isOwnMessage: messageContent.isOwnMessage,
+          channelId
+        }));
+
+        // On vérifie si la notification doit être jouée selon nos conditions
+        // La variable globale currentlyViewedChannel sera utilisée automatiquement
+        await playNotificationSound(messageContent, null, credentials);
 
         // We format the message
         setMessages(prevMessages => {
@@ -477,17 +534,44 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         return;
       }
 
+      // Enregistrer le timestamp du message envoyé
+      // Cette information sera utilisée pour détecter les notifications de nos propres messages
+      const sendTimestamp = Date.now();
+      await SecureStore.setItemAsync('lastMessageSent', sendTimestamp.toString());
+      console.log('⏱️ Enregistrement du timestamp d\'envoi:', sendTimestamp);
+
       // We send the message
-      const messageToSend = messageData.type === 'file' ? messageData : {
+      // Important: on marque explicitement que c'est notre propre message
+      const messageToSend = messageData.type === 'file' ? {
+        ...messageData,
+        login: userCredentials.login,
+        isOwnMessage: true,  // Flag explicite
+        sendTimestamp        // Ajout du timestamp pour traçabilité
+      } : {
         type: 'text',
-        message: typeof messageData === 'object' ? messageData.text : messageData
+        message: typeof messageData === 'object' ? messageData.text : messageData,
+        login: userCredentials.login,
+        isOwnMessage: true,  // Flag explicite
+        sendTimestamp        // Ajout du timestamp pour traçabilité
       };
+
       console.log('Message préparé pour l\'envoi:', messageToSend);
 
       // We send the message to the API
       console.log('Envoi du message à l\'API...');
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
       console.log('Réponse de l\'API:', response);
+
+      // Mettre à jour la variable globale pour indiquer qu'un message a été envoyé récemment
+      global.lastSentMessageTime = sendTimestamp;
+      // Durée pendant laquelle on considère qu'une notification est liée à notre envoi (en ms)
+      global.messageNotificationWindow = 5000; // 5 secondes
+
+      // Si on a un ID de message serveur, l'enregistrer aussi
+      if (response.status === 'ok' && response.message && response.message.id) {
+        global.lastSentMessageId = response.message.id.toString();
+        console.log('🆔 ID du dernier message envoyé:', global.lastSentMessageId);
+      }
 
       // If the response is not ok, we throw an error
       if (response.status !== 'ok') {

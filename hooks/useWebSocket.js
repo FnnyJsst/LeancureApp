@@ -4,11 +4,9 @@ import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../services/api/messageApi';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../utils/errorHandling';
-import { scheduleNotification } from '../services/notificationService';
 
 /**
  * Personalized hook to handle WebSocket connections
- * @param {Object} options - Configuration options
  * @param {Function} options.onMessage - Callback called when a message is received
  * @param {Function} options.onError - Callback called in case of error
  * @param {Array} options.channels - List of channels to monitor
@@ -92,8 +90,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                     }
                 ]
             };
-
-            console.log('📤 Envoi de la souscription pour les canaux:', cleanChannels);
+            // We send the subscription to the WebSocket server
             ws.current.send(JSON.stringify(subscriptionData));
         } catch (error) {
             handleWSError(error, 'sendSubscription');
@@ -102,15 +99,14 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
     // Connect to the WebSocket server
     const connect = useCallback(async () => {
-        // Vérification plus robuste de l'état de la connexion
+        // We check if the connection is already in progress
         if (isConnecting.current) {
-            console.log('⚠️ Connexion déjà en cours...');
             return;
         }
 
-        // Nettoyage de la connexion existante
+        // We clean the existing connection
         if (ws.current) {
-            console.log('🧹 Nettoyage de la connexion existante');
+            console.log('🧹 Cleaning the existing connection');
             cleanup();
         }
 
@@ -209,7 +205,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             const pingInterval = setInterval(() => {
                 if (ws.current && ws.current.readyState === WebSocket.OPEN) {
                     try {
-                        console.log('🏓 Envoi d\'un ping');
                         ws.current.send(JSON.stringify({ type: 'ping' }));
                     } catch (error) {
                         console.log('❌ Erreur lors de l\'envoi du ping:', error);

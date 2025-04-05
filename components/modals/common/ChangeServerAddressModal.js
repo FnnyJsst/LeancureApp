@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: SIZES.fonts.smallText,
-    color: COLORS.gray400,
+    color: COLORS.green,
     marginTop: 8,
     textAlign: 'center',
     fontStyle: 'italic',

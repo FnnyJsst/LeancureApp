@@ -9,6 +9,10 @@ import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../utils/errorHandling';
 import { useWebSocket } from '../../hooks/useWebSocket';
 
+// Variable globale pour stocker l'ID du canal actuellement visualisé
+// Cette variable sera utilisée par le service de notification
+export let currentlyViewedChannel = null;
+
 /**
  * @component ChatScreen
  * @description Displays the chat screen
@@ -30,13 +34,43 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const [unreadChannels, setUnreadChannels] = useState({});
   const [editingMessage, setEditingMessage] = useState(null);
 
+  // Mise à jour de la variable globale quand le canal sélectionné change
+  useEffect(() => {
+    if (selectedChannel && selectedChannel.id) {
+      console.log('🔔 Mise à jour du canal actuellement visualisé:', selectedChannel.id);
+      currentlyViewedChannel = selectedChannel.id.toString();
+
+      // Sauvegarder également le nom du canal pour la comparaison avec les notifications
+      if (selectedChannel.title) {
+        console.log('🔔 Enregistrement du nom du canal actuel:', selectedChannel.title);
+        // Définir une variable globale pour un accès facile
+        global.currentlyViewedChannel = selectedChannel.id.toString();
+        // Stocker dans SecureStore pour la persistance
+        SecureStore.setItemAsync('viewedChannelName', selectedChannel.title)
+          .catch(err => console.error('❌ Erreur lors de l\'enregistrement du nom du canal:', err));
+      }
+    } else {
+      currentlyViewedChannel = null;
+      global.currentlyViewedChannel = null;
+      // Effacer le nom du canal si aucun canal n'est sélectionné
+      SecureStore.deleteItemAsync('viewedChannelName')
+        .catch(err => console.error('❌ Erreur lors de la suppression du nom du canal:', err));
+    }
+
+    // Nettoyage lors du démontage du composant
+    return () => {
+      currentlyViewedChannel = null;
+      global.currentlyViewedChannel = null;
+      SecureStore.deleteItemAsync('viewedChannelName')
+        .catch(err => console.error('❌ Erreur lors du nettoyage du nom du canal:', err));
+    };
+  }, [selectedChannel]);
+
   // Gestion des messages WebSocket
   const handleWebSocketMessage = useCallback((data) => {
-    console.log('📨 Message WebSocket reçu dans ChatScreen:', data);
 
     if (data.message && data.message.type === 'messages') {
       const newMessages = data.message.messages;
-      console.log('📨 Nouveaux messages à ajouter:', newMessages);
 
       setChannelMessages(prevMessages => {
         // Création d'un Set des IDs des messages existants pour éviter les doublons

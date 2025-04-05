@@ -201,7 +201,7 @@ export default {
 
   // New section for information messages
   info: {
-    websocketAddressWillBeUpdated: "WebSocket connection address will be updated to match this server address.",
+    websocketAddressWillBeUpdated: "WebSocket connection address will be updated",
   },
 
   // New section for success messages

@@ -79,6 +79,9 @@ export const COLORS = {
   burgundy: '#502e2e',
   red: '#e74242',
 
+  //success colors
+  green: '#008000',
+
   // Background colors
   backgroundModal: 'rgba(0, 0, 0, 0.8)',
 };

@@ -200,7 +200,7 @@ export default {
   },
 
   info: {
-    websocketAddressWillBeUpdated: "L'adresse de connexion WebSocket sera mise à jour pour correspondre à cette adresse de serveur.",
+    websocketAddressWillBeUpdated: "L'adresse de connexion WebSocket est bien mise à jour",
   },
 
   success: {

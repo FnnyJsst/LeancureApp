@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
+import { View, StyleSheet, StatusBar, ActivityIndicator } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
@@ -26,11 +26,105 @@ import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from './utils/errorHandling';
-import { registerForPushNotificationsAsync } from './services/notificationService';
+import { registerForPushNotificationsAsync, shouldDisplayNotification } from './services/notificationService';
 import * as Notifications from 'expo-notifications';
 import { cleanSecureStore } from './services/api/authApi';
 import './config/firebase';
 
+// Configuration du gestionnaire global pour intercepter les notifications
+// Cette configuration est globale et sera appelée pour toutes les notifications
+Notifications.setNotificationHandler({
+  handleNotification: async (notification) => {
+    try {
+      // Extraire les données de la notification
+      const notificationData = {
+        title: notification.request.content.title,
+        body: notification.request.content.body,
+        data: notification.request.content.data || {}
+      };
+
+      console.log('🔍 Notification interceptée par le gestionnaire global:',
+        JSON.stringify(notificationData));
+
+      // Cas 1: Détection des notifications de nouveaux messages
+      // Si la notification a un titre "New message" et contient "channel" dans le corps
+      if (notificationData.title === "New message" &&
+          notificationData.body &&
+          notificationData.body.includes("channel")) {
+
+        console.log('🔍 Notification de nouveau message détectée');
+
+        // Vérifier le temps du dernier message envoyé
+        const lastMessageTime = global.lastSentMessageTime || 0;
+        const now = Date.now();
+        const timeSinceLastMessage = now - lastMessageTime;
+        const messageWindow = global.messageNotificationWindow || 5000; // 5 secondes par défaut
+
+        console.log('⏱️ Vérification temporelle:', {
+          lastMessageTime,
+          now,
+          timeSinceLastMessage,
+          messageWindow,
+          recentMessage: timeSinceLastMessage < messageWindow
+        });
+
+        // Si un message a été envoyé récemment, c'est probablement notre propre message
+        if (timeSinceLastMessage < messageWindow) {
+          console.log('🔕 Notification bloquée: détection de message propre par proximité temporelle');
+          return {
+            shouldShowAlert: false,
+            shouldPlaySound: false,
+            shouldSetBadge: false,
+          };
+        }
+
+        // Vérifier également si l'utilisateur est actuellement sur le canal
+        try {
+          // Extraire le nom du canal depuis la notification
+          const channelMatch = notificationData.body.match(/channel\s+(.+)$/i);
+          const channelName = channelMatch ? channelMatch[1] : null;
+
+          if (channelName) {
+            // Récupérer le nom du canal actuellement affiché
+            const viewedChannelName = await SecureStore.getItemAsync('viewedChannelName');
+
+            console.log('🔍 Comparaison des canaux:', {
+              notificationChannel: channelName,
+              viewedChannelName
+            });
+
+            if (viewedChannelName && channelName.includes(viewedChannelName)) {
+              console.log('🔕 Notification bloquée: canal actuellement visualisé');
+              return {
+                shouldShowAlert: false,
+                shouldPlaySound: false,
+                shouldSetBadge: false,
+              };
+            }
+          }
+        } catch (error) {
+          console.error('❌ Erreur lors de la vérification du canal:', error);
+        }
+      }
+
+      // Dans tous les autres cas, on affiche la notification
+      console.log('✅ Notification autorisée par le gestionnaire global');
+      return {
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      };
+    } catch (error) {
+      console.error('❌ Erreur dans le gestionnaire global de notification:', error);
+      // En cas d'erreur, on affiche la notification par défaut
+      return {
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      };
+    }
+  },
+});
 
 /**
  * @function handleAppError
@@ -374,12 +468,45 @@ export default function App({ testID, initialScreen }) {
     setupNotifications();
 
     // Configuration d'un seul abonnement pour éviter les problèmes
-    subscription = Notifications.addNotificationReceivedListener(notification => {
-      console.log('📬 Notification reçue dans App.js:', {
+    subscription = Notifications.addNotificationReceivedListener(async notification => {
+      // Extraire les informations de la notification
+      const notificationData = {
         title: notification.request.content.title,
         body: notification.request.content.body,
         data: notification.request.content.data
-      });
+      };
+
+      console.log('📬 Notification reçue dans App.js:', notificationData);
+
+      try {
+        // Essayer d'extraire des informations du message pour notre logique de filtrage
+        // On cherche des indices dans le corps du message pour déterminer s'il s'agit d'un message propre
+        const notificationBody = notificationData.body || '';
+        const channelInfo = notificationBody.includes('channel') ? notificationBody.split('channel ')[1] : null;
+
+        // Construire un objet de notification formaté pour notre fonction de filtrage
+        const formattedData = {
+          // On essaie de déterminer si c'est notre propre message
+          // Si une authentification récente est disponible, la récupérer pour comparaison
+          channelId: channelInfo,
+        };
+
+        // Vérifier si la notification devrait être affichée
+        const shouldDisplay = await shouldDisplayNotification(formattedData);
+
+        // Si la notification ne doit pas être affichée, l'intercepter
+        if (!shouldDisplay) {
+          console.log('🔕 Notification interceptée par App.js: message propre ou canal actif');
+
+          // Annuler la notification en utilisant son identifiant
+          if (notification.request && notification.request.identifier) {
+            await Notifications.dismissNotificationAsync(notification.request.identifier);
+            console.log('🔕 Notification supprimée avec succès');
+          }
+        }
+      } catch (error) {
+        console.error('❌ Erreur lors du filtrage de la notification:', error);
+      }
     });
 
     // Fonction de nettoyage qui ne dépend que de variables définies dans ce scope
