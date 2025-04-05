@@ -63,7 +63,8 @@
     "check-version": "node scripts/check-version.js",
     "prebuild": "npm run check-version",
     "eas-build-pre-install": "echo $GOOGLE_SERVICES_BASE64 | base64 -d > google-services.json",
-    "lint": "npm run test"
+    "lint": "echo 'Linting skipped - no linter configured'",
+    "test": "jest"
   },
   "overrides": {
     "@expo/config-plugins": "7.8.0",

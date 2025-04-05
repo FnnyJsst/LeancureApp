@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
-import { View, StyleSheet, StatusBar, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { View, StyleSheet } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
@@ -31,12 +31,11 @@ import * as Notifications from 'expo-notifications';
 import { cleanSecureStore } from './services/api/authApi';
 import './config/firebase';
 
-// Configuration du gestionnaire global pour intercepter les notifications
-// Cette configuration est globale et sera appelée pour toutes les notifications
+// This configuration is global and will be called for all notifications
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
     try {
-      // Extraire les données de la notification
+      // Extract the notification data
       const notificationData = {
         title: notification.request.content.title,
         body: notification.request.content.body,
@@ -46,31 +45,24 @@ Notifications.setNotificationHandler({
       console.log('🔍 Notification interceptée par le gestionnaire global:',
         JSON.stringify(notificationData));
 
-      // Cas 1: Détection des notifications de nouveaux messages
-      // Si la notification a un titre "New message" et contient "channel" dans le corps
+      // Case 1: Detection of new message notifications
+      // If the notification has a title "New message" and contains "channel" in the body
       if (notificationData.title === "New message" &&
           notificationData.body &&
           notificationData.body.includes("channel")) {
 
         console.log('🔍 Notification de nouveau message détectée');
 
-        // Vérifier le temps du dernier message envoyé
+        // Check the time of the last message sent
         const lastMessageTime = global.lastSentMessageTime || 0;
         const now = Date.now();
         const timeSinceLastMessage = now - lastMessageTime;
-        const messageWindow = global.messageNotificationWindow || 5000; // 5 secondes par défaut
+        const messageWindow = global.messageNotificationWindow || 5000; // 5 seconds by default
 
-        console.log('⏱️ Vérification temporelle:', {
-          lastMessageTime,
-          now,
-          timeSinceLastMessage,
-          messageWindow,
-          recentMessage: timeSinceLastMessage < messageWindow
-        });
 
-        // Si un message a été envoyé récemment, c'est probablement notre propre message
+        // If a message was sent recently, it is probably our own message
         if (timeSinceLastMessage < messageWindow) {
-          console.log('🔕 Notification bloquée: détection de message propre par proximité temporelle');
+          console.log('🔕 Notification blocked: detection of own message by temporal proximity');
           return {
             shouldShowAlert: false,
             shouldPlaySound: false,
@@ -78,21 +70,17 @@ Notifications.setNotificationHandler({
           };
         }
 
-        // Vérifier également si l'utilisateur est actuellement sur le canal
+        // Also check if the user is currently on the channel
         try {
-          // Extraire le nom du canal depuis la notification
+          // Extract the channel name from the notification
           const channelMatch = notificationData.body.match(/channel\s+(.+)$/i);
           const channelName = channelMatch ? channelMatch[1] : null;
 
           if (channelName) {
-            // Récupérer le nom du canal actuellement affiché
+            // Get the name of the currently displayed channel
             const viewedChannelName = await SecureStore.getItemAsync('viewedChannelName');
 
-            console.log('🔍 Comparaison des canaux:', {
-              notificationChannel: channelName,
-              viewedChannelName
-            });
-
+            // If the channel name is the same as the currently displayed channel, we block the notification
             if (viewedChannelName && channelName.includes(viewedChannelName)) {
               console.log('🔕 Notification bloquée: canal actuellement visualisé');
               return {
@@ -107,8 +95,7 @@ Notifications.setNotificationHandler({
         }
       }
 
-      // Dans tous les autres cas, on affiche la notification
-      console.log('✅ Notification autorisée par le gestionnaire global');
+      // In all other cases, we display the notification
       return {
         shouldShowAlert: true,
         shouldPlaySound: true,
@@ -116,7 +103,7 @@ Notifications.setNotificationHandler({
       };
     } catch (error) {
       console.error('❌ Erreur dans le gestionnaire global de notification:', error);
-      // En cas d'erreur, on affiche la notification par défaut
+      // In case of error, we display the default notification
       return {
         shouldShowAlert: true,
         shouldPlaySound: true,

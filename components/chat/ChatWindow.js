@@ -162,16 +162,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const formatMessage = (msg, credentials) => {
     const messageText = msg.message || '';
     const isOwnMessageByLogin = msg.login === credentials?.login;
-    const isOwnMessageFlag = msg.isOwnMessage === true;
-
-    // Pour le débogage
-    console.log('💬 Formatage message:', {
-      id: msg.id,
-      login: msg.login,
-      userLogin: credentials?.login,
-      isOwnMessageByLogin,
-      isOwnMessageFlag
-    });
 
     return {
       id: msg.id?.toString() || Date.now().toString(),
@@ -195,12 +185,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const handleWebSocketMessage = useCallback(async (data) => {
     try {
       const messageId = data.message?.id || data.notification?.message?.id;
-
-      console.log('📨 Message WebSocket reçu:', JSON.stringify({
-        type: data.type,
-        messageId,
-        channel: data.filters?.values?.channel
-      }));
 
       // If the message has already been processed, we ignore it
       if (messageId && processedMessageIds.current.has(messageId)) {
@@ -252,15 +236,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           messageContent.isOwnMessage = messageContent.login === credentials.login;
         }
 
-        console.log('📨 Message formaté pour notification:', JSON.stringify({
-          id: messageContent.id,
-          login: messageContent.login,
-          isOwnMessage: messageContent.isOwnMessage,
-          channelId: cleanReceivedChannelId
-        }));
-
-        // On vérifie si la notification doit être jouée selon nos conditions
-        // La variable globale currentlyViewedChannel sera utilisée automatiquement
+        // We play the notification sound
+        // The variable globally currentlyViewedChannel will be used automatically
         await playNotificationSound(messageContent, null, credentials);
 
         // If the message content is an array of messages, we update the messages
@@ -334,8 +311,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           channelId
         }));
 
-        // On vérifie si la notification doit être jouée selon nos conditions
-        // La variable globale currentlyViewedChannel sera utilisée automatiquement
+        // We play the notification sound
+        // The variable globally currentlyViewedChannel will be used automatically
         await playNotificationSound(messageContent, null, credentials);
 
         // We format the message
@@ -538,21 +515,20 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       // Cette information sera utilisée pour détecter les notifications de nos propres messages
       const sendTimestamp = Date.now();
       await SecureStore.setItemAsync('lastMessageSent', sendTimestamp.toString());
-      console.log('⏱️ Enregistrement du timestamp d\'envoi:', sendTimestamp);
 
       // We send the message
-      // Important: on marque explicitement que c'est notre propre message
+      // Important: we explicitly mark that it is our own message
       const messageToSend = messageData.type === 'file' ? {
         ...messageData,
         login: userCredentials.login,
-        isOwnMessage: true,  // Flag explicite
-        sendTimestamp        // Ajout du timestamp pour traçabilité
+        isOwnMessage: true,  // Explicit flag
+        sendTimestamp        // Add the timestamp for traceability
       } : {
         type: 'text',
         message: typeof messageData === 'object' ? messageData.text : messageData,
         login: userCredentials.login,
-        isOwnMessage: true,  // Flag explicite
-        sendTimestamp        // Ajout du timestamp pour traçabilité
+        isOwnMessage: true,  // Explicit flag
+        sendTimestamp        // Add the timestamp for traceability
       };
 
       console.log('Message préparé pour l\'envoi:', messageToSend);
@@ -562,12 +538,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
       console.log('Réponse de l\'API:', response);
 
-      // Mettre à jour la variable globale pour indiquer qu'un message a été envoyé récemment
+      // Update the global variable to indicate that a message has been sent recently
       global.lastSentMessageTime = sendTimestamp;
-      // Durée pendant laquelle on considère qu'une notification est liée à notre envoi (en ms)
-      global.messageNotificationWindow = 5000; // 5 secondes
+      // Duration during which we consider that a notification is related to our sending (in ms)
+      global.messageNotificationWindow = 5000; // 5 seconds
 
-      // Si on a un ID de message serveur, l'enregistrer aussi
+      // If we have a server message ID, also register it
       if (response.status === 'ok' && response.message && response.message.id) {
         global.lastSentMessageId = response.message.id.toString();
         console.log('🆔 ID du dernier message envoyé:', global.lastSentMessageId);
@@ -580,9 +556,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         return;
       }
 
-      // On ne met plus à jour directement la liste des messages
-      // Le message sera ajouté via le WebSocket
-      console.log('Message envoyé avec succès, attente de la confirmation WebSocket');
+      // The message will be added via the WebSocket
+      console.log('Message sent successfully, waiting for WebSocket confirmation');
 
       console.log('=== Fin sendMessage ===');
 
