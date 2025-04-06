@@ -9,6 +9,7 @@ import { SCREENS } from '../../constants/screens';
 import { Text } from '../text/CustomText';
 import { cleanSecureStore } from '../../services/api/authApi';
 import { useTranslation } from 'react-i18next';
+import { useNotification } from '../../services/notificationContext';
 
 /**
  * @component Sidebar
@@ -22,19 +23,21 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} props.toggleMenu - The function to call when the menu is toggled
  * @param {Function} props.onNavigate - The function to call when the user navigates
  * @param {string} props.currentSection - The current section
- * @param {Object} props.unreadChannels - The unread channels
  * @param {Function} props. - The function to call when the user logs out
  *
  * @example
- * <Sidebar onChannelSelect={() => console.log('Channel selected')} selectedGroup={selectedGroup} onGroupSelect={() => console.log('Group selected')} isExpanded={isExpanded} toggleMenu={() => console.log('Menu toggled')} onNavigate={() => console.log('Navigated')} currentSection="settings" unreadChannels={unreadChannels} onLogout={() => console.log('Logged out')} />
+ * <Sidebar onChannelSelect={() => console.log('Channel selected')} selectedGroup={selectedGroup} onGroupSelect={() => console.log('Group selected')} isExpanded={isExpanded} toggleMenu={() => console.log('Menu toggled')} onNavigate={() => console.log('Navigated')} currentSection="settings" onLogout={() => console.log('Logged out')} />
  */
-export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu, onNavigate, currentSection, unreadChannels, onLogout }) {
+export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu, onNavigate, currentSection, onLogout }) {
   const [channels, setChannels] = useState([]);
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showGroups, setShowGroups] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [userInfo, setUserInfo] = useState({ firstname: '', lastname: '' });
+
+  // Utiliser le contexte de notification pour accéder aux canaux non lus
+  const { unreadChannels } = useNotification();
 
   // Get the device type
   const { isSmartphone } = useDeviceType();
@@ -275,6 +278,8 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
 
                   {/* List of channels if the group is selected */}
                   {selectedGroup?.id === group.id && group.channels && group.channels.map((channel) => {
+                    const hasUnreadMessages = unreadChannels && unreadChannels[channel.id];
+
                     return (
                       <TouchableOpacity
                         key={channel.id}
@@ -291,7 +296,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                             isSmartphone && styles.channelNameSmartphone,
                           ]}>{channel.title}</Text>
                         </View>
-                        {unreadChannels[channel.id] && (
+                        {hasUnreadMessages && (
                           <View style={styles.unreadBadge}>
                             <View style={styles.unreadDot} />
                           </View>

@@ -22,11 +22,22 @@ export const setCurrentlyViewedChannel = (channelId) => {
 export const NotificationProvider = ({ children }) => {
   const [lastSentMessageTimestamp, setLastSentMessageTimestamp] = useState(null);
   const [activeChannelId, setActiveChannelId] = useState(null);
+  const [unreadChannels, setUnreadChannels] = useState({});
 
   // Update the active channel and the global variable
   const updateActiveChannel = (channelId, channelTitle) => {
     setActiveChannelId(channelId);
     setCurrentlyViewedChannel(channelId);
+
+    // If activating a channel, mark as read
+    if (channelId && unreadChannels[channelId]) {
+      const updatedUnreadChannels = { ...unreadChannels };
+      delete updatedUnreadChannels[channelId];
+      setUnreadChannels(updatedUnreadChannels);
+
+      // Save unread channels state
+      saveUnreadChannels(updatedUnreadChannels);
+    }
 
     // Store the channel name if available
     if (channelId && channelTitle) {
@@ -43,6 +54,68 @@ export const NotificationProvider = ({ children }) => {
     setLastSentMessageTimestamp(timestamp);
   };
 
+  // Mark a channel as unread
+  const markChannelAsUnread = (channelId, isUnread = true) => {
+    if (!channelId) return;
+
+    // If it's the active channel, don't mark as unread
+    if (channelId === activeChannelId) return;
+
+    setUnreadChannels(prev => {
+      // If marking as read, remove from dictionary
+      if (!isUnread && prev[channelId]) {
+        const updated = { ...prev };
+        delete updated[channelId];
+
+        // Save updated state
+        saveUnreadChannels(updated);
+        return updated;
+      }
+
+      // If marking as unread, add to dictionary
+      if (isUnread && !prev[channelId]) {
+        const updated = {
+          ...prev,
+          [channelId]: {
+            timestamp: Date.now(),
+            count: (prev[channelId]?.count || 0) + 1
+          }
+        };
+
+        // Save updated state
+        saveUnreadChannels(updated);
+        return updated;
+      }
+
+      return prev;
+    });
+  };
+
+  // Save unread channels state
+  const saveUnreadChannels = async (unreadState) => {
+    try {
+      await SecureStore.setItemAsync('unreadChannels', JSON.stringify(unreadState));
+    } catch (err) {
+      console.error('❌ Erreur lors de la sauvegarde des canaux non lus:', err);
+    }
+  };
+
+  // Load unread channels state on startup
+  useEffect(() => {
+    const loadUnreadChannels = async () => {
+      try {
+        const unreadChannelsData = await SecureStore.getItemAsync('unreadChannels');
+        if (unreadChannelsData) {
+          setUnreadChannels(JSON.parse(unreadChannelsData));
+        }
+      } catch (err) {
+        console.error('❌ Erreur lors du chargement des canaux non lus:', err);
+      }
+    };
+
+    loadUnreadChannels();
+  }, []);
+
   // Clean up resources when unmounting
   useEffect(() => {
     return () => {
@@ -58,7 +131,9 @@ export const NotificationProvider = ({ children }) => {
         activeChannelId,
         updateActiveChannel,
         lastSentMessageTimestamp,
-        recordSentMessage
+        recordSentMessage,
+        unreadChannels,
+        markChannelAsUnread
       }}
     >
       {children}
@@ -70,7 +145,7 @@ export const NotificationProvider = ({ children }) => {
 export const useNotification = () => {
   const context = useContext(NotificationContext);
   if (context === undefined) {
-    console.error('❌ useNotification must be used within a NotificationProvider');
+    throw new Error('useNotification must be used within a NotificationProvider');
   }
   return context;
 };

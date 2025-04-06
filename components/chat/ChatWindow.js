@@ -27,7 +27,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   //Translation and device type hooks
   const { t } = useTranslation();
   const { isSmartphone } = useDeviceType();
-  const { recordSentMessage } = useNotification();
+  const { recordSentMessage, markChannelAsUnread } = useNotification();
 
   // Refs are used to avoid re-rendering the component when the state changes
   const scrollViewRef = useRef();
@@ -199,6 +199,22 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         processedMessageIds.current.add(messageId);
       }
 
+      // Check if it's a notification to mark a channel as unread
+      if (data.notification && data.notification.type === 'chat' && data.notification.message) {
+        // It's a chat message notification
+        const notifMessage = data.notification.message;
+
+        // Check if the message is from the current user
+        const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+        const userCredentials = credentialsStr ? JSON.parse(credentialsStr) : null;
+        const isOwnMessage = userCredentials && notifMessage.login === userCredentials.login;
+
+        // If not from the current user and has a channel ID, mark as unread
+        if (!isOwnMessage && notifMessage.channelId) {
+          markChannelAsUnread(notifMessage.channelId.toString());
+        }
+      }
+
       // We check if the message is a notification or a message
       if (data.type === 'notification' || data.type === 'message') {
         // We extract the channel ID
@@ -336,7 +352,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     } catch (error) {
       handleChatError(error, 'message.processing', { silent: false });
     }
-  }, [channel, credentials, t]);
+  }, [channel, credentials, t, markChannelAsUnread]);
 
   /**
    * @function handleWebSocketError
@@ -411,168 +427,160 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @function sendMessage
    * @description Send a message to the channel
    */
-  const sendMessage = async (messageText, file = null, replyToMessage = null) => {
+  const sendMessage = useCallback(async (messageData) => {
     try {
-      if (!messageText && !file) {
-        return;
-      }
+      console.log('=== Début sendMessage ===');
+      console.log('MessageData reçu:', messageData);
 
-      // On enregistre l'horodatage du message envoyé
+      // On enregistre l'horodatage du message envoyé pour éviter des notifications
       const currentTime = Date.now();
       recordSentMessage(currentTime);
 
       // If the channel is not set, we throw an error
       if (!channel) {
-        console.log('Erreur: Pas de channel sélectionné');
-        handleChatError(t('errors.noChannelSelected'), 'sendMessage.validation');
+        handleChatError(t('errors.noChannel'), 'sendMessage.validation');
         return;
       }
 
-      // Check if the message is an edit of an existing message
-      const isEditing = replyToMessage && replyToMessage.isEditing === true && replyToMessage.messageId;
-      console.log('Est-ce une édition?', isEditing);
-
-      // If the message is an editing, use the editing function
-      if (isEditing) {
-        // We get the user credentials and parse them
+      // If the credentials are not set, we get them
+      if (!credentials) {
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-        const userCredentials = JSON.parse(credentialsStr);
-        // If the credentials are not found, we throw an error
         if (!credentialsStr) {
-          console.log('Erreur: Pas de credentials trouvés pour l\'édition');
-          handleChatError(t('errors.noCredentialsFound'), 'sendMessage.validation');
+          handleChatError(t('errors.noCredentials'), 'sendMessage.validation');
           return;
         }
+        const userCredentials = JSON.parse(credentialsStr);
+        setCredentials(userCredentials);
+      }
 
-        // We send the editing request
-        const response = await editMessageApi(replyToMessage.messageId, replyToMessage, userCredentials);
-        console.log('Réponse de l\'édition:', response);
+      // We get the user credentials
+      const userCredentials = credentials;
 
-        // If the response is ok, we update the message locally immediately
-        if (response.status === 'ok') {
-          // We update the message locally immediately
-          setMessages(prevMessages => {
-            const updatedMessages = prevMessages.map(msg => {
-              if (msg.id === replyToMessage.messageId) {
-                const updatedText = replyToMessage.text || '';
-                // We update the message
-                return {
-                  ...msg,
-                  text: updatedText,
-                  message: updatedText,
-                  title: updatedText.substring(0, 50),
-                  savedTimestamp: Date.now()
-                };
-              }
-              return msg;
+      // Create a timestamp for the message
+      const sendTimestamp = Date.now();
+
+      // Check if the message is an edit of an existing message
+      const isEditing = messageData.isEditing === true && messageData.messageId;
+      console.log('Est-ce une édition?', isEditing);
+
+      if (isEditing) {
+        console.log('Edition d\'un message existant:', messageData.messageId);
+
+        try {
+          // We send the editing request
+          const response = await editMessageApi(messageData.messageId, messageData, userCredentials);
+          console.log('Réponse de l\'édition:', response);
+
+          if (response.status === 'ok') {
+            console.log('✅ Message édité avec succès');
+            setEditingMessage(null);
+
+            // We update the messages
+            setMessages(prevMessages => {
+              const updatedMessages = prevMessages.map(msg => {
+                if (msg.id === messageData.messageId) {
+                  const updatedText = messageData.text || '';
+                  // We update the message
+                  return {
+                    ...msg,
+                    message: updatedText,
+                    text: updatedText
+                  };
+                }
+                return msg;
+              });
+              return updatedMessages;
             });
-            return updatedMessages;
-          });
+          } else {
+            throw new Error(response.message || t('errors.editFailed'));
+          }
 
-          setEditingMessage(null);
+          return; // We stop the execution here
+        } catch (error) {
+          handleChatError(error, 'editMessage');
           return;
-        } else {
-          console.log('Erreur lors de l\'édition du message');
-          handleChatError(t('errors.errorEditingMessage'), 'sendMessage.process');
         }
       }
 
       // For a new message (non-editing), we continue with the existing code
       // We check the type of message
-      if (file) {
+      if (messageData.type === 'file') {
         console.log('Message de type fichier détecté');
-        console.log('Type de fichier:', file.fileType);
-        console.log('Nom du fichier:', file.fileName);
-        console.log('Taille du fichier:', file.fileSize);
+        console.log('Type de fichier:', messageData.fileType);
+        console.log('Nom du fichier:', messageData.fileName);
+        console.log('Taille du fichier:', messageData.fileSize);
 
-        if (!file.base64) {
+        if (!messageData.base64) {
           console.log('Erreur: Pas de base64 pour le fichier');
           handleChatError(t('errors.invalidFile'), 'sendMessage.validation');
           return;
         }
 
-        if (file.fileType === 'csv') {
+        if (messageData.fileType === 'csv') {
           console.log('Traitement spécial pour un fichier CSV');
-          console.log('Contenu CSV (premiers caractères):', file.base64.substring(0, 100));
+          console.log('Contenu CSV (premiers caractères):', messageData.base64.substring(0, 100));
         }
       } else {
-        const messageText = typeof messageText === 'object' ? messageText.text : messageText;
+        const messageText = typeof messageData === 'object' ? messageData.text : messageData;
         console.log('Message texte:', messageText);
         // If the message text is invalid, we throw an error
         if (!messageText || messageText.trim() === '') {
-          console.log('Erreur: Message texte invalide');
-          handleChatError(t('errors.invalidMessageText'), 'sendMessage.validation');
+          handleChatError(t('errors.emptyMessage'), 'sendMessage.validation');
           return;
         }
       }
 
-      const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-      const userCredentials = JSON.parse(credentialsStr);
-      console.log('Credentials récupérés:', userCredentials?.login);
-
-      // If the credentials are not found, we throw an error
-      if (!credentialsStr) {
-        console.log('Erreur: Pas de credentials trouvés');
-        handleChatError(t('errors.noCredentialsFound'), 'sendMessage.validation');
-        return;
-      }
-
-      // Enregistrer le timestamp du message envoyé
-      // Cette information sera utilisée pour détecter les notifications de nos propres messages
-      const sendTimestamp = Date.now();
-      await SecureStore.setItemAsync('lastMessageSent', sendTimestamp.toString());
-
       // We send the message
       // Important: we explicitly mark that it is our own message
-      const messageToSend = file ? {
-        ...file,
+      const messageToSend = messageData.type === 'file' ? {
+        ...messageData,
         login: userCredentials.login,
         isOwnMessage: true,  // Explicit flag
         sendTimestamp        // Add the timestamp for traceability
       } : {
         type: 'text',
-        message: typeof messageText === 'object' ? messageText.text : messageText,
+        message: typeof messageData === 'object' ? messageData.text : messageData,
         login: userCredentials.login,
         isOwnMessage: true,  // Explicit flag
         sendTimestamp        // Add the timestamp for traceability
       };
 
-      console.log('Message préparé pour l\'envoi:', messageToSend);
+      // We format the message and add it to the list of messages
+      const message = formatMessage(messageToSend, userCredentials);
 
-      // We send the message to the API
-      console.log('Envoi du message à l\'API...');
+      // Try to send the message
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
-      console.log('Réponse de l\'API:', response);
 
-      // Update the global variable to indicate that a message has been sent recently
-      global.lastSentMessageTime = sendTimestamp;
-      // Duration during which we consider that a notification is related to our sending (in ms)
-      global.messageNotificationWindow = 5000; // 5 seconds
+      // We check if the sending was successful
+      if (response.status === 'ok' && response.id) {
+        // Add the message to the existing ones
+        setMessages((prevMessages) => {
+          // Check if the message already exists
+          const messageExists = prevMessages.some((msg) => msg.id === response.id);
 
-      // If we have a server message ID, also register it
-      if (response.status === 'ok' && response.message && response.message.id) {
-        global.lastSentMessageId = response.message.id.toString();
-        console.log('🆔 ID du dernier message envoyé:', global.lastSentMessageId);
+          if (messageExists) {
+            console.log('Message already exists:', response.id);
+            return prevMessages;
+          }
+
+          // Create a complete message from the response
+          const completeMessage = {
+            ...message,
+            id: response.id,
+            savedTimestamp: Date.now().toString(),
+          };
+
+          console.log('New message added to list:', completeMessage);
+          return [...prevMessages, completeMessage];
+        });
+      } else {
+        throw new Error(response.message || 'Failed to send message');
       }
-
-      // If the response is not ok, we throw an error
-      if (response.status !== 'ok') {
-        console.log('Erreur: Le message n\'a pas été envoyé');
-        handleChatError(t('errors.messageNotSent'), 'sendMessage.process');
-        return;
-      }
-
-      // The message will be added via the WebSocket
-      console.log('Message sent successfully, waiting for WebSocket confirmation');
-
-      console.log('=== Fin sendMessage ===');
-
     } catch (error) {
-      console.error('Erreur dans sendMessage:', error);
-      handleChatError(error, 'sendMessage.process', { silent: false });
+      handleChatError(error, 'sendMessage', { silent: false });
       throw error;
     }
-  };
+  }, [channel, credentials, t, recordSentMessage, markChannelAsUnread]);
 
   /**
    * @function handleDeleteMessage

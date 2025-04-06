@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../services/api/messageApi';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../utils/errorHandling';
+import { useNotification } from '../services/notificationContext';
 
 /**
  * Personalized hook to handle WebSocket connections
@@ -15,6 +16,9 @@ import { handleError, ErrorType } from '../utils/errorHandling';
 export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
     // We get the translation function
     const { t } = useTranslation();
+
+    // Accès au contexte de notification pour gérer les canaux non lus
+    const { markChannelAsUnread, activeChannelId } = useNotification();
 
     // We create a new WebSocket instance
     const ws = useRef(null);
@@ -97,6 +101,76 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         }
     }, [channels]);
 
+    /**
+     * @description Handle the notification message and mark channels as unread if needed
+     * @param {Object} data - The parsed message data
+     */
+    const handleNotificationMessage = async (data) => {
+        // Appel du callback si fourni
+        if (onMessage) {
+            onMessage(data);
+        }
+
+        try {
+            // Vérifier si c'est une notification de chat
+            if (data.notification && data.notification.type === 'chat' && data.notification.message) {
+                const notifMessage = data.notification.message;
+
+                // Extraire le canal et vérifier si c'est un message de l'utilisateur
+                let channelId = notifMessage.channelId;
+                if (!channelId && data.notification.filters && data.notification.filters.values) {
+                    channelId = data.notification.filters.values.channel;
+                }
+
+                // Nettoyer l'ID du canal
+                if (channelId && typeof channelId === 'string') {
+                    channelId = channelId.replace('channel_', '');
+                }
+
+                // Récupérer les credentials pour vérifier si c'est un message de l'utilisateur
+                const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+                const credentials = credentialsStr ? JSON.parse(credentialsStr) : null;
+                const isOwnMessage = credentials && notifMessage.login === credentials.login;
+
+                // Si ce n'est pas un message de l'utilisateur actuel et c'est un autre canal
+                // que celui actuellement visualisé, on le marque comme non lu
+                if (!isOwnMessage && channelId && channelId !== activeChannelId) {
+                    console.log('🔔 Marquage du canal comme non lu:', channelId);
+                    markChannelAsUnread(channelId);
+                }
+            }
+
+            // Pour les messages standard de chat
+            if (data.message && data.message.type === 'messages' && Array.isArray(data.message.messages)) {
+                // Vérifier s'il y a des nouveaux messages qui ne sont pas de l'utilisateur actuel
+                const hasNewMessages = data.message.messages.some(async (msg) => {
+                    const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+                    const credentials = credentialsStr ? JSON.parse(credentialsStr) : null;
+                    return credentials && msg.login !== credentials.login;
+                });
+
+                // Extraire le canal
+                let channelId = null;
+                if (data.filters && data.filters.values) {
+                    channelId = data.filters.values.channel;
+                }
+
+                // Nettoyer l'ID du canal
+                if (channelId && typeof channelId === 'string') {
+                    channelId = channelId.replace('channel_', '');
+                }
+
+                // Si nouveaux messages et pas le canal actuel, marquer comme non lu
+                if (hasNewMessages && channelId && channelId !== activeChannelId) {
+                    console.log('🔔 Marquage du canal comme non lu (nouveaux messages):', channelId);
+                    markChannelAsUnread(channelId);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Erreur lors du traitement du message pour les canaux non lus:', error);
+        }
+    };
+
     // Connect to the WebSocket server
     const connect = useCallback(async () => {
         // We check if the connection is already in progress
@@ -178,14 +252,10 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                         // Vérification du format du message
                         if (data.message && data.message.type === 'messages') {
                             console.log('📨 Message de type "messages" reçu:', data.message);
-                            if (onMessage) {
-                                onMessage(data);
-                            }
+                            handleNotificationMessage(data);
                         } else if (data.type === 'notification') {
                             console.log('📨 Notification reçue:', data);
-                            if (onMessage) {
-                                onMessage(data);
-                            }
+                            handleNotificationMessage(data);
                         } else {
                             console.log('⚠️ Format de message non reconnu:', data);
                         }

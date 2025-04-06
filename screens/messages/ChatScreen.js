@@ -206,7 +206,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         toggleMenu={toggleMenu}
         onNavigate={onNavigate}
         currentSection={currentSection}
-        unreadChannels={unreadChannels}
         onLogout={handleChatLogout}
       />
       <View style={styles.mainContent}>
