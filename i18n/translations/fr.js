@@ -296,5 +296,6 @@ export default {
     errorDuringImport: "Erreur lors de l'importation",
     errorDuringDownload: "Erreur lors du téléchargement",
     noChannelsFound: "Aucune chaîne trouvée",
+    couldNotDecrypt: "Impossible de déchiffrer les données",
   }
 }

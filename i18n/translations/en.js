@@ -297,5 +297,6 @@ export default {
     errorDuringImport: "Error during import",
     errorDuringDownload: "Error during download",
     noChannelsFound: "No channels found",
+    couldNotDecrypt: "Could not decrypt data",
   },
 }

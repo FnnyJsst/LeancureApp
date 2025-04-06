@@ -14,8 +14,6 @@ import { useNotification } from '../../services/notificationContext';
 /**
  * @component Sidebar
  * @description A component that renders the sidebar menu
- *
- * @param {Object} props - The properties of the component
  * @param {Function} props.onChannelSelect - The function to call when a channel is selected
  * @param {Object} props.selectedGroup - The selected group
  * @param {Function} props.onGroupSelect - The function to call when a group is selected
@@ -23,10 +21,7 @@ import { useNotification } from '../../services/notificationContext';
  * @param {Function} props.toggleMenu - The function to call when the menu is toggled
  * @param {Function} props.onNavigate - The function to call when the user navigates
  * @param {string} props.currentSection - The current section
- * @param {Function} props. - The function to call when the user logs out
- *
- * @example
- * <Sidebar onChannelSelect={() => console.log('Channel selected')} selectedGroup={selectedGroup} onGroupSelect={() => console.log('Group selected')} isExpanded={isExpanded} toggleMenu={() => console.log('Menu toggled')} onNavigate={() => console.log('Navigated')} currentSection="settings" onLogout={() => console.log('Logged out')} />
+ * @param {Function} props.onLogout - The function to call when the user logs out
  */
 export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect, isExpanded, toggleMenu, onNavigate, currentSection, onLogout }) {
   const [channels, setChannels] = useState([]);
@@ -34,33 +29,30 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
   const [loading, setLoading] = useState(true);
   const [showGroups, setShowGroups] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [userInfo, setUserInfo] = useState({ firstname: '', lastname: '' });
 
-  // Utiliser le contexte de notification pour accéder aux canaux non lus
+  // Use the notification context to access the unread channels
   const { unreadChannels } = useNotification();
 
-  // Get the device type
+  // Get the device type and the translations
   const { isSmartphone } = useDeviceType();
-
   const { t } = useTranslation();
 
   /**
-   * @function slideAnim
-   * @description A function to animate the sidebar
+   * @description Animated value for sidebar sliding animation
    */
   const slideAnim = useRef(new Animated.Value(
     isSmartphone ? -500 : -300
   )).current;
 
+
   /**
-   * @function fadeAnim
-   * @description A function to animate the overlay
+   * @description Animated value for overlay fading animation
    */
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+
   /**
-   * @function useEffect
-   * @description A function to animate the sidebar and the overlay
+   * @description Animate the sidebar and the overlay
    */
   useEffect(() => {
     Animated.parallel([
@@ -77,16 +69,18 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     ]).start();
   }, [isExpanded, isSmartphone, slideAnim, fadeAnim]);
 
+
   /**
-   * @function useEffect
-   * @description A function to load the channels and groups
+   * @description Loads the channels and groups
    */
   useEffect(() => {
     const loadChannels = async () => {
       try {
         setLoading(true);
+        // Get the user credentials from the secure store
         const credentials = await SecureStore.getItemAsync('userCredentials');
 
+        // If the credentials are not found, clean the secure store and navigate to the login screen
         if (!credentials) {
           await cleanSecureStore();
           if (onNavigate) {onNavigate(SCREENS.LOGIN);}
@@ -94,17 +88,21 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         }
 
         try {
+          // Parse the credentials
           const { contractNumber, login, password, accountApiKey } = JSON.parse(credentials);
+
+          // Fetch the user channels
           const response = await fetchUserChannels(contractNumber, login, password, '', accountApiKey);
 
+          // If the response is ok and the private groups are found, set the groups and channels
           if (response.status === 'ok' && response.privateGroups) {
             setGroups(response.privateGroups);
             setChannels(response.publicChannels || []);
           } else {
-            throw new Error('Erreur lors du chargement des canaux');
+            throw new Error(t('errors.errorLoadingChannels'));
           }
         } catch (error) {
-          if (error.message.includes('Could not decrypt')) {
+          if (error.message.includes(t('errors.couldNotDecrypt'))) {
             await cleanSecureStore();
             if (onNavigate) {onNavigate(SCREENS.LOGIN);}
           }
@@ -120,25 +118,13 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     loadChannels();
   }, [onNavigate]);
 
-  useEffect(() => {
-    const loadUserInfo = async () => {
-      const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-      if (credentialsStr) {
-        const credentials = JSON.parse(credentialsStr);
-        setUserInfo({
-          firstname: credentials.firstname || '',
-          lastname: credentials.lastname || '',
-        });
-      }
-    };
-
-    loadUserInfo();
-  }, []);
-
-  // Remplacer la fonction filteredGroups par un useMemo
+  /**
+   * @function filteredGroups
+   * @description Filter the groups in the sidebar based on the search query
+   */
   const filteredGroups = useMemo(() => {
     if (!searchQuery.trim()) {
-      return groups; // Retourner tous les groupes si pas de recherche
+      return groups; // Return all groups if no search
     }
 
     return groups.map(group => ({
@@ -149,18 +135,8 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
         return titleMatch;
       }),
     })).filter(group => group.channels?.length > 0);
-  }, [groups, searchQuery]); // Dépendances : recalcule uniquement si groups ou searchQuery change
+  }, [groups, searchQuery]); // Dependencies: recalculate only if groups or searchQuery change
 
-  // Ajouter des stats de recherche (optionnel)
-  const searchStats = useMemo(() => {
-    const totalChannels = filteredGroups.reduce((acc, group) =>
-      acc + (group.channels?.length || 0), 0);
-
-    return {
-      totalChannels,
-      totalGroups: filteredGroups.length
-    };
-  }, [filteredGroups]);
 
   /**
    * @function handleGroupsClick
@@ -173,17 +149,6 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
       return;
     }
     setShowGroups(!showGroups);
-  };
-
-  /**
-   * @function handleSettingsClick
-   * @description A function to handle the click on Settings
-   */
-  const handleSettingsClick = () => {
-    if (showGroups) {
-      setShowGroups(false); // Close groups if open
-    }
-    onNavigate(SCREENS.SETTINGS_MESSAGE);
   };
 
   return (
@@ -226,7 +191,6 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
-
           </View>
 
           {/* Group button */}
@@ -249,7 +213,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
             ]}>{t('sidebar.groups')}</Text>
           </TouchableOpacity>
 
-          {/* List of groups if showGroups is true */}
+          {/* List of groups */}
           {showGroups && (
             <View style={styles.groupsList}>
               {loading ? (
@@ -308,37 +272,11 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
               ))}
             </View>
           )}
-
-          {/* Settings button */}
-          {/* <TouchableOpacity
-            style={[
-              styles.menuItem,
-              currentSection === 'settings' && styles.selectedItem,
-            ]}
-            onPress={handleSettingsClick}
-          >
-            <Ionicons
-              name="settings-outline"
-              size={isSmartphone ? 20 : 24}
-              color={currentSection === 'settings' ? COLORS.orange : COLORS.gray300}
-            />
-            <Text style={[
-              styles.menuText,
-              isSmartphone && styles.menuTextSmartphone,
-              currentSection === 'settings' && { color: COLORS.orange },
-            ]}>{t('sidebar.settings')}</Text>
-          </TouchableOpacity> */}
         </ScrollView>
 
         {/* User profile banner */}
         <View style={styles.profileBanner}>
-          <View style={styles.profileInfo}>
-            <View style={styles.userInfo}>
-              <Text style={[styles.userName, isSmartphone && styles.userNameSmartphone]}>
-                {userInfo.firstname} {userInfo.lastname}
-              </Text>
-            </View>
-          </View>
+          <View />
           <TouchableOpacity
             onPress={onLogout}
             style={styles.logoutButton}
@@ -484,23 +422,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.5,
     borderTopColor: COLORS.borderColor,
   },
-  profileInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  userInfo: {
-    justifyContent: 'center',
-    marginLeft: 10,
-  },
-  userName: {
-    color: COLORS.white,
-    fontSize: SIZES.fonts.smallTextTablet,
-    fontWeight: SIZES.fontWeight.medium,
-  },
-  userNameSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
-  },
   logoutButton: {
     backgroundColor: COLORS.charcoal,
     borderRadius: SIZES.borderRadius.medium,
@@ -543,10 +464,5 @@ const styles = StyleSheet.create({
     padding: 4,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  searchStats: {
-    color: COLORS.gray300,
-    fontSize: SIZES.fonts.smallTextSmartphone,
-    marginLeft: 8,
   },
 });
