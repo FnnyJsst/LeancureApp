@@ -121,9 +121,6 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
             <Text style={[styles.titleText, isSmartphone && styles.titleTextSmartphone]}>
               Change the server address
             </Text>
-            {/* <Text style={styles.infoText}>
-              {t('info.websocketAddressWillBeUpdated')}
-            </Text> */}
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
             {success ? <Text style={styles.successText}>{success}</Text> : null}
           </View>
@@ -192,13 +189,6 @@ const styles = StyleSheet.create({
   titleTextSmartphone: {
     fontSize: SIZES.fonts.biggerTextSmartphone,
   },
-  // infoText: {
-  //   fontSize: SIZES.fonts.smallText,
-  //   color: COLORS.green,
-  //   marginTop: 8,
-  //   textAlign: 'center',
-  //   fontStyle: 'italic',
-  // },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
