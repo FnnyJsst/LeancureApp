@@ -17,7 +17,7 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
  */
 export default function TooltipModal({ visible, onClose, title, message, position = { top: '45%', left: '50%' } }) {
   const { t } = useTranslation();
-  const { isSmartphone } = useDeviceType();
+  const { isSmartphone, isLandscape } = useDeviceType();
 
   return (
     <Modal
@@ -31,6 +31,7 @@ export default function TooltipModal({ visible, onClose, title, message, positio
           style={[
             styles.tooltipContainer,
             isSmartphone && styles.tooltipContainerSmartphone,
+            isLandscape && styles.tooltipContainerLandscape,
             { top: position.top, left: position.left }
           ]}
         >
@@ -74,6 +75,9 @@ const styles = StyleSheet.create({
   },
   tooltipContainerSmartphone: {
     width: '85%',
+  },
+  tooltipContainerLandscape: {
+    transform: [{ translateX: -660 }],  // Ajustement pour un meilleur centrage
   },
   tooltipArrow: {
     width: 0,

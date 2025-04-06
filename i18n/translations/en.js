@@ -23,7 +23,7 @@ export default {
     contractNumber: "Enter your contract number",
     login: "Enter your login",
     password: "Enter your password",
-    stayConnected: "Stay connected",
+    rememberMe: "Remember me",
   },
 
   messages: {
@@ -194,6 +194,7 @@ export default {
     },
     common: {
       showHide: "Show/hide",
+      showHideMessages: "Show/hide messages of the app",
       showHideDescription: "Show/hide messages section of the app",
       changeServer: "Change server address",
       changeServerDescription: "Change the server address of the app",
@@ -302,11 +303,23 @@ export default {
   },
 
   tooltips: {
-    defaultTitle: "Tip",
-    defaultMessage: "Here's a useful information about this feature.",
+    defaultTitle: 'Information',
+    defaultMessage: 'Here is a useful information to help you use this feature.',
     autoRefresh: {
-      title: "Auto-Refresh",
-      message: "This option allows you to set how often channels will automatically refresh.",
+      title: 'Auto-Refresh',
+      message: 'You can set your channels to automatically refresh at regular intervals. Useful for keeping your information up to date without intervention.'
+    },
+    readOnly: {
+      title: 'Read-Only Access',
+      message: 'This mode allows you to view channels without the ability to modify or delete them.'
+    },
+    password: {
+      title: 'Password Protection',
+      message: 'Secure access to the application with a password. This option is recommended if you share your device with others.'
+    },
+    hideMessages: {
+      title: 'Show/Hide Messages',
+      message: 'You can choose to show or hide the use of messages in the application.'
     }
   },
 }

@@ -521,7 +521,7 @@ export default function Login({ onNavigate, testID }) {
                                                 <CheckBox
                                                     checked={isChecked}
                                                     onPress={() => setIsChecked(!isChecked)}
-                                                    label={t('auth.stayConnected')}
+                                                    label={t('auth.rememberMe')}
                                                 />
                                             </View>
 

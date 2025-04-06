@@ -23,7 +23,7 @@ export default {
     contractNumber: "Entrez votre numéro de contrat",
     login: "Entrez votre identifiant",
     password: "Entrez votre mot de passe",
-    stayConnected: "Rester connecté",
+    rememberMe: "Se souvenir de moi",
   },
 
   messages: {
@@ -194,6 +194,7 @@ export default {
     },
     common: {
       showHide: "Afficher/masquer",
+      showHideMessages: "Afficher/masquer les messages de l'application",
       showHideDescription: "Afficher ou masquer la section messages de l'application",
       changeServer: "Changer l'adresse du serveur",
       changeServerDescription: "Modifier l'adresse du serveur de l'application",
@@ -301,11 +302,23 @@ export default {
   },
 
   tooltips: {
-    defaultTitle: "Astuce",
-    defaultMessage: "Voici une information utile sur cette fonctionnalité.",
+    defaultTitle: 'Information',
+    defaultMessage: 'Voici une information utile pour vous aider à utiliser cette fonctionnalité.',
     autoRefresh: {
-      title: "Actualisation automatique",
-      message: "Cette option vous permet de définir la fréquence à laquelle les canaux importés seront rafraîchis.",
+      title: 'Actualisation automatique',
+      message: 'Vous pouvez configurer vos canaux pour qu\'ils s\'actualisent automatiquement à intervalle régulier. Pratique pour garder vos informations à jour sans intervention.'
+    },
+    readOnly: {
+      title: 'Accès en lecture seule',
+      message: 'Ce mode permet de visualiser les canaux importés sans possibilité de les modifier ou de les supprimer.'
+    },
+    password: {
+      title: 'Protection par mot de passe',
+      message: 'Sécurisez l\'accès à l\'application avec un mot de passe. Cette option est recommandée si vous partagez votre appareil avec d\'autres personnes.'
+    },
+    hideMessages: {
+      title: 'Afficher/Masquer les messages',
+      message: 'Vous pouvez choisir d\'afficher ou de masquer l\'utilisation des messages dans l\'application.'
     }
   },
 }

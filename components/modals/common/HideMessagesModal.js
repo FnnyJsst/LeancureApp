@@ -54,21 +54,21 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
             <Text style={[
               styles.titleText,
               isSmartphone && styles.titleTextSmartphone,
-            ]}>{t('settings.common.showHide')}</Text>
+            ]}>{t('settings.common.showHideMessages')}</Text>
           </View>
           <View style={[
             styles.buttonContainer,
             isSmartphone && styles.buttonContainerSmartphone]}>
             <Button
-              title="Hide"
+              title={t('buttons.hide')}
               backgroundColor={COLORS.gray950}
-              width={isSmartphone ? '20%' : '22%'}
+              width={isSmartphone ? '23%' : '26%'}
               onPress={() => handleResponse(true)}
             />
             <Button
-              title="Show"
+              title={t('buttons.show')}
               backgroundColor={COLORS.orange}
-              width={isSmartphone ? '20%' : '22%'}
+              width={isSmartphone ? '23%' : '26%'}
               onPress={() => handleResponse(false)}
             />
           </View>
@@ -79,7 +79,6 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
 }
 
 const styles = StyleSheet.create({
-  //Container styles
   modalContainer: {
     flex: 1,
     justifyContent: 'center',

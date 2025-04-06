@@ -125,23 +125,23 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
             {success ? <Text style={styles.successText}>{success}</Text> : null}
           </View>
           <InputModal
-            placeholder="Enter the new server address"
+            placeholder={t('settings.common.changeServer')}
             icon={<Ionicons name="server-outline" size={24} color={COLORS.orange} />}
             onChangeText={setServerAddress}
             value={serverAddress}
             secureTextEntry={false}
           />
-          <View style={[styles.buttonContainer, isSmartphone && styles.buttonContainerSmartphone]}>
+          <View style={[styles.buttonContainer]}>
             <Button
-              title="Cancel"
+              title={t('buttons.cancel')}
               backgroundColor={COLORS.gray950}
-              width={isSmartphone ? '20%' : '22%'}
+              width="28%"
               onPress={onClose}
             />
             <Button
-              title="Save"
+              title={t('buttons.save')}
               backgroundColor={COLORS.orange}
-              width={isSmartphone ? '20%' : '22%'}
+              width="28%"
               onPress={handleSave}
             />
           </View>
@@ -194,9 +194,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     gap: 20,
     width: '100%',
-  },
-  buttonContainerSmartphone: {
-    justifyContent: 'space-between',
   },
   errorText: {
     color: COLORS.red,

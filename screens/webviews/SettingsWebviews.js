@@ -58,10 +58,16 @@ export default function SettingsWebviews({
   const { t } = useTranslation();
   const { isSmartphone, isLandscape, isSmartphonePortrait } = useDeviceType();
 
-  // Référence pour le bouton d'actualisation automatique
+  // Références pour les boutons
   const autoRefreshButtonRef = useRef(null);
+  const readOnlyButtonRef = useRef(null);
+  const passwordButtonRef = useRef(null);
+  const hideMessagesButtonRef = useRef(null);
+
   // Position du tooltip
   const [tooltipPosition, setTooltipPosition] = useState({ top: '45%', left: '50%' });
+  // Tooltip actif
+  const [activeTooltip, setActiveTooltip] = useState(null);
 
   /**
    * Consolidated modal state management
@@ -70,29 +76,47 @@ export default function SettingsWebviews({
    */
   const [modalState, setModalState] = useState({
     autoRefresh: false,
-    passwordDefine: false,
+    password: false,
     readOnly: false,
     hideMessages: false,
     tooltip: false
   });
 
-  // State pour savoir si le tooltip a déjà été affiché
-  const [hasSeenTooltip, setHasSeenTooltip] = useState(true);
+  // State pour savoir si les tooltips ont déjà été affichés
+  const [hasSeenTooltips, setHasSeenTooltips] = useState({
+    autoRefresh: true,
+    readOnly: true,
+    password: true,
+    hideMessages: true
+  });
 
-  // Charger l'état du tooltip au chargement du composant
+  // Charger l'état des tooltips au chargement du composant
   useEffect(() => {
-    const checkTooltipStatus = async () => {
+    const checkTooltipsStatus = async () => {
       try {
-        const hasSeenTooltipStr = await SecureStore.getItemAsync('hasSeenAutoRefreshTooltip');
-        setHasSeenTooltip(hasSeenTooltipStr === 'true');
+        // Vérifier l'état de chaque tooltip
+        const tooltipKeys = ['autoRefresh', 'readOnly', 'password', 'hideMessages'];
+        const tooltipValues = {};
+
+        for (const key of tooltipKeys) {
+          const hasSeenTooltipStr = await SecureStore.getItemAsync(`hasSeen${key.charAt(0).toUpperCase() + key.slice(1)}Tooltip`);
+          tooltipValues[key] = hasSeenTooltipStr === 'true';
+        }
+
+        setHasSeenTooltips(tooltipValues);
       } catch (error) {
-        console.error('Erreur lors du chargement de l\'état du tooltip:', error);
-        // Par défaut, ne pas afficher le tooltip si une erreur se produit
-        setHasSeenTooltip(true);
+        console.error('Erreur lors du chargement de l\'état des tooltips:', error);
+        // Par défaut, ne pas afficher les tooltips si une erreur se produit
+        setHasSeenTooltips({
+          autoRefresh: true,
+          readOnly: true,
+          password: true,
+          hideMessages: true
+        });
       }
     };
 
-    checkTooltipStatus();
+    checkTooltipsStatus();
   }, []);
 
   /**
@@ -158,25 +182,29 @@ export default function SettingsWebviews({
   }, []);
 
   /**
-   * Fonction pour marquer le tooltip comme vu
+   * Fonction pour marquer un tooltip comme vu
    */
-  const markTooltipAsSeen = useCallback(async () => {
+  const markTooltipAsSeen = useCallback(async (tooltipKey) => {
     try {
-      await SecureStore.setItemAsync('hasSeenAutoRefreshTooltip', 'true');
-      setHasSeenTooltip(true);
+      await SecureStore.setItemAsync(`hasSeen${tooltipKey.charAt(0).toUpperCase() + tooltipKey.slice(1)}Tooltip`, 'true');
+      setHasSeenTooltips(prev => ({ ...prev, [tooltipKey]: true }));
+      setActiveTooltip(null);
       updateModalState('tooltip', false);
+
+      // Ouvrir le modal correspondant après la fermeture du tooltip
+      updateModalState(tooltipKey, true);
     } catch (error) {
       console.error('Erreur lors de l\'enregistrement de l\'état du tooltip:', error);
     }
   }, [updateModalState]);
 
   /**
-   * Mesurer la position du bouton d'actualisation automatique
+   * Mesurer la position d'un bouton
    */
-  const measureButton = useCallback(() => {
-    if (autoRefreshButtonRef.current) {
+  const measureButton = useCallback((buttonRef) => {
+    if (buttonRef.current) {
       try {
-        const nodeHandle = findNodeHandle(autoRefreshButtonRef.current);
+        const nodeHandle = findNodeHandle(buttonRef.current);
         if (nodeHandle) {
           UIManager.measure(nodeHandle, (x, y, width, height, pageX, pageY) => {
             // Positionner le tooltip au-dessus du bouton avec plus de précision
@@ -195,40 +223,44 @@ export default function SettingsWebviews({
   }, []);
 
   /**
-   * Memoized modal open handlers
-   * Each function is memoized to prevent unnecessary re-renders
+   * Fonction générique pour ouvrir un modal avec vérification de tooltip
    */
-  const openModal = useCallback(() => {
-    // Si l'utilisateur n'a jamais vu le tooltip, on l'affiche
-    if (!hasSeenTooltip) {
-      // Mesurer la position du bouton avant d'afficher le tooltip
-      measureButton();
-      updateModalState('tooltip', true);
-    } else {
-      // Sinon, on ouvre directement le modal d'actualisation
-      updateModalState('autoRefresh', true);
-    }
-  }, [updateModalState, hasSeenTooltip, measureButton]);
+  const openModalWithTooltip = useCallback((modalKey, buttonRef) => {
+    return () => {
+      // Si l'utilisateur n'a jamais vu le tooltip, on l'affiche
+      if (!hasSeenTooltips[modalKey]) {
+        // Mesurer la position du bouton avant d'afficher le tooltip
+        measureButton(buttonRef);
+        setActiveTooltip(modalKey);
+        updateModalState('tooltip', true);
+      } else {
+        // Sinon, on ouvre directement le modal
+        updateModalState(modalKey, true);
+      }
+    };
+  }, [hasSeenTooltips, measureButton, updateModalState]);
 
-  const openPasswordDefineModal = useCallback(() => {
-    updateModalState('passwordDefine', true);
-  }, [updateModalState]);
+  // Memoized handlers pour chaque bouton
+  const openAutoRefreshModal = useCallback(openModalWithTooltip('autoRefresh', autoRefreshButtonRef),
+    [openModalWithTooltip, autoRefreshButtonRef]);
 
-  const openReadOnlyModal = useCallback(() => {
-    updateModalState('readOnly', true);
-  }, [updateModalState]);
+  const openReadOnlyModal = useCallback(openModalWithTooltip('readOnly', readOnlyButtonRef),
+    [openModalWithTooltip, readOnlyButtonRef]);
 
-  const openHideMessagesModal = useCallback(() => {
-    updateModalState('hideMessages', true);
-  }, [updateModalState]);
+  const openPasswordModal = useCallback(openModalWithTooltip('password', passwordButtonRef),
+    [openModalWithTooltip, passwordButtonRef]);
+
+  const openHideMessagesModal = useCallback(openModalWithTooltip('hideMessages', hideMessagesButtonRef),
+    [openModalWithTooltip, hideMessagesButtonRef]);
 
   /**
-   * Gère la fermeture du tooltip et l'ouverture du modal d'actualisation automatique
+   * Gère la fermeture du tooltip actif
    */
   const handleTooltipClose = useCallback(() => {
-    markTooltipAsSeen();
-    updateModalState('autoRefresh', true);
-  }, [markTooltipAsSeen, updateModalState]);
+    if (activeTooltip) {
+      markTooltipAsSeen(activeTooltip);
+    }
+  }, [activeTooltip, markTooltipAsSeen]);
 
   return (
     <View testID={testID}>
@@ -288,14 +320,14 @@ export default function SettingsWebviews({
                   title={t('settings.webview.autoRefresh')}
                   description={t('settings.webview.autoRefreshDescription')}
                   icon={<Ionicons name="reload-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
-                  onPress={openModal}
+                  onPress={openAutoRefreshModal}
                   testID="open-auto-refresh-button"
                 />
               </View>
               <TouchableOpacity
                 ref={autoRefreshButtonRef}
                 style={styles.baseToggle}
-                onPress={openModal}
+                onPress={openAutoRefreshModal}
               >
                 <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
                   {formatRefreshOption(refreshOption)}
@@ -320,6 +352,7 @@ export default function SettingsWebviews({
                 />
               </View>
               <TouchableOpacity
+                ref={readOnlyButtonRef}
                 style={styles.baseToggle}
                 onPress={openReadOnlyModal}
               >
@@ -335,13 +368,14 @@ export default function SettingsWebviews({
                   title={t('titles.password')}
                   description={t('settings.webview.passwordDescription')}
                   icon={<Ionicons name="lock-closed-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
-                  onPress={openPasswordDefineModal}
+                  onPress={openPasswordModal}
                   testID="open-password-button"
                 />
               </View>
               <TouchableOpacity
+                ref={passwordButtonRef}
                 style={styles.baseToggle}
-                onPress={openPasswordDefineModal}
+                onPress={openPasswordModal}
               >
                 <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
                   {isPasswordRequired ? t('buttons.yes') : t('buttons.no')}
@@ -371,6 +405,7 @@ export default function SettingsWebviews({
                 />
               </View>
               <TouchableOpacity
+                ref={hideMessagesButtonRef}
                 style={styles.baseToggle}
                 onPress={openHideMessagesModal}
               >
@@ -392,8 +427,8 @@ export default function SettingsWebviews({
       <MemoizedTooltipModal
         visible={modalState.tooltip}
         onClose={handleTooltipClose}
-        title={t('tooltips.autoRefresh.title')}
-        message={t('tooltips.autoRefresh.message')}
+        title={activeTooltip ? t(`tooltips.${activeTooltip}.title`) : ''}
+        message={activeTooltip ? t(`tooltips.${activeTooltip}.message`) : ''}
         position={tooltipPosition}
       />
 
@@ -411,8 +446,8 @@ export default function SettingsWebviews({
         testID={testID}
       />
       <MemoizedPasswordDefineModal
-        visible={modalState.passwordDefine}
-        onClose={() => updateModalState('passwordDefine', false)}
+        visible={modalState.password}
+        onClose={() => updateModalState('password', false)}
         onSubmitPassword={handlePasswordSubmit}
         onDisablePassword={disablePassword}
         testID="password-define-modal"
