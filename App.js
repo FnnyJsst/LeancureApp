@@ -30,6 +30,7 @@ import { registerForPushNotificationsAsync, shouldDisplayNotification } from './
 import * as Notifications from 'expo-notifications';
 import { cleanSecureStore } from './services/api/authApi';
 import './config/firebase';
+import { NotificationProvider } from './services/notificationContext';
 
 // This configuration is global and will be called for all notifications
 Notifications.setNotificationHandler({
@@ -53,16 +54,15 @@ Notifications.setNotificationHandler({
 
         console.log('🔍 Notification de nouveau message détectée');
 
-        // Check the time of the last message sent
-        const lastMessageTime = global.lastSentMessageTime || 0;
+        // On utilise le contexte de notification pour récupérer les informations
+        const lastMessageTime = global.lastSentMessageTimestamp || 0;
         const now = Date.now();
         const timeSinceLastMessage = now - lastMessageTime;
-        const messageWindow = global.messageNotificationWindow || 5000; // 5 seconds by default
+        const messageWindow = 5000; // 5 secondes par défaut
 
-
-        // If a message was sent recently, it is probably our own message
+        // Si un message a été envoyé récemment, c'est probablement notre propre message
         if (timeSinceLastMessage < messageWindow) {
-          console.log('🔕 Notification blocked: detection of own message by temporal proximity');
+          console.log('🔕 Notification bloquée: détection de message propre par proximité temporelle');
           return {
             shouldShowAlert: false,
             shouldPlaySound: false,
@@ -716,26 +716,28 @@ export default function App({ testID, initialScreen }) {
 
   return (
     <ErrorBoundary>
-      <View style={styles.container} testID={testID || "app-root"}>
-        {renderWebviewScreen()}
+      <NotificationProvider>
+        <View style={styles.container} testID={testID || "app-root"}>
+          {renderWebviewScreen()}
 
-        <PasswordDefineModal
-          visible={isPasswordDefineModalVisible}
-          onClose={closePasswordDefineModal}
-          onSubmitPassword={handlePasswordSubmit}
-          onDisablePassword={disablePassword}
-        />
+          <PasswordDefineModal
+            visible={isPasswordDefineModalVisible}
+            onClose={closePasswordDefineModal}
+            onSubmitPassword={handlePasswordSubmit}
+            onDisablePassword={disablePassword}
+          />
 
-        <PasswordCheckModal
-          visible={passwordCheckModalVisible}
-          onClose={() => setPasswordCheckModalVisible(false)}
-          onSubmit={handlePasswordCheck}
-        />
+          <PasswordCheckModal
+            visible={passwordCheckModalVisible}
+            onClose={() => setPasswordCheckModalVisible(false)}
+            onSubmit={handlePasswordCheck}
+          />
 
-        <View accessible={true} testID="settings-button">
-          <Ionicons />
+          <View accessible={true} testID="settings-button">
+            <Ionicons />
+          </View>
         </View>
-      </View>
+      </NotificationProvider>
     </ErrorBoundary>
   );
 }

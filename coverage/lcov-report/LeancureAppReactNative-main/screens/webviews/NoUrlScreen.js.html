@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/6</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.5% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>7/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/6</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -196,17 +196,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -231,14 +232,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -291,6 +291,7 @@ import { SIZES, COLORS } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../../components/text/CustomText';
+import { useTranslation } from 'react-i18next';
 &nbsp;
 /**
  * @component NoUrlScreen
@@ -299,24 +300,24 @@ import { Text } from '../../components/text/CustomText';
  * @param {Function} handleSettingsAccess - A function to handle the settings access
  * @param {boolean} isMessagesHidden - A boolean indicating if messages are hidden
  */
-export default function NoUrlScreen({
+export default function <span class="fstat-no" title="function not covered" >NoUrlScreen(</span>{
   onNavigate,
   handleSettingsAccess,
   isMessagesHidden,
   testID,
 }) {
-&nbsp;
-  const { isSmartphone } = useDeviceType();
+  const { t } = <span class="cstat-no" title="statement not covered" >useTranslation();</span>
+  const { isSmartphone } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
 &nbsp;
   /**
    * @function handleBackPress
    * @description Handles the back button press
    */
-  const handleBackPress = <span class="fstat-no" title="function not covered" >()</span> =&gt; {
+  const handleBackPress = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    onNavigate(SCREENS.APP_MENU);</span>
   };
 &nbsp;
-  return (
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;View style={styles.pageContainer} testID={testID}&gt;
       {/* If messages are not hidden, display the back button so we can go back to the app menu */}
       {!isMessagesHidden &amp;&amp; (
@@ -327,7 +328,7 @@ export default function NoUrlScreen({
           &gt;
             &lt;Ionicons
               name="close-outline"
-              size={isSmartphone ? 24 : <span class="branch-1 cbranch-no" title="branch not covered" >28}</span>
+              size={isSmartphone ? 24 : 28}
               color={COLORS.white}
             /&gt;
           &lt;/TouchableOpacity&gt;
@@ -337,17 +338,17 @@ export default function NoUrlScreen({
         &lt;Text style={[
           styles.text,
           isSmartphone &amp;&amp; styles.textSmartphone,
-        ]}&gt;Please enter settings to add an URL&lt;/Text&gt;
+        ]}&gt;{t('screens.enterSettings')}&lt;/Text&gt;
       &lt;/View&gt;
 &nbsp;
       &lt;View style={styles.buttonContainer}&gt;
-        &lt;ParameterButton onPress={() =&gt; handleSettingsAccess()} testID="settings-button" /&gt;
+        &lt;ParameterButton onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >handleSettingsAccess()}</span> testID="settings-button" /&gt;
       &lt;/View&gt;
     &lt;/View&gt;
   );
 }
 &nbsp;
-const styles = StyleSheet.create({
+const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
   pageContainer: {
     flex: 1,
   },
@@ -392,15 +393,14 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 20,
   },
-});
-&nbsp;</pre></td></tr></table></pre>
+});</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-26T09:58:24.555Z
+                at 2025-04-05T13:36:50.094Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

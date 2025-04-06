@@ -13,6 +13,7 @@ import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../utils/errorHandling';
 import { playNotificationSound } from '../../services/notificationService';
+import { useNotification } from '../../services/notificationContext';
 
 /**
  * @component ChatWindow
@@ -26,6 +27,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   //Translation and device type hooks
   const { t } = useTranslation();
   const { isSmartphone } = useDeviceType();
+  const { recordSentMessage } = useNotification();
 
   // Refs are used to avoid re-rendering the component when the state changes
   const scrollViewRef = useRef();
@@ -408,12 +410,16 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   /**
    * @function sendMessage
    * @description Send a message to the channel
-   * @param {Object} messageData - The message data
    */
-  const sendMessage = useCallback(async (messageData) => {
+  const sendMessage = async (messageText, file = null, replyToMessage = null) => {
     try {
-      console.log('=== Début sendMessage ===');
-      console.log('MessageData reçu:', messageData);
+      if (!messageText && !file) {
+        return;
+      }
+
+      // On enregistre l'horodatage du message envoyé
+      const currentTime = Date.now();
+      recordSentMessage(currentTime);
 
       // If the channel is not set, we throw an error
       if (!channel) {
@@ -423,7 +429,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       }
 
       // Check if the message is an edit of an existing message
-      const isEditing = messageData.isEditing === true && messageData.messageId;
+      const isEditing = replyToMessage && replyToMessage.isEditing === true && replyToMessage.messageId;
       console.log('Est-ce une édition?', isEditing);
 
       // If the message is an editing, use the editing function
@@ -439,7 +445,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }
 
         // We send the editing request
-        const response = await editMessageApi(messageData.messageId, messageData, userCredentials);
+        const response = await editMessageApi(replyToMessage.messageId, replyToMessage, userCredentials);
         console.log('Réponse de l\'édition:', response);
 
         // If the response is ok, we update the message locally immediately
@@ -447,8 +453,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           // We update the message locally immediately
           setMessages(prevMessages => {
             const updatedMessages = prevMessages.map(msg => {
-              if (msg.id === messageData.messageId) {
-                const updatedText = messageData.text || '';
+              if (msg.id === replyToMessage.messageId) {
+                const updatedText = replyToMessage.text || '';
                 // We update the message
                 return {
                   ...msg,
@@ -473,24 +479,24 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // For a new message (non-editing), we continue with the existing code
       // We check the type of message
-      if (messageData.type === 'file') {
+      if (file) {
         console.log('Message de type fichier détecté');
-        console.log('Type de fichier:', messageData.fileType);
-        console.log('Nom du fichier:', messageData.fileName);
-        console.log('Taille du fichier:', messageData.fileSize);
+        console.log('Type de fichier:', file.fileType);
+        console.log('Nom du fichier:', file.fileName);
+        console.log('Taille du fichier:', file.fileSize);
 
-        if (!messageData.base64) {
+        if (!file.base64) {
           console.log('Erreur: Pas de base64 pour le fichier');
           handleChatError(t('errors.invalidFile'), 'sendMessage.validation');
           return;
         }
 
-        if (messageData.fileType === 'csv') {
+        if (file.fileType === 'csv') {
           console.log('Traitement spécial pour un fichier CSV');
-          console.log('Contenu CSV (premiers caractères):', messageData.base64.substring(0, 100));
+          console.log('Contenu CSV (premiers caractères):', file.base64.substring(0, 100));
         }
       } else {
-        const messageText = typeof messageData === 'object' ? messageData.text : messageData;
+        const messageText = typeof messageText === 'object' ? messageText.text : messageText;
         console.log('Message texte:', messageText);
         // If the message text is invalid, we throw an error
         if (!messageText || messageText.trim() === '') {
@@ -518,14 +524,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // We send the message
       // Important: we explicitly mark that it is our own message
-      const messageToSend = messageData.type === 'file' ? {
-        ...messageData,
+      const messageToSend = file ? {
+        ...file,
         login: userCredentials.login,
         isOwnMessage: true,  // Explicit flag
         sendTimestamp        // Add the timestamp for traceability
       } : {
         type: 'text',
-        message: typeof messageData === 'object' ? messageData.text : messageData,
+        message: typeof messageText === 'object' ? messageText.text : messageText,
         login: userCredentials.login,
         isOwnMessage: true,  // Explicit flag
         sendTimestamp        // Add the timestamp for traceability
@@ -566,7 +572,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       handleChatError(error, 'sendMessage.process', { silent: false });
       throw error;
     }
-  }, [channel, t]);
+  };
 
   /**
    * @function handleDeleteMessage

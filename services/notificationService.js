@@ -6,7 +6,7 @@ import * as SecureStore from 'expo-secure-store';
 import '../config/firebase';
 import axios from 'axios';
 import { createApiRequest } from '../services/api/baseApi';
-import { currentlyViewedChannel } from '../screens/messages/ChatScreen';
+import { getCurrentlyViewedChannel } from './notificationContext';
 
 // Handler for notifications to be displayed
 Notifications.setNotificationHandler({
@@ -125,13 +125,13 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
         }
       }
 
-      // Utiliser le canal fourni ou la variable globale
-      const viewedChannelId = currentChannelId || currentlyViewedChannel;
+      // Utiliser le canal fourni ou obtenir depuis le contexte
+      const viewedChannelId = currentChannelId || getCurrentlyViewedChannel();
 
       console.log('🔍 Vérification de canal (push):', {
         notificationChannelId,
         viewedChannelId,
-        currentGlobalChannel: currentlyViewedChannel
+        currentGlobalChannel: getCurrentlyViewedChannel()
       });
 
       if (notificationChannelId && viewedChannelId) {
@@ -201,13 +201,13 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
                             (messageData.filters?.values?.channel) ||
                             (messageData.notification?.filters?.values?.channel);
 
-    // On utilise le canal fourni ou la variable globale
-    const viewedChannelId = currentChannelId || currentlyViewedChannel;
+    // On utilise le canal fourni ou on récupère depuis le contexte
+    const viewedChannelId = currentChannelId || getCurrentlyViewedChannel();
 
     console.log('🔍 Vérif canal:', {
       messageChannelId,
       viewedChannelId,
-      currentGlobalChannel: currentlyViewedChannel
+      currentGlobalChannel: getCurrentlyViewedChannel()
     });
 
     if (messageChannelId && viewedChannelId) {

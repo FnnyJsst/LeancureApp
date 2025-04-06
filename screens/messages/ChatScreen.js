@@ -8,10 +8,7 @@ import { fetchChannelMessages } from '../../services/api/messageApi';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../utils/errorHandling';
 import { useWebSocket } from '../../hooks/useWebSocket';
-
-// Global variable to store the ID of the currently viewed channel
-// This variable will be used by the notification service
-export let currentlyViewedChannel = null;
+import { useNotification } from '../../services/notificationContext';
 
 /**
  * @component ChatScreen
@@ -24,6 +21,7 @@ export let currentlyViewedChannel = null;
 export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, handleChatLogout, testID }) {
 
   const { t } = useTranslation();
+  const { updateActiveChannel } = useNotification();
 
   // States related to the chat
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -34,36 +32,14 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const [unreadChannels, setUnreadChannels] = useState({});
   const [editingMessage, setEditingMessage] = useState(null);
 
-  // Update the global variable when the selected channel changes
+  // Update the channel context when the selected channel changes
   useEffect(() => {
     if (selectedChannel && selectedChannel.id) {
-      currentlyViewedChannel = selectedChannel.id.toString();
-
-      // Also save the channel name for comparison with notifications
-      if (selectedChannel.title) {
-        console.log('🔔 Enregistrement du nom du canal actuel:', selectedChannel.title);
-        // Define a global variable for easy access
-        global.currentlyViewedChannel = selectedChannel.id.toString();
-        // Store in SecureStore for persistence
-        SecureStore.setItemAsync('viewedChannelName', selectedChannel.title)
-          .catch(err => console.error('❌ Erreur lors de l\'enregistrement du nom du canal:', err));
-      }
+      updateActiveChannel(selectedChannel.id.toString(), selectedChannel.title);
     } else {
-      currentlyViewedChannel = null;
-      global.currentlyViewedChannel = null;
-      // Delete the channel name if no channel is selected
-      SecureStore.deleteItemAsync('viewedChannelName')
-        .catch(err => console.error('❌ Erreur lors de la suppression du nom du canal:', err));
+      updateActiveChannel(null);
     }
-
-    // Cleanup when the component is unmounted
-    return () => {
-      currentlyViewedChannel = null;
-      global.currentlyViewedChannel = null;
-      SecureStore.deleteItemAsync('viewedChannelName')
-        .catch(err => console.error('❌ Erreur lors du nettoyage du nom du canal:', err));
-    };
-  }, [selectedChannel]);
+  }, [selectedChannel, updateActiveChannel]);
 
   // Handle WebSocket messages
   const handleWebSocketMessage = useCallback((data) => {

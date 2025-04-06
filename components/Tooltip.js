@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Tooltip from 'react-native-walkthrough-tooltip';
-import { COLORS } from '../constants/style'; // Vos constantes de couleurs
+import { COLORS } from '../constants/style';
 
 const Tooltip = () => {
   const [toolTipVisible, setToolTipVisible] = useState(false);

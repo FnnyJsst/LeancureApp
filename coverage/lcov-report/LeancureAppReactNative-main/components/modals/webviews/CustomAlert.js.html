@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">72.72% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/11</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -168,7 +168,11 @@
 <a name='L103'></a><a href='#L103'>103</a>
 <a name='L104'></a><a href='#L104'>104</a>
 <a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -189,12 +193,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">61x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">61x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -236,9 +240,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -284,22 +292,19 @@ import { Text } from '../../text/CustomText';
 /**
  * @component CustomAlert
  * @description A component that renders a custom alert
- *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the alert is visible
  * @param {string} props.title - The title of the alert
  * @param {string} props.message - The message of the alert
  * @param {Function} props.onClose - The function to call when the alert is closed
  * @param {Function} props.onConfirm - The function to call when the alert is confirmed
  * @param {string} props.type - The type of the alert
- *
- * @example
- * &lt;CustomAlert visible={true} title="Alert" message="This is an alert" onClose={() =&gt; console.log('Alert closed')} onConfirm={() =&gt; console.log('Alert confirmed')} type="error" /&gt;
  */
-export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = <span class="branch-0 cbranch-no" title="branch not covered" >'error',</span> testID }) {
-  const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait } = useDeviceType();
+export default function <span class="fstat-no" title="function not covered" >CustomAlert(</span>{ visible, title, message, onClose, onConfirm, type = <span class="branch-0 cbranch-no" title="branch not covered" >'error',</span> testID }) {
 &nbsp;
-  return (
+  // We get the device type
+  const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait, isLowResTablet } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;Modal
       animationType="fade"
       transparent={true}
@@ -311,8 +316,9 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
         &lt;View style={[
           styles.modalContent,
           isSmartphonePortrait &amp;&amp; styles.modalContentSmartphonePortrait,
-          isLandscape &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentLandscape,</span>
-          isTabletPortrait &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentTabletPortrait,</span>
+          isLowResTablet &amp;&amp; styles.modalContentLowResTablet,
+          isLandscape &amp;&amp; styles.modalContentLandscape,
+          isTabletPortrait &amp;&amp; styles.modalContentTabletPortrait,
         ]}&gt;
           &lt;TitleModal title={title} /&gt;
           &lt;Text style={[styles.message, isSmartphone &amp;&amp; styles.messageSmartphone]}&gt;{message}&lt;/Text&gt;
@@ -322,16 +328,16 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
                 title="OK"
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
-                width="22%"
+                width={isSmartphone ? '23%' : '26%'}
                 onPress={onConfirm}
                 testID="alert-confirm-button"
               /&gt;
             ) : (
               &lt;Button
                 title="Close"
-                backgroundColor={COLORS.buttonGray}
+                backgroundColor={COLORS.gray650}
                 color={COLORS.white}
-                width="22%"
+                width={isSmartphone ? '23%' : '26%'}
                 onPress={onClose}
                 testID="alert-close-button"
               /&gt;
@@ -343,7 +349,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
   );
 }
 &nbsp;
-const styles = StyleSheet.create({
+const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -351,15 +357,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 1)',
   },
   modalContent: {
-    width: '60%',
+    width: '40%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
   },
+  modalContentSmartphone: {
+    width: '60%',
+  },
   modalContentLandscape: {
     width: '40%',
+  },
+  modalContentLowResTablet: {
+    width: '60%',
   },
   modalContentSmartphonePortrait: {
     width: '80%',
@@ -385,7 +397,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-26T09:58:24.555Z
+                at 2025-04-05T13:36:50.094Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

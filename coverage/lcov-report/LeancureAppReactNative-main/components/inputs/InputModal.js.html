@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">62.5% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">78.94% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>15/19</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">25% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/4</span>
+                <span class='fraction'>0/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">62.5% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -174,15 +174,7 @@
 <a name='L109'></a><a href='#L109'>109</a>
 <a name='L110'></a><a href='#L110'>110</a>
 <a name='L111'></a><a href='#L111'>111</a>
-<a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a>
-<a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a>
-<a name='L120'></a><a href='#L120'>120</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L112'></a><a href='#L112'>112</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -208,19 +200,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">128x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">128x</span>
-<span class="cline-any cline-yes">128x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">128x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -258,9 +244,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -310,19 +294,14 @@ import { Ionicons } from '@expo/vector-icons';
 /**
  * @component InputModal
  * @description A component that renders an input used in all the modals
- *
- * @param {Object} props - The properties of the component
  * @param {string} props.placeholder - The placeholder of the input
  * @param {string} props.value - The value of the input
  * @param {Function} props.onChangeText - The function to call when the input is changed
  * @param {Object} props.style - The style of the input
  * @param {boolean} props.secureTextEntry - Whether the input is secure
  * @param {ReactNode} props.icon - The icon of the input
- *
- * @example
- * &lt;InputModal placeholder="Placeholder" value="Value" onChangeText={() =&gt; console.log('Input changed')} /&gt;
  */
-export default function InputModal({
+export default function <span class="fstat-no" title="function not covered" >InputModal(</span>{
   placeholder,
   value,
   onChangeText,
@@ -332,23 +311,22 @@ export default function InputModal({
 }) {
 &nbsp;
   // We create a hook to determine the device type
-  const { isSmartphone, isSmartphonePortrait } = useDeviceType();
+  const { isSmartphone } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
 &nbsp;
   // We create a state to store if the input is focused
-  const [isFocused, setIsFocused] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [isFocused, setIsFocused] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
+  const [showPassword, setShowPassword] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
 &nbsp;
-  return (
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;View style={styles.inputContainer}&gt;
       &lt;View style={[
         styles.inputWrapper,
-        isFocused &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.inputFocused,</span>
+        isFocused &amp;&amp; styles.inputFocused,
         style,
         isSmartphone &amp;&amp; styles.inputSmartphone,
-        isSmartphonePortrait &amp;&amp; styles.inputSmartphonePortrait,
       ]}&gt;
         {icon &amp;&amp; React.cloneElement(icon, {
-          color: isFocused ? <span class="branch-0 cbranch-no" title="branch not covered" >COLORS.orange </span>: COLORS.gray300,
+          color: isFocused ? COLORS.orange : COLORS.gray300,
         })}
         &lt;TextInput
           placeholder={placeholder}
@@ -366,7 +344,7 @@ export default function InputModal({
             style={styles.eyeIcon}
           &gt;
             &lt;Ionicons
-              name={showPassword ? <span class="branch-0 cbranch-no" title="branch not covered" >'eye-outline' </span>: 'eye-off-outline'}
+              name={showPassword ? 'eye-outline' : 'eye-off-outline'}
               size={20}
               color={COLORS.gray600}
             /&gt;
@@ -377,14 +355,14 @@ export default function InputModal({
   );
 }
 &nbsp;
-const styles = StyleSheet.create({
+const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
   inputContainer: {
     width: '100%',
   },
   inputWrapper: {
     height: 50,
     marginHorizontal: 'auto',
-    padding: 10,
+    paddingHorizontal: 10,
     width: '100%',
     backgroundColor: COLORS.gray950,
     borderRadius: SIZES.borderRadius.medium,
@@ -405,6 +383,7 @@ const styles = StyleSheet.create({
   },
   inputSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
+    height: 45,
   },
   inputFocused: {
     borderColor: COLORS.orange + '50',
@@ -412,9 +391,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.2,
     elevation: 1,
-  },
-  inputSmartphonePortrait: {
-    width: '95%',
   },
   eyeIcon: {
     marginRight: 10,
@@ -427,7 +403,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-26T09:58:24.555Z
+                at 2025-04-05T13:36:50.094Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

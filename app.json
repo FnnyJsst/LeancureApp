@@ -20,7 +20,7 @@
         {
           "icon": "./assets/images/logo-notif.png",
           "color": "#ffffff",
-          "sounds": ["./assets/notification-sound.wav"],
+          "sounds": [],
           "mode": "default",
           "androidMode": "default",
           "androidCollapsedTitle": "Nouvelle notification",

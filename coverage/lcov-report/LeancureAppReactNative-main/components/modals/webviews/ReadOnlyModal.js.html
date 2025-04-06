@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">55.55% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/9</span>
+                <span class='fraction'>0/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">71.42% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>10/14</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.33% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">55.55% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/9</span>
+                <span class='fraction'>0/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -204,9 +204,7 @@
 <a name='L139'></a><a href='#L139'>139</a>
 <a name='L140'></a><a href='#L140'>140</a>
 <a name='L141'></a><a href='#L141'>141</a>
-<a name='L142'></a><a href='#L142'>142</a>
-<a name='L143'></a><a href='#L143'>143</a>
-<a name='L144'></a><a href='#L144'>144</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L142'></a><a href='#L142'>142</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -224,17 +222,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -243,16 +239,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">24x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">24x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -296,8 +288,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -355,29 +351,27 @@ import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
+import { useTranslation } from 'react-i18next';
 &nbsp;
 /**
  * @component ReadOnly
  * @description A component that renders a modal for setting the read-only mode
- *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onToggleReadOnly - The function to call when the read-only mode is toggled
- *
- * @example
- * &lt;ReadOnly visible={visible} onClose={() =&gt; console.log('Modal closed')} onToggleReadOnly={() =&gt; console.log('Read-only mode toggled')} /&gt;
  */
-export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID }) {
+export default function <span class="fstat-no" title="function not covered" >ReadOnly(</span>{ visible, onClose, onToggleReadOnly, testID }) {
 &nbsp;
+  // Translation
+  const { t } = <span class="cstat-no" title="statement not covered" >useTranslation();</span>
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait, isLowResTablet } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
 &nbsp;
   /**
    * @function handleYes
    * @description A function to handle the "Yes" button to set the read-only mode
    */
-  const handleYes = <span class="fstat-no" title="function not covered" >()</span> =&gt; {
+  const handleYes = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    onToggleReadOnly(true);</span>
 <span class="cstat-no" title="statement not covered" >    onClose();</span>
   };
@@ -386,14 +380,14 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
    * @function handleNo
    * @description A function to handle the "No" button to set the read-only mode
    */
-  const handleNo = <span class="fstat-no" title="function not covered" >()</span> =&gt; {
+  const handleNo = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    onToggleReadOnly(false);</span>
 <span class="cstat-no" title="statement not covered" >    onClose();</span>
   };
 &nbsp;
-  return (
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
@@ -404,8 +398,9 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
         &lt;View style={[
           styles.modalContent,
           isSmartphonePortrait &amp;&amp; styles.modalContentSmartphonePortrait,
-          isSmartphoneLandscape &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentSmartphoneLandscape,</span>
-          isTabletPortrait &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentTabletPortrait,</span>
+          isSmartphoneLandscape &amp;&amp; styles.modalContentSmartphoneLandscape,
+          isTabletPortrait &amp;&amp; styles.modalContentTabletPortrait,
+          isLowResTablet &amp;&amp; styles.modalContentLowResTablet,
         ]}&gt;
           &lt;View style={[
             styles.titleContainer,
@@ -413,23 +408,23 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
             &lt;Text style={[
               styles.titleText,
               isSmartphone &amp;&amp; styles.titleTextSmartphone,
-            ]}&gt;Do you want to set channel management to read-only?&lt;/Text&gt;
+            ]}&gt;{t('modals.webview.readOnly.readOnly')}&lt;/Text&gt;
           &lt;/View&gt;
           &lt;View style={[
             styles.buttonContainer,
             isSmartphone &amp;&amp; styles.buttonContainerSmartphone,
           ]}&gt;
             &lt;Button
-              title="Yes"
+              title={t('buttons.yes')}
               backgroundColor={COLORS.orange}
-              width={isSmartphone ? '20%' : <span class="branch-1 cbranch-no" title="branch not covered" >'22%'}</span>
+              width={isSmartphone ? '23%' : '26%'}
               onPress={handleYes}
             /&gt;
             &lt;Button
-              title="No"
+              title={t('buttons.no')}
               backgroundColor={COLORS.gray950}
               color={COLORS.gray300}
-              width={isSmartphone ? '20%' : <span class="branch-1 cbranch-no" title="branch not covered" >'22%'}</span>
+              width={isSmartphone ? '23%' : '26%'}
               onPress={handleNo}
             /&gt;
           &lt;/View&gt;
@@ -439,14 +434,16 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
   );
 }
 &nbsp;
-const styles = StyleSheet.create({
-  //Container styles
+const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.backgroundModal,
     paddingBottom: '20%',
+  },
+  modalContentLowResTablet: {
+    width: '60%',
   },
   modalContent: {
     width: '40%',
@@ -465,8 +462,6 @@ const styles = StyleSheet.create({
   modalContentTabletPortrait: {
     width: '60%',
   },
-&nbsp;
-  //Title styles
   titleContainer: {
     marginBottom: 20,
   },
@@ -481,7 +476,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.biggerTextSmartphone,
   },
 &nbsp;
-  //Button styles
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -499,7 +493,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-26T09:58:24.555Z
+                at 2025-04-05T13:36:50.094Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
