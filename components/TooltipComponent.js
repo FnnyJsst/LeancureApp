@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Tooltip from 'react-native-walkthrough-tooltip';
 import { COLORS } from '../constants/style';
 
-const Tooltip = () => {
+const TooltipComponent = () => {
   const [toolTipVisible, setToolTipVisible] = useState(false);
 
   return (
@@ -57,4 +57,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Tooltip;
+export default TooltipComponent;

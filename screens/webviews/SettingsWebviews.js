@@ -1,16 +1,18 @@
-import React, { useState, useCallback, memo } from 'react';
-import { ScrollView, View, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback, memo, useEffect, useRef } from 'react';
+import { ScrollView, View, StyleSheet, BackHandler, TouchableOpacity, findNodeHandle, UIManager } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import SettingsCard from '../../components/cards/SettingsCard';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnlyModal from '../../components/modals/webviews/ReadOnlyModal';
 import PasswordDefineModal from '../../components/modals/webviews/PasswordDefineModal';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
+import TooltipModal from '../../components/modals/webviews/TooltipModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS, FONTS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../../components/text/CustomText';
 import { useTranslation } from 'react-i18next';
+import * as SecureStore from 'expo-secure-store';
 
 /**
  * Memoized components to prevent unnecessary re-renders
@@ -22,6 +24,7 @@ const MemoizedReadOnlyModal = memo(ReadOnlyModal);
 const MemoizedPasswordDefineModal = memo(PasswordDefineModal);
 const MemoizedHideMessagesModal = memo(HideMessagesModal);
 const MemoizedSettingsCard = memo(SettingsCard);
+const MemoizedTooltipModal = memo(TooltipModal);
 
 /**
  * @component SettingsWebviews
@@ -55,6 +58,11 @@ export default function SettingsWebviews({
   const { t } = useTranslation();
   const { isSmartphone, isLandscape, isSmartphonePortrait } = useDeviceType();
 
+  // Référence pour le bouton d'actualisation automatique
+  const autoRefreshButtonRef = useRef(null);
+  // Position du tooltip
+  const [tooltipPosition, setTooltipPosition] = useState({ top: '45%', left: '50%' });
+
   /**
    * Consolidated modal state management
    * Using a single state object instead of multiple useState calls
@@ -64,8 +72,28 @@ export default function SettingsWebviews({
     autoRefresh: false,
     passwordDefine: false,
     readOnly: false,
-    hideMessages: false
+    hideMessages: false,
+    tooltip: false
   });
+
+  // State pour savoir si le tooltip a déjà été affiché
+  const [hasSeenTooltip, setHasSeenTooltip] = useState(true);
+
+  // Charger l'état du tooltip au chargement du composant
+  useEffect(() => {
+    const checkTooltipStatus = async () => {
+      try {
+        const hasSeenTooltipStr = await SecureStore.getItemAsync('hasSeenAutoRefreshTooltip');
+        setHasSeenTooltip(hasSeenTooltipStr === 'true');
+      } catch (error) {
+        console.error('Erreur lors du chargement de l\'état du tooltip:', error);
+        // Par défaut, ne pas afficher le tooltip si une erreur se produit
+        setHasSeenTooltip(true);
+      }
+    };
+
+    checkTooltipStatus();
+  }, []);
 
   /**
    * Memoized callbacks to prevent unnecessary re-renders
@@ -130,12 +158,57 @@ export default function SettingsWebviews({
   }, []);
 
   /**
+   * Fonction pour marquer le tooltip comme vu
+   */
+  const markTooltipAsSeen = useCallback(async () => {
+    try {
+      await SecureStore.setItemAsync('hasSeenAutoRefreshTooltip', 'true');
+      setHasSeenTooltip(true);
+      updateModalState('tooltip', false);
+    } catch (error) {
+      console.error('Erreur lors de l\'enregistrement de l\'état du tooltip:', error);
+    }
+  }, [updateModalState]);
+
+  /**
+   * Mesurer la position du bouton d'actualisation automatique
+   */
+  const measureButton = useCallback(() => {
+    if (autoRefreshButtonRef.current) {
+      try {
+        const nodeHandle = findNodeHandle(autoRefreshButtonRef.current);
+        if (nodeHandle) {
+          UIManager.measure(nodeHandle, (x, y, width, height, pageX, pageY) => {
+            // Positionner le tooltip au-dessus du bouton avec plus de précision
+            setTooltipPosition({
+              top: pageY - 15, // Un peu au-dessus du bouton
+              left: pageX + width / 2, // Exactement au centre du bouton
+            });
+          });
+        }
+      } catch (error) {
+        console.log('Erreur de mesure:', error);
+        // Position par défaut en cas d'erreur
+        setTooltipPosition({ top: '35%', left: '50%' });
+      }
+    }
+  }, []);
+
+  /**
    * Memoized modal open handlers
    * Each function is memoized to prevent unnecessary re-renders
    */
   const openModal = useCallback(() => {
-    updateModalState('autoRefresh', true);
-  }, [updateModalState]);
+    // Si l'utilisateur n'a jamais vu le tooltip, on l'affiche
+    if (!hasSeenTooltip) {
+      // Mesurer la position du bouton avant d'afficher le tooltip
+      measureButton();
+      updateModalState('tooltip', true);
+    } else {
+      // Sinon, on ouvre directement le modal d'actualisation
+      updateModalState('autoRefresh', true);
+    }
+  }, [updateModalState, hasSeenTooltip, measureButton]);
 
   const openPasswordDefineModal = useCallback(() => {
     updateModalState('passwordDefine', true);
@@ -148,6 +221,14 @@ export default function SettingsWebviews({
   const openHideMessagesModal = useCallback(() => {
     updateModalState('hideMessages', true);
   }, [updateModalState]);
+
+  /**
+   * Gère la fermeture du tooltip et l'ouverture du modal d'actualisation automatique
+   */
+  const handleTooltipClose = useCallback(() => {
+    markTooltipAsSeen();
+    updateModalState('autoRefresh', true);
+  }, [markTooltipAsSeen, updateModalState]);
 
   return (
     <View testID={testID}>
@@ -212,6 +293,7 @@ export default function SettingsWebviews({
                 />
               </View>
               <TouchableOpacity
+                ref={autoRefreshButtonRef}
                 style={styles.baseToggle}
                 onPress={openModal}
               >
@@ -250,7 +332,7 @@ export default function SettingsWebviews({
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
                 <MemoizedSettingsCard
-                  title={t('settings.webview.password')}
+                  title={t('titles.password')}
                   description={t('settings.webview.passwordDescription')}
                   icon={<Ionicons name="lock-closed-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openPasswordDefineModal}
@@ -305,6 +387,15 @@ export default function SettingsWebviews({
           </Text>
         </View>
       </ScrollView>
+
+      {/* Tooltip qui s'affiche uniquement la première fois */}
+      <MemoizedTooltipModal
+        visible={modalState.tooltip}
+        onClose={handleTooltipClose}
+        title={t('tooltips.autoRefresh.title')}
+        message={t('tooltips.autoRefresh.message')}
+        position={tooltipPosition}
+      />
 
       {/* Modals mémorisés */}
       <MemoizedAutoRefreshModal

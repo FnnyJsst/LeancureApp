@@ -154,13 +154,14 @@ export default {
     switchAccount: "Switch account",
     edit: "Edit",
     download: "Download",
+    gotIt: "Got it",
   },
 
   titles: {
     welcome: "Welcome",
     contractNumber: "Contract number",
     login: "Login",
-    password: "Password",
+    password: "Define a password",
     stayConnected: "Stay connected",
     messages: "Messages",
     channels: "Channels",
@@ -180,7 +181,7 @@ export default {
     },
     webview: {
       quit: "Quit app",
-      quitDescription: "Quit the app and go back to the home screen",
+      quitDescription: "Go back to the home screen",
       management: "Channel management",
       managementDescription: "Access to imported channels",
       autoRefresh: "Auto-refresh",
@@ -188,11 +189,11 @@ export default {
       readOnly: "Read-only access",
       readOnlyDescription: "Access to channels without the ability to modify them",
       password: "Password",
-      passwordDescription: "Define a password to access the settings",
+      passwordDescription: "To access the settings",
       deleteChannel: "Are you sure you want to delete this channel?",
     },
     common: {
-      showHide: "Show/hide messages",
+      showHide: "Show/hide",
       showHideDescription: "Show/hide messages section of the app",
       changeServer: "Change server address",
       changeServerDescription: "Change the server address of the app",
@@ -298,5 +299,14 @@ export default {
     errorDuringDownload: "Error during download",
     noChannelsFound: "No channels found",
     couldNotDecrypt: "Could not decrypt data",
+  },
+
+  tooltips: {
+    defaultTitle: "Tip",
+    defaultMessage: "Here's a useful information about this feature.",
+    autoRefresh: {
+      title: "Auto-Refresh",
+      message: "This option allows you to set how often channels will automatically refresh.",
+    }
   },
 }

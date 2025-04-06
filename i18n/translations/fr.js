@@ -155,6 +155,7 @@ export default {
     switchAccount: "Changer de compte",
     edit: "Modifier",
     download: "Télécharger",
+    gotIt: "J'ai compris",
   },
 
   titles: {
@@ -162,7 +163,7 @@ export default {
     contractNumber: "Numéro de contrat",
     app: "Application",
     login: "Identifiant",
-    password: "Mot de passe",
+    password: "Définir un mot de passe",
     stayConnected: "Rester connecté",
     messages: "Messages",
     channels: "Canaux",
@@ -180,19 +181,19 @@ export default {
     },
     webview: {
       quit: "Quitter l'application",
-      quitDescription: "Quitter l'application et retourner à l'écran d'accueil",
+      quitDescription: "Retourner à l'écran d'accueil",
       management: "Gestion des canaux",
       managementDescription: "Accès aux canaux importés",
       autoRefresh: "Actualisation automatique",
-      autoRefreshDescription: "Définir l'intervalle d'actualisation automatique des canaux",
+      autoRefreshDescription: "Définir l'intervalle de rafraîchissement",
       readOnly: "Accès en lecture seule",
       readOnlyDescription: "Accès aux canaux sans possibilité de modification",
       password: "Mot de passe",
-      passwordDescription: "Définir un mot de passe pour accéder aux paramètres",
+      passwordDescription: "Pour accéder aux paramètres",
       deleteChannel: "Êtes-vous sûr de vouloir supprimer ce canal ?",
     },
     common: {
-      showHide: "Afficher/masquer les messages",
+      showHide: "Afficher/masquer",
       showHideDescription: "Afficher ou masquer la section messages de l'application",
       changeServer: "Changer l'adresse du serveur",
       changeServerDescription: "Modifier l'adresse du serveur de l'application",
@@ -297,5 +298,14 @@ export default {
     errorDuringDownload: "Erreur lors du téléchargement",
     noChannelsFound: "Aucune chaîne trouvée",
     couldNotDecrypt: "Impossible de déchiffrer les données",
-  }
+  },
+
+  tooltips: {
+    defaultTitle: "Astuce",
+    defaultMessage: "Voici une information utile sur cette fonctionnalité.",
+    autoRefresh: {
+      title: "Actualisation automatique",
+      message: "Cette option vous permet de définir la fréquence à laquelle les canaux importés seront rafraîchis.",
+    }
+  },
 }

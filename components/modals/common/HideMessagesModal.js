@@ -4,12 +4,11 @@ import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component HideMessagesModal
  * @description A component that renders a modal for hiding the messages section from the app menu
- *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onToggleHideMessages - The function to call when the hide messages mode is toggled
@@ -18,11 +17,8 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
-
-  // //This piece of code is only here for the V1 of the App to hide the messages section by default
-  //   React.useEffect(() => {
-  //     handleResponse(true);
-  //   }, []);
+  // Translations
+  const { t } = useTranslation();
 
   /**
    * @function handleResponse
@@ -58,7 +54,7 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
             <Text style={[
               styles.titleText,
               isSmartphone && styles.titleTextSmartphone,
-            ]}>Do you want to show or hide the messages section from the app menu?</Text>
+            ]}>{t('settings.common.showHide')}</Text>
           </View>
           <View style={[
             styles.buttonContainer,

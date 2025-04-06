@@ -161,7 +161,7 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
                     </View>
                 </View>
             </View>
-            <View style={styles.titleContainer}>
+            {/* <View style={styles.titleContainer}>
                 <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>Dépannage</Text>
             </View>
             <View style={[
@@ -186,7 +186,7 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
                         />
                     </View>
                 </View>
-            </View>
+            </View> */}
             <HideMessagesModal
                 visible={hideMessagesModalVisible}
                 onClose={() => setHideMessagesModalVisible(false)}
