@@ -1,6 +1,7 @@
-import React, { useState, useCallback, memo, useEffect, useRef } from 'react';
-import { ScrollView, View, StyleSheet, BackHandler, TouchableOpacity, findNodeHandle, UIManager } from 'react-native';
+import React, { useState, useCallback, memo, useEffect } from 'react';
+import { ScrollView, View, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import SettingsCard from '../../components/cards/SettingsCard';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnlyModal from '../../components/modals/webviews/ReadOnlyModal';
@@ -58,14 +59,6 @@ export default function SettingsWebviews({
   const { t } = useTranslation();
   const { isSmartphone, isLandscape, isSmartphonePortrait } = useDeviceType();
 
-  // Références pour les boutons
-  const autoRefreshButtonRef = useRef(null);
-  const readOnlyButtonRef = useRef(null);
-  const passwordButtonRef = useRef(null);
-  const hideMessagesButtonRef = useRef(null);
-
-  // Position du tooltip
-  const [tooltipPosition, setTooltipPosition] = useState({ top: '45%', left: '50%' });
   // Tooltip actif
   const [activeTooltip, setActiveTooltip] = useState(null);
 
@@ -106,7 +99,7 @@ export default function SettingsWebviews({
         setHasSeenTooltips(tooltipValues);
       } catch (error) {
         console.error('Erreur lors du chargement de l\'état des tooltips:', error);
-        // Par défaut, ne pas afficher les tooltips si une erreur se produit
+        // Default to show all tooltips if an error occurs
         setHasSeenTooltips({
           autoRefresh: true,
           readOnly: true,
@@ -199,38 +192,12 @@ export default function SettingsWebviews({
   }, [updateModalState]);
 
   /**
-   * Mesurer la position d'un bouton
-   */
-  const measureButton = useCallback((buttonRef) => {
-    if (buttonRef.current) {
-      try {
-        const nodeHandle = findNodeHandle(buttonRef.current);
-        if (nodeHandle) {
-          UIManager.measure(nodeHandle, (x, y, width, height, pageX, pageY) => {
-            // Positionner le tooltip au-dessus du bouton avec plus de précision
-            setTooltipPosition({
-              top: pageY - 15, // Un peu au-dessus du bouton
-              left: pageX + width / 2, // Exactement au centre du bouton
-            });
-          });
-        }
-      } catch (error) {
-        console.log('Erreur de mesure:', error);
-        // Position par défaut en cas d'erreur
-        setTooltipPosition({ top: '35%', left: '50%' });
-      }
-    }
-  }, []);
-
-  /**
    * Fonction générique pour ouvrir un modal avec vérification de tooltip
    */
-  const openModalWithTooltip = useCallback((modalKey, buttonRef) => {
+  const openModalWithTooltip = useCallback((modalKey) => {
     return () => {
       // Si l'utilisateur n'a jamais vu le tooltip, on l'affiche
       if (!hasSeenTooltips[modalKey]) {
-        // Mesurer la position du bouton avant d'afficher le tooltip
-        measureButton(buttonRef);
         setActiveTooltip(modalKey);
         updateModalState('tooltip', true);
       } else {
@@ -238,20 +205,20 @@ export default function SettingsWebviews({
         updateModalState(modalKey, true);
       }
     };
-  }, [hasSeenTooltips, measureButton, updateModalState]);
+  }, [hasSeenTooltips, updateModalState]);
 
   // Memoized handlers pour chaque bouton
-  const openAutoRefreshModal = useCallback(openModalWithTooltip('autoRefresh', autoRefreshButtonRef),
-    [openModalWithTooltip, autoRefreshButtonRef]);
+  const openAutoRefreshModal = useCallback(openModalWithTooltip('autoRefresh'),
+    [openModalWithTooltip]);
 
-  const openReadOnlyModal = useCallback(openModalWithTooltip('readOnly', readOnlyButtonRef),
-    [openModalWithTooltip, readOnlyButtonRef]);
+  const openReadOnlyModal = useCallback(openModalWithTooltip('readOnly'),
+    [openModalWithTooltip]);
 
-  const openPasswordModal = useCallback(openModalWithTooltip('password', passwordButtonRef),
-    [openModalWithTooltip, passwordButtonRef]);
+  const openPasswordModal = useCallback(openModalWithTooltip('password'),
+    [openModalWithTooltip]);
 
-  const openHideMessagesModal = useCallback(openModalWithTooltip('hideMessages', hideMessagesButtonRef),
-    [openModalWithTooltip, hideMessagesButtonRef]);
+  const openHideMessagesModal = useCallback(openModalWithTooltip('hideMessages'),
+    [openModalWithTooltip]);
 
   /**
    * Gère la fermeture du tooltip actif
@@ -302,9 +269,20 @@ export default function SettingsWebviews({
             />
           </View>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
-              {t('titles.channels')}
-            </Text>
+            <View style={styles.titleRow}>
+              <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
+                {t('titles.channels')}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveTooltip('channels');
+                  updateModalState('tooltip', true);
+                }}
+                style={styles.infoIcon}
+              >
+                <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 24} color={COLORS.gray300} />
+              </TouchableOpacity>
+            </View>
           </View>
           <View style={[styles.configContainer, isSmartphone && styles.configContainerSmartphone, isLandscape && styles.configContainerLandscape]}>
             <MemoizedSettingsCard
@@ -325,7 +303,6 @@ export default function SettingsWebviews({
                 />
               </View>
               <TouchableOpacity
-                ref={autoRefreshButtonRef}
                 style={styles.baseToggle}
                 onPress={openAutoRefreshModal}
               >
@@ -336,9 +313,20 @@ export default function SettingsWebviews({
             </View>
           </View>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
-              {t('titles.security')}
-            </Text>
+            <View style={styles.titleRow}>
+              <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
+                {t('titles.security')}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveTooltip('security');
+                  updateModalState('tooltip', true);
+                }}
+                style={styles.infoIcon}
+              >
+                <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 24} color={COLORS.gray300} />
+              </TouchableOpacity>
+            </View>
           </View>
           <View style={[styles.configContainer, isSmartphone && styles.configContainerSmartphone, isLandscape && styles.configContainerLandscape]}>
             <View style={styles.rowContainer}>
@@ -352,7 +340,6 @@ export default function SettingsWebviews({
                 />
               </View>
               <TouchableOpacity
-                ref={readOnlyButtonRef}
                 style={styles.baseToggle}
                 onPress={openReadOnlyModal}
               >
@@ -365,7 +352,7 @@ export default function SettingsWebviews({
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
                 <MemoizedSettingsCard
-                  title={t('titles.password')}
+                  title={t('settings.webview.password')}
                   description={t('settings.webview.passwordDescription')}
                   icon={<Ionicons name="lock-closed-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
                   onPress={openPasswordModal}
@@ -373,7 +360,6 @@ export default function SettingsWebviews({
                 />
               </View>
               <TouchableOpacity
-                ref={passwordButtonRef}
                 style={styles.baseToggle}
                 onPress={openPasswordModal}
               >
@@ -384,7 +370,20 @@ export default function SettingsWebviews({
             </View>
           </View>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>{t('titles.messages')}</Text>
+            <View style={styles.titleRow}>
+              <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
+                {t('titles.messages')}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveTooltip('messages');
+                  updateModalState('tooltip', true);
+                }}
+                style={styles.infoIcon}
+              >
+                <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 24} color={COLORS.gray300} />
+              </TouchableOpacity>
+            </View>
           </View>
           <View style={[styles.configContainer, isSmartphone && styles.configContainerSmartphone, isLandscape && styles.configContainerLandscape]}>
             <View style={styles.rowContainer}>
@@ -405,7 +404,6 @@ export default function SettingsWebviews({
                 />
               </View>
               <TouchableOpacity
-                ref={hideMessagesButtonRef}
                 style={styles.baseToggle}
                 onPress={openHideMessagesModal}
               >
@@ -429,7 +427,6 @@ export default function SettingsWebviews({
         onClose={handleTooltipClose}
         title={activeTooltip ? t(`tooltips.${activeTooltip}.title`) : ''}
         message={activeTooltip ? t(`tooltips.${activeTooltip}.message`) : ''}
-        position={tooltipPosition}
       />
 
       {/* Modals mémorisés */}
@@ -539,5 +536,13 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: COLORS.gray700,
     marginVertical: 12,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  infoIcon: {
+    padding: 4,
   },
 });

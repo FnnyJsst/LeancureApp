@@ -307,19 +307,31 @@ export default {
     defaultMessage: 'Here is a useful information to help you use this feature.',
     autoRefresh: {
       title: 'Auto-Refresh',
-      message: 'You can set your channels to automatically refresh at regular intervals. Useful for keeping your information up to date without intervention.'
+      message: 'This feature allows you to automatically refresh channels at regular intervals. You can choose between 1, 5, 10, or 15 minutes.'
     },
     readOnly: {
       title: 'Read-Only Access',
-      message: 'This mode allows you to view channels without the ability to modify or delete them.'
+      message: 'Read-only access prevents users from modifying messages in channels. Only administrators can disable this option.'
     },
     password: {
-      title: 'Password Protection',
-      message: 'Secure access to the application with a password. This option is recommended if you share your device with others.'
+      title: 'Password',
+      message: 'The password protects access to channels. Users will need to enter it to access messages.'
     },
     hideMessages: {
       title: 'Show/Hide Messages',
-      message: 'You can choose to show or hide the use of messages in the application.'
+      message: 'This option allows you to temporarily hide messages in channels. Useful for focusing on a specific task.'
+    },
+    channels: {
+      title: 'Channel Management',
+      message: 'This section allows you to manage channels and their auto-refresh settings. Configure the refresh frequency according to your needs.'
+    },
+    security: {
+      title: 'Channel Security',
+      message: 'In this section, you can configure channel security by enabling read-only access and setting a password to protect access.'
+    },
+    messages: {
+      title: 'Message Management',
+      message: 'This section allows you to control message display. You can temporarily hide messages to focus on a specific task.'
     }
   },
 }

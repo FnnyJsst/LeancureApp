@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Modal, TouchableOpacity, Dimensions } from 'react-native';
 import { COLORS, SIZES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../text/CustomText';
@@ -8,16 +8,15 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 
 /**
  * @component TooltipModal
- * @description A modal that displays a tooltip with instructions in form of a speech bubble
+ * @description A modal that displays a tooltip with instructions
  * @param {boolean} visible - Whether the modal is visible
  * @param {Function} onClose - Function to call when the modal is closed
  * @param {string} title - The title of the tooltip
  * @param {string} message - The message to display in the tooltip
- * @param {Object} position - Position of the tooltip relative to the element it explains
  */
-export default function TooltipModal({ visible, onClose, title, message, position = { top: '45%', left: '50%' } }) {
+export default function TooltipModal({ visible, onClose, title, message }) {
   const { t } = useTranslation();
-  const { isSmartphone, isLandscape } = useDeviceType();
+  const { isSmartphone } = useDeviceType();
 
   return (
     <Modal
@@ -27,35 +26,22 @@ export default function TooltipModal({ visible, onClose, title, message, positio
       onRequestClose={onClose}
     >
       <View style={styles.centeredView}>
-        <View
-          style={[
-            styles.tooltipContainer,
-            isSmartphone && styles.tooltipContainerSmartphone,
-            isLandscape && styles.tooltipContainerLandscape,
-            { top: position.top, left: position.left }
-          ]}
-        >
-          {/* Flèche pointant vers l'élément */}
-          <View style={styles.tooltipArrow} />
+        <View style={[styles.modalView, isSmartphone && styles.modalViewSmartphone]}>
+          <View style={styles.contentContainer}>
+            <Text style={[styles.message, isSmartphone && styles.messageSmartphone]}>
+              {message || t('tooltips.defaultMessage')}
+            </Text>
+          </View>
 
-          {/* Bulle principale */}
-          <View style={[styles.modalView, isSmartphone && styles.modalViewSmartphone]}>
-            <View style={styles.contentContainer}>
-              <Text style={[styles.message, isSmartphone && styles.messageSmartphone]}>
-                {message || t('tooltips.defaultMessage')}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={onClose}
+            >
+              <Text style={[styles.buttonText, isSmartphone && styles.buttonTextSmartphone]}>
+                {t('buttons.gotIt')}
               </Text>
-            </View>
-
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={onClose}
-              >
-                <Text style={[styles.buttonText, isSmartphone && styles.buttonTextSmartphone]}>
-                  {t('buttons.gotIt')}
-                </Text>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -66,35 +52,13 @@ export default function TooltipModal({ visible, onClose, title, message, positio
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: COLORS.backgroundModal,
   },
-  tooltipContainer: {
-    position: 'absolute',
-    alignItems: 'center',
-    transform: [{ translateX: -300 }],  // Ajustement pour un meilleur centrage
-  },
-  tooltipContainerSmartphone: {
-    width: '85%',
-  },
-  tooltipContainerLandscape: {
-    transform: [{ translateX: -660 }],  // Ajustement pour un meilleur centrage
-  },
-  tooltipArrow: {
-    width: 0,
-    height: 0,
-    backgroundColor: 'transparent',
-    borderStyle: 'solid',
-    borderLeftWidth: 12,
-    borderRightWidth: 12,
-    borderBottomWidth: 15,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: COLORS.orange,
-    marginBottom: -1,
-  },
   modalView: {
-    width: '100%',
-    maxWidth: 360,
+    width: '50%',
+    maxWidth: 500,
     backgroundColor: COLORS.orange,
     borderRadius: SIZES.borderRadius.xLarge,
     padding: 20,
@@ -108,6 +72,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   modalViewSmartphone: {
+    width: '85%',
     padding: 16,
   },
   contentContainer: {

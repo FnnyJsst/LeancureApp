@@ -306,19 +306,31 @@ export default {
     defaultMessage: 'Voici une information utile pour vous aider à utiliser cette fonctionnalité.',
     autoRefresh: {
       title: 'Actualisation automatique',
-      message: 'Vous pouvez configurer vos canaux pour qu\'ils s\'actualisent automatiquement à intervalle régulier. Pratique pour garder vos informations à jour sans intervention.'
+      message: 'Cette fonctionnalité permet de rafraîchir automatiquement les canaux à intervalles réguliers. Vous pouvez choisir entre 1, 5, 10 ou 15 minutes.'
     },
     readOnly: {
       title: 'Accès en lecture seule',
-      message: 'Ce mode permet de visualiser les canaux importés sans possibilité de les modifier ou de les supprimer.'
+      message: 'L\'accès en lecture seule empêche les utilisateurs de modifier les messages dans les canaux. Seuls les administrateurs peuvent désactiver cette option.'
     },
     password: {
-      title: 'Protection par mot de passe',
-      message: 'Sécurisez l\'accès à l\'application avec un mot de passe. Cette option est recommandée si vous partagez votre appareil avec d\'autres personnes.'
+      title: 'Mot de passe',
+      message: 'Le mot de passe protège l\'accès aux canaux. Les utilisateurs devront le saisir pour accéder aux messages.'
     },
     hideMessages: {
       title: 'Afficher/Masquer les messages',
-      message: 'Vous pouvez choisir d\'afficher ou de masquer l\'utilisation des messages dans l\'application.'
+      message: 'Cette option permet de masquer temporairement les messages dans les canaux. Utile pour se concentrer sur une tâche spécifique.'
+    },
+    channels: {
+      title: 'Gestion des canaux',
+      message: 'Cette section vous permet de gérer les canaux et leurs paramètres d\'actualisation automatique. Configurez la fréquence de rafraîchissement selon vos besoins.'
+    },
+    security: {
+      title: 'Sécurité des canaux',
+      message: 'Dans cette section, vous pouvez configurer la sécurité des canaux en activant l\'accès en lecture seule et en définissant un mot de passe pour protéger l\'accès.'
+    },
+    messages: {
+      title: 'Gestion des messages',
+      message: 'Cette section vous permet de contrôler l\'affichage des messages. Vous pouvez temporairement masquer les messages pour vous concentrer sur une tâche spécifique.'
     }
   },
 }
