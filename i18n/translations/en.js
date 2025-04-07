@@ -172,6 +172,7 @@ export default {
     noNameGroup: "Group without name",
     noNameChannel: "Channel without name",
     version: "Version",
+    server: "Server",
   },
 
   settings: {
@@ -329,9 +330,9 @@ export default {
       title: 'Channel Security',
       message: 'In this section, you can configure channel security by enabling read-only access and setting a password to protect access.'
     },
-    messages: {
-      title: 'Message Management',
-      message: 'This section allows you to control message display. You can temporarily hide messages to focus on a specific task.'
+    server: {
+      title: 'Server Configuration',
+      message: 'This section allows you to modify the application server address.'
     }
   },
 }

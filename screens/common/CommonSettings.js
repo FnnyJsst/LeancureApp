@@ -9,6 +9,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import SettingsCard from '../../components/cards/SettingsCard';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
 import ChangeServerAddressModal from '../../components/modals/common/ChangeServerAddressModal';
+import TooltipModal from '../../components/modals/webviews/TooltipModal';
 import { cleanSecureStore } from '../../services/api/authApi';
 import { SCREENS } from '../../constants/screens';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +30,8 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
 
     const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
     const [changeServerAddressModalVisible, setChangeServerAddressModalVisible] = useState(false);
+    const [tooltipVisible, setTooltipVisible] = useState(false);
+    const [activeTooltip, setActiveTooltip] = useState(null);
 
     /**
      * @function handleToggleHideMessages
@@ -55,47 +58,9 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
         setChangeServerAddressModalVisible(false);
     };
 
-    /**
-     * @function handleCleanStorage
-     * @description Handles the clean storage action
-     */
-    const handleCleanStorage = async () => {
-        Alert.alert(
-            t('titles.confirm'),
-            t('messages.confirmCleanStorage'),
-            [
-                {
-                    text: t('buttons.cancel'),
-                    style: 'cancel'
-                },
-                {
-                    text: t('buttons.confirm'),
-                    onPress: async () => {
-                        try {
-                            console.log('🧹 Nettoyage du stockage sécurisé...');
-                            const result = await cleanSecureStore();
-                            if (result) {
-                                Alert.alert(
-                                    t('titles.success'),
-                                    t('messages.storageCleanedSuccess'),
-                                    [
-                                        {
-                                            text: 'OK',
-                                            onPress: () => onNavigate && onNavigate(SCREENS.LOGIN)
-                                        }
-                                    ]
-                                );
-                            } else {
-                                Alert.alert(t('titles.error'), t('messages.storageCleanedError'));
-                            }
-                        } catch (error) {
-                            console.error('❌ Erreur lors du nettoyage du stockage:', error);
-                            Alert.alert(t('titles.error'), t('messages.storageCleanedError'));
-                        }
-                    }
-                }
-            ]
-        );
+    const handleShowTooltip = (tooltipKey) => {
+        setActiveTooltip(tooltipKey);
+        setTooltipVisible(true);
     };
 
     return (
@@ -105,7 +70,13 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
                 onBackPress={onBackPress}
             />
             <View style={styles.titleContainer}>
-                <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>Messages</Text>
+                <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>{t('titles.messages')}</Text>
+                <TouchableOpacity
+                    onPress={() => handleShowTooltip('hideMessages')}
+                    style={styles.infoIcon}
+                >
+                    <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 24} color={COLORS.gray300} />
+                </TouchableOpacity>
             </View>
             <View style={[
                 styles.configContainer,
@@ -115,16 +86,16 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
                 <View style={styles.rowContainer}>
                     <View style={styles.leftContent}>
                         <SettingsCard
-                            title="Show/hide messages"
-                            iconBackgroundColor={COLORS.burgundy}
+                            title={t('settings.common.showHide')}
+                            iconBackgroundColor={COLORS.borderColor}
                             icon={
                                 <Ionicons
-                                    name="remove-circle-outline"
+                                    name="mail-outline"
                                     size={isSmartphone ? 22 : 28}
-                                    color={COLORS.red}
+                                    color={COLORS.orange}
                                 />
                             }
-                            description="Show or hide the message section of the app"
+                            description={t('settings.common.showHideDescription')}
                             onPress={() => setHideMessagesModalVisible(true)}
                         />
                     </View>
@@ -133,10 +104,19 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
                         onPress={() => setHideMessagesModalVisible(true)}
                     >
                         <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
-                            {isMessagesHidden ? 'Hide' : 'Show'}
+                            {isMessagesHidden ? t('buttons.hide') : t('buttons.show')}
                         </Text>
                     </TouchableOpacity>
                 </View>
+            </View>
+            <View style={styles.titleContainer}>
+                <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>{t('titles.server')}</Text>
+                <TouchableOpacity
+                    onPress={() => handleShowTooltip('server')}
+                    style={styles.infoIcon}
+                >
+                    <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 24} color={COLORS.gray300} />
+                </TouchableOpacity>
             </View>
             <View style={[
                 styles.configContainer,
@@ -146,7 +126,7 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
                 <View style={styles.rowContainer}>
                     <View style={styles.leftContent}>
                         <SettingsCard
-                            title="Change server address"
+                            title={t('settings.common.changeServer')}
                             iconBackgroundColor={COLORS.borderColor}
                             icon={
                                 <Ionicons
@@ -155,38 +135,12 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
                                     color={COLORS.orange}
                                 />
                             }
-                            description="Change the server address of the app"
+                            description={t('settings.common.changeServerDescription')}
                             onPress={openChangeServerAddressModal}
                         />
                     </View>
                 </View>
             </View>
-            {/* <View style={styles.titleContainer}>
-                <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>Dépannage</Text>
-            </View>
-            <View style={[
-                styles.configContainer,
-                isSmartphone && styles.configContainerSmartphone,
-                isLandscape && styles.configContainerLandscape,
-            ]}>
-                <View style={styles.rowContainer}>
-                    <View style={styles.leftContent}>
-                        <SettingsCard
-                            title="Réinitialiser le stockage sécurisé"
-                            iconBackgroundColor={COLORS.burgundy}
-                            icon={
-                                <Ionicons
-                                    name="refresh-outline"
-                                    size={isSmartphone ? 22 : 28}
-                                    color={COLORS.red}
-                                />
-                            }
-                            description="Nettoyer le stockage en cas d'erreurs de déchiffrement"
-                            onPress={handleCleanStorage}
-                        />
-                    </View>
-                </View>
-            </View> */}
             <HideMessagesModal
                 visible={hideMessagesModalVisible}
                 onClose={() => setHideMessagesModalVisible(false)}
@@ -196,6 +150,11 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
                 visible={changeServerAddressModalVisible}
                 onClose={closeChangeServerAddressModal}
             />
+            <TooltipModal
+                visible={tooltipVisible}
+                onClose={() => setTooltipVisible(false)}
+                message={activeTooltip ? t(`tooltips.${activeTooltip}.message`) : ''}
+            />
         </>
     );
 };
@@ -204,6 +163,10 @@ const styles = StyleSheet.create({
   titleContainer: {
     marginHorizontal: 35,
     marginTop: 12,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   title: {
     color: COLORS.gray300,
@@ -251,6 +214,9 @@ const styles = StyleSheet.create({
     padding: 8,
     minWidth: 40,
     alignItems: 'center',
+  },
+  infoIcon: {
+    padding: 4,
   },
 });
 

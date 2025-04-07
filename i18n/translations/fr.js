@@ -172,6 +172,7 @@ export default {
     welcomeBack: "Bienvenue",
     noNameGroup: "Groupe sans nom",
     noNameChannel: "Canal sans nom",
+    server: "Serveur",
   },
 
   settings: {
@@ -318,7 +319,7 @@ export default {
     },
     hideMessages: {
       title: 'Afficher/Masquer les messages',
-      message: 'Cette option permet de masquer temporairement les messages dans les canaux. Utile pour se concentrer sur une tâche spécifique.'
+      message: 'Cette option permet de masquer les messages de l\'application.'
     },
     channels: {
       title: 'Gestion des canaux',
@@ -328,9 +329,9 @@ export default {
       title: 'Sécurité des canaux',
       message: 'Dans cette section, vous pouvez configurer la sécurité des canaux en activant l\'accès en lecture seule et en définissant un mot de passe pour protéger l\'accès.'
     },
-    messages: {
-      title: 'Gestion des messages',
-      message: 'Cette section vous permet de contrôler l\'affichage des messages. Vous pouvez temporairement masquer les messages pour vous concentrer sur une tâche spécifique.'
+    server: {
+      title: 'Configuration du serveur',
+      message: 'Cette section vous permet de modifier l\'adresse du serveur de l\'application.'
     }
   },
 }
