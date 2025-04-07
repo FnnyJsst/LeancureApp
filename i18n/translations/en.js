@@ -254,7 +254,6 @@ export default {
     invalidFile: "Invalid file",
     invalidMessageText: "Invalid message text",
     noCredentialsFound: "No credentials found",
-    noDeletePermission: "You do not have permission to delete this message",
     invalidChannel: "Invalid channel",
     invalidMessageEdit: "Invalid message for editing",
     errorEditingMessage: "Error editing message",

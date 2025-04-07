@@ -253,7 +253,6 @@ export default {
     invalidFile: "Fichier invalide",
     invalidMessageText: "Message texte invalide",
     noCredentialsFound: "Aucune information de connexion trouvée",
-    noDeletePermission: "Vous n'avez pas les droits pour supprimer ce message",
     invalidChannel: "Canal invalide",
     invalidMessageEdit: "Message invalide pour l'édition",
     errorEditingMessage: "Erreur lors de l'édition du message",
