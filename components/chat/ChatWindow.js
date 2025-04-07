@@ -24,16 +24,30 @@ import { useNotification } from '../../services/notificationContext';
  */
 export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange }) {
 
-  //Translation and device type hooks
+  //Translations
   const { t } = useTranslation();
+  // Device type detection
   const { isSmartphone } = useDeviceType();
+  // Notification hook
   const { recordSentMessage, markChannelAsUnread } = useNotification();
+  // WebSocket hook
+  const { closeConnection } = useWebSocket({
+    onMessage: handleWebSocketMessage,
+    onError: handleWebSocketError,
+    channels: channel ? [`channel_${channel.id}`] : [],
+    subscriptions: channel ? [{
+      type: 'channel',
+      id: channel.id
+    }] : []
+  });
+
 
   // Refs are used to avoid re-rendering the component when the state changes
   const scrollViewRef = useRef();
   const updatingRef = useRef(false);
   const processedMessageIds = useRef(new Set());
 
+  // States
   const [isDocumentPreviewModalVisible, setIsDocumentPreviewModalVisible] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState(null);
   const [selectedFileName, setSelectedFileName] = useState(null);
@@ -47,16 +61,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [editingMessage, setEditingMessage] = useState(null);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
 
-  // WebSocket hook
-  const { closeConnection } = useWebSocket({
-    onMessage: handleWebSocketMessage,
-    onError: handleWebSocketError,
-    channels: channel ? [`channel_${channel.id}`] : [],
-    subscriptions: channel ? [{
-      type: 'channel',
-      id: channel.id
-    }] : []
-  });
 
   /**
    * @description Load the files of the messages
@@ -162,14 +166,13 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @returns {Object} The formatted message
    */
   const formatMessage = (msg, credentials) => {
-    const messageText = msg.message || '';
+    const messageText = msg.text || msg.message || '';
     const isOwnMessageByLogin = msg.login === credentials?.login;
 
     return {
       id: msg.id?.toString() || Date.now().toString(),
       type: msg.type || 'text',
       text: messageText,
-      message: messageText,
       savedTimestamp: msg.savedTimestamp || Date.now().toString(),
       fileType: msg.fileType || 'none',
       login: msg.login || 'unknown',
@@ -190,7 +193,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // If the message has already been processed, we ignore it
       if (messageId && processedMessageIds.current.has(messageId)) {
-        console.log('⏭️ Message déjà traité, ignoré:', messageId);
         return;
       }
 
@@ -246,16 +248,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           return;
         }
 
-        // Enrichissement du message avec les informations nécessaires pour la détection des messages propres
         messageContent.channelId = cleanReceivedChannelId;
 
-        // Si nous avons des credentials et un login, nous pouvons pré-déterminer si c'est un message propre
+        // We check if we are the sender of the message
         if (credentials && credentials.login && messageContent.login) {
           messageContent.isOwnMessage = messageContent.login === credentials.login;
         }
 
         // We play the notification sound
-        // The variable globally currentlyViewedChannel will be used automatically
         await playNotificationSound(messageContent, null, credentials);
 
         // If the message content is an array of messages, we update the messages
@@ -321,13 +321,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         if (credentials && credentials.login && messageContent.login) {
           messageContent.isOwnMessage = messageContent.login === credentials.login;
         }
-
-        console.log('📨 Notification imbriquée formatée:', JSON.stringify({
-          id: messageContent.id,
-          login: messageContent.login,
-          isOwnMessage: messageContent.isOwnMessage,
-          channelId
-        }));
 
         // We play the notification sound
         // The variable globally currentlyViewedChannel will be used automatically
@@ -429,10 +422,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = useCallback(async (messageData) => {
     try {
-      console.log('=== Début sendMessage ===');
-      console.log('MessageData reçu:', messageData);
 
-      // On enregistre l'horodatage du message envoyé pour éviter des notifications
+      // We record the timestamp of the sent message to avoid notifications
       const currentTime = Date.now();
       recordSentMessage(currentTime);
 
@@ -461,18 +452,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // Check if the message is an edit of an existing message
       const isEditing = messageData.isEditing === true && messageData.messageId;
-      console.log('Est-ce une édition?', isEditing);
 
       if (isEditing) {
-        console.log('Edition d\'un message existant:', messageData.messageId);
 
         try {
           // We send the editing request
           const response = await editMessageApi(messageData.messageId, messageData, userCredentials);
-          console.log('Réponse de l\'édition:', response);
 
           if (response.status === 'ok') {
-            console.log('✅ Message édité avec succès');
             setEditingMessage(null);
 
             // We update the messages
@@ -505,24 +492,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       // For a new message (non-editing), we continue with the existing code
       // We check the type of message
       if (messageData.type === 'file') {
-        console.log('Message de type fichier détecté');
-        console.log('Type de fichier:', messageData.fileType);
-        console.log('Nom du fichier:', messageData.fileName);
-        console.log('Taille du fichier:', messageData.fileSize);
 
         if (!messageData.base64) {
-          console.log('Erreur: Pas de base64 pour le fichier');
           handleChatError(t('errors.invalidFile'), 'sendMessage.validation');
           return;
         }
 
-        if (messageData.fileType === 'csv') {
-          console.log('Traitement spécial pour un fichier CSV');
-          console.log('Contenu CSV (premiers caractères):', messageData.base64.substring(0, 100));
-        }
       } else {
         const messageText = typeof messageData === 'object' ? messageData.text : messageData;
-        console.log('Message texte:', messageText);
         // If the message text is invalid, we throw an error
         if (!messageText || messageText.trim() === '') {
           handleChatError(t('errors.emptyMessage'), 'sendMessage.validation');
@@ -531,18 +508,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       }
 
       // We send the message
-      // Important: we explicitly mark that it is our own message
       const messageToSend = messageData.type === 'file' ? {
         ...messageData,
         login: userCredentials.login,
-        isOwnMessage: true,  // Explicit flag
-        sendTimestamp        // Add the timestamp for traceability
+        isOwnMessage: true,
+        sendTimestamp
       } : {
         type: 'text',
         message: typeof messageData === 'object' ? messageData.text : messageData,
         login: userCredentials.login,
-        isOwnMessage: true,  // Explicit flag
-        sendTimestamp        // Add the timestamp for traceability
+        isOwnMessage: true,
+        sendTimestamp
       };
 
       // We format the message and add it to the list of messages
@@ -559,7 +535,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           const messageExists = prevMessages.some((msg) => msg.id === response.id);
 
           if (messageExists) {
-            console.log('Message already exists:', response.id);
             return prevMessages;
           }
 
@@ -570,7 +545,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             savedTimestamp: Date.now().toString(),
           };
 
-          console.log('New message added to list:', completeMessage);
           return [...prevMessages, completeMessage];
         });
       } else {

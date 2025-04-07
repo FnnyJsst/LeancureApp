@@ -18,7 +18,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/logo-notif.png",
+          "icon": "./assets/images/Loop.png",
           "color": "#ffffff",
           "sounds": [],
           "mode": "default",
