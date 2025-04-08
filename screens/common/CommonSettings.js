@@ -75,7 +75,7 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
                     onPress={() => handleShowTooltip('hideMessages')}
                     style={styles.infoIcon}
                 >
-                    <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 24} color={COLORS.gray300} />
+                    <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 18} color={COLORS.gray300} />
                 </TouchableOpacity>
             </View>
             <View style={[
@@ -115,7 +115,7 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
                     onPress={() => handleShowTooltip('server')}
                     style={styles.infoIcon}
                 >
-                    <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 24} color={COLORS.gray300} />
+                    <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 18} color={COLORS.gray300} />
                 </TouchableOpacity>
             </View>
             <View style={[

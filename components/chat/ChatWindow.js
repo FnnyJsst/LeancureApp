@@ -28,8 +28,9 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const { t } = useTranslation();
   const { isSmartphone } = useDeviceType();
   const { recordSentMessage, markChannelAsUnread } = useNotification();
-  const { credentials, userRights, isLoading } = useCredentials();
 
+  const { credentials, userRights, isLoading } = useCredentials();
+  // WebSocket hook
   const { closeConnection } = useWebSocket({
     onMessage: handleWebSocketMessage,
     onError: handleWebSocketError,
@@ -56,19 +57,25 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [editingMessage, setEditingMessage] = useState(null);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
 
-  // Error handling
+  // Modifier handleChatError pour ne plus utiliser useTranslation à l'intérieur
   const handleChatError = useCallback((error, source, options = {}) => {
-    return handleError(error, `chatWindow.${source}`, {
-      type: ErrorType.SYSTEM,
-      ...options
-    });
+    // On s'assure d'avoir une chaîne simple
+    const message = typeof error === 'string' ? error : 'Erreur lors de l\'envoi du message';
+
+    if (!options.silent) {
+        // Affichage de l'erreur
+        showErrorToast(message);
+    }
+
+    // Log pour debug
+    console.error(`[${source}] ${message}`);
   }, []);
 
-
+  /**
+   * @description Load the files of the messages
+   */
   useEffect(() => {
-    // We load the files of the messages only if the component is loaded, the credentials are set, the channel is set and there are messages
     if (!isLoading && credentials && channel && messages.length > 0 && !updatingRef.current) {
-      // We filter the messages that need to be loaded
       const messagesNeedingFiles = messages.filter(msg =>
         msg.type === 'file' &&
         !msg.base64 &&
@@ -76,25 +83,22 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         msg.fileType.toLowerCase() !== 'none'
       );
 
-      // If there are no messages needing files, we don't load anything
       if (messagesNeedingFiles.length === 0) return;
 
-      /**
-       * @function loadFiles
-       * @description Load the files of the messages
-       */
       const loadFiles = async () => {
         updatingRef.current = true;
         try {
           // We create a batch size to avoid loading all the files at once
           const batchSize = 3;
+          // We create a copy of the messages
           const updatedMessages = [...messages];
           let hasUpdates = false;
 
           // We loop through the messages needing files
           for (let i = 0; i < messagesNeedingFiles.length; i += batchSize) {
-            // We create a batch of messages and load the files
+            // We create a batch of messages
             const batch = messagesNeedingFiles.slice(i, i + batchSize);
+            // We load the files
             await Promise.all(
               batch.map(async (msg) => {
                 try {
@@ -104,6 +108,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     ...msg,
                   }, credentials);
 
+                  // We update the message
                   const index = updatedMessages.findIndex(m => m.id === msg.id);
                   // If the message is found and the base64 is set, we update the message
                   if (index !== -1 && base64) {
@@ -138,10 +143,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     }
   }, [isLoading, credentials, channel, messages]);
 
-
+  /**
+   * @description Update the messages when the channel messages change
+   */
   useEffect(() => {
     if (channel && channelMessages) {
-      // We update the messages only if there are new messages in the channel
+      // We update the messages only if there are new messages
       if (channelMessages.length > 0) {
         setMessages(channelMessages);
       }
@@ -157,7 +164,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const formatMessage = (msg, credentials) => {
     const messageText = msg.text || msg.message || '';
-    // We check if the message is our own
     const isOwnMessageByLogin = msg.login === credentials?.login;
 
     return {
@@ -176,95 +182,95 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   /**
    * @function handleWebSocketMessage
-   * @description Handle the message received from the WebSocket
+   * @description Handle the WebSocket message
    */
   const handleWebSocketMessage = useCallback(async (data) => {
     try {
-        // Vérification des doublons
-        const messageId = data.message?.id || data.notification?.message?.id;
-        if (messageId && processedMessageIds.current.has(messageId)) {
-            return;
+      // Vérification des doublons
+      const messageId = data.message?.id || data.notification?.message?.id;
+      if (messageId && processedMessageIds.current.has(messageId)) {
+        return;
+      }
+      if (messageId) {
+        processedMessageIds.current.add(messageId);
+      }
+
+      // Extraction du message et du canal
+      const messageContent = data.message || data.notification?.message;
+      const channelId = data.filters?.values?.channel || data.notification?.filters?.values?.channel;
+
+      if (!messageContent) {
+        return;
+      }
+
+      // Vérification du canal
+      const currentChannelId = channel?.id?.toString();
+      if (!currentChannelId) {
+        handleChatError(t('errors.noCurrentChannel'), 'message.validation');
+        return;
+      }
+
+      // Nettoyage des IDs de canal
+      const cleanReceivedChannelId = channelId?.toString()?.replace('channel_', '');
+      const cleanCurrentChannelId = currentChannelId?.toString()?.replace('channel_', '');
+
+      if (cleanReceivedChannelId !== cleanCurrentChannelId) {
+        handleChatError(t('errors.channelMismatch'), 'message.validation');
+        return;
+      }
+
+      // Enrichissement du message
+      messageContent.channelId = cleanReceivedChannelId;
+      messageContent.isOwnMessage = credentials?.login === messageContent.login;
+
+      // Gestion des notifications non lues
+      if (data.notification?.type === 'chat' && !messageContent.isOwnMessage) {
+        markChannelAsUnread(cleanReceivedChannelId);
+      }
+
+      // Son de notification
+      try {
+        await playNotificationSound(messageContent, null, credentials);
+      } catch (error) {
+        handleChatError(error, 'notification.sound', { silent: true });
+      }
+
+      // Mise à jour des messages
+      const updateMessages = (messages) => {
+        if (Array.isArray(messages)) {
+          return messages
+            .filter(msg => !processedMessageIds.current.has(msg.id))
+            .map(msg => {
+              processedMessageIds.current.add(msg.id);
+              return formatMessage(msg, credentials);
+            });
         }
-        if (messageId) {
-            processedMessageIds.current.add(messageId);
+        return [formatMessage(messages, credentials)];
+      };
+
+      setMessages(prevMessages => {
+        const newMessages = updateMessages(
+          messageContent.type === 'messages' ? messageContent.messages : messageContent
+        );
+
+        // Filtrer les messages déjà existants
+        const uniqueNewMessages = newMessages.filter(newMsg =>
+          !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
+        );
+
+        if (uniqueNewMessages.length === 0) {
+          return prevMessages;
         }
 
-        // Extraction du message et du canal
-        const messageContent = data.message || data.notification?.message;
-        const channelId = data.filters?.values?.channel || data.notification?.filters?.values?.channel;
-
-        if (!messageContent) {
-            return;
-        }
-
-        // Vérification du canal
-        const currentChannelId = channel?.id?.toString();
-        if (!currentChannelId) {
-            handleChatError(t('errors.noCurrentChannel'), 'message.validation');
-            return;
-        }
-
-        // Nettoyage des IDs de canal
-        const cleanReceivedChannelId = channelId?.toString()?.replace('channel_', '');
-        const cleanCurrentChannelId = currentChannelId?.toString()?.replace('channel_', '');
-
-        if (cleanReceivedChannelId !== cleanCurrentChannelId) {
-            handleChatError(t('errors.channelMismatch'), 'message.validation');
-            return;
-        }
-
-        // Enrichissement du message
-        messageContent.channelId = cleanReceivedChannelId;
-        messageContent.isOwnMessage = credentials?.login === messageContent.login;
-
-        // Gestion des notifications non lues
-        if (data.notification?.type === 'chat' && !messageContent.isOwnMessage) {
-            markChannelAsUnread(cleanReceivedChannelId);
-        }
-
-        // Son de notification
-        try {
-            await playNotificationSound(messageContent, null, credentials);
-        } catch (error) {
-            handleChatError(error, 'notification.sound', { silent: true });
-        }
-
-        // Mise à jour des messages
-        const updateMessages = (messages) => {
-            if (Array.isArray(messages)) {
-                return messages
-                    .filter(msg => !processedMessageIds.current.has(msg.id))
-                    .map(msg => {
-                        processedMessageIds.current.add(msg.id);
-                        return formatMessage(msg, credentials);
-                    });
-            }
-            return [formatMessage(messages, credentials)];
-        };
-
-        setMessages(prevMessages => {
-            const newMessages = updateMessages(
-                messageContent.type === 'messages' ? messageContent.messages : messageContent
-            );
-
-            // Filtrer les messages déjà existants
-            const uniqueNewMessages = newMessages.filter(newMsg =>
-                !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
-            );
-
-            if (uniqueNewMessages.length === 0) {
-                return prevMessages;
-            }
-
-            return [...prevMessages, ...uniqueNewMessages].sort((a, b) =>
-                parseInt(a.savedTimestamp) - parseInt(b.savedTimestamp)
-            );
-        });
+        return [...prevMessages, ...uniqueNewMessages].sort((a, b) =>
+          parseInt(a.savedTimestamp) - parseInt(b.savedTimestamp)
+        );
+      });
 
     } catch (error) {
-        handleChatError(error, 'message.processing', { silent: false });
+      handleChatError(error, 'message.processing', { silent: false });
     }
-}, [channel, credentials, t, markChannelAsUnread]);
+  }, [channel, credentials, t, markChannelAsUnread]);
 
   /**
    * @function handleWebSocketError
@@ -313,122 +319,25 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = useCallback(async (messageData) => {
     try {
-      const currentTime = Date.now();
-      recordSentMessage(currentTime);
-
       if (!channel) {
-        handleChatError(t('errors.noChannel'), 'sendMessage.validation');
-        return;
+        throw 'Canal non défini';
       }
 
       if (!credentials) {
-        handleChatError(t('errors.noCredentials'), 'sendMessage.validation');
-        return;
+        throw 'Identifiants manquants';
       }
 
-      const sendTimestamp = Date.now();
+      const response = await sendMessageApi(channel.id, messageData, credentials);
 
-      // Check if the message is an edit of an existing message
-      const isEditing = messageData.isEditing === true && messageData.messageId;
-
-      if (isEditing) {
-        try {
-          // We send the editing request
-          const response = await editMessageApi(messageData.messageId, messageData, credentials);
-
-          if (response.status === 'ok') {
-            setEditingMessage(null);
-
-            // We update the messages
-            setMessages(prevMessages => {
-              const updatedMessages = prevMessages.map(msg => {
-                if (msg.id === messageData.messageId) {
-                  const updatedText = messageData.text || '';
-                  // We update the message
-                  return {
-                    ...msg,
-                    message: updatedText,
-                    text: updatedText
-                  };
-                }
-                return msg;
-              });
-              return updatedMessages;
-            });
-          } else {
-            throw new Error(response.message || t('errors.editFailed'));
-          }
-
-          return; // We stop the execution here
-        } catch (error) {
-          handleChatError(error, 'editMessage');
-          return;
-        }
+      if (response.status === 'ok') {
+        // ... traitement du succès ...
       }
 
-      // For a new message (non-editing), we continue with the existing code
-      // We check the type of message
-      if (messageData.type === 'file') {
-
-        if (!messageData.base64) {
-          handleChatError(t('errors.invalidFile'), 'sendMessage.validation');
-          return;
-        }
-
-      } else {
-        const messageText = typeof messageData === 'object' ? messageData.text : messageData;
-        // If the message text is invalid, we throw an error
-        if (!messageText || messageText.trim() === '') {
-          handleChatError(t('errors.emptyMessage'), 'sendMessage.validation');
-          return;
-        }
-      }
-
-      // We send the message
-      const messageToSend = messageData.type === 'file' ? {
-        ...messageData,
-        login: credentials.login,
-        isOwnMessage: true,
-        sendTimestamp
-      } : {
-        type: 'text',
-        message: typeof messageData === 'object' ? messageData.text : messageData,
-        login: credentials.login,
-        isOwnMessage: true,
-        sendTimestamp
-      };
-
-      // We format the message and add it to the list of messages
-      const message = formatMessage(messageToSend, credentials);
-
-      // Try to send the message
-      const response = await sendMessageApi(channel.id, messageToSend, credentials);
-
-      if (!response || !response.status) {
-        throw new Error(t('errors.invalidResponse'));
-      }
-
-      if (response.status === 'ok' && response.id) {
-        setMessages((prevMessages) => {
-          const messageExists = prevMessages.some((msg) => msg.id === response.id);
-          if (messageExists) return prevMessages;
-
-          const completeMessage = {
-            ...message,
-            id: response.id,
-            savedTimestamp: Date.now().toString(),
-          };
-          return [...prevMessages, completeMessage];
-        });
-      } else {
-        throw new Error(response.message || t('errors.messageSendFailed'));
-      }
     } catch (error) {
+      // On passe directement l'erreur sans la transformer
       handleChatError(error, 'sendMessage', { silent: false });
-      // Ne pas relancer l'erreur, mais la gérer ici
-      console.error('Error sending message:', error);
     }
-  }, [channel, credentials, t, recordSentMessage]);
+  }, [channel, credentials, handleChatError]);
 
   /**
    * @function handleDeleteMessage

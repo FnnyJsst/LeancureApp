@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     width: '50%',
   },
   modalContentTabletPortrait: {
-    width: '60%',
+    width: '65%',
   },
   titleContainer: {
     marginBottom: 20,

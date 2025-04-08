@@ -129,7 +129,8 @@ export default {
     },
 
     server: {
-      address: "Entrez la nouvelle adresse du serveur"
+      address: "Entrez la nouvelle adresse du serveur",
+      change: "Changer l'adresse du serveur",
     }
   },
 

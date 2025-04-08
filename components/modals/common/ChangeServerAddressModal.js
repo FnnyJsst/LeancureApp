@@ -119,10 +119,10 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
         ]}>
           <View style={styles.titleContainer}>
             <Text style={[styles.titleText, isSmartphone && styles.titleTextSmartphone]}>
-              Change the server address
+              {t('modals.server.change')}
             </Text>
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-            {success ? <Text style={styles.successText}>{success}</Text> : null}
+            {error ? <Text style={[styles.errorText, isSmartphone && styles.errorTextSmartphone]}>{error}</Text> : null}
+            {success ? <Text style={[styles.successText, isSmartphone && styles.successTextSmartphone]}>{success}</Text> : null}
           </View>
           <InputModal
             placeholder={t('settings.common.changeServer')}
@@ -197,14 +197,23 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: COLORS.red,
-    fontSize: SIZES.fonts.smallText,
+    fontSize: SIZES.fonts.smallTextTablet,
     marginTop: 8,
     textAlign: 'center',
   },
+  errorTextSmartphone: {
+    fontSize: SIZES.fonts.smallTextSmartphone,
+  },
   successText: {
     color: COLORS.green,
-    fontSize: SIZES.fonts.smallText,
+    fontSize: SIZES.fonts.smallTextTablet,
     marginTop: 8,
     textAlign: 'center',
+  },
+  errorTextSmartphone: {
+    fontSize: SIZES.fonts.smallTextSmartphone,
+  },
+  successTextSmartphone: {
+    fontSize: SIZES.fonts.smallTextSmartphone,
   },
 });
