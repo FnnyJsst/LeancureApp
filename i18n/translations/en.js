@@ -212,6 +212,8 @@ export default {
   success: {
     serverAddressChanged: "Server address updated successfully!",
     messageDeleted: "Message deleted successfully",
+    messagesHidden: "Messages hidden successfully",
+    messagesShown: "Messages shown successfully",
   },
 
   errors: {

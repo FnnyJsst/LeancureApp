@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Modal, StyleSheet } from 'react-native';
 import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
 import { useTranslation } from 'react-i18next';
+import CustomAlert from '../webviews/CustomAlert';
 
 /**
  * @component HideMessagesModal
@@ -14,6 +15,10 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} props.onToggleHideMessages - The function to call when the hide messages mode is toggled
  */
 export default function HideMessagesModal({ visible, onClose, onToggleHideMessages, testID }) {
+
+  // Ajout du state pour l'alerte
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
@@ -26,55 +31,81 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
    * @param {boolean} response - The response to the question
    */
   const handleResponse = (response) => {
+    // Appliquer le changement
     onToggleHideMessages(response);
-    onClose();
 
+    if (!response) { // Seulement si on affiche les messages (response = false)
+      setAlertMessage(t('success.messagesShown'));
+      setShowSuccessAlert(true);
+    } else {
+      // Si on masque les messages, on ferme directement la modale
+      onClose();
+    }
   };
 
+  // Fonction pour gérer la fermeture de l'alerte
+  const handleAlertConfirm = () => {
+    setShowSuccessAlert(false);
+    onClose();
+  };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-      statusBarTranslucent={true}
-      testID="hide-messages-modal"
-    >
-      <View style={styles.modalContainer}>
-        <View style={[
-          styles.modalContent,
-          isSmartphonePortrait && styles.modalContentSmartphonePortrait,
-          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-          isTabletPortrait && styles.modalContentTabletPortrait,
-        ]}>
+    <>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={visible}
+        onRequestClose={onClose}
+        statusBarTranslucent={true}
+        testID="hide-messages-modal"
+      >
+        <View style={styles.modalContainer}>
           <View style={[
-            styles.titleContainer,
+            styles.modalContent,
+            isSmartphonePortrait && styles.modalContentSmartphonePortrait,
+            isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+            isTabletPortrait && styles.modalContentTabletPortrait,
           ]}>
-            <Text style={[
-              styles.titleText,
-              isSmartphone && styles.titleTextSmartphone,
-            ]}>{t('settings.common.showHideMessages')}</Text>
-          </View>
-          <View style={[
-            styles.buttonContainer,
-            isSmartphone && styles.buttonContainerSmartphone]}>
-            <Button
-              title={t('buttons.hide')}
-              backgroundColor={COLORS.gray950}
-              width={isSmartphone ? '23%' : '26%'}
-              onPress={() => handleResponse(true)}
-            />
-            <Button
-              title={t('buttons.show')}
-              backgroundColor={COLORS.orange}
-              width={isSmartphone ? '23%' : '26%'}
-              onPress={() => handleResponse(false)}
-            />
+            <View style={[
+              styles.titleContainer,
+            ]}>
+              <Text style={[
+                styles.titleText,
+                isSmartphone && styles.titleTextSmartphone,
+              ]}>{t('settings.common.showHideMessages')}</Text>
+            </View>
+            <View style={[
+              styles.buttonContainer,
+              isSmartphone && styles.buttonContainerSmartphone]}>
+              <Button
+                title={t('buttons.hide')}
+                backgroundColor={COLORS.gray950}
+                width={isSmartphone ? '23%' : '26%'}
+                onPress={() => handleResponse(true)}
+                testID="hide-button"
+              />
+              <Button
+                title={t('buttons.show')}
+                backgroundColor={COLORS.orange}
+                width={isSmartphone ? '23%' : '26%'}
+                onPress={() => handleResponse(false)}
+                testID="show-button"
+              />
+            </View>
           </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+
+      {/* Déplacer CustomAlert en dehors de la Modal principale */}
+      <CustomAlert
+        visible={showSuccessAlert}
+        message={alertMessage}
+        type="success"
+        onConfirm={handleAlertConfirm}
+        onClose={handleAlertConfirm}
+        testID="success-alert"
+      />
+    </>
   );
 }
 

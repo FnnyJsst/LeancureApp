@@ -210,6 +210,9 @@ export default {
   success: {
     messageDeleted: "Message supprimé avec succès",
     serverAddressChanged: "Adresse du serveur mise à jour avec succès !",
+    title: "Succès",
+    messagesHidden: "Les messages ont été masqués avec succès",
+    messagesShown: "Les messages ont été affichés avec succès"
   },
 
   errors: {

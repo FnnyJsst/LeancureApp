@@ -392,11 +392,11 @@ export default function SettingsWebviews({
                   title={t('settings.common.showHide')}
                   iconBackgroundColor={COLORS.borderColor}
                   icon={
-                    <Ionicons
-                      name="remove-circle-outline"
-                      size={isSmartphone ? 22 : 28}
-                      color={COLORS.red}
-                    />
+                      <Ionicons
+                          name="mail-outline"
+                          size={isSmartphone ? 22 : 28}
+                          color={COLORS.orange}
+                      />
                   }
                   description={t('settings.common.showHideDescription')}
                   onPress={openHideMessagesModal}
@@ -458,10 +458,6 @@ export default function SettingsWebviews({
   );
 }
 
-/**
- * Styles defined outside the component to prevent recreation on each render
- * This is a performance optimization as StyleSheet.create is expensive
- */
 const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
