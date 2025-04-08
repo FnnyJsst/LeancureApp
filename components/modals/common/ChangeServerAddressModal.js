@@ -8,6 +8,7 @@ import { Text } from '../../text/CustomText';
 import { Ionicons } from '@expo/vector-icons';
 import { ENV } from '../../../config/env';
 import { useTranslation } from 'react-i18next';
+import CustomAlert from '../webviews/CustomAlert';
 
 /**
  * @function ChangeServerAddressModal
@@ -19,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 export default function ChangeServerAddressModal({ visible, onClose }) {
   const [serverAddress, setServerAddress] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
   // Translation and device type hooks
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
@@ -46,7 +47,6 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
       loadCurrentServerAddress();
       // Réinitialisation des messages
       setError('');
-      setSuccess('');
     }
   }, [visible]);
 
@@ -56,20 +56,16 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
    */
   const handleSave = async () => {
     try {
-      // Réinitialisation des messages
       setError('');
-      setSuccess('');
 
-      //If the server address is empty, set the error
       if (!serverAddress.trim()) {
         setError(t('error.addressCannotBeEmpty'));
         return;
       }
 
-      // Validate the URL
       try {
         const url = new URL(serverAddress.trim());
-        //If the URL is invalid, set the error
+
         if (!url.protocol || !url.host) {
           setError(t('error.invalidUrlFormat'));
           return;
@@ -79,27 +75,26 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
           return;
         }
 
-        //We clean the URL to keep only the protocol and the host
         const baseUrl = `${url.protocol}//${url.host}`;
-        //We add /ic.php to the end
         const finalUrl = `${baseUrl}/ic.php`;
 
-        //We save the URL
         await ENV.setCustomApiUrl(finalUrl);
 
-        // Affichage d'un message de succès
-        setSuccess(t('success.serverAddressChanged'));
+        // Au lieu du setTimeout, on affiche notre CustomAlert
+        setShowSuccessAlert(true);
 
-        // Fermeture de la modal après 1.5 secondes
-        setTimeout(() => {
-          onClose();
-        }, 1500);
       } catch (storageError) {
         setError('Error saving the data in the storage');
       }
     } catch (saveServerAddressError) {
       setError(t('error.saveServerAddressError'));
     }
+  };
+
+  // Fonction pour gérer la fermeture de l'alerte
+  const handleAlertConfirm = () => {
+    setShowSuccessAlert(false);
+    onClose(); // Ferme la modal principale
   };
 
   return (
@@ -122,7 +117,6 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
               {t('modals.server.change')}
             </Text>
             {error ? <Text style={[styles.errorText, isSmartphone && styles.errorTextSmartphone]}>{error}</Text> : null}
-            {success ? <Text style={[styles.successText, isSmartphone && styles.successTextSmartphone]}>{success}</Text> : null}
           </View>
           <InputModal
             placeholder={t('settings.common.changeServer')}
@@ -146,6 +140,14 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
             />
           </View>
         </View>
+
+        <CustomAlert
+          visible={showSuccessAlert}
+          message={t('success.serverAddressChanged')}
+          type="success"
+          onConfirm={handleAlertConfirm}
+          onClose={handleAlertConfirm}
+        />
       </View>
     </Modal>
   );
@@ -174,7 +176,7 @@ const styles = StyleSheet.create({
     width: '50%',
   },
   modalContentTabletLandscape: {
-    width: '40%',
+    width: '45%',
   },
   titleContainer: {
     marginBottom: 20,
