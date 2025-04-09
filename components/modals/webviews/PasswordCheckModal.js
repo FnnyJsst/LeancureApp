@@ -1,0 +1,140 @@
+import React, { useState, useEffect } from 'react';
+import { Modal, View, StyleSheet } from 'react-native';
+import Button from '../../buttons/Button';
+import InputModal from '../../inputs/InputModal';
+import TitleModal from '../../text/TitleModal';
+import CustomAlert from './CustomAlert';
+import { useDeviceType } from '../../../hooks/useDeviceType';
+import { COLORS, MODAL_STYLES } from '../../../constants/style';
+import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+
+/**
+ * @component PasswordCheckModal
+ * @description A component that renders a modal for checking the password
+ *
+ * @param {boolean} props.visible - Whether the modal is visible
+ * @param {Function} props.onClose - The function to call when the modal is closed
+ * @param {Function} props.onSubmit - The function to call when the password is submitted
+ * @param {boolean} props.isFocused - Whether the input is focused
+ */
+export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocused }) {
+
+  const { t } = useTranslation();
+  // Customized hook to determine the device type and orientation
+  const { isSmartphone, isLowResTablet } = useDeviceType();
+
+  // State for the password and the alert
+  const [password, setPassword] = useState('');
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: '',
+    message: '',
+    type: 'error',
+  });
+
+  // Réinitialiser le password quand la modal se ferme
+  useEffect(() => {
+    if (!visible) {
+      setPassword('');
+    }
+  }, [visible]);
+
+  /**
+   * @function handleSubmit
+   * @description A function to handle the submit button
+   */
+  const handleSubmit = () => {
+    // If the password is empty, we show an error message
+    if (!password) {
+      setAlertConfig({
+        title: t('errors.error'),
+        message: t('errors.enterPassword'),
+        type: 'error',
+      });
+      setAlertVisible(true);
+      return;
+    }
+    onSubmit(password);
+  };
+
+  /**
+   * @function handleClose
+   * @description A function to handle the close button
+   */
+  const handleClose = () => {
+    setPassword('');
+    setShowPassword(false);
+    onClose();
+  };
+
+  return (
+    <>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={visible}
+        onRequestClose={handleClose}
+        statusBarTranslucent={true}
+      >
+        <View style={MODAL_STYLES.modalContainer}>
+          <View style={[
+            MODAL_STYLES.content,
+            isSmartphone && styles.modalContentSmartphone,
+            isLowResTablet && styles.modalContentLowResTablet,
+          ]}>
+            <TitleModal title={t('modals.webview.password.enterPassword')} />
+            <InputModal
+              placeholder={t('modals.webview.password.enterYourPassword')}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+              icon={
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color={isFocused ? COLORS.orange : COLORS.gray300}
+                  style={styles.icon}
+                />
+              }
+            />
+            <View style={MODAL_STYLES.buttonContainer}>
+              <Button
+                title={t('buttons.close')}
+                backgroundColor={COLORS.gray650}
+                color={COLORS.white}
+                onPress={handleClose}
+                width={isSmartphone ? '23%' : '26%'}
+              />
+              <Button
+                title="Ok"
+                backgroundColor={COLORS.orange}
+                color={COLORS.white}
+                onPress={handleSubmit}
+                width="22%"
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <CustomAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onClose={() => setAlertVisible(false)}
+        onConfirm={() => setAlertVisible(false)}
+      />
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+
+  modalContentSmartphone: {
+    width: '50%',
+  },
+  modalContentLowResTablet: {
+    width: '60%',
+  },
+});

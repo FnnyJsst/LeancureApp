@@ -1,0 +1,91 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# Secrets
+.secrets/
+.secrets/*
+config/.env
+
+# Firebase
+leancure-app-firebase-adminsdk-fbsvc-3581b075ee.json
+google-services.json
+leancure-app-firebase-adminsdk.json.json
+*.json.json
+
+# Env files
+.env
+.env.*
+
+# Node modules
+node_modules/
+npm-debug.*
+npm-debug.*
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+.env
+/android
+/ios
+
+# Metro
+.metro-health-check*
+
+# macOS
+.DS_Store
+*.pem
+
+# Android/IntelliJ
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+*.keystore
+!debug.keystore
+
+# iOS
+pods/
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+!default.mode1v3
+!default.mode2v3
+!default.pbxuser
+!default.perspectivev3
+# Android/IntelliJ
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+*.keystore
+!debug.keystore
+
+# iOS
+pods/
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+!default.mode1v3
+!default.mode2v3
+!default.pbxuser
+!default.perspectivev3

@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "react_native",
+    "slug": "react_native",
+    "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#000000"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-font",
+      "expo-localization",
+      [
+        "./plugins/withAndroidSecurityConfig"
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.fnnyjsst.react_native",
+      "adaptiveIcon": {
+        "backgroundColor": "#e5e5e5"
+      },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "INTERNET"
+      ]
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "c0d7c103-e3ab-4ee8-9a7a-97cc31870324"
+      },
+      "apiUrl": "http://VOTRE_IP/ic.php"
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#000000",
+      "barStyle": "light-content"
+    },
+    "androidNavigationBar": {
+      "backgroundColor": "#000000",
+      "barStyle": "light-content"
+    },
+    "developmentClient":  {}
+  },
+  "resolutions": {
+    "@expo/config-plugins": "7.8.0"
+  }
+}
