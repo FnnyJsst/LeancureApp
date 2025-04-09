@@ -63,7 +63,7 @@ export const COLORS = {
   gray650: '#313135',
 
   // Medium grays
-  gray600: '#646262',
+  gray600: '#707070',
 
   // Light grays
   gray300: '#b2b2b2',

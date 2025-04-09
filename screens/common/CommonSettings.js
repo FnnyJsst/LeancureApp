@@ -184,7 +184,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     alignSelf: 'center',
     marginVertical: 12,
-    borderWidth: 1,
     width: '95%',
   },
   configContainerSmartphone: {

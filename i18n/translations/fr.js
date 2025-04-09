@@ -97,6 +97,7 @@ export default {
         importUrl: "Entrez une URL",
         importFullUrl: "Importer une URL complète",
         importOffline: "Importer des chaînes en mode hors ligne",
+        degradedImport: "Importer les chaînes en mode dégradé",
       },
       edit: {
         editChannel: "Modifier une chaîne",
@@ -193,6 +194,7 @@ export default {
       password: "Mot de passe",
       passwordDescription: "Pour accéder aux paramètres",
       deleteChannel: "Êtes-vous sûr de vouloir supprimer ce canal ?",
+
     },
     common: {
       showHide: "Afficher/masquer",

@@ -8,7 +8,6 @@ import { Text } from './text/CustomText';
 /**
  * @component Header
  * @description A component that renders a header
- *
  * @param {Object} props - The properties of the component
  * @param {string} props.title - The title of the header
  * @param {Function} props.onBackPress - The function to call when the back button is pressed
@@ -20,11 +19,6 @@ import { Text } from './text/CustomText';
  * @param {Function} props.toggleMenu - The function to call when the menu is toggled
  * @param {boolean} props.transparent - Whether to make the header transparent
  * @param {string} props.currentSection - The current section of the app
- * @param {boolean} props.showBell - Whether to show the bell icon
- * @param {Function} props.onBellPress - The function to call when the bell icon is pressed
- *
- * @example
- * <Header title="Title" onBackPress={() => console.log('Back button pressed')} rightIcon="bell" onRightIconPress={() => console.log('Right icon pressed')} showIcons={true} showMenuIcon={true} showBackButton={true} toggleMenu={() => console.log('Menu toggled')} transparent={false} currentSection="chat" showBell={false} onBellPress={() => console.log('Bell pressed')} />
  */
 export default function Header({
   title,
@@ -37,11 +31,9 @@ export default function Header({
   toggleMenu,
   transparent,
   currentSection,
-  showBell = false,
-  onBellPress,
 }) {
   const { isSmartphone } = useDeviceType();
-  const iconSize = isSmartphone ? 20 : 30;
+  const iconSize = isSmartphone ? 25 : 30;
 
   const renderLeftSection = () => (
     <View style={styles.leftSection}>
@@ -77,18 +69,6 @@ export default function Header({
 
     return (
       <View style={styles.rightIconsContainer}>
-        {showBell && (
-          <TouchableOpacity
-            style={styles.bellIconButton}
-            onPress={onBellPress}
-          >
-            <Ionicons
-              name="notifications-outline"
-              size={iconSize - 5}
-              color={COLORS.gray300}
-            />
-          </TouchableOpacity>
-        )}
         {rightIcon && (
           <TouchableOpacity
             style={styles.iconButton}
@@ -180,13 +160,6 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     padding: 5,
-  },
-  bellIconButton: {
-    padding: 5,
-    backgroundColor: COLORS.charcoal,
-    borderRadius: SIZES.borderRadius.small,
-    borderWidth: 0.5,
-    borderColor: COLORS.borderColor,
   },
   leftSection: {
     flexDirection: 'row',
