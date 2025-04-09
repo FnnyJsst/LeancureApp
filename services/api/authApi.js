@@ -33,11 +33,8 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     if (!apiUrl.endsWith('/ic.php')) {
       apiUrl = `${apiUrl}/ic.php`;
     }
-    console.log('[Auth] URL de l\'API:', apiUrl);
 
     // We send the request
-    console.log('[Auth] Envoi de la requête de connexion');
-
     const loginResponse = await axios({
       method: 'POST',
       url: apiUrl,
@@ -60,7 +57,6 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     const accountsData = loginResponse.data.cmd[0].accounts;
 
     if ((!loginResponse.data?.cmd?.[0]?.accounts) || (!accountsData.loginmsg?.get?.data)) {
-      console.log('[Auth] Réponse invalide:', loginResponse.data);
       throw new Error(t('errors.invalidResponse'));
     }
 
@@ -97,10 +93,6 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       },
       timeout: 10000,
     });
-    console.log('[Auth] Réponse des droits reçue:', {
-      status: channelsResponse.status,
-      hasData: !!channelsResponse.data
-    });
 
     // Extract the rights of the group 4 (Admin group)
     const groupsData = channelsResponse.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data?.private?.groups;
@@ -108,9 +100,6 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
 
     if (groupsData && groupsData['4']) {
       userRights = groupsData['4'].rights;
-      console.log('[Auth] Droits utilisateur trouvés:', { hasRights: !!userRights });
-    } else {
-      console.log('[Auth] Aucun droit utilisateur trouvé');
     }
 
     // We save the credentials with the rights in the secure storage
@@ -124,9 +113,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       accessToken
     };
 
-    console.log('[Auth] Sauvegarde des credentials');
     await saveCredentials(credentials);
-    console.log('[Auth] Credentials sauvegardés');
 
     // We return the credentials
     return {
@@ -141,11 +128,6 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     };
 
   } catch (error) {
-    console.log('[Auth] Erreur lors de la connexion:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status
-    });
     handleApiError(error, 'auth.login', {
       type: ErrorType.AUTH,
       silent: false
@@ -218,14 +200,14 @@ export const getUserRights = async () => {
 
 /**
  * @function cleanSecureStore
- * @description Nettoie le SecureStore en cas d'erreur de déchiffrement
- * @returns {Promise<boolean>} True si le nettoyage a réussi, false sinon
+ * @description Cleans the SecureStore in case of decryption error
+ * @returns {Promise<boolean>} True if the cleanup was successful, false otherwise
  */
 export const cleanSecureStore = async () => {
   try {
     console.log('🧹 Début du nettoyage du SecureStore en cas d\'erreur');
 
-    // Liste des clés susceptibles d'être problématiques
+    // List of keys that may cause problems
     const keysToClean = [
       'userCredentials',
       'savedLoginInfo',
@@ -234,22 +216,18 @@ export const cleanSecureStore = async () => {
       'userRights'
     ];
 
-    // Suppression des clés une par une avec gestion d'erreur individuelle
+    // Delete the keys one by one with individual error handling
     for (const key of keysToClean) {
       try {
         await SecureStore.deleteItemAsync(key);
-        console.log(`✅ Clé '${key}' supprimée avec succès`);
       } catch (keyError) {
-        console.log(`⚠️ Erreur lors de la suppression de la clé '${key}':`, keyError.message);
-        // On continue malgré l'erreur sur une clé spécifique
+        console.log(`⚠️ Error deleting key '${key}':`, keyError.message);
       }
     }
 
-    console.log('✅ Nettoyage du SecureStore terminé');
     return true;
   } catch (error) {
     console.error('❌ Erreur lors du nettoyage du SecureStore:', error.message);
-    // Ne pas utiliser handleError car cela pourrait créer une boucle si le problème est lié au SecureStore
     return false;
   }
 };
@@ -291,9 +269,7 @@ export const checkRefreshToken = async (contractNumber, accountApiKey, refreshTo
       }]
     };
 
-    console.log('[Auth] Request data:', requestData);
     const apiUrl = await ENV.API_URL();
-    console.log('[Auth] Envoi de la requête de refresh token');
     const response = await axios({
       method: 'POST',
       url: apiUrl,
@@ -316,11 +292,6 @@ export const checkRefreshToken = async (contractNumber, accountApiKey, refreshTo
       data: response.data?.cmd?.[0]?.accounts?.token?.refresh?.data
     };
   } catch (error) {
-    console.log('[Auth] Erreur lors de la vérification du refresh token:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status
-    });
     handleApiError(error, 'auth.checkRefreshToken', {
       type: ErrorType.AUTH,
       silent: false

@@ -12,8 +12,10 @@ import { useTranslation } from 'react-i18next';
  */
 export const useWebviewsPassword = (navigate) => {
 
+  // We get the translation function
   const { t } = useTranslation();
 
+  // We define the password state and functions
   const [password, setPassword] = useState(null);
   const [isPasswordRequired, setIsPasswordRequired] = useState(false);
   const [isPasswordDefineModalVisible, setPasswordDefineModalVisible] = useState(false);
@@ -90,14 +92,14 @@ export const useWebviewsPassword = (navigate) => {
     } catch (error) {
       console.error(t('errors.errorLoadingPassword'), error);
 
-      // Si l'erreur est liée au décryptage, réinitialiser les données
+      // If the error is related to the decryption, we reset the data
       if (error.message.includes('Could not decrypt')) {
         try {
-          // Supprimer les données corrompues
+          // Delete the corrupted data
           await SecureStore.deleteItemAsync('password');
           await SecureStore.deleteItemAsync('isPasswordRequired');
 
-          // Réinitialiser l'état
+          // Reset the state
           setPassword(null);
           setIsPasswordRequired(false);
         } catch (cleanupError) {
