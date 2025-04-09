@@ -17,30 +17,20 @@ export function useWebviews(setCurrentScreen) {
   const [refreshOption, setRefreshOption] = useState('never');
   const [isReadOnly, setIsReadOnly] = useState(false);
 
+  // We get the navigation function
   const { navigate } = useNavigation(setCurrentScreen);
 
+  // We get the password from the SecureStore
   const {
-    password,
-    setPassword,
-    isPasswordRequired,
-    setIsPasswordRequired,
-    isPasswordDefineModalVisible,
-    setPasswordDefineModalVisible,
-    passwordCheckModalVisible,
-    setPasswordCheckModalVisible,
-    handlePasswordSubmit,
-    handlePasswordCheck,
-    disablePassword,
     loadPasswordFromSecureStore,
-    savePasswordInSecureStore,
-    openPasswordDefineModal,
-    closePasswordDefineModal,
   } = useWebviewsPassword(navigate);
 
+  // We toggle the read only mode
   const toggleReadOnly = useCallback((value) => {
     setIsReadOnly(value !== undefined ? value : !isReadOnly);
   }, [isReadOnly]);
 
+  // We handle the selection of the channels
   const handleSelectChannels = async (selectedChannels) => {
     try {
       const updatedWebviews = [...(selectedWebviews || []), ...(selectedChannels || [])];
@@ -60,13 +50,11 @@ export function useWebviews(setCurrentScreen) {
   const getIntervalInMilliseconds = useCallback((value) => {
     switch (value) {
       case 'every minute': return 60000;
-      case 'every 2 minutes': return 120000;
       case 'every 5 minutes': return 300000;
       case 'every 15 minutes': return 900000;
       case 'every 30 minutes': return 1800000;
       case 'every hour': return 3600000;
       case 'every 2 hours': return 7200000;
-      case 'every 3 hours': return 10800000;
       case 'every 6 hours': return 21600000;
       case 'every day': return 86400000;
       default: return null;
@@ -77,7 +65,6 @@ export function useWebviews(setCurrentScreen) {
    * @function handleSelectOption
    * @description Handles the selection of the refresh option
    * @param {string} option - The option to select
-   * @returns {void}
    */
   const handleSelectOption = (option) => {
     setRefreshOption(option);
@@ -89,14 +76,11 @@ export function useWebviews(setCurrentScreen) {
    * @function saveRefreshOption
    * @description Saves the refresh option in AsyncStorage
    * @param {string} option - The option to save
-   * @returns {void}
    */
   const saveRefreshOption = async (option) => {
     try {
-      // Supprimons d'abord l'ancienne valeur
+      // We delete the old value, then we save the new one
       await SecureStore.deleteItemAsync('refreshOption');
-
-      // Sauvegardons la nouvelle valeur
       await SecureStore.setItemAsync('refreshOption', option, {
         keychainAccessible: SecureStore.WHEN_UNLOCKED
       });
@@ -109,7 +93,6 @@ export function useWebviews(setCurrentScreen) {
    * @function saveSelectedWebviews
    * @description Saves the channels selected by the user in AsyncStorage
    * @param {Array} channels - The channels to save
-   * @returns {void}
    */
   const saveSelectedWebviews = async (webviews) => {
     try {
@@ -148,24 +131,21 @@ export function useWebviews(setCurrentScreen) {
   /**
    * @function loadRefreshOption
    * @description Loads the refresh option from AsyncStorage
-   * @returns {void}
    */
   const loadRefreshOption = useCallback(async () => {
     try {
-      // D'abord, supprimons l'ancienne valeur
+      // First, delete the old value
       await SecureStore.deleteItemAsync('refreshOption');
 
-      // Ensuite, définissons une valeur par défaut
+      // Then, we define a default value
       const defaultOption = 'never';
       await SecureStore.setItemAsync('refreshOption', defaultOption);
 
       setRefreshOption(defaultOption);
       setRefreshInterval(getIntervalInMilliseconds(defaultOption));
     } catch (error) {
-      if (__DEV__) {
-        console.error('Failed to load refresh option', error);
-      }
-      // En cas d'erreur, on définit des valeurs par défaut
+      console.error('Failed to load refresh option', error);
+      // In case of error, we define default values
       setRefreshOption('never');
       setRefreshInterval(null);
     }
@@ -175,47 +155,33 @@ export function useWebviews(setCurrentScreen) {
    * @function navigateToChannelsList
    * @description Navigates to the channels list screen
    * @param {Array} extractedChannels - The extracted channels
-   * @returns {void}
    */
   const navigateToChannelsList = (extractedChannels) => {
-    console.log('🔄 Navigation vers la liste des canaux');
     setChannels(extractedChannels);
-    // if (SCREENS.WEBVIEWS_LIST) {
     navigate(SCREENS.WEBVIEWS_LIST);
-    // } else {
-    //     console.error('❌ Screen WEBVIEWS_LIST non défini');
-    // }
   };
 
   /**
    * @function navigateToWebview
    * @description Navigates to the web view screen
    * @param {string} url - The URL to navigate to
-   * @returns {void}
    */
   const navigateToWebview = (url) => {
-    console.log('🔄 Navigation vers la webview:', url);
     setWebviewUrl(url);
     if (SCREENS.WEBVIEW) {
         navigate(SCREENS.WEBVIEW);
-    } else {
-        console.error('❌ Screen WEBVIEW non défini');
     }
   };
 
   /**
-   * @function useEffect
    * @description Loads the selected channels from the SecureStore when user opens the app
-   * @returns {void}
    */
   useEffect(() => {
     loadSelectedChannels();
   }, [loadSelectedChannels]);
 
   /**
-   * @function useEffect
    * @description Loads the interval chosen by the user in the settings to refresh the webviews
-   * @returns {void}
    */
   useEffect(() => {
     if (refreshInterval) {
@@ -234,7 +200,6 @@ export function useWebviews(setCurrentScreen) {
 
   const clearSecureStore = async () => {
     try {
-      console.log('🧹 Nettoyage du SecureStore...');
       await SecureStore.deleteItemAsync('selectedWebviews');
       await SecureStore.deleteItemAsync('refreshOption');
       await SecureStore.deleteItemAsync('isReadOnly');

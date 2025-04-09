@@ -158,7 +158,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
                   onDisablePassword();
                   handleClose();
                 }}
-                width={isSmartphone ? '32%' : '40%'}
+                width={isSmartphone ? '34%' : '40%'}
                 testID="disable-password-button"
               />
               <Button

@@ -107,7 +107,7 @@ export default {
       password: {
         enterPassword: "Entrez un mot de passe",
         enterYourPassword: "Entrez votre mot de passe",
-        define: "Entrez un mot de passe (6+ caractères)",
+        define: "Entrez un mot de passe (6+ car)",
         confirm: "Confirmez le mot de passe"
       },
       refresh: {
@@ -312,7 +312,7 @@ export default {
     defaultMessage: 'Voici une information utile pour vous aider à utiliser cette fonctionnalité.',
     autoRefresh: {
       title: 'Actualisation automatique',
-      message: 'Cette fonctionnalité permet de rafraîchir automatiquement les canaux à intervalles réguliers. Vous pouvez choisir entre 1, 5, 10 ou 15 minutes.'
+      message: 'Cette fonctionnalité permet de rafraîchir automatiquement les canaux à intervalles réguliers.'
     },
     readOnly: {
       title: 'Accès en lecture seule',

@@ -311,7 +311,7 @@ export default {
     defaultMessage: 'Here is a useful information to help you use this feature.',
     autoRefresh: {
       title: 'Auto-Refresh',
-      message: 'This feature allows you to automatically refresh channels at regular intervals. You can choose between 1, 5, 10, or 15 minutes.'
+      message: 'This feature allows you to automatically refresh channels at regular intervals.'
     },
     readOnly: {
       title: 'Read-Only Access',
