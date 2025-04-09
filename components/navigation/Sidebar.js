@@ -4,12 +4,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { fetchUserChannels } from '../../services/api/messageApi';
-import * as SecureStore from 'expo-secure-store';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../text/CustomText';
 import { cleanSecureStore } from '../../services/api/authApi';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../services/notificationContext';
+import { useCredentials } from '../../hooks/useCredentials';
 
 /**
  * @component Sidebar
@@ -32,6 +32,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
 
   // Use the notification context to access the unread channels
   const { unreadChannels } = useNotification();
+  const { credentials, isLoading: credentialsLoading } = useCredentials();
 
   // Get the device type and the translations
   const { isSmartphone } = useDeviceType();
@@ -77,8 +78,6 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     const loadChannels = async () => {
       try {
         setLoading(true);
-        // Get the user credentials from the secure store
-        const credentials = await SecureStore.getItemAsync('userCredentials');
 
         // If the credentials are not found, clean the secure store and navigate to the login screen
         if (!credentials) {
@@ -89,7 +88,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
 
         try {
           // Parse the credentials
-          const { contractNumber, login, password, accountApiKey } = JSON.parse(credentials);
+          const { contractNumber, login, password, accountApiKey } = credentials;
 
           // Fetch the user channels
           const response = await fetchUserChannels(contractNumber, login, password, '', accountApiKey);
@@ -115,8 +114,10 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
       }
     };
 
-    loadChannels();
-  }, [onNavigate]);
+    if (!credentialsLoading && credentials) {
+      loadChannels();
+    }
+  }, [credentials, credentialsLoading, onNavigate, t]);
 
   /**
    * @function filteredGroups

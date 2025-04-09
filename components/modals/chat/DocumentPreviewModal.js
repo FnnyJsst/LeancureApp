@@ -14,6 +14,8 @@ import { ActivityIndicator } from 'react-native';
 import { handleError, ErrorType } from '../../../utils/errorHandling';
 import { useTranslation } from 'react-i18next';
 import { Buffer } from 'buffer';
+import { useCredentials } from '../../../hooks/useCredentials';
+
 
 /**
  * @component DocumentPreviewModal
@@ -32,6 +34,9 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
   const { isSmartphone, isLandscape } = useDeviceType();
   const { t } = useTranslation();
 
+  // We get the credentials and loading state from the useCredentials hook
+  const { credentials, isLoading: credentialsLoading } = useCredentials();
+
   const [error, setError] = useState(null);
   const [highQualityBase64, setHighQualityBase64] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,19 +52,12 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
     const isImageType = fileType?.toLowerCase().match(/jpg|jpeg|png|gif/);
 
     const loadHighQualityImage = async () => {
-      if (!visible || !messageId || !channelId) return;
+      if (!visible || !messageId || !channelId || !credentials) return;
 
       try {
         setIsLoading(true);
-        //We get and parse the credentials
-        const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-        const credentials = JSON.parse(credentialsStr);
 
-        if (!credentialsStr) {
-          throw new Error(t('errors.noCredentialsFound'));
-        }
-
-        //We fetch the high quality image
+        // We fetch the high quality image
         const highQualityData = await fetchMessageFile(messageId, {
           channelid: channelId
         }, credentials);
@@ -78,10 +76,10 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       }
     };
 
-    if (visible && isImageType && messageId && channelId) {
+    if (visible && isImageType && messageId && channelId && !credentialsLoading) {
       loadHighQualityImage();
     }
-  }, [visible, messageId, channelId, fileType, t]);
+  }, [visible, messageId, channelId, fileType, credentials, credentialsLoading, t]);
 
   /**
    * @function parseCSV
@@ -467,16 +465,12 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
               />
               <Text style={[styles.fileType, isSmartphone && styles.fileTypeSmartphone]}>
                 {fileType?.includes('pdf') ? 'PDF' :
-                 fileType?.toLowerCase().includes('csv') ? 'CSV' :
-                 'Image'}
+                  fileType?.toLowerCase().includes('csv') ? 'CSV' :
+                  'Image'}
               </Text>
             </View>
             <View style={styles.fileSizeContainer}>
-              {/* <Ionicons
-                name="cloud-download-outline"
-                size={20}
-                color={COLORS.white}
-              /> */}
+
               <Text style={[styles.fileSize, isSmartphone && styles.fileSizeSmartphone]}>
                 {formatFileSize()}
               </Text>
@@ -493,6 +487,12 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
           </View>
         </View>
       </View>
+      {/* Add a loading overlay if credentials are loading */}
+      {credentialsLoading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={COLORS.orange} />
+        </View>
+      )}
     </Modal>
   );
 }
