@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/29</span>
+                <span class='fraction'>0/26</span>
             </div>
         
             
@@ -239,42 +239,7 @@
 <a name='L174'></a><a href='#L174'>174</a>
 <a name='L175'></a><a href='#L175'>175</a>
 <a name='L176'></a><a href='#L176'>176</a>
-<a name='L177'></a><a href='#L177'>177</a>
-<a name='L178'></a><a href='#L178'>178</a>
-<a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a>
-<a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a>
-<a name='L184'></a><a href='#L184'>184</a>
-<a name='L185'></a><a href='#L185'>185</a>
-<a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a>
-<a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a>
-<a name='L190'></a><a href='#L190'>190</a>
-<a name='L191'></a><a href='#L191'>191</a>
-<a name='L192'></a><a href='#L192'>192</a>
-<a name='L193'></a><a href='#L193'>193</a>
-<a name='L194'></a><a href='#L194'>194</a>
-<a name='L195'></a><a href='#L195'>195</a>
-<a name='L196'></a><a href='#L196'>196</a>
-<a name='L197'></a><a href='#L197'>197</a>
-<a name='L198'></a><a href='#L198'>198</a>
-<a name='L199'></a><a href='#L199'>199</a>
-<a name='L200'></a><a href='#L200'>200</a>
-<a name='L201'></a><a href='#L201'>201</a>
-<a name='L202'></a><a href='#L202'>202</a>
-<a name='L203'></a><a href='#L203'>203</a>
-<a name='L204'></a><a href='#L204'>204</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L177'></a><a href='#L177'>177</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -361,18 +326,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -403,13 +356,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -479,7 +425,6 @@ import { Text } from './text/CustomText';
 /**
  * @component Header
  * @description A component that renders a header
- *
  * @param {Object} props - The properties of the component
  * @param {string} props.title - The title of the header
  * @param {Function} props.onBackPress - The function to call when the back button is pressed
@@ -491,11 +436,6 @@ import { Text } from './text/CustomText';
  * @param {Function} props.toggleMenu - The function to call when the menu is toggled
  * @param {boolean} props.transparent - Whether to make the header transparent
  * @param {string} props.currentSection - The current section of the app
- * @param {boolean} props.showBell - Whether to show the bell icon
- * @param {Function} props.onBellPress - The function to call when the bell icon is pressed
- *
- * @example
- * &lt;Header title="Title" onBackPress={() =&gt; console.log('Back button pressed')} rightIcon="bell" onRightIconPress={() =&gt; console.log('Right icon pressed')} showIcons={true} showMenuIcon={true} showBackButton={true} toggleMenu={() =&gt; console.log('Menu toggled')} transparent={false} currentSection="chat" showBell={false} onBellPress={() =&gt; console.log('Bell pressed')} /&gt;
  */
 export default function <span class="fstat-no" title="function not covered" >Header(</span>{
   title,
@@ -508,11 +448,9 @@ export default function <span class="fstat-no" title="function not covered" >Hea
   toggleMenu,
   transparent,
   currentSection,
-  showBell = <span class="branch-0 cbranch-no" title="branch not covered" >false,</span>
-  onBellPress,
 }) {
   const { isSmartphone } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
-  const iconSize = <span class="cstat-no" title="statement not covered" >isSmartphone ? 20 : 30;</span>
+  const iconSize = <span class="cstat-no" title="statement not covered" >isSmartphone ? 25 : 30;</span>
 &nbsp;
   const renderLeftSection = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; (</span>
 <span class="cstat-no" title="statement not covered" >    &lt;View style={styles.leftSection}&gt;</span>
@@ -548,18 +486,6 @@ export default function <span class="fstat-no" title="function not covered" >Hea
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return (</span>
       &lt;View style={styles.rightIconsContainer}&gt;
-        {showBell &amp;&amp; (
-          &lt;TouchableOpacity
-            style={styles.bellIconButton}
-            onPress={onBellPress}
-          &gt;
-            &lt;Ionicons
-              name="notifications-outline"
-              size={iconSize - 5}
-              color={COLORS.gray300}
-            /&gt;
-          &lt;/TouchableOpacity&gt;
-        )}
         {rightIcon &amp;&amp; (
           &lt;TouchableOpacity
             style={styles.iconButton}
@@ -652,13 +578,6 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
   iconButton: {
     padding: 5,
   },
-  bellIconButton: {
-    padding: 5,
-    backgroundColor: COLORS.charcoal,
-    borderRadius: SIZES.borderRadius.small,
-    borderWidth: 0.5,
-    borderColor: COLORS.borderColor,
-  },
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -679,7 +598,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-06T08:42:38.933Z
+                at 2025-04-09T11:54:18.105Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

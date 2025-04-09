@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/60</span>
+                <span class='fraction'>0/61</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/67</span>
+                <span class='fraction'>0/71</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/56</span>
+                <span class='fraction'>0/57</span>
             </div>
         
             
@@ -530,7 +530,8 @@
 <a name='L465'></a><a href='#L465'>465</a>
 <a name='L466'></a><a href='#L466'>466</a>
 <a name='L467'></a><a href='#L467'>467</a>
-<a name='L468'></a><a href='#L468'>468</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L468'></a><a href='#L468'>468</a>
+<a name='L469'></a><a href='#L469'>469</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -564,18 +565,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -586,6 +580,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -610,8 +612,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -648,6 +648,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1003,12 +1005,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { fetchUserChannels } from '../../services/api/messageApi';
-import * as SecureStore from 'expo-secure-store';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../text/CustomText';
 import { cleanSecureStore } from '../../services/api/authApi';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../services/notificationContext';
+import { useCredentials } from '../../hooks/useCredentials';
 &nbsp;
 /**
  * @component Sidebar
@@ -1031,6 +1033,7 @@ export default function <span class="fstat-no" title="function not covered" >Sid
 &nbsp;
   // Use the notification context to access the unread channels
   const { unreadChannels } = <span class="cstat-no" title="statement not covered" >useNotification();</span>
+  const { credentials, isLoading: credentialsLoading } = <span class="cstat-no" title="statement not covered" >useCredentials();</span>
 &nbsp;
   // Get the device type and the translations
   const { isSmartphone } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
@@ -1076,8 +1079,6 @@ export default function <span class="fstat-no" title="function not covered" >Sid
     const loadChannels = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
 <span class="cstat-no" title="statement not covered" >        setLoading(true);</span>
-        // Get the user credentials from the secure store
-        const credentials = <span class="cstat-no" title="statement not covered" >await SecureStore.getItemAsync('userCredentials');</span>
 &nbsp;
         // If the credentials are not found, clean the secure store and navigate to the login screen
 <span class="cstat-no" title="statement not covered" >        if (!credentials) {</span>
@@ -1088,7 +1089,7 @@ export default function <span class="fstat-no" title="function not covered" >Sid
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        try {</span>
           // Parse the credentials
-          const { contractNumber, login, password, accountApiKey } = <span class="cstat-no" title="statement not covered" >JSON.parse(credentials);</span>
+          const { contractNumber, login, password, accountApiKey } = <span class="cstat-no" title="statement not covered" >credentials;</span>
 &nbsp;
           // Fetch the user channels
           const response = <span class="cstat-no" title="statement not covered" >await fetchUserChannels(contractNumber, login, password, '', accountApiKey);</span>
@@ -1114,8 +1115,10 @@ export default function <span class="fstat-no" title="function not covered" >Sid
       }
     };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    loadChannels();</span>
-  }, [onNavigate]);
+<span class="cstat-no" title="statement not covered" >    if (!credentialsLoading &amp;&amp; credentials) {</span>
+<span class="cstat-no" title="statement not covered" >      loadChannels();</span>
+    }
+  }, [credentials, credentialsLoading, onNavigate, t]);
 &nbsp;
   /**
    * @function filteredGroups
@@ -1471,7 +1474,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-06T08:42:38.933Z
+                at 2025-04-09T11:54:18.105Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
