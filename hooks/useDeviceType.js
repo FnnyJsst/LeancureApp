@@ -3,23 +3,22 @@ import { useWindowDimensions, PixelRatio } from 'react-native';
 /**
  * Custom hook to determine the device type and orientation
  * @returns {Object} - An object containing the device type and orientation
- *
- * @example
- * const { isTablet, isSmartphone, isLandscape, isSmartphoneLandscape, isSmartphonePortrait } = useDeviceType();
  */
 export const useDeviceType = () => {
   const { width, height } = useWindowDimensions();
   const pixelDensity = PixelRatio.get();
 
-  // Calcul des dimensions en pouces
+  // Calculate the dimensions in inches
   const widthInches = width / (PixelRatio.get() * 160);
   const heightInches = height / (PixelRatio.get() * 160);
   const diagonalInches = Math.sqrt(Math.pow(widthInches, 2) + Math.pow(heightInches, 2));
 
+  /**
+   * @description Check if the device is a low resolution tablet
+   */
   const isLowResTablet = (() => {
     const minWidth = 550;
     const minHeight = 700;
-    const maxDensity = 2;
 
     const result = (
       Math.min(width, height) >= minWidth &&
@@ -30,6 +29,9 @@ export const useDeviceType = () => {
     return result;
   })();
 
+  /**
+   * @description Check if the device is a tablet
+   */
   const isTablet = (() => {
     const minimumTabletDiagonal = 6.0;
     const aspectRatio = Math.max(width, height) / Math.min(width, height);

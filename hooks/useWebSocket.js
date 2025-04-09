@@ -164,7 +164,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
         // We clean the existing connection
         if (ws.current) {
-            console.log('🧹 Cleaning the existing connection');
             cleanup();
         }
 
@@ -389,7 +388,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             };
 
             ws.current.send(JSON.stringify(messageData));
-            console.log('✅ Message envoyé avec succès');
             return true;
         } catch (error) {
             handleWSError(error, 'sendMessage.process');

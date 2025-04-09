@@ -420,16 +420,20 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @function sendMessage
    * @description Send a message to the channel
    */
-  const handleSendMessage = useCallback(async (messageData) => {
+  const sendMessage = useCallback(async (messageData) => {
     try {
+
+      // We record the timestamp of the sent message to avoid notifications
       const currentTime = Date.now();
       recordSentMessage(currentTime);
 
+      // If the channel is not set, we throw an error
       if (!channel) {
         handleChatError(t('errors.noChannel'), 'sendMessage.validation');
         return;
       }
 
+      // If the credentials are not set, we get them
       if (!credentials) {
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         if (!credentialsStr) {
@@ -440,24 +444,30 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         setCredentials(userCredentials);
       }
 
+      // We get the user credentials
       const userCredentials = credentials;
 
+      // Create a timestamp for the message
       const sendTimestamp = Date.now();
 
+      // Check if the message is an edit of an existing message
       const isEditing = messageData.isEditing === true && messageData.messageId;
 
       if (isEditing) {
 
         try {
+          // We send the editing request
           const response = await editMessageApi(messageData.messageId, messageData, userCredentials);
 
           if (response.status === 'ok') {
             setEditingMessage(null);
 
+            // We update the messages
             setMessages(prevMessages => {
               const updatedMessages = prevMessages.map(msg => {
                 if (msg.id === messageData.messageId) {
                   const updatedText = messageData.text || '';
+                  // We update the message
                   return {
                     ...msg,
                     message: updatedText,
@@ -472,13 +482,15 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             throw new Error(response.message || t('errors.editFailed'));
           }
 
-          return;
+          return; // We stop the execution here
         } catch (error) {
           handleChatError(error, 'editMessage');
           return;
         }
       }
 
+      // For a new message (non-editing), we continue with the existing code
+      // We check the type of message
       if (messageData.type === 'file') {
 
         if (!messageData.base64) {
@@ -488,12 +500,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       } else {
         const messageText = typeof messageData === 'object' ? messageData.text : messageData;
+        // If the message text is invalid, we throw an error
         if (!messageText || messageText.trim() === '') {
           handleChatError(t('errors.emptyMessage'), 'sendMessage.validation');
           return;
         }
       }
 
+      // We send the message
       const messageToSend = messageData.type === 'file' ? {
         ...messageData,
         login: userCredentials.login,
@@ -507,18 +521,24 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         sendTimestamp
       };
 
+      // We format the message and add it to the list of messages
       const message = formatMessage(messageToSend, userCredentials);
 
+      // Try to send the message
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
 
+      // We check if the sending was successful
       if (response.status === 'ok' && response.id) {
+        // Add the message to the existing ones
         setMessages((prevMessages) => {
+          // Check if the message already exists
           const messageExists = prevMessages.some((msg) => msg.id === response.id);
 
           if (messageExists) {
             return prevMessages;
           }
 
+          // Create a complete message from the response
           const completeMessage = {
             ...message,
             id: response.id,
@@ -531,10 +551,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         throw new Error(response.message || 'Failed to send message');
       }
     } catch (error) {
-      console.error('Erreur lors de l\'envoi du message:', error);
       handleChatError(error, 'sendMessage', { silent: false });
+      throw error;
     }
-  }, [channel, credentials, t, recordSentMessage]);
+  }, [channel, credentials, t, recordSentMessage, markChannelAsUnread]);
 
   /**
    * @function handleDeleteMessage
@@ -620,12 +640,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     });
   };
 
-  const handleInputFocusChange = useCallback((isFocused) => {
-    if (onInputFocusChange) {
-      onInputFocusChange(isFocused);
-    }
-  }, [onInputFocusChange]);
-
   if (isLoading) {
     return null;
   }
@@ -695,8 +709,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           </ScrollView>
 
           <InputChatWindow
-            onSendMessage={handleSendMessage}
-            onFocusChange={handleInputFocusChange}
+            onSendMessage={sendMessage}
+            onFocusChange={onInputFocusChange}
             editingMessage={editingMessage}
           />
 
