@@ -1,10 +1,10 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { ENV } from '../config/env';
-import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../services/api/messageApi';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../utils/errorHandling';
 import { useNotification } from '../services/notificationContext';
+import { useCredentials } from '../hooks/useCredentials';
 
 /**
  * Personalized hook to handle WebSocket connections
@@ -17,8 +17,11 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
     // We get the translation function
     const { t } = useTranslation();
 
-    // Accès au contexte de notification pour gérer les canaux non lus
+    // Access to the notification context to handle unread channels
     const { markChannelAsUnread, activeChannelId } = useNotification();
+
+    // Use the useCredentials hook
+    const { credentials, isLoading: credentialsLoading } = useCredentials();
 
     // We create a new WebSocket instance
     const ws = useRef(null);
@@ -49,10 +52,9 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             ws.current.close();
             ws.current = null;
         }
-        // Set the connection state to disconnected
+        // Set the connection state to disconnected and the active channel to null
         isConnecting.current = false;
         setIsConnected(false);
-        // Set the active channel to null
         activeChannel.current = null;
     }, []);
 
@@ -61,14 +63,8 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
      */
     const sendSubscription = useCallback(async () => {
         try {
-            // Vérification plus robuste de l'état de la connexion
-            if (!ws.current || !channels.length) {
-                console.log('❌ Impossible d\'envoyer la souscription: WebSocket non initialisé ou pas de canaux');
-                return;
-            }
-
-            if (ws.current.readyState !== WebSocket.OPEN) {
-                console.log('❌ Impossible d\'envoyer la souscription: WebSocket non connecté');
+            // Check if the WebSocket is not initialized or if there are no channels
+            if (!ws.current || !channels.length ||ws.current.readyState !== WebSocket.OPEN)  {
                 return;
             }
 
@@ -94,7 +90,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                     }
                 ]
             };
-            // We send the subscription to the WebSocket server
+
             ws.current.send(JSON.stringify(subscriptionData));
         } catch (error) {
             handleWSError(error, 'sendSubscription');
@@ -106,61 +102,49 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
      * @param {Object} data - The parsed message data
      */
     const handleNotificationMessage = async (data) => {
-        // Appel du callback si fourni
         if (onMessage) {
             onMessage(data);
         }
 
+        // We handle the notification message
         try {
-            // Vérifier si c'est une notification de chat
             if (data.notification && data.notification.type === 'chat' && data.notification.message) {
                 const notifMessage = data.notification.message;
 
-                // Extraire le canal et vérifier si c'est un message de l'utilisateur
                 let channelId = notifMessage.channelId;
                 if (!channelId && data.notification.filters && data.notification.filters.values) {
                     channelId = data.notification.filters.values.channel;
                 }
 
-                // Nettoyer l'ID du canal
                 if (channelId && typeof channelId === 'string') {
                     channelId = channelId.replace('channel_', '');
                 }
 
-                // Récupérer les credentials pour vérifier si c'est un message de l'utilisateur
-                const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-                const credentials = credentialsStr ? JSON.parse(credentialsStr) : null;
+                // We check if the message is own
                 const isOwnMessage = credentials && notifMessage.login === credentials.login;
 
-                // Si ce n'est pas un message de l'utilisateur actuel et c'est un autre canal
-                // que celui actuellement visualisé, on le marque comme non lu
+                // If the message is not own and the channel id is not the active channel id, we mark the channel as unread
                 if (!isOwnMessage && channelId && channelId !== activeChannelId) {
                     console.log('🔔 Marquage du canal comme non lu:', channelId);
                     markChannelAsUnread(channelId);
                 }
             }
 
-            // Pour les messages standard de chat
             if (data.message && data.message.type === 'messages' && Array.isArray(data.message.messages)) {
-                // Vérifier s'il y a des nouveaux messages qui ne sont pas de l'utilisateur actuel
-                const hasNewMessages = data.message.messages.some(async (msg) => {
-                    const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-                    const credentials = credentialsStr ? JSON.parse(credentialsStr) : null;
-                    return credentials && msg.login !== credentials.login;
-                });
+                // We check if there are new messages
+                const hasNewMessages = data.message.messages.some(msg =>
+                    credentials && msg.login !== credentials.login
+                );
 
-                // Extraire le canal
                 let channelId = null;
                 if (data.filters && data.filters.values) {
                     channelId = data.filters.values.channel;
                 }
 
-                // Nettoyer l'ID du canal
                 if (channelId && typeof channelId === 'string') {
                     channelId = channelId.replace('channel_', '');
                 }
 
-                // Si nouveaux messages et pas le canal actuel, marquer comme non lu
                 if (hasNewMessages && channelId && channelId !== activeChannelId) {
                     console.log('🔔 Marquage du canal comme non lu (nouveaux messages):', channelId);
                     markChannelAsUnread(channelId);
@@ -199,26 +183,15 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 console.log('🟢 WebSocket connecté avec succès. État:', ws.current.readyState);
                 isConnecting.current = false;
                 setIsConnected(true);
-                // Envoi immédiat de la souscription
                 sendSubscription();
             };
 
             // We handle the connection close event
             ws.current.onclose = (event) => {
-                // We get the close event details
-                const closeInfo = {
-                    code: event.code,
-                    reason: event.reason,
-                    wasClean: event.wasClean,
-                    timestamp: new Date().toISOString()
-                };
-                console.log('🔵 WebSocket fermé avec les détails:', closeInfo);
-                // We clean the connection
                 cleanup();
 
-                // Si la déconnexion n'est pas normale, on essaie de se reconnecter
+                // If the disconnection is not normal, we try to reconnect
                 if (event.code !== 1000) {
-                    console.log('🔄 Tentative de reconnexion dans 3 secondes...');
                     setTimeout(() => {
                         connect();
                     }, 3000);
@@ -229,7 +202,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             ws.current.onerror = (error) => {
                 console.error('❌ Erreur WebSocket:', error);
                 handleWSError(error, 'connection.error');
-                // On essaie de se reconnecter
+                // We try to reconnect
                 setTimeout(() => {
                     connect();
                 }, 3000);
@@ -238,23 +211,19 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             // We handle the notification event received from the WebSocket server
             ws.current.onmessage = (event) => {
                 try {
-                    console.log('📨 Message brut reçu:', event.data);
                     const data = JSON.parse(event.data);
-                    console.log('📨 Message parsé:', data);
 
+                    // If the message is a refresh content, we refresh the messages
                     if (data.type === 'refreshcontent') {
-                        console.log('🔄 Rafraîchissement du contenu demandé');
                         refreshMessages();
                         return;
                     }
 
                     if (data && typeof data === 'object') {
-                        // Vérification du format du message
+                        // We check the message format
                         if (data.message && data.message.type === 'messages') {
-                            console.log('📨 Message de type "messages" reçu:', data.message);
                             handleNotificationMessage(data);
                         } else if (data.type === 'notification') {
-                            console.log('📨 Notification reçue:', data);
                             handleNotificationMessage(data);
                         } else {
                             console.log('⚠️ Format de message non reconnu:', data);
@@ -271,7 +240,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 }
             };
 
-            // Ajout d'un ping pour maintenir la connexion active
+            // We add a ping to keep the connection active
             const pingInterval = setInterval(() => {
                 if (ws.current && ws.current.readyState === WebSocket.OPEN) {
                     try {
@@ -280,19 +249,18 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                         console.log('❌ Erreur lors de l\'envoi du ping:', error);
                     }
                 }
-            }, 30000); // Ping toutes les 30 secondes
+            }, 30000); // Ping every 30 seconds
 
-            // Nettoyage de l'intervalle lors de la déconnexion
+            // We clean the interval when the connection is closed
             ws.current.onclose = (event) => {
                 clearInterval(pingInterval);
-                // ... reste du code existant ...
             };
 
         } catch (error) {
             // If the connection is not created, we log the error
             handleWSError(error, 'connection.create');
             isConnecting.current = false;
-            // On essaie de se reconnecter
+            // We try to reconnect
             setTimeout(() => {
                 connect();
             }, 3000);
@@ -316,11 +284,10 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
         // If the current channel is different from the active channel, we change the channel
         if (cleanCurrentChannel !== cleanActiveChannel) {
-            console.log('🔄 Changement de canal:', cleanCurrentChannel);
             // We update the active channel
             activeChannel.current = currentChannel;
 
-            // On se reconnecte pour s'assurer d'avoir une connexion propre
+            // We reconnect to ensure we have a clean connection
             connect();
         }
     }, [channels, connect, cleanup]);
@@ -336,28 +303,17 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
      * @description Refresh the messages when the channel is changed
      */
     const refreshMessages = useCallback(async () => {
-        // If there are no channels, we return null
-        if (!channels.length) {
+        if (!channels.length || !credentials) {
             return;
         }
 
         try {
-            // We get the user credentials
-            const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-            // If the credentials are not found, we throw an error
-            if (!credentialsStr) {
-                throw new Error(t('errors.noCredentialsFound'));
-            }
 
-            const credentials = JSON.parse(credentialsStr);
             const cleanChannelId = activeChannel.current?.replace('channel_', '');
 
-            // We fetch the channel messages
             const messages = await fetchChannelMessages(cleanChannelId, credentials);
 
             if (onMessage && Array.isArray(messages)) {
-
-                // We format the messages to match the expected format
                 const formattedData = {
                     type: 'notification',
                     filters: {
@@ -386,7 +342,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         } catch (error) {
             handleWSError(error, 'refreshMessages');
         }
-    }, [channels, onMessage]);
+    }, [channels, onMessage, credentials]);
 
     /**
      * @description Send a message to the WebSocket server
@@ -405,19 +361,13 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         }
 
         try {
-            // We get the user credentials
-            const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-            // If the credentials are not found, we throw an error
-            if (!credentialsStr) {
+
+            if (!credentials) {
                 throw new Error(t('errors.noCredentialsFound'));
             }
 
-            // We parse the credentials
-            const credentials = JSON.parse(credentialsStr);
-            // We get the clean channel id
             const cleanChannelId = activeChannel.current?.replace('channel_', '');
 
-            // We create the message data
             const messageData = {
                 "package": "amaiia_msg_srv",
                 "page": "message",
@@ -437,9 +387,8 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                     }
                 ]
             };
-            // We send the message to the WebSocket server
+
             ws.current.send(JSON.stringify(messageData));
-            // If the message is sent, we log the success
             console.log('✅ Message envoyé avec succès');
             return true;
         } catch (error) {
