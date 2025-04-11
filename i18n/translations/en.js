@@ -318,6 +318,8 @@ export default {
     notificationProvider: "Error providing notification",
     errorLoadingTooltips: "Error loading tooltips",
     errorMarkingTooltipAsSeen: "Error marking tooltip as seen",
+    errorRefreshingMessages: "Error refreshing messages",
+    errorChannelSelect: "Error selecting channel",
   },
 
   tooltips: {

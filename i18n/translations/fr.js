@@ -320,6 +320,8 @@ export default {
     notificationProvider: "Erreur lors de la fourniture des notifications",
     errorLoadingTooltips: "Erreur lors du chargement des tooltips",
     errorMarkingTooltipAsSeen: "Erreur lors de la marque du tooltip comme vu",
+    errorRefreshingMessages: "Erreur lors du rafraîchissement des messages",
+    errorChannelSelect: "Erreur lors de la sélection du canal",
   },
 
   tooltips: {
