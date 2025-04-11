@@ -321,6 +321,9 @@ export default {
     errorRefreshingMessages: "Error refreshing messages",
     errorChannelSelect: "Error selecting channel",
     errorValidation: "Error validating input",
+    errorChangingHideMessagesParameter: "Error changing hide messages parameter",
+    errorLoadingMessagesVisibility: "Error loading messages visibility",
+    messageIdMissing: "Message ID is missing",
   },
 
   tooltips: {

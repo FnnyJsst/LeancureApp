@@ -323,6 +323,9 @@ export default {
     errorRefreshingMessages: "Erreur lors du rafraîchissement des messages",
     errorChannelSelect: "Erreur lors de la sélection du canal",
     errorValidation: "Erreur de validation des entrées",
+    errorChangingHideMessagesParameter: "Erreur lors de la modification du paramètre de masquage des messages",
+    errorLoadingMessagesVisibility: "Erreur lors du chargement de la visibilité des messages",
+    messageIdMissing: "L'ID du message est manquant",
   },
 
   tooltips: {

@@ -10,6 +10,7 @@ import { Text } from '../../components/text/CustomText';
 import * as SecureStore from 'expo-secure-store';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
 import { useTranslation } from 'react-i18next';
+import { handleError } from '../../utils/errorHandling';
 
 /**
  * @function AppMenu Component
@@ -36,7 +37,10 @@ export default function AppMenu({ onNavigate, testID }) {
             setIsMessagesHidden(JSON.parse(savedValue));
           }
         } catch (error) {
-          console.error('Error loading messages visibility:', error);
+          handleError(error, t('error.errorLoadingMessagesVisibility'), {
+            type: ErrorType.SYSTEM,
+            silent: false
+          });
         }
       };
       loadMessagesVisibility();
@@ -52,7 +56,10 @@ export default function AppMenu({ onNavigate, testID }) {
         await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
         setIsMessagesHidden(shouldHide);
       } catch (error) {
-        console.error('Error saving messages visibility:', error);
+        handleError(error, t('error.errorSavingMessagesVisibility'), {
+          type: ErrorType.SYSTEM,
+          silent: false
+        });
       }
   }
 

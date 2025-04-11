@@ -10,9 +10,8 @@ import SettingsCard from '../../components/cards/SettingsCard';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
 import ChangeServerAddressModal from '../../components/modals/common/ChangeServerAddressModal';
 import TooltipModal from '../../components/modals/webviews/TooltipModal';
-import { cleanSecureStore } from '../../services/api/authApi';
-import { SCREENS } from '../../constants/screens';
 import { useTranslation } from 'react-i18next';
+import { handleError } from '../../utils/errorHandling';
 
 /**
  * @component CommonSettings
@@ -20,9 +19,8 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} onBackPress - The function to call when the back button is pressed
  * @param {Function} onHideMessages - The function to call when the hide messages action is performed
  * @param {boolean} isMessagesHidden - Whether the messages are hidden
- * @param {Function} onNavigate - The function to navigate to other screens
  */
-const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavigate }) => {
+const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
 
     // Device type detection
     const { isSmartphone, isLandscape } = useDeviceType();
@@ -43,7 +41,10 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden, onNavig
             setHideMessagesModalVisible(false);
             await onHideMessages(value);
         } catch (error) {
-            console.error('Error while changing the hide messages parameter:', error);
+            handleError(error, t('error.errorChangingHideMessagesParameter'), {
+                type: ErrorType.SYSTEM,
+                silent: false
+            });
         }
     };
 

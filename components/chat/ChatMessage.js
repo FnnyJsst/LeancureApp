@@ -35,7 +35,7 @@ const formatFileSize = (bytes) => {
     bytes = parseFloat(bytes);
   }
 
-  // If the value is not a number or is NaN, we return nothing
+  // If the value is not a number, we return nothing
   if (!bytes || isNaN(bytes) || bytes === 0) {
     return '';
   }
@@ -43,10 +43,8 @@ const formatFileSize = (bytes) => {
   const k = 1024;
   const sizes = ['Ko', 'Mo', 'Go'];
 
-  // If the size is very small (< 100 bytes) for a real file,
-  // assume it is already in Ko and not in bytes
+  // If the size is very small (< 100 bytes) for a real file, assume it is already in Ko and not in bytes
   if (bytes < 100) {
-    // The size is already in Ko, no need to divide by 1024
     let size = bytes;
     let unitIndex = 0;
 
@@ -76,13 +74,11 @@ const formatFileSize = (bytes) => {
     unitIndex++;
   }
 
-  // For very small sizes (< 10), display one decimal for more precision
   if (size < 10) {
     const result = `${size.toFixed(1)} ${sizes[unitIndex]}`;
     return result;
   }
 
-  // For larger sizes, round to the nearest integer
   const result = `${Math.round(size)} ${sizes[unitIndex]}`;
   return result;
 };
@@ -108,6 +104,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   const messageTime = formatTimestamp(message.savedTimestamp);
 
   /**
+   * @function handleMessageError
    * @description Handle message-related errors
    * @param {Error} error - The error
    * @param {string} source - The source
@@ -144,7 +141,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
     try {
       if (message.type === 'file') {
         if (!message.id) {
-          handleMessageError('Message ID is missing', 'press.validation', { silent: false });
+          handleMessageError(t('error.messageIdMissing'), 'press.validation', { silent: false });
           return;
         }
         onFileClick(message);
@@ -161,7 +158,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   const handleDelete = () => {
     try {
       if (!message.id) {
-        handleMessageError('Message ID is missing', 'delete.validation', { silent: false });
+        handleMessageError(t('error.messageIdMissing'), 'delete.validation', { silent: false });
         return;
       }
 
@@ -181,7 +178,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   const handleEdit = () => {
     try {
       if (!message.id) {
-        handleMessageError('Message ID is missing', 'edit.validation', { silent: false });
+        handleMessageError(t('error.messageIdMissing'), 'edit.validation', { silent: false });
         return;
       }
 
@@ -406,7 +403,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
           <TouchableOpacity
             onLongPress={handleLongPress}
             onPress={handlePress}
-            delayLongPress={500} // 500ms pour l'appui long
+            delayLongPress={500}
             style={[
               styles.messageContainer,
               isOwnMessage ? styles.ownMessage : styles.otherMessage,
@@ -533,13 +530,6 @@ const styles = StyleSheet.create({
   },
   pdfPreviewWithText: {
     padding: 8,
-  },
-  previewContainer: {
-    width: '100%',
-    height: 150,
-    borderRadius: SIZES.borderRadius.medium,
-    overflow: 'hidden',
-    position: 'relative',
   },
   imagePreviewContainer: {
     width: 200,
