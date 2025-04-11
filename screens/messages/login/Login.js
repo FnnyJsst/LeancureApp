@@ -281,7 +281,6 @@ export default function Login({ onNavigate, testID }) {
                 console.log('[Login] Nettoyage du SecureStore');
                 await SecureStore.deleteItemAsync('userCredentials');
             } catch (error) {
-                console.log('[Login] Erreur lors du nettoyage du SecureStore:', error);
                 throw error;
             }
 
@@ -473,6 +472,7 @@ export default function Login({ onNavigate, testID }) {
                                                         onChangeText={setContractNumber}
                                                         iconName="document-text-outline"
                                                         iconLibrary="Ionicons"
+                                                        testID="contract-number-input"
                                                     />
                                                 </View>
                                             </View>
@@ -491,6 +491,7 @@ export default function Login({ onNavigate, testID }) {
                                                         value={login}
                                                         onChangeText={setLogin}
                                                         iconName="person-outline"
+                                                        testID="login-input"
                                                     />
                                                 </View>
                                             </View>
@@ -509,6 +510,7 @@ export default function Login({ onNavigate, testID }) {
                                                         onChangeText={setPassword}
                                                         secureTextEntry
                                                         iconName="lock-closed-outline"
+                                                        testID="password-input"
                                                     />
                                                 </View>
                                             </View>
@@ -541,7 +543,9 @@ export default function Login({ onNavigate, testID }) {
                                         style={styles.backLink}
                                         onPress={() => onNavigate(SCREENS.APP_MENU)}
                                     >
-                                        <Text style={[styles.backLinkText, isSmartphone && styles.backLinkTextSmartphone]}>
+                                        <Text
+                                            style={[styles.backLinkText, isSmartphone && styles.backLinkTextSmartphone]}
+                                            testID="login-back">
                                             {t('buttons.returnToTitle')}
                                         </Text>
                                     </TouchableOpacity>

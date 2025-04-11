@@ -8,6 +8,26 @@ import 'react-native-gesture-handler/jestSetup';
 
 jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 
+// Mock pour Buffer qui est utilisé dans DocumentPreviewModal
+jest.mock('buffer', () => ({
+  Buffer: {
+    from: jest.fn((content, encoding) => ({
+      toString: jest.fn(() => 'mocked-decoded-content')
+    }))
+  }
+}));
+
+// Mock pour react-native-webview
+jest.mock('react-native-webview', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+
+  return {
+    WebView: jest.fn().mockImplementation(props =>
+      React.createElement(View, { ...props, testID: 'mocked-webview' })
+    )
+  };
+});
 
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(),
@@ -28,6 +48,26 @@ jest.mock('expo-constants', () => ({
       },
     },
   },
+}));
+
+// Mock pour expo-localization
+jest.mock('expo-localization', () => ({
+  locale: 'fr-FR',
+  locales: ['fr-FR', 'en-US'],
+  country: 'FR',
+  isRTL: false,
+  timezone: 'Europe/Paris',
+  currency: 'EUR',
+  region: 'FR',
+  getLocalizationAsync: jest.fn().mockResolvedValue({
+    locale: 'fr-FR',
+    locales: ['fr-FR', 'en-US'],
+    country: 'FR',
+    isRTL: false,
+    timezone: 'Europe/Paris',
+    currency: 'EUR',
+    region: 'FR',
+  })
 }));
 
 // Ajout du mock pour expo-screen-orientation

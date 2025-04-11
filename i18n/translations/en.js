@@ -304,6 +304,7 @@ export default {
     errorDuringDownload: "Error during download",
     noChannelsFound: "No channels found",
     couldNotDecrypt: "Could not decrypt data",
+    verifyPasswordError: "Error verifying password",
   },
 
   tooltips: {

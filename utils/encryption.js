@@ -1,5 +1,6 @@
 import CryptoJS from 'crypto-js';
 import * as SecureStore from 'expo-secure-store';
+import { handleError, ErrorType } from './errorHandling';
 
 /**
  * @function hashPassword
@@ -14,7 +15,10 @@ export const hashPassword = (password) => {
         const hashedPassword = CryptoJS.SHA256(password).toString();
         return hashedPassword;
     } catch (error) {
-        throw new Error('Failed to hash the password');
+        handleError(error, 'error.hashPasswordError', {
+            type: ErrorType.SYSTEM,
+            silent: false
+        });
     }
 };
 
@@ -31,7 +35,10 @@ export const verifyPassword = (password, hashedPassword) => {
         const hashToVerify = CryptoJS.SHA256(password).toString();
         return hashToVerify === hashedPassword;
     } catch (error) {
-        throw new Error('Failed to verify the password');
+        handleError(error, 'error.verifyPassword', {
+            type: ErrorType.SYSTEM,
+            silent: false
+        });
     }
 };
 
@@ -44,7 +51,15 @@ export const verifyPassword = (password, hashedPassword) => {
 
 export const secureStore = {
     async saveCredentials(credentials) {
-        await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+        try {
+            await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+        } catch (error) {
+            handleError(error, 'error.errorSavingLoginInfo', {
+                type: ErrorType.SYSTEM,
+                silent: false
+            });
+            throw new Error('Failed to save credentials');
+        }
     },
 
     /**
@@ -59,7 +74,10 @@ export const secureStore = {
             // Return the credentials and parse them
             return credentials ? JSON.parse(credentials) : null;
         } catch (error) {
-            logError('Error retrieving credentials:', error);
+            handleError(error, 'encryption.secureStore.getCredentials', {
+                type: ErrorType.SYSTEM,
+                silent: false
+            });
             return null;
         }
     },
@@ -72,13 +90,10 @@ export const secureStore = {
         try {
             await SecureStore.deleteItemAsync('userCredentials');
         } catch (error) {
-            logError('Error deleting credentials:', error);
+            handleError(error, 'encryption.secureStore.deleteCredentials', {
+                type: ErrorType.SYSTEM,
+                silent: false
+            });
         }
     },
-};
-
-const logError = (message, error) => {
-    if (__DEV__) {
-        console.error(message, error);
-    }
 };

@@ -24,7 +24,12 @@ export const NotificationProvider = ({ children }) => {
   const [activeChannelId, setActiveChannelId] = useState(null);
   const [unreadChannels, setUnreadChannels] = useState({});
 
-  // Update the active channel and the global variable
+  /**
+   * @function updateActiveChannel
+   * @description Update the active channel and the global variable
+   * @param {string} channelId - The ID of the channel
+   * @param {string} channelTitle - The title of the channel
+   */
   const updateActiveChannel = (channelId, channelTitle) => {
     setActiveChannelId(channelId);
     setCurrentlyViewedChannel(channelId);

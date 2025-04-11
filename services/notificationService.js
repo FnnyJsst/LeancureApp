@@ -24,10 +24,6 @@ Notifications.setNotificationHandler({
 export const registerForPushNotificationsAsync = async () => {
   try {
 
-    if (!Device.isDevice) {
-      return null;
-    }
-
     // We check the status of the permissions
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
 
@@ -78,11 +74,6 @@ export const registerForPushNotificationsAsync = async () => {
  */
 export const shouldDisplayNotification = async (messageData, currentChannelId = null, credentials = null) => {
   try {
-    // // If there is no message data, we display the default notification
-    // if (!messageData) {
-    //   console.log('⚠️ Message data manquant, notification par défaut autorisée');
-    //   return true;
-    // }
 
     // We check if the notification is a push notification
     const isPushNotification = !messageData.login && !messageData.isOwnMessage &&

@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/181</span>
+                <span class='fraction'>0/180</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/181</span>
+                <span class='fraction'>0/180</span>
             </div>
         
             
@@ -728,7 +728,11 @@
 <a name='L663'></a><a href='#L663'>663</a>
 <a name='L664'></a><a href='#L664'>664</a>
 <a name='L665'></a><a href='#L665'>665</a>
-<a name='L666'></a><a href='#L666'>666</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L666'></a><a href='#L666'>666</a>
+<a name='L667'></a><a href='#L667'>667</a>
+<a name='L668'></a><a href='#L668'>668</a>
+<a name='L669'></a><a href='#L669'>669</a>
+<a name='L670'></a><a href='#L670'>670</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1012,7 +1016,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1174,6 +1177,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1250,6 +1255,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1270,6 +1276,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1676,7 +1684,6 @@ export default function <span class="fstat-no" title="function not covered" >Log
 <span class="cstat-no" title="statement not covered" >                console.log('[Login] Nettoyage du SecureStore');</span>
 <span class="cstat-no" title="statement not covered" >                await SecureStore.deleteItemAsync('userCredentials');</span>
             } catch (error) {
-<span class="cstat-no" title="statement not covered" >                console.log('[Login] Erreur lors du nettoyage du SecureStore:', error);</span>
 <span class="cstat-no" title="statement not covered" >                throw error;</span>
             }
 &nbsp;
@@ -1868,6 +1875,7 @@ export default function <span class="fstat-no" title="function not covered" >Log
                                                         onChangeText={setContractNumber}
                                                         iconName="document-text-outline"
                                                         iconLibrary="Ionicons"
+                                                        testID="contract-number-input"
                                                     /&gt;
                                                 &lt;/View&gt;
                                             &lt;/View&gt;
@@ -1886,6 +1894,7 @@ export default function <span class="fstat-no" title="function not covered" >Log
                                                         value={login}
                                                         onChangeText={setLogin}
                                                         iconName="person-outline"
+                                                        testID="login-input"
                                                     /&gt;
                                                 &lt;/View&gt;
                                             &lt;/View&gt;
@@ -1904,6 +1913,7 @@ export default function <span class="fstat-no" title="function not covered" >Log
                                                         onChangeText={setPassword}
                                                         secureTextEntry
                                                         iconName="lock-closed-outline"
+                                                        testID="password-input"
                                                     /&gt;
                                                 &lt;/View&gt;
                                             &lt;/View&gt;
@@ -1936,7 +1946,9 @@ export default function <span class="fstat-no" title="function not covered" >Log
                                         style={styles.backLink}
                                         onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >onNavigate(SCREENS.APP_MENU)}</span>
                                     &gt;
-                                        &lt;Text style={[styles.backLinkText, isSmartphone &amp;&amp; styles.backLinkTextSmartphone]}&gt;
+                                        &lt;Text
+                                            style={[styles.backLinkText, isSmartphone &amp;&amp; styles.backLinkTextSmartphone]}
+                                            testID="login-back"&gt;
                                             {t('buttons.returnToTitle')}
                                         &lt;/Text&gt;
                                     &lt;/TouchableOpacity&gt;
@@ -2065,7 +2077,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-09T15:15:00.629Z
+                at 2025-04-10T08:16:41.430Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

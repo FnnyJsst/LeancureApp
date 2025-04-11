@@ -2,7 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 
 export const clearSecureStore = async () => {
     try {
-        // Liste des clés à supprimer
+        // List of keys to delete
         const keysToDelete = [
             'isMessagesHidden',
             'userCredentials',
@@ -10,12 +10,10 @@ export const clearSecureStore = async () => {
             'notificationSettings'
         ];
 
-        // Suppression de chaque clé
+        // Delete each key
         for (const key of keysToDelete) {
             await SecureStore.deleteItemAsync(key);
         }
-
-        console.log('SecureStore nettoyé avec succès');
     } catch (error) {
         console.error('Erreur lors du nettoyage du SecureStore:', error);
     }
