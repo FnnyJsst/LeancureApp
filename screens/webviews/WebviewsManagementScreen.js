@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, memo } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import ImportWebviewModal from '../../components/modals/webviews/ImportWebviewModal';
 import ImportFullUrlModal from '../../components/modals/webviews/ImportFullUrlModal';
 import EditWebviewModal from '../../components/modals/webviews/EditWebviewModal';
@@ -52,7 +52,7 @@ const WebviewItem = memo(({
   setSelectedPencilIndex,
   setSelectedBinIndex
 }) => {
-  // Mémorisation des styles pour éviter les recalculs
+  // Styles memoized to avoid unnecessary recalculations
   const containerStyle = useMemo(() => [
     styles.channelContainer,
     isSmartphone && styles.channelContainerSmartphone,
@@ -77,8 +77,7 @@ const WebviewItem = memo(({
   const arrowContainerStyle = useMemo(() => [
     styles.arrowContainer,
     isSmartphone && styles.arrowContainerSmartphone,
-    isLandscape && styles.arrowContainerLandscape,
-  ], [isSmartphone, isLandscape]);
+  ], [isSmartphone]);
 
   const iconsContainerStyle = useMemo(() => [
     styles.iconsContainer,
@@ -86,7 +85,7 @@ const WebviewItem = memo(({
     isLandscape && styles.iconsContainerLandscape,
   ], [isSmartphone, isLandscape]);
 
-  // Mémorisation des callbacks pour éviter les re-rendus inutiles
+  // Memoization of callbacks to avoid unnecessary re-renders
   const handlePressIn = useCallback(() => {
     setSelectedTitleId(channel.href);
   }, [channel.href, setSelectedTitleId]);
@@ -207,7 +206,7 @@ const WebviewItem = memo(({
   );
 });
 
-// Mémoriser les composants modaux
+// Memoized modals components
 const MemoizedImportFullUrlModal = memo(ImportFullUrlModal);
 const MemoizedImportWebviewModal = memo(ImportWebviewModal);
 const MemoizedEditWebviewModal = memo(EditWebviewModal);
@@ -223,13 +222,12 @@ export default function WebviewsManagementScreen({
   onImport,
   testID,
 }) {
+
+  //Translation and device type hooks
   const { t } = useTranslation();
   const { isTablet, isSmartphone, isSmartphonePortrait, isLandscape } = useDeviceType();
 
-  // Ajout de l'état error
-  const [error, setError] = useState(null);
-
-  // Regrouper tous les états des modales dans un seul objet
+  // Group all modal states in a single object
   const [modalState, setModalState] = useState({
     import: false,
     importFullUrl: false,
@@ -239,7 +237,7 @@ export default function WebviewsManagementScreen({
     webviewToDelete: null
   });
 
-  // Regrouper les états de sélection dans un seul objet
+  // Group all selection states in a single object
   const [selectionState, setSelectionState] = useState({
     titleId: null,
     pencilIndex: null,
@@ -248,17 +246,17 @@ export default function WebviewsManagementScreen({
     downIndex: null
   });
 
-  // Fonction pour mettre à jour l'état des modales
+  // Function to update the modal state
   const updateModalState = useCallback((key, value) => {
     setModalState(prev => ({ ...prev, [key]: value }));
   }, []);
 
-  // Fonction pour mettre à jour l'état de sélection
+  // Function to update the selection state
   const updateSelectionState = useCallback((key, value) => {
     setSelectionState(prev => ({ ...prev, [key]: value }));
   }, []);
 
-  // Mémoriser les fonctions de gestion des modales
+  // Memoized modal management functions
   const handleOpenModal = useCallback((modalType) => {
     updateModalState(modalType, true);
   }, [updateModalState]);
@@ -282,7 +280,7 @@ export default function WebviewsManagementScreen({
     updateModalState('delete', true);
   }, [updateModalState]);
 
-  // Mémoriser les fonctions de gestion des webviews
+  // Memoized webviews management functions
   const handleDeleteWebview = useCallback(async (webviewToDelete) => {
     if (webviewToDelete) {
       try {
@@ -293,18 +291,16 @@ export default function WebviewsManagementScreen({
         await saveSelectedWebviews(updatedWebviews);
         await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(updatedWebviews));
         handleCloseModal('delete');
-        setError(null); // Réinitialiser l'erreur en cas de succès
-      } catch (err) {
-        handleError(err, 'webviewsManagement.handleDeleteWebview', {
+      } catch (err) {;
+        handleError(err, i18n.t('errors.errorDeletingWebview'), {
           type: ErrorType.SYSTEM,
           silent: false
         });
-        setError(t('errors.errorDeletingWebview'));
       }
     }
   }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, handleCloseModal, t]);
 
-  // Mémorisation du rendu des items
+  // Memoized item rendering
   const renderItem = useCallback(({ item, index }) => (
     <WebviewItem
       channel={item}
@@ -345,27 +341,38 @@ export default function WebviewsManagementScreen({
     updateSelectionState
   ]);
 
-  // Mémorisation de la fonction d'extraction de clé
+  // Memoized key extraction function
   const keyExtractor = useCallback((item, index) => `${item.href}-${index}`, []);
 
-  // Fonction pour vérifier les doublons
+  /**
+   * @function isDuplicate
+   * @description Checks for duplicates
+   * @param {Object} newWebview - The new webview
+   * @returns {boolean} True if the webview is a duplicate, false otherwise
+   */
   const isDuplicate = useCallback((newWebview) => {
     return selectedWebviews.some(webview => webview.href === newWebview.href);
   }, [selectedWebviews]);
 
-  // Fonction pour gérer l'import
+  /**
+   * @function handleImport
+   * @description Handles the import of webviews
+   * @param {Object} newWebviews - The new webviews
+   */
   const handleImport = useCallback(async (newWebviews) => {
     try {
-      // Si c'est une URL directe
+      // If it's a direct URL
       if (typeof newWebviews === 'string') {
         const webview = { href: newWebviews, title: newWebviews };
+
+        // If the webview is not a duplicate
         if (!isDuplicate(webview)) {
           const updatedWebviews = [...selectedWebviews, webview];
           setSelectedWebviews(updatedWebviews);
           await saveSelectedWebviews(updatedWebviews);
         }
       }
-      // Si c'est un tableau de webviews
+      // If it's an array of webviews
       else if (Array.isArray(newWebviews)) {
         const uniqueWebviews = newWebviews.filter(webview => !isDuplicate(webview));
         if (uniqueWebviews.length > 0) {
@@ -375,11 +382,10 @@ export default function WebviewsManagementScreen({
         }
       }
     } catch (err) {
-      handleError(err, 'webviewsManagement.handleImport', {
+      handleError(err, i18n.t('errors.errorDuringImport'), {
         type: ErrorType.SYSTEM,
         silent: false
       });
-      setError(t('errors.errorImportingWebview'));
     }
   }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, isDuplicate]);
 
@@ -404,15 +410,18 @@ export default function WebviewsManagementScreen({
       setSelectedWebviews(updatedWebviews);
       await saveSelectedWebviews(updatedWebviews);
     } catch (err) {
-      handleError(err, 'webviewsManagement.handleEditWebviewModal', {
+      handleError(err, i18n.t('errors.errorEditingWebview'), {
         type: ErrorType.SYSTEM,
         silent: false
       });
-      setError(t('errors.errorEditingWebview'));
     }
   };
 
-  // Ajout des fonctions de déplacement
+  /**
+  *@function handleMoveUp
+  *@description Handles the move up of a webview
+  *@param {number} index - The index of the webview
+  */
   const handleMoveUp = useCallback((index) => {
     if (index > 0) {
       const updatedWebviews = [...selectedWebviews];
@@ -424,6 +433,11 @@ export default function WebviewsManagementScreen({
     }
   }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews]);
 
+  /**
+  *@function handleMoveDown
+  *@description Handles the move down of a webview
+  *@param {number} index - The index of the webview
+  */
   const handleMoveDown = useCallback((index) => {
     if (index < selectedWebviews.length - 1) {
       const updatedWebviews = [...selectedWebviews];
@@ -486,11 +500,7 @@ export default function WebviewsManagementScreen({
         </Text>
       )}
 
-      {error && (
-        <Text style={styles.errorText}>{error}</Text>
-      )}
-
-      {/* Modals mémorisés */}
+      {/* Modals */}
       <MemoizedImportFullUrlModal
         visible={modalState.importFullUrl}
         onClose={() => handleCloseModal('importFullUrl')}
@@ -555,9 +565,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.headerTablet,
     fontWeight: SIZES.fontWeight.semibold,
   },
-  headerSmartphone: {
-    fontSize: SIZES.fonts.headerSmartphone,
-  },
   channelsContainer: {
     marginTop: 10,
     alignItems: 'center',
@@ -600,9 +607,6 @@ const styles = StyleSheet.create({
   arrowContainer: {
     flexDirection: 'row',
     marginRight: 30,
-  },
-  arrowContainerLandscape: {
-    // marginRight: 10,
   },
   arrowContainerSmartphone: {
     marginRight: 5,
