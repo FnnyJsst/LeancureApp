@@ -305,6 +305,7 @@ export default {
     noChannelsFound: "No channels found",
     couldNotDecrypt: "Could not decrypt data",
     verifyPasswordError: "Error verifying password",
+    errorCleaningSecureStore: "Error cleaning secure store",
   },
 
   tooltips: {

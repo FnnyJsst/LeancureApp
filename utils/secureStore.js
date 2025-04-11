@@ -1,4 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
+import { handleError, ErrorType } from './errorHandling';
 
 export const clearSecureStore = async () => {
     try {
@@ -15,6 +16,9 @@ export const clearSecureStore = async () => {
             await SecureStore.deleteItemAsync(key);
         }
     } catch (error) {
-        console.error('Erreur lors du nettoyage du SecureStore:', error);
+        handleError(error, 'error.errorCleaningSecureStore', {
+            type: ErrorType.SYSTEM,
+            silent: false
+        });
     }
 };
