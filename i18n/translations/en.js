@@ -248,6 +248,7 @@ export default {
     messageNotDeleted: "Message not deleted",
     messageFileNotFound: "Message file not found",
     errorFetchingMessages: "Error fetching messages",
+    fetchUserChannels: "Error fetching user channels",
     webSocketNotConnected: "WebSocket not connected",
     errorSendingSubscription: "Error sending subscription",
     webSocketUrlNotDefined: "WebSocket URL not defined",

@@ -6,7 +6,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { fetchUserChannels } from '../../services/api/messageApi';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../text/CustomText';
-import { cleanSecureStore } from '../../services/api/authApi';
+import { cleanSecureStore } from '../../utils/secureStore';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../services/notification/notificationContext';
 import { useCredentials } from '../../hooks/useCredentials';

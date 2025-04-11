@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { ENV } from '../../config/env';
 import { createApiRequest, createSignature } from './baseApi';
+import i18n from '../../i18n';
+import { handleError, ErrorType } from '../../utils/errorHandling';
 
 /**
  * @function fetchUserChannels
@@ -55,7 +57,6 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
     // We get the data of the response
     const data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data;
 
-    // We check if the data is valid
     if (!data?.private?.groups) {
       // If the data is not valid, we throw an error
       return { status: 'error', message: t('errors.noGroupsFound') };
@@ -84,7 +85,9 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
     };
 
   } catch (error) {
-    console.error(error);
+    handleError(error, i18n.t('error.fetchingChannels'), {
+      type: ErrorType.SYSTEM
+    });
     return {
       status: 'error',
       message: error.message
@@ -336,10 +339,9 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
   try {
 
     const timestamp = Date.now();
-    // We create the salt path
+    // We create the salt path and the signature
     const saltPath = `amaiia_msg_srv/message/get_base64/${timestamp}/`;
-    // We create the signature
-    createSignature(saltPath, userCredentials.contractNumber);
+    const signature = createSignature(saltPath, userCredentials.contractNumber);
 
     // We create the body of the request
     const body = createApiRequest({
