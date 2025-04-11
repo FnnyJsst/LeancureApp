@@ -318,6 +318,8 @@ export default {
     loadUnreadChannels: "Erreur lors du chargement des canaux non lus",
     notificationCleanup: "Erreur lors du nettoyage des notifications",
     notificationProvider: "Erreur lors de la fourniture des notifications",
+    errorLoadingTooltips: "Erreur lors du chargement des tooltips",
+    errorMarkingTooltipAsSeen: "Erreur lors de la marque du tooltip comme vu",
   },
 
   tooltips: {

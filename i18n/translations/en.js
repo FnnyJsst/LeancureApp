@@ -316,6 +316,8 @@ export default {
     loadUnreadChannels: "Error loading unread channels",
     notificationCleanup: "Error cleaning notification",
     notificationProvider: "Error providing notification",
+    errorLoadingTooltips: "Error loading tooltips",
+    errorMarkingTooltipAsSeen: "Error marking tooltip as seen",
   },
 
   tooltips: {
