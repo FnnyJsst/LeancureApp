@@ -8,7 +8,7 @@ import { fetchChannelMessages } from '../../services/api/messageApi';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../utils/errorHandling';
 import { useWebSocket } from '../../hooks/useWebSocket';
-import { useNotification } from '../../services/notificationContext';
+import { useNotification } from '../../services/notification/notificationContext';
 
 /**
  * @component ChatScreen

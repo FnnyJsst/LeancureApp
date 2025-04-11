@@ -307,6 +307,16 @@ export default {
     couldNotDecrypt: "Impossible de déchiffrer les données",
     verifyPasswordError: "Erreur lors de la vérification du mot de passe",
     errorCleaningSecureStore: "Erreur lors du nettoyage du stockage sécurisé",
+    errorRegisteringPushNotifications: "Erreur lors de l'enregistrement des notifications",
+    errorCheckingNotificationConditions: "Erreur lors de la vérification des conditions de notification",
+    errorPlayingNotificationSound: "Erreur lors de la lecture du son de notification",
+    errorSynchronizingTokenWithAPI: "Erreur lors de la synchronisation du token avec l'API",
+    setChannelName: "Erreur lors de la définition du nom du canal",
+    deleteChannelName: "Erreur lors de la suppression du nom du canal",
+    saveUnreadChannels: "Erreur lors de la sauvegarde des canaux non lus",
+    loadUnreadChannels: "Erreur lors du chargement des canaux non lus",
+    notificationCleanup: "Erreur lors du nettoyage des notifications",
+    notificationProvider: "Erreur lors de la fourniture des notifications",
   },
 
   tooltips: {

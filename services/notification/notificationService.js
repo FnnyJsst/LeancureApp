@@ -1,12 +1,12 @@
 import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
 import { Platform } from 'react-native';
-import { ENV } from '../config/env';
-import '../config/firebase';
+import { ENV } from '../../config/env';
+import '../../config/firebase';
 import axios from 'axios';
-import { createApiRequest } from '../services/api/baseApi';
+import { createApiRequest } from '../api/baseApi';
 import { getCurrentlyViewedChannel } from './notificationContext';
-
+import { handleError, ErrorType } from '../../utils/errorHandling';
+import i18n from '../../i18n';
 // Handler for notifications to be displayed
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -23,7 +23,6 @@ Notifications.setNotificationHandler({
  */
 export const registerForPushNotificationsAsync = async () => {
   try {
-
     // We check the status of the permissions
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
 
@@ -35,7 +34,7 @@ export const registerForPushNotificationsAsync = async () => {
 
     // If the permission is not granted, we return null
     if (finalStatus !== 'granted') {
-      console.log('❌ Permission refusée pour les notifications push');
+      console.log(i18n.t('notification.permissionDenied'));
       return null;
     }
 
@@ -49,17 +48,20 @@ export const registerForPushNotificationsAsync = async () => {
       });
     }
 
-    // We get the token
+    // We get the expo push token
     const tokenData = await Notifications.getExpoPushTokenAsync({
       projectId: ENV.EXPO_PROJECT_ID,
     });
 
     const token = tokenData.data;
-    console.log('✅ Token push récupéré :', token);
+    console.log(i18n.t('notification.tokenRetrieved'), token);
 
     return token;
   } catch (error) {
-    console.error('❌ Erreur lors de l\'enregistrement des notifications:', error);
+    handleError(error, i18n.t('error.errorRegisteringPushNotifications'), {
+      type: ErrorType.SYSTEM,
+      silent: false
+    });
     return null;
   }
 };
@@ -135,7 +137,10 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
 
     return true;
   } catch (error) {
-    console.error('❌ Erreur lors de la vérification des conditions de notification:', error);
+    handleError(error, i18n.t('error.errorCheckingNotificationConditions'), {
+      type: ErrorType.SYSTEM,
+      silent: false
+    });
     return true;
   }
 };
@@ -164,17 +169,19 @@ export const playNotificationSound = async (messageData, currentChannelId = null
       });
     }
   } catch (error) {
-    console.error('❌ Error when playing the notification sound:', error);
+    handleError(error, i18n.t('error.errorPlayingNotificationSound'), {
+      type: ErrorType.SYSTEM,
+      silent: false
+    });
   }
 };
 
 /**
  * @function synchronizeTokenWithAPI
- * @description Synchronize the token with the API
+ * @description Synchronize the expo ken with the API
  */
 export const synchronizeTokenWithAPI = async (token, credentials) => {
   try {
-
     if (!credentials) {
       return;
     }
@@ -199,19 +206,16 @@ export const synchronizeTokenWithAPI = async (token, credentials) => {
     });
 
     if (response.status === 200) {
-      console.log('✅ Token synchronisé avec succès');
+      console.log(i18n.t('notification.tokenSynchronized'));
       return true;
     }
 
-    console.log('❌ Erreur de synchronisation:', response.statusText);
     return false;
 
   } catch (error) {
-    console.error('❌ Erreur détaillée lors de la synchronisation du token:', {
-      message: error.message,
-      code: error.code,
-      response: error.response?.data,
-      status: error.response?.status,
+    handleError(error, i18n.t('error.errorSynchronizingTokenWithAPI'), {
+      type: ErrorType.SYSTEM,
+      silent: false
     });
     return false;
   }

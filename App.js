@@ -26,11 +26,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from './utils/errorHandling';
-import { registerForPushNotificationsAsync, shouldDisplayNotification } from './services/notificationService';
+import { registerForPushNotificationsAsync, shouldDisplayNotification } from './services/notification/notificationService';
 import * as Notifications from 'expo-notifications';
 import { cleanSecureStore } from './services/api/authApi';
 import './config/firebase';
-import { NotificationProvider } from './services/notificationContext';
+import { NotificationProvider } from './services/notification/notificationContext';
 
 // This configuration is global and will be called for all notifications
 Notifications.setNotificationHandler({

@@ -1,6 +1,7 @@
 import CryptoJS from 'crypto-js';
 import * as SecureStore from 'expo-secure-store';
 import { handleError, ErrorType } from './errorHandling';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @function hashPassword
@@ -15,7 +16,7 @@ export const hashPassword = (password) => {
         const hashedPassword = CryptoJS.SHA256(password).toString();
         return hashedPassword;
     } catch (error) {
-        handleError(error, 'error.hashPasswordError', {
+        handleError(error, i18n.t('error.hashPasswordError'), {
             type: ErrorType.SYSTEM,
             silent: false
         });
@@ -35,7 +36,7 @@ export const verifyPassword = (password, hashedPassword) => {
         const hashToVerify = CryptoJS.SHA256(password).toString();
         return hashToVerify === hashedPassword;
     } catch (error) {
-        handleError(error, 'error.verifyPassword', {
+        handleError(error, i18n.t('error.verifyPassword'), {
             type: ErrorType.SYSTEM,
             silent: false
         });
@@ -54,7 +55,7 @@ export const secureStore = {
         try {
             await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
         } catch (error) {
-            handleError(error, 'error.errorSavingLoginInfo', {
+            handleError(error, i18n.t('error.errorSavingLoginInfo'), {
                 type: ErrorType.SYSTEM,
                 silent: false
             });
@@ -74,7 +75,7 @@ export const secureStore = {
             // Return the credentials and parse them
             return credentials ? JSON.parse(credentials) : null;
         } catch (error) {
-            handleError(error, 'encryption.secureStore.getCredentials', {
+            handleError(error, i18n.t('encryption.secureStore.getCredentials'), {
                 type: ErrorType.SYSTEM,
                 silent: false
             });
@@ -90,7 +91,7 @@ export const secureStore = {
         try {
             await SecureStore.deleteItemAsync('userCredentials');
         } catch (error) {
-            handleError(error, 'encryption.secureStore.deleteCredentials', {
+            handleError(error, i18n.t('encryption.secureStore.deleteCredentials'), {
                 type: ErrorType.SYSTEM,
                 silent: false
             });

@@ -8,7 +8,7 @@ import { SCREENS } from '../../constants/screens';
 import { Text } from '../text/CustomText';
 import { cleanSecureStore } from '../../services/api/authApi';
 import { useTranslation } from 'react-i18next';
-import { useNotification } from '../../services/notificationContext';
+import { useNotification } from '../../services/notification/notificationContext';
 import { useCredentials } from '../../hooks/useCredentials';
 
 /**

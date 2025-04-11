@@ -12,8 +12,8 @@ import DateBanner from './DateBanner';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../utils/errorHandling';
-import { playNotificationSound } from '../../services/notificationService';
-import { useNotification } from '../../services/notificationContext';
+import { playNotificationSound } from '../../services/notification/notificationService';
+import { useNotification } from '../../services/notification/notificationContext';
 
 /**
  * @component ChatWindow

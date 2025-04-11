@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../../utils/errorHandling';
 import * as Notifications from 'expo-notifications';
 import { ENV } from '../../../config/env';
-import { synchronizeTokenWithAPI } from '../../../services/notificationService';
+import { synchronizeTokenWithAPI } from '../../../services/notification/notificationService';
 
 /**
  * @component Login

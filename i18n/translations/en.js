@@ -306,6 +306,15 @@ export default {
     couldNotDecrypt: "Could not decrypt data",
     verifyPasswordError: "Error verifying password",
     errorCleaningSecureStore: "Error cleaning secure store",
+    errorRegisteringPushNotifications: "Error registering push notifications",
+    errorCheckingNotificationConditions: "Error checking notification conditions",
+    errorSynchronizingTokenWithAPI: "Error synchronizing expo token with API",
+    setChannelName: "Error setting channel name",
+    deleteChannelName: "Error deleting channel name",
+    saveUnreadChannels: "Error saving unread channels",
+    loadUnreadChannels: "Error loading unread channels",
+    notificationCleanup: "Error cleaning notification",
+    notificationProvider: "Error providing notification",
   },
 
   tooltips: {
