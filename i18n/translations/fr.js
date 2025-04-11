@@ -322,6 +322,7 @@ export default {
     errorMarkingTooltipAsSeen: "Erreur lors de la marque du tooltip comme vu",
     errorRefreshingMessages: "Erreur lors du rafraîchissement des messages",
     errorChannelSelect: "Erreur lors de la sélection du canal",
+    errorValidation: "Erreur de validation des entrées",
   },
 
   tooltips: {

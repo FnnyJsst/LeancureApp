@@ -320,6 +320,7 @@ export default {
     errorMarkingTooltipAsSeen: "Error marking tooltip as seen",
     errorRefreshingMessages: "Error refreshing messages",
     errorChannelSelect: "Error selecting channel",
+    errorValidation: "Error validating input",
   },
 
   tooltips: {

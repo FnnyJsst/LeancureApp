@@ -76,6 +76,10 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    */
   const refreshMessages = useCallback(async () => {
     try {
+      if (!selectedChannel || !selectedChannel.id) {
+        setChannelMessages([]);
+        return;
+      }
 
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       const credentials = JSON.parse(credentialsStr);
@@ -83,12 +87,12 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
       setChannelMessages(messages);
     } catch (error) {
-      handleError(error, i18n.t('error.errorRefreshingMessages'), {
+      handleError(error, t('error.errorRefreshingMessages'), {
         type: ErrorType.SYSTEM,
         silent: false
-    });
+      });
     }
-  }, [selectedChannel]);
+  }, [selectedChannel, t]);
 
   // Effect to load the initial messages
   useEffect(() => {
@@ -119,10 +123,10 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       }
 
       if (!channel || !channel.id) {
-        handleError(error, i18n.t('error.errorChannelSelect'), {
+        handleError(new Error('Invalid channel'), t('error.errorChannelSelect'), {
           type: ErrorType.SYSTEM,
           silent: false
-      });
+        });
         return;
       }
 
@@ -134,7 +138,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         id: channel.id.toString()
       });
     } catch (error) {
-      handleError(error, i18n.t('error.errorChannelSelect'), {
+      handleError(error, t('error.errorChannelSelect'), {
         type: ErrorType.SYSTEM,
         silent: false
       });
@@ -154,16 +158,16 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const handleEditMessage = (messageToEdit) => {
     try {
       if (!messageToEdit || !messageToEdit.id) {
-        handleError(error, i18n.t('error.errorEditingMessage'), {
+        handleError(new Error('Invalid message'), t('error.errorEditingMessage'), {
           type: ErrorType.SYSTEM,
           silent: false
-      });
+        });
         return;
       }
 
       setEditingMessage(messageToEdit);
     } catch (error) {
-      handleError(error, i18n.t('error.errorEditingMessage'), {
+      handleError(error, t('error.errorEditingMessage'), {
         type: ErrorType.SYSTEM,
         silent: false
       });
