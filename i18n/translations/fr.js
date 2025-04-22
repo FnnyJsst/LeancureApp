@@ -326,6 +326,7 @@ export default {
     errorChangingHideMessagesParameter: "Erreur lors de la modification du paramètre de masquage des messages",
     errorLoadingMessagesVisibility: "Erreur lors du chargement de la visibilité des messages",
     messageIdMissing: "L'ID du message est manquant",
+    dataTooLargeForSecureStore: "Les données sont trop grandes pour SecureStore, certaines informations seront tronquées",
   },
 
   tooltips: {

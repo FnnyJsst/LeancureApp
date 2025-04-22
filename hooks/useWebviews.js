@@ -98,28 +98,28 @@ export function useWebviews(setCurrentScreen) {
     try {
       const webviewsToSave = webviews || [];
 
-      // Limiter le nombre de webviews à sauvegarder
-      const maxWebviews = 10; // Limite arbitraire pour éviter les problèmes de taille
+      // We limit the number of webviews to save
+      const maxWebviews = 15;
       const limitedWebviews = webviewsToSave.slice(0, maxWebviews);
 
-      // Ne sauvegarder que les données essentielles avec une taille très limitée
+      // We save only the essential data with a very limited size
       const simplifiedWebviews = limitedWebviews.map(webview => ({
-        href: (webview.href || '').substring(0, 50), // Limiter encore plus la taille
-        title: (webview.title || '').substring(0, 30) // Limiter encore plus la taille
+        href: (webview.href || '').substring(0, 50), // We limit even more the size
+        title: (webview.title || '').substring(0, 30) // We limit even more the size
       }));
 
       // Mettre à jour l'état local
       setSelectedWebviews(webviewsToSave);
 
-      // Sauvegarder dans SecureStore avec une taille minimale
+      // We save in SecureStore with a minimal size
       const jsonString = JSON.stringify(simplifiedWebviews);
       if (jsonString.length > 2048) {
-        console.warn('Les données sont trop grandes pour SecureStore, certaines informations seront tronquées');
+        console.warn(t('errors.dataTooLargeForSecureStore'));
       }
       await SecureStore.setItemAsync('selectedWebviews', jsonString);
     } catch (error) {
       console.error('Error while saving webviews:', error);
-      // En cas d'erreur, essayer de sauvegarder une version encore plus simplifiée
+      // In case of error, try to save an even more simplified version
       try {
         const emergencyWebviews = webviewsToSave.slice(0, 5).map(webview => ({
           href: (webview.href || '').substring(0, 20),
@@ -207,13 +207,13 @@ export function useWebviews(setCurrentScreen) {
   useEffect(() => {
     if (refreshInterval) {
       const interval = setInterval(() => {
-        // Logique de rafraîchissement
+        // Refresh logic
       }, refreshInterval);
       return () => clearInterval(interval);
     }
   }, [refreshInterval]);
 
-  // Garder uniquement un seul useEffect pour le chargement initial
+  // Keep only one useEffect for the initial loading
   useEffect(() => {
     const initializeData = async () => {
       await loadSelectedChannels();
