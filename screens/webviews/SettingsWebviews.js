@@ -391,7 +391,7 @@ export default function SettingsWebviews({
                 }}
                 style={styles.infoIcon}
               >
-                <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 24} color={COLORS.gray300} />
+                <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 18} color={COLORS.gray300} />
               </TouchableOpacity>
             </View>
           </View>

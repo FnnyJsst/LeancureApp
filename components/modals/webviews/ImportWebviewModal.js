@@ -162,11 +162,11 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
     return urls;
   };
 
-   /**
+  /**
    * @function handleDownload
    * @description A function to handle the download of channels from URL
    */
-   const handleDownload = async () => {
+    const handleDownload = async () => {
     console.log('[ImportWebviewModal] Début du téléchargement avec URL:', url);
 
     if (!url) {
@@ -239,16 +239,13 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
       } else if (contentType.includes('text/html')) {
         console.log('[ImportWebviewModal] Parsing HTML...');
         data = await response.text();
-        console.log('[ImportWebviewModal] Données HTML reçues, longueur:', data.length);
         console.log('[ImportWebviewModal] Données HTML reçues:', data);
       } else {
-        console.log('[ImportWebviewModal] Erreur: Type de contenu non supporté:', contentType);
         setError(t('errors.invalidContentType'));
         return;
       }
 
       if (typeof data === 'string') {
-        console.log('[ImportWebviewModal] Début du parsing HTML...');
         const extractedChannels = parseHtml(data);
         console.log('[ImportWebviewModal] Chaînes extraites:', extractedChannels);
 
@@ -365,7 +362,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
                 title={isImporting ? t('buttons.importing') : t('buttons.import')}
                 onPress={handleDownload}
                 backgroundColor={COLORS.orange}
-                width= '32%'
+                width= '33%'
                 disabled={isImporting}
                 icon={isImporting ?
                   <ActivityIndicator size="small" color={COLORS.white} /> :
