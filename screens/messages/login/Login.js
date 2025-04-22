@@ -85,15 +85,8 @@ export default function Login({ onNavigate }) {
                     error.message.includes('decipher') ||
                     error.message.includes('decryption')
                 )) {
-                    try {
-                        await cleanSecureStore();
-                        console.log('[Login] SecureStore nettoyé avec succès');
-                    } catch (cleanError) {
-                        handleError(cleanError, t('error.errorCleaningSecureStore'), {
-                            type: ErrorType.SYSTEM,
-                            silent: false
-                        });
-                    }
+                    await cleanSecureStore();
+                    console.log('[Login] SecureStore nettoyé avec succès');
                 } else {
                     handleError(error, t('error.errorCleaningSecureStore'), {
                         type: ErrorType.SYSTEM,
@@ -111,11 +104,18 @@ export default function Login({ onNavigate }) {
                 return;
             }
 
-            // We login with the credentials
+            // Première tentative de login
+            console.log('[Login] Tentative de login avec credentials...');
             const loginResponse = await loginApi(contractNumber, login, password, '');
 
             // If the login is successful, we save the credentials
             if (loginResponse.success) {
+                console.log('[Login] Login réussi, tokens reçus:', {
+                    accessToken: loginResponse.accessToken?.substring(0, 10) + '...',
+                    refreshToken: loginResponse.refreshToken?.substring(0, 10) + '...'
+                });
+
+                // Sauvegarde des credentials avec les tokens
                 const credentials = {
                     contractNumber,
                     login,
@@ -126,6 +126,7 @@ export default function Login({ onNavigate }) {
                 };
 
                 await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+                console.log('[Login] Tokens sauvegardés dans SecureStore');
 
                 // If the user has checked the "Remember me" checkbox, we save the login info
                 if (isChecked) {
@@ -178,15 +179,32 @@ export default function Login({ onNavigate }) {
                     });
                 }
             } else {
-                console.log('[Login] Échec de la première tentative, tentative avec le refresh token');
+                console.log('[Login] Échec de la première tentative, vérification du refresh token...');
+
+                // Récupération des anciens credentials pour le refresh token
+                const oldCredentials = await SecureStore.getItemAsync('userCredentials');
+                if (!oldCredentials) {
+                    console.log('[Login] Pas d\'anciens credentials trouvés');
+                    handleError(t('error.invalidCredentials'), {
+                        type: ErrorType.SYSTEM,
+                        silent: false
+                    });
+                    return;
+                }
+
+                const { refreshToken, accountApiKey } = JSON.parse(oldCredentials);
+                console.log('[Login] Ancien refresh token trouvé:', refreshToken?.substring(0, 10) + '...');
+
+                // Tentative de refresh du token
                 const refreshTokenResponse = await checkRefreshToken(
                     contractNumber,
-                    loginResponse.accountApiKey,
-                    loginResponse.refreshToken
+                    accountApiKey,
+                    refreshToken
                 );
 
                 // If the refresh token is not successful, we set the error
                 if (!refreshTokenResponse.success) {
+                    console.log('[Login] Refresh token invalide, connexion impossible');
                     handleError(t('error.sessionExpired'), {
                         type: ErrorType.SYSTEM,
                         silent: false
@@ -194,7 +212,10 @@ export default function Login({ onNavigate }) {
                     return;
                 }
 
-                // We login with the new refresh token
+                console.log('[Login] Nouveau refresh token obtenu:', refreshTokenResponse.data.refresh_token?.substring(0, 10) + '...');
+
+                // Nouvelle tentative de login avec le nouveau refresh token
+                console.log('[Login] Nouvelle tentative avec le refresh token...');
                 const retryLoginResponse = await loginApi(
                     contractNumber,
                     login,
@@ -204,6 +225,11 @@ export default function Login({ onNavigate }) {
 
                 // If the login is successful, we save the credentials
                 if (retryLoginResponse.success) {
+                    console.log('[Login] Login réussi avec refresh token, nouveaux tokens:', {
+                        accessToken: retryLoginResponse.accessToken?.substring(0, 10) + '...',
+                        refreshToken: refreshTokenResponse.data.refresh_token?.substring(0, 10) + '...'
+                    });
+
                     const credentials = {
                         contractNumber,
                         login,
@@ -214,8 +240,8 @@ export default function Login({ onNavigate }) {
                     };
 
                     await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+                    console.log('[Login] Nouveaux tokens sauvegardés dans SecureStore');
 
-                    // We fetch the user channels
                     const channelsResponse = await fetchUserChannels(
                         contractNumber,
                         login,
@@ -234,6 +260,7 @@ export default function Login({ onNavigate }) {
                         });
                     }
                 } else {
+                    console.log('[Login] Échec de la connexion avec refresh token');
                     handleError(t('error.invalidCredentials'), {
                         type: ErrorType.SYSTEM,
                         silent: false
