@@ -1,7 +1,6 @@
 import React, { useState, useCallback, memo, useEffect } from 'react';
 import { ScrollView, View, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons';
 import SettingsCard from '../../components/cards/SettingsCard';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnlyModal from '../../components/modals/webviews/ReadOnlyModal';
@@ -17,8 +16,7 @@ import * as SecureStore from 'expo-secure-store';
 
 /**
  * Memoized components to prevent unnecessary re-renders
- * This optimization is particularly important for modals and cards
- * that don't need to re-render unless their props change
+ * This optimization is important for modals and cards that don't need to re-render unless their props change
  */
 const MemoizedAutoRefreshModal = memo(AutoRefreshModal);
 const MemoizedReadOnlyModal = memo(ReadOnlyModal);
@@ -62,11 +60,6 @@ export default function SettingsWebviews({
   // Tooltip actif
   const [activeTooltip, setActiveTooltip] = useState(null);
 
-  /**
-   * Consolidated modal state management
-   * Using a single state object instead of multiple useState calls
-   * reduces the number of re-renders and simplifies state updates
-   */
   const [modalState, setModalState] = useState({
     autoRefresh: false,
     password: false,
@@ -75,7 +68,7 @@ export default function SettingsWebviews({
     tooltip: false
   });
 
-  // State pour savoir si les tooltips ont déjà été affichés
+  // State to know if the tooltips have been displayed
   const [hasSeenTooltips, setHasSeenTooltips] = useState({
     autoRefresh: true,
     readOnly: true,
@@ -83,11 +76,11 @@ export default function SettingsWebviews({
     hideMessages: true
   });
 
-  // Charger l'état des tooltips au chargement du composant
+  // Load the tooltips state on component load
   useEffect(() => {
     const checkTooltipsStatus = async () => {
       try {
-        // Vérifier l'état de chaque tooltip
+        // Check the status of each tooltip
         const tooltipKeys = ['autoRefresh', 'readOnly', 'password', 'hideMessages'];
         const tooltipValues = {};
 
@@ -98,7 +91,10 @@ export default function SettingsWebviews({
 
         setHasSeenTooltips(tooltipValues);
       } catch (error) {
-        console.error('Erreur lors du chargement de l\'état des tooltips:', error);
+        handleError(error, i18n.t('errors.errorLoadingTooltips'), {
+          type: ErrorType.SYSTEM,
+          silent: false
+        });
         // Default to show all tooltips if an error occurs
         setHasSeenTooltips({
           autoRefresh: true,
@@ -129,8 +125,10 @@ export default function SettingsWebviews({
   }, [selectedWebviews, onNavigate]);
 
   /**
-   * Memoized function to format the refresh option text
-   * Only recreated when the translation function changes
+   * @function formatRefreshOption
+   * @description Formats the refresh option text
+   * @param {string} option - The refresh option
+   * @returns {string} The formatted refresh option text
    */
   const formatRefreshOption = useCallback((option) => {
     if (!option || option === 'never') {
@@ -153,10 +151,11 @@ export default function SettingsWebviews({
     return t(`modals.webview.refresh.${key}`);
   }, [t]);
 
-  /**
-   * Memoized function to handle hiding messages
-   * Includes error handling and modal state management
-   */
+ /**
+  * @function handleToggleHideMessages
+  * @description Handles the toggle hide messages
+  * @param {boolean} value - The value to toggle the hide messages
+  */
   const handleToggleHideMessages = useCallback(async (value) => {
     try {
       setModalState(prev => ({ ...prev, hideMessages: false }));
@@ -167,15 +166,19 @@ export default function SettingsWebviews({
   }, [onToggleHideMessages]);
 
   /**
-   * Memoized function to update modal state
-   * Uses functional updates to ensure state updates are based on the latest state
+   * @function updateModalState
+   * @description Updates the modal state
+   * @param {string} key - The key to update
+   * @param {boolean} value - The value to update
    */
   const updateModalState = useCallback((key, value) => {
     setModalState(prev => ({ ...prev, [key]: value }));
   }, []);
 
   /**
-   * Fonction pour marquer un tooltip comme vu
+   * @function markTooltipAsSeen
+   * @description Marks the tooltip as seen
+   * @param {string} tooltipKey - The key of the tooltip
    */
   const markTooltipAsSeen = useCallback(async (tooltipKey) => {
     try {
@@ -184,24 +187,30 @@ export default function SettingsWebviews({
       setActiveTooltip(null);
       updateModalState('tooltip', false);
 
-      // Ouvrir le modal correspondant après la fermeture du tooltip
+      // Open the corresponding modal after closing the tooltip
       updateModalState(tooltipKey, true);
     } catch (error) {
-      console.error('Erreur lors de l\'enregistrement de l\'état du tooltip:', error);
+      handleError(error, i18n.t('errors.errorMarkingTooltipAsSeen'), {
+        type: ErrorType.SYSTEM,
+        silent: false
+      });
     }
   }, [updateModalState]);
 
   /**
-   * Fonction générique pour ouvrir un modal avec vérification de tooltip
+   * @function openModalWithTooltip
+   * @description Opens a modal with tooltip verification
+   * @param {string} modalKey - The key of the modal
+   * @returns {Function} The function to open the modal
    */
   const openModalWithTooltip = useCallback((modalKey) => {
     return () => {
-      // Si l'utilisateur n'a jamais vu le tooltip, on l'affiche
+      // If the user has never seen the tooltip, display it
       if (!hasSeenTooltips[modalKey]) {
         setActiveTooltip(modalKey);
         updateModalState('tooltip', true);
       } else {
-        // Sinon, on ouvre directement le modal
+        // Otherwise, open the modal directly
         updateModalState(modalKey, true);
       }
     };
@@ -221,7 +230,8 @@ export default function SettingsWebviews({
     [openModalWithTooltip]);
 
   /**
-   * Gère la fermeture du tooltip actif
+   * @function handleTooltipClose
+   * @description Handles the tooltip close
    */
   const handleTooltipClose = useCallback(() => {
     if (activeTooltip) {
@@ -421,7 +431,7 @@ export default function SettingsWebviews({
         </View>
       </ScrollView>
 
-      {/* Tooltip qui s'affiche uniquement la première fois */}
+      {/* Tooltip which is displayed only the first time */}
       <MemoizedTooltipModal
         visible={modalState.tooltip}
         onClose={handleTooltipClose}
@@ -429,7 +439,7 @@ export default function SettingsWebviews({
         message={activeTooltip ? t(`tooltips.${activeTooltip}.message`) : ''}
       />
 
-      {/* Modals mémorisés */}
+      {/* Memoized modals */}
       <MemoizedAutoRefreshModal
         visible={modalState.autoRefresh}
         onClose={() => updateModalState('autoRefresh', false)}

@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Alert } from 'react-native';
 import { SCREENS } from '../constants/screens';
 import { useTranslation } from 'react-i18next';
+import { handleError } from '../utils/errorHandling';
 
 /**
  * @function useWebviewsPassword
@@ -69,7 +70,10 @@ export const useWebviewsPassword = (navigate) => {
         await SecureStore.setItemAsync('isPasswordRequired', JSON.stringify(passwordData.isRequired));
       }
     } catch (error) {
-      throw new Error(t('errors.errorSavingPassword'), error);
+      handleError(error, t('error.errorSavingPassword'), {
+        type: ErrorType.SYSTEM,
+        silent: false
+      });
     }
   };
 
@@ -103,7 +107,10 @@ export const useWebviewsPassword = (navigate) => {
           setPassword(null);
           setIsPasswordRequired(false);
         } catch (cleanupError) {
-          console.error(t('errors.errorCleaningPassword'), cleanupError);
+          handleError(cleanupError, t('error.errorCleaningPassword'), {
+            type: ErrorType.SYSTEM,
+            silent: false
+          });
         }
       }
     }
@@ -123,10 +130,7 @@ export const useWebviewsPassword = (navigate) => {
     }
   };
 
-  /**
-   * @function disablePassword
-   * @description Disables the password when the user does not want to use it anymore
-   */
+  // Disable the password
   const disablePassword = () => {
     setPassword(null);
     setIsPasswordRequired(false);
@@ -137,10 +141,7 @@ export const useWebviewsPassword = (navigate) => {
     });
   };
 
-  /**
-   * @function useEffect
-   * @description Loads the password from the SecureStore when the component is mounted
-   */
+  // Loads the password from the SecureStore when the component is mounted
   useEffect(() => {
     loadPasswordFromSecureStore();
   }, []);

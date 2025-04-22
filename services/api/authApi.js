@@ -64,11 +64,6 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     const accountApiKey = userData.accountapikey;
     const refreshToken = userData.refresh_token;
     const accessToken = userData.access_token;
-    console.log('[Auth] Données utilisateur extraites:', {
-      hasAccountApiKey: !!accountApiKey,
-      hasRefreshToken: !!refreshToken,
-      hasAccessToken: !!accessToken
-    });
 
     // We send the second request to get the rights of the user ()
     const channelsResponse = await axios({
@@ -195,40 +190,6 @@ export const getUserRights = async () => {
       silent: false
     });
     return null;
-  }
-};
-
-/**
- * @function cleanSecureStore
- * @description Cleans the SecureStore in case of decryption error
- * @returns {Promise<boolean>} True if the cleanup was successful, false otherwise
- */
-export const cleanSecureStore = async () => {
-  try {
-    console.log('🧹 Début du nettoyage du SecureStore en cas d\'erreur');
-
-    // List of keys that may cause problems
-    const keysToClean = [
-      'userCredentials',
-      'savedLoginInfo',
-      'custom_api_url',
-      'isMessagesHidden',
-      'userRights'
-    ];
-
-    // Delete the keys one by one with individual error handling
-    for (const key of keysToClean) {
-      try {
-        await SecureStore.deleteItemAsync(key);
-      } catch (keyError) {
-        console.log(`⚠️ Error deleting key '${key}':`, keyError.message);
-      }
-    }
-
-    return true;
-  } catch (error) {
-    console.error('❌ Erreur lors du nettoyage du SecureStore:', error.message);
-    return false;
   }
 };
 

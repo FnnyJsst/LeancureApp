@@ -1,22 +1,28 @@
 import * as SecureStore from 'expo-secure-store';
+import { handleError, ErrorType } from './errorHandling';
+import i18n from '../i18n';
 
-export const clearSecureStore = async () => {
+export const cleanSecureStoreKeys = async () => {
     try {
-        // Liste des clés à supprimer
+        // List of keys to delete
         const keysToDelete = [
             'isMessagesHidden',
             'userCredentials',
             'pushToken',
-            'notificationSettings'
+            'notificationSettings',
+            'savedLoginInfo',
+            'custom_api_url',
+            'userRights'
         ];
 
-        // Suppression de chaque clé
+        // Delete each key
         for (const key of keysToDelete) {
             await SecureStore.deleteItemAsync(key);
         }
-
-        console.log('SecureStore nettoyé avec succès');
     } catch (error) {
-        console.error('Erreur lors du nettoyage du SecureStore:', error);
+        handleError(error, i18n.t('error.errorCleaningSecureStore'), {
+            type: ErrorType.SYSTEM,
+            silent: false
+        });
     }
 };

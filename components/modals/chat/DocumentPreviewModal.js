@@ -446,7 +446,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
           isSmartphone && styles.modalContentSmartphone,
           isLandscape && styles.modalContentLandscape
         ]}>
-          <TouchableOpacity style={styles.closeButtonContainer} onPress={onClose}>
+          <TouchableOpacity style={styles.closeButtonContainer} onPress={onClose} testID="close-button">
             <View style={styles.closeButton}>
               <Ionicons name="close" size={24} color={COLORS.white} />
             </View>

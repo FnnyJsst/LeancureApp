@@ -26,11 +26,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from './utils/errorHandling';
-import { registerForPushNotificationsAsync, shouldDisplayNotification } from './services/notificationService';
+import { registerForPushNotificationsAsync, shouldDisplayNotification } from './services/notification/notificationService';
 import * as Notifications from 'expo-notifications';
-import { cleanSecureStore } from './services/api/authApi';
+import { cleanSecureStoreKeys } from './utils/secureStore';
 import './config/firebase';
-import { NotificationProvider } from './services/notificationContext';
+import { NotificationProvider } from './services/notification/notificationContext';
 
 // This configuration is global and will be called for all notifications
 Notifications.setNotificationHandler({
@@ -233,7 +233,7 @@ export default function App({ testID, initialScreen }) {
       )) {
         console.log('🧹 [App] Erreur de déchiffrement dans hideMessages, nettoyage...');
         try {
-          await cleanSecureStore();
+          await cleanSecureStoreKeys();
 
           // We try to save again after cleaning
           await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
@@ -334,7 +334,7 @@ export default function App({ testID, initialScreen }) {
           handleAppError(error, 'decryption');
           try {
             // Utilisez cleanSecureStore au lieu de clearSecureStore
-            await cleanSecureStore();
+            await cleanSecureStoreKeys();
             console.log('✅ [App] SecureStore nettoyé avec succès après erreur de déchiffrement');
           } catch (cleanError) {
             console.error('❌ [App] Erreur lors du nettoyage du SecureStore:', cleanError);
@@ -398,7 +398,7 @@ export default function App({ testID, initialScreen }) {
         )) {
           console.log('🧹 [App] Erreur de déchiffrement détectée dans handleMessagesHiddenChange, nettoyage...');
           try {
-            await cleanSecureStore();
+            await cleanSecureStoreKeys();
             console.log('✅ [App] SecureStore nettoyé avec succès');
 
             // On réessaie de sauvegarder après nettoyage
@@ -520,7 +520,7 @@ export default function App({ testID, initialScreen }) {
             checkError.message.includes('decryption')
           )) {
             console.log('🔄 [App] Erreur de déchiffrement détectée au démarrage, nettoyage préventif...');
-            await cleanSecureStore();
+            await cleanSecureStoreKeys();
             console.log('✅ [App] Nettoyage préventif terminé');
           }
         }

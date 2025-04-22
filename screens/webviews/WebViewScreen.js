@@ -1,12 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
 import ParameterButton from '../../components/buttons/ParameterButton';
 import { SCREENS } from '../../constants/screens';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SIZES } from '../../constants/style';
-import { useDeviceType } from '../../hooks/useDeviceType';
+import { COLORS } from '../../constants/style';
 import Header from '../../components/Header';
 
 /**
@@ -22,9 +20,8 @@ export default function WebviewScreen({
   onNavigate,
   onSettingsAccess,
   isMessagesHidden,
-  testID,
 }) {
-  const { isSmartphone } = useDeviceType();
+
   const webViewRef = useRef(null);
 
   useEffect(() => {

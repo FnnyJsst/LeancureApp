@@ -84,11 +84,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
-  headerTitle: {
-    color: COLORS.white,
-    fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: SIZES.fontWeight.bold,
-  },
   textContainer: {
     flex: 1,
     justifyContent: 'center',

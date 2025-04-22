@@ -1,5 +1,5 @@
-import React, { useState, useEffect, memo, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { COLORS, SIZES } from '../../constants/style';
 import Button from '../../components/buttons/Button';
@@ -15,7 +15,6 @@ import { useTranslation } from 'react-i18next';
  * @param {Array} selectedWebviews - The list of selected channels
  * @param {Function} onBack - A function to navigate to a screen
  * @param {Function} onBackPress - A function to navigate to a screen
- * @returns {JSX.Element} - A JSX element
  */
 export default function WebviewsListScreen({ channels, selectedWebviews, onBack, onBackPress }) {
 
@@ -168,8 +167,7 @@ const styles = StyleSheet.create({
   customHeaderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 15,
+    padding: 15,
     marginBottom: 20,
   },
   customHeaderContainerSmartphoneLandscape: {

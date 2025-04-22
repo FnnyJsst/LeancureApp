@@ -7,26 +7,25 @@ import SimplifiedLogin from './SimplifiedLogin';
 import { COLORS, SIZES } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SCREENS } from '../../../constants/screens';
-import { loginApi, checkRefreshToken, cleanSecureStore } from '../../../services/api/authApi';
+import { loginApi, checkRefreshToken } from '../../../services/api/authApi';
+import { cleanSecureStore } from '../../../utils/secureStore';
 import { fetchUserChannels } from '../../../services/api/messageApi';
 import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 import GradientBackground from '../../../components/backgrounds/GradientBackground';
 import { hashPassword } from '../../../utils/encryption';
-import { secureStore } from '../../../utils/encryption';
 import { Text } from '../../../components/text/CustomText';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../../utils/errorHandling';
 import * as Notifications from 'expo-notifications';
 import { ENV } from '../../../config/env';
-import { synchronizeTokenWithAPI } from '../../../services/notificationService';
+import { synchronizeTokenWithAPI } from '../../../services/notification/notificationService';
 
 /**
  * @component Login
  * @description Component to handle the login process and the persistence of the login data
- * @param {Object} props - The properties of the component
  * @param {Function} props.onNavigate - Function to navigate between screens
  */
-export default function Login({ onNavigate, testID }) {
+export default function Login({ onNavigate }) {
 
     // We get the translations and the device type
     const { t } = useTranslation();
@@ -74,51 +73,49 @@ export default function Login({ onNavigate, testID }) {
      */
     const handleLogin = useCallback(async () => {
         try {
-            console.log('[Login] Début du processus de connexion');
             setIsLoading(true);
-            setError('');
 
             try {
-                console.log('[Login] Nettoyage du SecureStore');
                 await SecureStore.deleteItemAsync('userCredentials');
             } catch (error) {
-                console.log('[Login] Erreur lors du nettoyage du SecureStore:', error);
 
-                // Si c'est une erreur de déchiffrement, on nettoie le SecureStore
+                // If it's a decryption error, we clean the SecureStore
                 if (error.message && (
                     error.message.includes('decrypt') ||
                     error.message.includes('decipher') ||
                     error.message.includes('decryption')
                 )) {
-                    console.log('[Login] Erreur de déchiffrement détectée, nettoyage complet...');
                     try {
                         await cleanSecureStore();
                         console.log('[Login] SecureStore nettoyé avec succès');
                     } catch (cleanError) {
-                        console.error('[Login] Erreur lors du nettoyage du SecureStore:', cleanError);
+                        handleError(cleanError, t('error.errorCleaningSecureStore'), {
+                            type: ErrorType.SYSTEM,
+                            silent: false
+                        });
                     }
                 } else {
-                    throw error;
+                    handleError(error, t('error.errorCleaningSecureStore'), {
+                        type: ErrorType.SYSTEM,
+                        silent: false
+                    });
                 }
             }
 
             const validationError = validateInputs();
             if (validationError) {
-                console.log('[Login] Erreur de validation:', validationError);
-                setError(validationError);
+                handleError(validationError, t('error.errorValidation'), {
+                    type: ErrorType.VALIDATION,
+                    silent: false
+                });
                 return;
             }
 
-            console.log('[Login] Tentative de connexion avec l\'access token');
+            // We login with the credentials
             const loginResponse = await loginApi(contractNumber, login, password, '');
-            console.log('[Login] Réponse de loginApi:', {
-                success: loginResponse.success,
-                status: loginResponse.status,
-                error: loginResponse.error
-            });
 
+            // If the login is successful, we save the credentials
             if (loginResponse.success) {
-                console.log('[Login] Connexion réussie, sauvegarde des credentials');
                 const credentials = {
                     contractNumber,
                     login,
@@ -129,14 +126,13 @@ export default function Login({ onNavigate, testID }) {
                 };
 
                 await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-                console.log('[Login] Credentials sauvegardés');
 
+                // If the user has checked the "Remember me" checkbox, we save the login info
                 if (isChecked) {
-                    console.log('[Login] Sauvegarde des informations de connexion');
                     await saveLoginInfo();
                 }
 
-                console.log('[Login] Récupération des canaux utilisateur');
+                // We fetch the user channels
                 const channelsResponse = await fetchUserChannels(
                     contractNumber,
                     login,
@@ -144,42 +140,42 @@ export default function Login({ onNavigate, testID }) {
                     loginResponse.accessToken,
                     loginResponse.accountApiKey
                 );
-                console.log('[Login] Réponse de fetchUserChannels:', {
-                    status: channelsResponse.status,
-                    channelsCount: channelsResponse.channels?.length
-                });
 
+                // If the channels are loaded, we get the notification token
                 if (channelsResponse.status === 'ok') {
-                    // Obtenir le token de notification
-                    console.log('[Login] Début de l\'obtention du token de notification');
                     const { status: existingStatus } = await Notifications.getPermissionsAsync();
                     let finalStatus = existingStatus;
 
+                    // If the user has not granted the notification permission, we request it
                     if (existingStatus !== 'granted') {
                         const { status } = await Notifications.requestPermissionsAsync();
                         finalStatus = status;
                     }
 
+                    // If the user has granted the notification permission, we get the token and synchronize it with the API
                     if (finalStatus === 'granted') {
                         const tokenData = await Notifications.getExpoPushTokenAsync({
                             projectId: ENV.EXPO_PROJECT_ID,
                         });
                         console.log('[Login] Token obtenu:', tokenData.data);
 
-                        // Synchroniser le token
+                        // Synchronize the token with the API
                         const syncResult = await synchronizeTokenWithAPI(tokenData.data);
-                        if (syncResult) {
-                            console.log('[Login] Token de notification synchronisé avec succès');
-                        } else {
-                            console.log('[Login] Échec de la synchronisation du token de notification');
+                        if (!syncResult) {
+                            handleError(t('error.errorSynchronizingTokenWithAPI'), {
+                                type: ErrorType.SYSTEM,
+                                silent: false
+                            });
                         }
                     }
 
-                    console.log('[Login] Navigation vers l\'écran de chat');
+                    // We navigate to the chat screen
                     onNavigate(SCREENS.CHAT);
                 } else {
-                    console.log('[Login] Erreur lors du chargement des canaux');
-                    setError(t('errors.errorLoadingChannels'));
+                    handleError(t('error.errorLoadingChannels'), {
+                        type: ErrorType.SYSTEM,
+                        silent: false
+                    });
                 }
             } else {
                 console.log('[Login] Échec de la première tentative, tentative avec le refresh token');
@@ -188,32 +184,26 @@ export default function Login({ onNavigate, testID }) {
                     loginResponse.accountApiKey,
                     loginResponse.refreshToken
                 );
-                console.log('[Login] Réponse de checkRefreshToken:', {
-                    success: refreshTokenResponse.success,
-                    error: refreshTokenResponse.error
-                });
 
+                // If the refresh token is not successful, we set the error
                 if (!refreshTokenResponse.success) {
-                    console.log('[Login] Échec du refresh token');
-                    setError(t('errors.sessionExpired'));
+                    handleError(t('error.sessionExpired'), {
+                        type: ErrorType.SYSTEM,
+                        silent: false
+                    });
                     return;
                 }
 
-                console.log('[Login] Deuxième tentative de connexion avec le nouveau refresh token');
+                // We login with the new refresh token
                 const retryLoginResponse = await loginApi(
                     contractNumber,
                     login,
                     password,
                     refreshTokenResponse.data.refresh_token
                 );
-                console.log('[Login] Réponse de la deuxième tentative:', {
-                    success: retryLoginResponse.success,
-                    status: retryLoginResponse.status,
-                    error: retryLoginResponse.error
-                });
 
+                // If the login is successful, we save the credentials
                 if (retryLoginResponse.success) {
-                    console.log('[Login] Deuxième tentative réussie, sauvegarde des nouveaux credentials');
                     const credentials = {
                         contractNumber,
                         login,
@@ -224,9 +214,8 @@ export default function Login({ onNavigate, testID }) {
                     };
 
                     await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-                    console.log('[Login] Nouveaux credentials sauvegardés');
 
-                    console.log('[Login] Récupération des canaux avec les nouveaux tokens');
+                    // We fetch the user channels
                     const channelsResponse = await fetchUserChannels(
                         contractNumber,
                         login,
@@ -234,26 +223,28 @@ export default function Login({ onNavigate, testID }) {
                         retryLoginResponse.accessToken,
                         retryLoginResponse.accountApiKey
                     );
-                    console.log('[Login] Réponse de fetchUserChannels (deuxième tentative):', {
-                        status: channelsResponse.status,
-                        channelsCount: channelsResponse.channels?.length
-                    });
 
+                    // If the channels are loaded, we navigate to the chat screen
                     if (channelsResponse.status === 'ok') {
-                        console.log('[Login] Navigation vers l\'écran de chat');
                         onNavigate(SCREENS.CHAT);
                     } else {
-                        console.log('[Login] Erreur lors du chargement des canaux (deuxième tentative)');
-                        setError(t('errors.errorLoadingChannels'));
+                        handleError(t('error.errorLoadingChannels'), {
+                            type: ErrorType.SYSTEM,
+                            silent: false
+                        });
                     }
                 } else {
-                    console.log('[Login] Échec de la deuxième tentative');
-                    setError(t('errors.invalidCredentials'));
+                    handleError(t('error.invalidCredentials'), {
+                        type: ErrorType.SYSTEM,
+                        silent: false
+                    });
                 }
             }
         } catch (error) {
-            console.log('[Login] Erreur générale:', error);
-            setError(t('errors.loginFailed'));
+            handleError(error, t('error.loginFailed'), {
+                type: ErrorType.SYSTEM,
+                silent: false
+            });
         } finally {
             setIsLoading(false);
         }
@@ -270,7 +261,6 @@ export default function Login({ onNavigate, testID }) {
             return;
         }
 
-        // We start the simplified login process
         setIsLoading(true);
         try {
             // We get the saved login info
@@ -278,10 +268,8 @@ export default function Login({ onNavigate, testID }) {
 
             // We clean the SecureStore first
             try {
-                console.log('[Login] Nettoyage du SecureStore');
                 await SecureStore.deleteItemAsync('userCredentials');
             } catch (error) {
-                console.log('[Login] Erreur lors du nettoyage du SecureStore:', error);
                 throw error;
             }
 
@@ -301,8 +289,8 @@ export default function Login({ onNavigate, testID }) {
                     };
 
                     await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-                    console.log('[Login] Credentials sauvegardés');
 
+                    // We fetch the user channels
                     const channelsResponse = await fetchUserChannels(
                         contractNumber,
                         login,
@@ -313,8 +301,7 @@ export default function Login({ onNavigate, testID }) {
 
                     // If the channels are loaded, we navigate to the chat screen
                     if (channelsResponse.status === 'ok') {
-                        // Obtenir le token de notification
-                        console.log('[Login] Début de l\'obtention du token de notification');
+                        // We get the notification token
                         const { status: existingStatus } = await Notifications.getPermissionsAsync();
                         let finalStatus = existingStatus;
 
@@ -327,7 +314,6 @@ export default function Login({ onNavigate, testID }) {
                             const tokenData = await Notifications.getExpoPushTokenAsync({
                                 projectId: ENV.EXPO_PROJECT_ID,
                             });
-                            console.log('[Login] Token obtenu:', tokenData.data);
 
                             // Synchroniser le token
                             const syncResult = await synchronizeTokenWithAPI(tokenData.data);
@@ -338,24 +324,27 @@ export default function Login({ onNavigate, testID }) {
                             }
                         }
 
-                        console.log('[Login] Navigation vers l\'écran de chat');
                         onNavigate(SCREENS.CHAT);
                     } else {
-                        setError(t('errors.errorLoadingChannels'));
+                        handleError(t('error.errorLoadingChannels'), {
+                            type: ErrorType.SYSTEM,
+                            silent: false
+                        });
                         setIsSimplifiedLogin(false);
                     }
                 } catch (error) {
                     handleLoginError(error, 'saveCredentials');
-                    setError(t('errors.errorSavingLoginInfo'));
                     setIsSimplifiedLogin(false);
                 }
             } else {
-                setError(t('errors.invalidCredentials'));
+                handleError(t('error.invalidCredentials'), {
+                    type: ErrorType.SYSTEM,
+                    silent: false
+                });
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
             handleLoginError(error, 'simplifiedLogin');
-            setError(t('errors.loginFailed'));
             setIsSimplifiedLogin(false);
         } finally {
             setIsLoading(false);
@@ -400,23 +389,22 @@ export default function Login({ onNavigate, testID }) {
                     setContractNumber(parsedInfo.contractNumber);
                 }
             } catch (error) {
-                console.log('[Login] Erreur lors de la vérification des informations sauvegardées:', error);
 
-                // Si c'est une erreur de déchiffrement, on nettoie le SecureStore
+                // If it's a decryption error, we clean the SecureStore
                 if (error.message && (
                     error.message.includes('decrypt') ||
                     error.message.includes('decipher') ||
                     error.message.includes('decryption')
                 )) {
-                    console.log('[Login] Erreur de déchiffrement détectée, nettoyage du SecureStore...');
                     try {
                         await cleanSecureStore();
-                        console.log('[Login] SecureStore nettoyé avec succès après erreur de déchiffrement');
-                        // On réinitialise l'état pour forcer la connexion manuelle
                         setIsSimplifiedLogin(false);
                         setSavedLoginInfo(null);
                     } catch (cleanError) {
-                        console.error('[Login] Erreur lors du nettoyage du SecureStore:', cleanError);
+                        handleError(cleanError, t('error.errorCleaningSecureStore'), {
+                            type: ErrorType.SYSTEM,
+                            silent: false
+                        });
                     }
                 } else {
                     handleLoginError(error, 'checkSavedLogin');
@@ -429,9 +417,6 @@ export default function Login({ onNavigate, testID }) {
         checkSavedLogin();
     }, []);
 
-    if (isInitialLoading) {
-        return null;
-    }
 
     return (
         <>
@@ -473,6 +458,7 @@ export default function Login({ onNavigate, testID }) {
                                                         onChangeText={setContractNumber}
                                                         iconName="document-text-outline"
                                                         iconLibrary="Ionicons"
+                                                        testID="contract-number-input"
                                                     />
                                                 </View>
                                             </View>
@@ -491,6 +477,7 @@ export default function Login({ onNavigate, testID }) {
                                                         value={login}
                                                         onChangeText={setLogin}
                                                         iconName="person-outline"
+                                                        testID="login-input"
                                                     />
                                                 </View>
                                             </View>
@@ -509,6 +496,7 @@ export default function Login({ onNavigate, testID }) {
                                                         onChangeText={setPassword}
                                                         secureTextEntry
                                                         iconName="lock-closed-outline"
+                                                        testID="password-input"
                                                     />
                                                 </View>
                                             </View>
@@ -541,7 +529,9 @@ export default function Login({ onNavigate, testID }) {
                                         style={styles.backLink}
                                         onPress={() => onNavigate(SCREENS.APP_MENU)}
                                     >
-                                        <Text style={[styles.backLinkText, isSmartphone && styles.backLinkTextSmartphone]}>
+                                        <Text
+                                            style={[styles.backLinkText, isSmartphone && styles.backLinkTextSmartphone]}
+                                            testID="login-back">
                                             {t('buttons.returnToTitle')}
                                         </Text>
                                     </TouchableOpacity>

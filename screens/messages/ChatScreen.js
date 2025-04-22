@@ -8,7 +8,7 @@ import { fetchChannelMessages } from '../../services/api/messageApi';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from '../../utils/errorHandling';
 import { useWebSocket } from '../../hooks/useWebSocket';
-import { useNotification } from '../../services/notificationContext';
+import { useNotification } from '../../services/notification/notificationContext';
 
 /**
  * @component ChatScreen
@@ -65,63 +65,46 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   }, []);
 
   // Initialize the WebSocket
-  const { sendMessage, closeConnection, isConnected } = useWebSocket({
+  const { closeConnection } = useWebSocket({
     onMessage: handleWebSocketMessage,
-    onError: (error) => {
-      console.error('❌ Erreur WebSocket dans ChatScreen:', error);
-    },
     channels: selectedChannel ? [`channel_${selectedChannel.id}`] : []
   });
 
-  // Refresh the messages
+  /**
+   * @function refreshMessages
+   * @description Refreshes the initial messages
+   */
   const refreshMessages = useCallback(async () => {
     try {
-
-      if (!selectedChannel) {
+      if (!selectedChannel || !selectedChannel.id) {
+        setChannelMessages([]);
         return;
       }
 
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-      if (!credentialsStr) {
-        console.log('❌ Pas de credentials trouvés');
-        return;
-      }
-
       const credentials = JSON.parse(credentialsStr);
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
 
       setChannelMessages(messages);
     } catch (error) {
-      console.error('❌ Erreur lors du rafraîchissement des messages:', error);
+      handleError(error, t('error.errorRefreshingMessages'), {
+        type: ErrorType.SYSTEM,
+        silent: false
+      });
     }
-  }, [selectedChannel]);
+  }, [selectedChannel, t]);
 
-  // Effet pour charger les messages initiaux
+  // Effect to load the initial messages
   useEffect(() => {
     refreshMessages();
   }, [selectedChannel, refreshMessages]);
 
-  // Effet pour nettoyer la connexion WebSocket
+  // Effect to clean the WebSocket connection
   useEffect(() => {
     return () => {
-      console.log('🧹 Nettoyage de la connexion WebSocket');
       closeConnection();
     };
   }, [closeConnection]);
-
-  /**
-   * @description Handle chat-related errors
-   * @param {Error} error - The error
-   * @param {string} source - The source
-   * @param {object} options - Additional options
-   * @returns {object} Formatted error
-   */
-  const handleChatError = (error, source, options = {}) => {
-    return handleError(error, `chat.${source}`, {
-      type: ErrorType.SYSTEM,
-      ...options
-    });
-  };
 
   // Toggle the sidebar menu
   const toggleMenu = () => {
@@ -140,11 +123,10 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       }
 
       if (!channel || !channel.id) {
-        handleChatError(
-          'Tentative de sélection d\'un canal invalide',
-          'channelSelect.validation',
-          { silent: true }
-        );
+        handleError(new Error('Invalid channel'), t('error.errorChannelSelect'), {
+          type: ErrorType.SYSTEM,
+          silent: false
+        });
         return;
       }
 
@@ -156,33 +138,39 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         id: channel.id.toString()
       });
     } catch (error) {
-      handleChatError(error, 'channelSelect.process');
+      handleError(error, t('error.errorChannelSelect'), {
+        type: ErrorType.SYSTEM,
+        silent: false
+      });
     }
   };
 
   // Handle the input focus change to mark all the messages as read as soon as we use the chat input
   const handleInputFocusChange = async (isFocused) => {
-    try {
-      setIsInputFocused(isFocused);
-    } catch (error) {
-      handleChatError(error, 'inputFocusChange');
-    }
+    setIsInputFocused(isFocused);
   };
 
+  /**
+   * @function handleEditMessage
+   * @description Handles the message edition
+   * @param {Object} messageToEdit - The message to edit
+   */
   const handleEditMessage = (messageToEdit) => {
     try {
       if (!messageToEdit || !messageToEdit.id) {
-        handleChatError(
-          'Tentative d\'édition d\'un message invalide',
-          'editMessage.validation',
-          { silent: true }
-        );
+        handleError(new Error('Invalid message'), t('error.errorEditingMessage'), {
+          type: ErrorType.SYSTEM,
+          silent: false
+        });
         return;
       }
 
       setEditingMessage(messageToEdit);
     } catch (error) {
-      handleChatError(error, 'editMessage.process');
+      handleError(error, t('error.errorEditingMessage'), {
+        type: ErrorType.SYSTEM,
+        silent: false
+      });
     }
   };
 
