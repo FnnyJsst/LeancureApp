@@ -22,7 +22,7 @@ export default function NoUrlScreen({
   testID,
 }) {
   const { t } = useTranslation();
-  const { isSmartphone } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
 
   /**
    * @function handleBackPress
@@ -56,7 +56,10 @@ export default function NoUrlScreen({
         ]}>{t('screens.enterSettings')}</Text>
       </View>
 
-      <View style={styles.buttonContainer}>
+      <View style={[
+        styles.buttonContainer,
+        isLowResTablet && styles.buttonContainerLowResTablet,
+        ]}>
         <ParameterButton onPress={() => handleSettingsAccess()} testID="settings-button" />
       </View>
     </View>
@@ -102,5 +105,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     left: 20,
+  },
+  buttonContainerLowResTablet: {
+    bottom: 10,
+    left: 10,
   },
 });
