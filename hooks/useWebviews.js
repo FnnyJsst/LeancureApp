@@ -97,8 +97,13 @@ export function useWebviews(setCurrentScreen) {
   const saveSelectedWebviews = async (webviews) => {
     try {
       const webviewsToSave = webviews || [];
+      // Ne sauvegarder que les données essentielles et limiter la taille
+      const simplifiedWebviews = webviewsToSave.map(webview => ({
+        href: webview.href?.substring(0, 200) || '', // Limiter la taille de l'URL
+        title: webview.title?.substring(0, 100) || '' // Limiter la taille du titre
+      }));
       setSelectedWebviews(webviewsToSave);
-      await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(webviewsToSave));
+      await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(simplifiedWebviews));
     } catch (error) {
       console.error('Error while saving webviews:', error);
     }
@@ -126,7 +131,7 @@ export function useWebviews(setCurrentScreen) {
         await clearSecureStore();
       }
     }
-  }, [setSelectedWebviews, setWebviewUrl]);
+  }, []);
 
   /**
    * @function loadRefreshOption
@@ -174,29 +179,26 @@ export function useWebviews(setCurrentScreen) {
   };
 
   /**
-   * @description Loads the selected channels from the SecureStore when user opens the app
-   */
-  useEffect(() => {
-    loadSelectedChannels();
-  }, [loadSelectedChannels]);
-
-  /**
    * @description Loads the interval chosen by the user in the settings to refresh the webviews
    */
   useEffect(() => {
     if (refreshInterval) {
       const interval = setInterval(() => {
-
+        // Logique de rafraîchissement
       }, refreshInterval);
       return () => clearInterval(interval);
     }
   }, [refreshInterval]);
 
+  // Garder uniquement un seul useEffect pour le chargement initial
   useEffect(() => {
-    loadSelectedChannels();
-    loadPasswordFromSecureStore();
-    loadRefreshOption();
-  }, [loadSelectedChannels, loadPasswordFromSecureStore, loadRefreshOption]);
+    const initializeData = async () => {
+      await loadSelectedChannels();
+      await loadPasswordFromSecureStore();
+      await loadRefreshOption();
+    };
+    initializeData();
+  }, []);
 
   const clearSecureStore = async () => {
     try {

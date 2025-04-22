@@ -284,15 +284,27 @@ export default function WebviewsManagementScreen({
   const handleDeleteWebview = useCallback(async (webviewToDelete) => {
     if (webviewToDelete) {
       try {
+        // Filtrer les webviews pour ne garder que celles qui ne sont pas à supprimer
         const updatedWebviews = selectedWebviews.filter(
-          channel => channel.href !== webviewToDelete.href
+          webview => webview.href !== webviewToDelete.href
         );
+
+        // Mettre à jour l'état local
         setSelectedWebviews(updatedWebviews);
-        await saveSelectedWebviews(updatedWebviews);
-        await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(updatedWebviews));
+
+        // Sauvegarder uniquement les données essentielles avec une taille limitée
+        const simplifiedWebviews = updatedWebviews.map(webview => ({
+          href: (webview.href || '').substring(0, 100),
+          title: (webview.title || '').substring(0, 50)
+        }));
+
+        // Sauvegarder les webviews simplifiées
+        await saveSelectedWebviews(simplifiedWebviews);
+
+        // Fermer la modal
         handleCloseModal('delete');
-      } catch (err) {;
-        handleError(err, i18n.t('errors.errorDeletingWebview'), {
+      } catch (error) {
+        handleError(error, t('errors.errorDeletingWebview'), {
           type: ErrorType.SYSTEM,
           silent: false
         });
@@ -422,32 +434,66 @@ export default function WebviewsManagementScreen({
   *@description Handles the move up of a webview
   *@param {number} index - The index of the webview
   */
-  const handleMoveUp = useCallback((index) => {
+  const handleMoveUp = useCallback(async (index) => {
     if (index > 0) {
-      const updatedWebviews = [...selectedWebviews];
-      const temp = updatedWebviews[index - 1];
-      updatedWebviews[index - 1] = updatedWebviews[index];
-      updatedWebviews[index] = temp;
-      setSelectedWebviews(updatedWebviews);
-      saveSelectedWebviews(updatedWebviews);
+      try {
+        const updatedWebviews = [...selectedWebviews];
+        const temp = updatedWebviews[index - 1];
+        updatedWebviews[index - 1] = updatedWebviews[index];
+        updatedWebviews[index] = temp;
+
+        // Mettre à jour l'état local immédiatement
+        setSelectedWebviews(updatedWebviews);
+
+        // Sauvegarder uniquement les données essentielles avec une taille limitée
+        const simplifiedWebviews = updatedWebviews.map(webview => ({
+          href: (webview.href || '').substring(0, 100),
+          title: (webview.title || '').substring(0, 50)
+        }));
+
+        // Utiliser uniquement saveSelectedWebviews qui gère déjà SecureStore
+        await saveSelectedWebviews(simplifiedWebviews);
+      } catch (error) {
+        handleError(error, t('errors.errorMovingWebview'), {
+          type: ErrorType.SYSTEM,
+          silent: false
+        });
+      }
     }
-  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews]);
+  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, t]);
 
   /**
   *@function handleMoveDown
   *@description Handles the move down of a webview
   *@param {number} index - The index of the webview
   */
-  const handleMoveDown = useCallback((index) => {
+  const handleMoveDown = useCallback(async (index) => {
     if (index < selectedWebviews.length - 1) {
-      const updatedWebviews = [...selectedWebviews];
-      const temp = updatedWebviews[index + 1];
-      updatedWebviews[index + 1] = updatedWebviews[index];
-      updatedWebviews[index] = temp;
-      setSelectedWebviews(updatedWebviews);
-      saveSelectedWebviews(updatedWebviews);
+      try {
+        const updatedWebviews = [...selectedWebviews];
+        const temp = updatedWebviews[index + 1];
+        updatedWebviews[index + 1] = updatedWebviews[index];
+        updatedWebviews[index] = temp;
+
+        // Mettre à jour l'état local immédiatement
+        setSelectedWebviews(updatedWebviews);
+
+        // Sauvegarder uniquement les données essentielles avec une taille limitée
+        const simplifiedWebviews = updatedWebviews.map(webview => ({
+          href: (webview.href || '').substring(0, 100),
+          title: (webview.title || '').substring(0, 50)
+        }));
+
+        // Utiliser uniquement saveSelectedWebviews qui gère déjà SecureStore
+        await saveSelectedWebviews(simplifiedWebviews);
+      } catch (error) {
+        handleError(error, t('errors.errorMovingWebview'), {
+          type: ErrorType.SYSTEM,
+          silent: false
+        });
+      }
     }
-  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews]);
+  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, t]);
 
   return (
     <View style={styles.pageContainer}>
@@ -458,7 +504,7 @@ export default function WebviewsManagementScreen({
         >
           <Ionicons
             name="close-outline"
-            size={isSmartphone ? 26 : 28}
+            size={isSmartphone ? 26 : 34}
             color={COLORS.white}
           />
         </TouchableOpacity>
@@ -470,9 +516,9 @@ export default function WebviewsManagementScreen({
             >
               <AntDesign
                 name="plus"
-                size={isSmartphone ? 22 : 24}
+                size={isSmartphone ? 22 : 32}
                 color={COLORS.white}
-                style={{ marginRight: 40 }}
+                style={{ marginRight: isSmartphone ? 40 : 50 }}
               />
             </TouchableOpacity>
             <TouchableOpacity
@@ -481,7 +527,7 @@ export default function WebviewsManagementScreen({
             >
               <AntDesign
                 name="bars"
-                size={isSmartphone ? 22 : 24}
+                size={isSmartphone ? 22 : 32}
                 color={COLORS.white}
                 style={{ marginRight: 10 }}
 

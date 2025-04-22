@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/139</span>
+                <span class='fraction'>0/136</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/139</span>
+                <span class='fraction'>0/136</span>
             </div>
         
             
@@ -481,10 +481,7 @@
 <a name='L416'></a><a href='#L416'>416</a>
 <a name='L417'></a><a href='#L417'>417</a>
 <a name='L418'></a><a href='#L418'>418</a>
-<a name='L419'></a><a href='#L419'>419</a>
-<a name='L420'></a><a href='#L420'>420</a>
-<a name='L421'></a><a href='#L421'>421</a>
-<a name='L422'></a><a href='#L422'>422</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L419'></a><a href='#L419'>419</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -726,14 +723,11 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -1069,11 +1063,11 @@ const ImportWebviewModal = <span class="cstat-no" title="statement not covered" 
 <span class="cstat-no" title="statement not covered" >    return urls;</span>
   };
 &nbsp;
-   /**
+  /**
    * @function handleDownload
    * @description A function to handle the download of channels from URL
    */
-   const handleDownload = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
+    const handleDownload = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    console.log('[ImportWebviewModal] Début du téléchargement avec URL:', url);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (!url) {</span>
@@ -1146,16 +1140,13 @@ const ImportWebviewModal = <span class="cstat-no" title="statement not covered" 
       } else <span class="cstat-no" title="statement not covered" >if (contentType.includes('text/html')) {</span>
 <span class="cstat-no" title="statement not covered" >        console.log('[ImportWebviewModal] Parsing HTML...');</span>
 <span class="cstat-no" title="statement not covered" >        data = await response.text();</span>
-<span class="cstat-no" title="statement not covered" >        console.log('[ImportWebviewModal] Données HTML reçues, longueur:', data.length);</span>
 <span class="cstat-no" title="statement not covered" >        console.log('[ImportWebviewModal] Données HTML reçues:', data);</span>
       } else {
-<span class="cstat-no" title="statement not covered" >        console.log('[ImportWebviewModal] Erreur: Type de contenu non supporté:', contentType);</span>
 <span class="cstat-no" title="statement not covered" >        setError(t('errors.invalidContentType'));</span>
 <span class="cstat-no" title="statement not covered" >        return;</span>
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (typeof data === 'string') {</span>
-<span class="cstat-no" title="statement not covered" >        console.log('[ImportWebviewModal] Début du parsing HTML...');</span>
         const extractedChannels = <span class="cstat-no" title="statement not covered" >parseHtml(data);</span>
 <span class="cstat-no" title="statement not covered" >        console.log('[ImportWebviewModal] Chaînes extraites:', extractedChannels);</span>
 &nbsp;
@@ -1272,7 +1263,7 @@ const ImportWebviewModal = <span class="cstat-no" title="statement not covered" 
                 title={isImporting ? t('buttons.importing') : t('buttons.import')}
                 onPress={handleDownload}
                 backgroundColor={COLORS.orange}
-                width= '32%'
+                width= '33%'
                 disabled={isImporting}
                 icon={isImporting ?
                   &lt;ActivityIndicator size="small" color={COLORS.white} /&gt; :
@@ -1333,7 +1324,7 @@ export default ImportWebviewModal;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-10T08:16:41.430Z
+                at 2025-04-22T06:54:27.433Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

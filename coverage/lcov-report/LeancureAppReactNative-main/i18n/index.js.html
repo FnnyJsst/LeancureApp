@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>5/20</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>1/4</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>5/20</span>
             </div>
         
             
@@ -129,13 +129,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -149,26 +146,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -188,17 +188,17 @@ import * as SecureStore from 'expo-secure-store';
 import en from './translations/en';
 import fr from './translations/fr';
 &nbsp;
-const LANG_STORAGE_KEY = <span class="cstat-no" title="statement not covered" >'user_language';</span>
+const LANG_STORAGE_KEY = 'user_language';
 &nbsp;
 // Initialisation synchrone immédiate
-<span class="cstat-no" title="statement not covered" >i18n</span>
+i18n
   .use(initReactI18next)
   .init({
     resources: {
       en: { translation: en },
       fr: { translation: fr }
     },
-    lng: Localization.locale.split('-')[0] || 'en',
+    lng: Localization.locale.split('-')[0] || <span class="branch-1 cbranch-no" title="branch not covered" >'en',</span>
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false
@@ -208,7 +208,7 @@ const LANG_STORAGE_KEY = <span class="cstat-no" title="statement not covered" >'
     }
   });
 &nbsp;
-const setLanguage = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (language) =&gt; {</span>
+const setLanguage = <span class="fstat-no" title="function not covered" >as</span>ync (language) =&gt; {
 <span class="cstat-no" title="statement not covered" >  try {</span>
 <span class="cstat-no" title="statement not covered" >    await SecureStore.setItemAsync(LANG_STORAGE_KEY, language);</span>
 <span class="cstat-no" title="statement not covered" >    await i18n.changeLanguage(language);</span>
@@ -217,7 +217,7 @@ const setLanguage = <span class="cstat-no" title="statement not covered" ><span 
   }
 };
 &nbsp;
-const getStoredLanguage = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
+const getStoredLanguage = <span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {
 <span class="cstat-no" title="statement not covered" >  try {</span>
 <span class="cstat-no" title="statement not covered" >    return await SecureStore.getItemAsync(LANG_STORAGE_KEY);</span>
   } catch (error) {
@@ -227,7 +227,7 @@ const getStoredLanguage = <span class="cstat-no" title="statement not covered" >
 };
 &nbsp;
 // Cette fonction charge maintenant uniquement la langue stockée
-export const initI18n = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
+export const initI18n = <span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {
 <span class="cstat-no" title="statement not covered" >  try {</span>
     const storedLang = <span class="cstat-no" title="statement not covered" >await getStoredLanguage();</span>
 <span class="cstat-no" title="statement not covered" >    if (storedLang) {</span>
@@ -247,7 +247,7 @@ export default i18n;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-10T08:16:41.430Z
+                at 2025-04-22T06:54:27.433Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
