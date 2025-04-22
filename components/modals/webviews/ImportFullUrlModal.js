@@ -24,7 +24,7 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
 
-  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait } = useDeviceType();
 
   /**
    * @function validateUrl
@@ -110,6 +110,7 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
       <View style={MODAL_STYLES.modalContainer}>
         <View style={[
             MODAL_STYLES.content,
+            isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
             isSmartphone && styles.modalContentSmartphone,
             isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
             isTabletPortrait && styles.modalContentTabletPortrait,
@@ -167,6 +168,9 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
 const styles = StyleSheet.create({
   modalContentSmartphone: {
     width: '95%',
+  },
+  modalContentLowResTabletPortrait: {
+    width: '30%',
   },
   modalContentSmartphoneLandscape: {
     width: '50%',

@@ -17,14 +17,31 @@ export const useDeviceType = () => {
    * @description Check if the device is a low resolution tablet
    */
   const isLowResTablet = (() => {
-    const minWidth = 550;
-    const minHeight = 700;
+    const minWidth = 500;
+    const minHeight = 600;
+    const maxPixelDensity = 2.0;
+    const minDiagonalInches = 5.0;
 
     const result = (
       Math.min(width, height) >= minWidth &&
       Math.max(width, height) >= minHeight &&
-      pixelDensity > 1.5
+      pixelDensity <= maxPixelDensity &&
+      diagonalInches >= minDiagonalInches
     );
+
+    console.log('[DeviceType] Vérification tablette basse résolution:', {
+      width,
+      height,
+      pixelDensity,
+      diagonalInches,
+      isLowResTablet: result,
+      conditions: {
+        minWidth: Math.min(width, height) >= minWidth,
+        minHeight: Math.max(width, height) >= minHeight,
+        pixelDensity: pixelDensity <= maxPixelDensity,
+        diagonal: diagonalInches >= minDiagonalInches
+      }
+    });
 
     return result;
   })();
@@ -47,7 +64,7 @@ export const useDeviceType = () => {
   })();
 
   // If a device is not a tablet, it's a smartphone
-  const isSmartphone = !isTablet;
+  const isSmartphone = !isTablet && !isLowResTablet;
 
   // We determine the orientation of the device
   const isPortrait = height > width;
@@ -58,6 +75,7 @@ export const useDeviceType = () => {
   const isTabletPortrait = isTablet && isPortrait;
   const isSmartphoneLandscape = isSmartphone && isLandscape;
   const isTabletLandscape = isTablet && isLandscape;
+  const isLowResTabletPortrait = isLowResTablet && isPortrait;
 
   return {
     // Base properties
@@ -72,5 +90,6 @@ export const useDeviceType = () => {
     isTabletPortrait,
     isSmartphoneLandscape,
     isTabletLandscape,
+    isLowResTabletPortrait,
   };
 };
