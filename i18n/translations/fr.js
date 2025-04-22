@@ -98,6 +98,7 @@ export default {
         importFullUrl: "Importer une URL complète",
         importOffline: "Importer des chaînes en mode hors ligne",
         degradedImport: "Importer les chaînes en mode dégradé",
+        degradedImportTooltip: "Le mode dégradé permet d'importer les chaînes en mode hors ligne. Rentrez une URL en respectant l'un des formats suivants :\n\n• http(s)://LIGNE.DOMAINE\n• http(s)://LIGNE/a/DOMAINE\n• http(s)://ADRESSEIP/a/LIGNE",
       },
       edit: {
         editChannel: "Modifier une chaîne",

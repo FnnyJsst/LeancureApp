@@ -97,38 +97,15 @@ export function useWebviews(setCurrentScreen) {
   const saveSelectedWebviews = async (webviews) => {
     try {
       const webviewsToSave = webviews || [];
-
-      // We limit the number of webviews to save
-      const maxWebviews = 15;
-      const limitedWebviews = webviewsToSave.slice(0, maxWebviews);
-
-      // We save only the essential data with a very limited size
-      const simplifiedWebviews = limitedWebviews.map(webview => ({
-        href: (webview.href || '').substring(0, 50), // We limit even more the size
-        title: (webview.title || '').substring(0, 30) // We limit even more the size
+      // Ne sauvegarder que les données essentielles et limiter la taille
+      const simplifiedWebviews = webviewsToSave.map(webview => ({
+        href: webview.href?.substring(0, 200) || '', // Limiter la taille de l'URL
+        title: webview.title?.substring(0, 100) || '' // Limiter la taille du titre
       }));
-
-      // Mettre à jour l'état local
       setSelectedWebviews(webviewsToSave);
-
-      // We save in SecureStore with a minimal size
-      const jsonString = JSON.stringify(simplifiedWebviews);
-      if (jsonString.length > 2048) {
-        console.warn(t('errors.dataTooLargeForSecureStore'));
-      }
-      await SecureStore.setItemAsync('selectedWebviews', jsonString);
+      await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(simplifiedWebviews));
     } catch (error) {
       console.error('Error while saving webviews:', error);
-      // In case of error, try to save an even more simplified version
-      try {
-        const emergencyWebviews = webviewsToSave.slice(0, 5).map(webview => ({
-          href: (webview.href || '').substring(0, 20),
-          title: (webview.title || '').substring(0, 10)
-        }));
-        await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(emergencyWebviews));
-      } catch (emergencyError) {
-        console.error('Emergency save failed:', emergencyError);
-      }
     }
   };
 
@@ -207,13 +184,13 @@ export function useWebviews(setCurrentScreen) {
   useEffect(() => {
     if (refreshInterval) {
       const interval = setInterval(() => {
-        // Refresh logic
+        // Logique de rafraîchissement
       }, refreshInterval);
       return () => clearInterval(interval);
     }
   }, [refreshInterval]);
 
-  // Keep only one useEffect for the initial loading
+  // Garder uniquement un seul useEffect pour le chargement initial
   useEffect(() => {
     const initializeData = async () => {
       await loadSelectedChannels();

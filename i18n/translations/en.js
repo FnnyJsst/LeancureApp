@@ -97,6 +97,7 @@ export default {
         importFullUrl: "Import full URL",
         importOffline: "Import channels from offline mode",
         degradedImport: "Import channels in degraded mode",
+        degradedImportTooltip: "This feature allows you to import channels in degraded mode. Enter an URL respecting one of the following formats: http(s)://LINE.DOMAIN OR http(s)://LINE/a/DOMAIN OR http(s)://IP/a/LINE",
       },
       edit: {
         editChannel: "Edit channel",

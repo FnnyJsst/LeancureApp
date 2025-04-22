@@ -284,15 +284,21 @@ export default function WebviewsManagementScreen({
   const handleDeleteWebview = useCallback(async (webviewToDelete) => {
     if (webviewToDelete) {
       try {
+        // Filtrer les webviews pour ne garder que celles qui ne sont pas à supprimer
         const updatedWebviews = selectedWebviews.filter(
-          channel => channel.href !== webviewToDelete.href
+          webview => webview.href !== webviewToDelete.href
         );
+
+        // Mettre à jour l'état local
         setSelectedWebviews(updatedWebviews);
+
+        // Sauvegarder les webviews mises à jour
         await saveSelectedWebviews(updatedWebviews);
-        await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(updatedWebviews));
+
+        // Fermer la modal
         handleCloseModal('delete');
-      } catch (err) {;
-        handleError(err, i18n.t('errors.errorDeletingWebview'), {
+      } catch (error) {
+        handleError(error, t('errors.errorDeletingWebview'), {
           type: ErrorType.SYSTEM,
           silent: false
         });

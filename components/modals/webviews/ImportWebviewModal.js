@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, View, StyleSheet, ActivityIndicator } from 'react-native';
+import { Modal, View, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import Button from '../../buttons/Button';
 import TitleModal from '../../text/TitleModal';
 import InputModal from '../../inputs/InputModal';
@@ -10,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../text/CustomText';
 import { useTranslation } from 'react-i18next';
 import CheckBox from '../../inputs/CheckBox';
+import TooltipModal from './TooltipModal';
 
 /**
  * @component ImportWebviewModal
@@ -31,6 +32,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
   const [showAlert, setShowAlert] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTablet } = useDeviceType();
@@ -117,12 +119,12 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
     const urls = [];
     const urlObj = new URL(baseUrl);
 
-    // Détermine le format de l'URL
+    // Determine the format of the URL
     const isSubdomainFormat = urlObj.hostname.split('.').length > 2 && !urlObj.hostname.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/);
     const isIpFormat = urlObj.hostname.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/);
     const isParamFormat = baseUrl.includes('/a/');
 
-    // Extrait le nom de l'application selon le format
+    // Extract the application name according to the format
     let appName;
     if (isSubdomainFormat) {
       appName = urlObj.hostname.split('.')[0];
@@ -136,12 +138,12 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
         const baseDomain = urlObj.hostname.replace(`${appName}.`, '');
         fullUrl = `${urlObj.protocol}//${appName}.${baseDomain}/${view.path}`;
       } else if (isIpFormat) {
-        // Format 3: IP directe
+        // Format 1: Direct IP
         const viewParams = view.path.split('?')[1];
         const cleanParams = viewParams.replace('a=&', ''); // Supprime le a=& existant
         fullUrl = `${urlObj.protocol}//${urlObj.hostname}/player.php?a=${appName}&${cleanParams}`;
       } else {
-        // Format 2: modifie le paramètre 'a='
+        // Format 2: Modify the 'a=' parameter
         let basePath = view.path;
         if (basePath.includes('a=&')) {
           basePath = basePath.replace('a=&', `a=${appName}&`);
@@ -167,16 +169,13 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
    * @description A function to handle the download of channels from URL
    */
     const handleDownload = async () => {
-    console.log('[ImportWebviewModal] Début du téléchargement avec URL:', url);
 
     if (!url) {
-      console.log('[ImportWebviewModal] Erreur: URL vide');
       setError(t('errors.enterUrl'));
       return;
     }
 
     if (!validateUrl(url)) {
-      console.log('[ImportWebviewModal] Erreur: URL invalide');
       setError(t('errors.invalidUrl'));
       return;
     }
@@ -185,7 +184,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
     setError('');
     try {
       if (isChecked) {
-        console.log('[ImportWebviewModal] Mode dégradé activé, génération des URLs');
         const generatedUrls = generateOfflineUrls(url);
 
         const newUrls = generatedUrls.filter(newUrl =>
@@ -195,12 +193,9 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
         );
 
         if (newUrls.length === 0) {
-          console.log('[ImportWebviewModal] Aucune nouvelle URL à importer');
           setShowAlert(true);
         } else {
-          console.log('[ImportWebviewModal] Import des nouvelles URLs...');
           await onImport(newUrls);
-          console.log('[ImportWebviewModal] Import réussi');
           onClose();
         }
         return;
@@ -277,7 +272,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
       }
     } catch (error) {
       console.error('[ImportWebviewModal] Erreur détaillée:', error);
-      console.error('[ImportWebviewModal] Stack trace:', error.stack);
       setError(t('errors.errorDuringDownload'));
     } finally {
       setIsImporting(false);
@@ -341,12 +335,24 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
                 ]}>{error}</Text>
               </View>
             ) : null}
-            <CheckBox
-              label={t('modals.webview.import.degradedImport')}
-              style={styles.checkBox}
-              checked={isChecked}
-              onPress={() => setIsChecked(!isChecked)}
-            />
+            <View style={styles.checkboxContainer}>
+              <CheckBox
+                label={t('modals.webview.import.degradedImport')}
+                style={styles.checkBox}
+                checked={isChecked}
+                onPress={() => setIsChecked(!isChecked)}
+              />
+              <TouchableOpacity
+                onPress={() => setShowTooltip(true)}
+                style={styles.tooltipButton}
+              >
+                <Ionicons
+                  name="information-circle-outline"
+                  size={20}
+                  color={COLORS.gray300}
+                />
+              </TouchableOpacity>
+            </View>
             <View style={[
               MODAL_STYLES.buttonContainer,
             ]}>
@@ -382,6 +388,11 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
         onConfirm={handleCloseAlert}
         type="success"
       />
+      <TooltipModal
+        visible={showTooltip}
+        onClose={() => setShowTooltip(false)}
+        message={t('modals.webview.import.degradedImportTooltip')}
+      />
     </>
   );
 };
@@ -403,8 +414,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: '5%',
     marginTop: 10,
   },
-  checkBox: {
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 10,
+  },
+  checkBox: {
+    flex: 1,
+  },
+  tooltipButton: {
+    padding: 5,
+    marginLeft: 5,
   },
   errorText: {
     color: COLORS.red,
@@ -416,3 +436,4 @@ const styles = StyleSheet.create({
 });
 
 export default ImportWebviewModal;
+
