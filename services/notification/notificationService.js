@@ -7,6 +7,9 @@ import { createApiRequest } from '../api/baseApi';
 import { getCurrentlyViewedChannel } from './notificationContext';
 import { handleError, ErrorType } from '../../utils/errorHandling';
 import i18n from '../../i18n';
+import * as SecureStore from 'expo-secure-store';
+import CryptoJS from 'crypto-js';
+
 // Handler for notifications to be displayed
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -178,45 +181,79 @@ export const playNotificationSound = async (messageData, currentChannelId = null
 
 /**
  * @function synchronizeTokenWithAPI
- * @description Synchronize the expo ken with the API
+ * @description Synchronizes the push notification token with the API
+ * @param {string} token - The push notification token
+ * @returns {Promise<boolean>} - Whether the synchronization was successful
  */
-export const synchronizeTokenWithAPI = async (token, credentials) => {
+export const synchronizeTokenWithAPI = async (token) => {
   try {
+    // Récupérer les informations nécessaires
+    const credentials = await SecureStore.getItemAsync('userCredentials');
     if (!credentials) {
-      return;
+      console.error('❌ [Notification] Pas de credentials trouvés');
+      return false;
     }
 
-    const body = createApiRequest({
-      'amaiia_msg_srv': {
-        'notifications': {
-          'synchronize': {
-            'action': 'add',
-            'accountapikey': credentials.accountApiKey,
-            'token': token
+    const { contractNumber, accountApiKey, accessToken } = JSON.parse(credentials);
+
+    // Créer le timestamp et le chemin de données
+    const timestamp = Date.now();
+    const data = `amaiia_msg_srv/notifications/synchronize/${timestamp}/`;
+
+    // Générer la signature
+    const hash = CryptoJS.HmacSHA256(data, contractNumber);
+    const hashHex = hash.toString(CryptoJS.enc.Hex);
+
+    // Construire le corps de la requête
+    const requestBody = {
+      "api-version": "2",
+      "api-contract-number": contractNumber,
+      "api-signature": hashHex,
+      "api-signature-hash": "sha256",
+      "api-signature-timestamp": timestamp,
+      "client-type": "mobile",
+      "client-login": "admin",
+      "client-token": accessToken,
+      "cmd": [
+        {
+          "amaiia_msg_srv": {
+            "notifications": {
+              "synchronize": {
+                "action": "add",
+                "accountapikey": accountApiKey,
+                "token": token
+              }
+            }
           }
         }
-      }
-    }, credentials.contractNumber, credentials.accessToken);
+      ]
+    };
 
-    const response = await axios.post(await ENV.API_URL(), body, {
-      timeout: 10000,
+    console.log('📤 [Notification] Envoi de la requête de synchronisation:', {
+      contractNumber,
+      accountApiKey,
+      token
+    });
+
+    // Envoyer la requête
+    const response = await axios({
+      method: 'POST',
+      url: await ENV.API_URL(),
+      data: requestBody,
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
+      timeout: 10000,
     });
 
-    if (response.status === 200) {
-      console.log(i18n.t('notification.tokenSynchronized'));
-      return true;
-    }
+    console.log('📥 [Notification] Réponse reçue:', {
+      status: response.status,
+      data: response.data
+    });
 
-    return false;
-
+    return response.status === 200;
   } catch (error) {
-    handleError(error, i18n.t('error.errorSynchronizingTokenWithAPI'), {
-      type: ErrorType.SYSTEM,
-      silent: false
-    });
+    console.error('❌ [Notification] Erreur lors de la synchronisation du token:', error);
     return false;
   }
 };
