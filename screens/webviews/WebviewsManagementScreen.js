@@ -292,8 +292,14 @@ export default function WebviewsManagementScreen({
         // Mettre à jour l'état local
         setSelectedWebviews(updatedWebviews);
 
-        // Sauvegarder les webviews mises à jour
-        await saveSelectedWebviews(updatedWebviews);
+        // Sauvegarder uniquement les données essentielles avec une taille limitée
+        const simplifiedWebviews = updatedWebviews.map(webview => ({
+          href: (webview.href || '').substring(0, 100),
+          title: (webview.title || '').substring(0, 50)
+        }));
+
+        // Sauvegarder les webviews simplifiées
+        await saveSelectedWebviews(simplifiedWebviews);
 
         // Fermer la modal
         handleCloseModal('delete');
