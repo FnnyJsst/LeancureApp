@@ -19,7 +19,7 @@ import { Text } from '../../text/CustomText';
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error', testID }) {
 
   // We get the device type
-  const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait, isLowResTablet } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait } = useDeviceType();
 
   return (
     <Modal
@@ -33,7 +33,6 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
         <View style={[
           styles.modalContent,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
-          isLowResTablet && styles.modalContentLowResTablet,
           isLandscape && styles.modalContentLandscape,
           isTabletPortrait && styles.modalContentTabletPortrait,
         ]}>

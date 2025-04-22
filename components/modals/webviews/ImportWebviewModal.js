@@ -35,7 +35,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
   const [showTooltip, setShowTooltip] = useState(false);
 
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTablet } = useDeviceType();
+  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   const AVAILABLE_VIEWS = [
     {
@@ -160,7 +160,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
       });
     });
 
-    console.log('[ImportWebviewModal] URLs générées:', urls);
     return urls;
   };
 
@@ -202,39 +201,30 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
       }
 
 
-      // Mode normal
+      // Normal mode
       const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
-      console.log('[ImportWebviewModal] Tentative de fetch avec URL complète:', fullUrl);
 
       const response = await fetch(fullUrl);
       console.log('[ImportWebviewModal] Réponse reçue, status:', response.status);
-      console.log('[ImportWebviewModal] Headers:', response.headers);
 
       // We get the content type
       const contentType = response.headers.get('content-type');
-      console.log('[ImportWebviewModal] Content-Type:', contentType);
 
       // If the content type is not defined, we throw an error
       if (!contentType) {
-        console.log('[ImportWebviewModal] Erreur: Content-Type non défini');
         setError(t('errors.contentTypeNotDefined'));
         return;
       }
 
       let data;
       if (contentType.includes('application/json')) {
-        console.log('[ImportWebviewModal] Parsing JSON...');
         data = await response.json();
-        console.log('[ImportWebviewModal] Données JSON reçues:', data);
         if (!Array.isArray(data)) {
-          console.log('[ImportWebviewModal] Erreur: Format de réponse invalide (pas un tableau)');
           setError(t('errors.invalidResponseFormat'));
           return;
         }
       } else if (contentType.includes('text/html')) {
-        console.log('[ImportWebviewModal] Parsing HTML...');
         data = await response.text();
-        console.log('[ImportWebviewModal] Données HTML reçues:', data);
       } else {
         setError(t('errors.invalidContentType'));
         return;
@@ -242,7 +232,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
 
       if (typeof data === 'string') {
         const extractedChannels = parseHtml(data);
-        console.log('[ImportWebviewModal] Chaînes extraites:', extractedChannels);
 
         if (extractedChannels.length === 0) {
           console.log('[ImportWebviewModal] Erreur: Aucune chaîne trouvée');
@@ -309,6 +298,8 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
               isSmartphone && styles.modalContentSmartphone,
               isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
               isTabletPortrait && styles.modalContentTabletPortrait,
+              isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+              isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
             ]}>
             <TitleModal title={t('modals.webview.import.importChannels')}/>
             <InputModal
@@ -361,7 +352,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
                 onPress={handleClose}
                 backgroundColor={COLORS.gray950}
                 textColor={COLORS.gray300}
-                width={isSmartphone ? '23%' : '26%'}
+                width={isSmartphone ? '23%' : '33%'}
                 testID="cancel-import-button"
               />
               <Button
@@ -408,7 +399,12 @@ const styles = StyleSheet.create({
   modalContentTabletPortrait: {
     width: '60%',
   },
-
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
+  },
   errorContainer: {
     alignItems: 'flex-start',
     paddingHorizontal: '5%',

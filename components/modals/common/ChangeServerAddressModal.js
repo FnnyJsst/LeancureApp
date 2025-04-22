@@ -23,7 +23,7 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
   // Translation and device type hooks
-  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletLandscape } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletLandscape, isLowResTabletPortrait, isLowResTabletLandscape, isLowResTablet } = useDeviceType();
   const { t } = useTranslation();
 
   /**
@@ -111,6 +111,8 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
           isTabletLandscape && styles.modalContentTabletLandscape,
+          isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+          isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
         ]}>
           <View style={styles.titleContainer}>
             <Text style={[styles.titleText, isSmartphone && styles.titleTextSmartphone]}>
@@ -129,13 +131,13 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
             <Button
               title={t('buttons.cancel')}
               backgroundColor={COLORS.gray950}
-              width="28%"
+              width={isSmartphone ? "28%" : "31%"}
               onPress={onClose}
             />
             <Button
               title={t('buttons.save')}
               backgroundColor={COLORS.orange}
-              width="28%"
+              width={isSmartphone ? "28%" : "31%"}
               onPress={handleSave}
             />
           </View>
@@ -177,6 +179,12 @@ const styles = StyleSheet.create({
   },
   modalContentTabletLandscape: {
     width: '45%',
+  },
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
   },
   titleContainer: {
     marginBottom: 20,
