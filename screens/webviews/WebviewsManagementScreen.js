@@ -422,32 +422,66 @@ export default function WebviewsManagementScreen({
   *@description Handles the move up of a webview
   *@param {number} index - The index of the webview
   */
-  const handleMoveUp = useCallback((index) => {
+  const handleMoveUp = useCallback(async (index) => {
     if (index > 0) {
-      const updatedWebviews = [...selectedWebviews];
-      const temp = updatedWebviews[index - 1];
-      updatedWebviews[index - 1] = updatedWebviews[index];
-      updatedWebviews[index] = temp;
-      setSelectedWebviews(updatedWebviews);
-      saveSelectedWebviews(updatedWebviews);
+      try {
+        const updatedWebviews = [...selectedWebviews];
+        const temp = updatedWebviews[index - 1];
+        updatedWebviews[index - 1] = updatedWebviews[index];
+        updatedWebviews[index] = temp;
+
+        // Mettre à jour l'état local immédiatement
+        setSelectedWebviews(updatedWebviews);
+
+        // Sauvegarder uniquement les données essentielles avec une taille limitée
+        const simplifiedWebviews = updatedWebviews.map(webview => ({
+          href: (webview.href || '').substring(0, 100),
+          title: (webview.title || '').substring(0, 50)
+        }));
+
+        // Utiliser uniquement saveSelectedWebviews qui gère déjà SecureStore
+        await saveSelectedWebviews(simplifiedWebviews);
+      } catch (error) {
+        handleError(error, t('errors.errorMovingWebview'), {
+          type: ErrorType.SYSTEM,
+          silent: false
+        });
+      }
     }
-  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews]);
+  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, t]);
 
   /**
   *@function handleMoveDown
   *@description Handles the move down of a webview
   *@param {number} index - The index of the webview
   */
-  const handleMoveDown = useCallback((index) => {
+  const handleMoveDown = useCallback(async (index) => {
     if (index < selectedWebviews.length - 1) {
-      const updatedWebviews = [...selectedWebviews];
-      const temp = updatedWebviews[index + 1];
-      updatedWebviews[index + 1] = updatedWebviews[index];
-      updatedWebviews[index] = temp;
-      setSelectedWebviews(updatedWebviews);
-      saveSelectedWebviews(updatedWebviews);
+      try {
+        const updatedWebviews = [...selectedWebviews];
+        const temp = updatedWebviews[index + 1];
+        updatedWebviews[index + 1] = updatedWebviews[index];
+        updatedWebviews[index] = temp;
+
+        // Mettre à jour l'état local immédiatement
+        setSelectedWebviews(updatedWebviews);
+
+        // Sauvegarder uniquement les données essentielles avec une taille limitée
+        const simplifiedWebviews = updatedWebviews.map(webview => ({
+          href: (webview.href || '').substring(0, 100),
+          title: (webview.title || '').substring(0, 50)
+        }));
+
+        // Utiliser uniquement saveSelectedWebviews qui gère déjà SecureStore
+        await saveSelectedWebviews(simplifiedWebviews);
+      } catch (error) {
+        handleError(error, t('errors.errorMovingWebview'), {
+          type: ErrorType.SYSTEM,
+          silent: false
+        });
+      }
     }
-  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews]);
+  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, t]);
 
   return (
     <View style={styles.pageContainer}>
