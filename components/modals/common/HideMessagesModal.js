@@ -21,7 +21,7 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
   const [alertMessage, setAlertMessage] = useState('');
 
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape, isLowResTablet } = useDeviceType();
   // Translations
   const { t } = useTranslation();
 
@@ -65,6 +65,8 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
             isSmartphonePortrait && styles.modalContentSmartphonePortrait,
             isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
             isTabletPortrait && styles.modalContentTabletPortrait,
+            isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+            isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
           ]}>
             <View style={[
               styles.titleContainer,
@@ -80,14 +82,14 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
               <Button
                 title={t('buttons.hide')}
                 backgroundColor={COLORS.gray950}
-                width={isSmartphone ? '23%' : '26%'}
+                width={isSmartphone ? '23%' : '28%'}
                 onPress={() => handleResponse(true)}
                 testID="hide-button"
               />
               <Button
                 title={t('buttons.show')}
                 backgroundColor={COLORS.orange}
-                width={isSmartphone ? '23%' : '26%'}
+                width={isSmartphone ? '23%' : '28%'}
                 onPress={() => handleResponse(false)}
                 testID="show-button"
               />
@@ -133,6 +135,12 @@ const styles = StyleSheet.create({
   },
   modalContentTabletPortrait: {
     width: '65%',
+  },
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
   },
   titleContainer: {
     marginBottom: 20,

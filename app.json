@@ -58,7 +58,7 @@
         "WRITE_EXTERNAL_STORAGE",
         "INTERNET"
       ],
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": ".secrets/google-services.json"
     },
     "assetBundlePatterns": [
       "**/*"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { Modal, View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { COLORS, SIZES } from '../../../constants/style';
@@ -15,6 +15,7 @@ import { handleError, ErrorType } from '../../../utils/errorHandling';
 import { useTranslation } from 'react-i18next';
 import { Buffer } from 'buffer';
 import { useCredentials } from '../../../hooks/useCredentials';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 
 /**
@@ -31,7 +32,7 @@ import { useCredentials } from '../../../hooks/useCredentials';
 export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64: initialBase64, messageId, channelId }) {
 
   // We get the device type and translation
-  const { isSmartphone, isLandscape } = useDeviceType();
+  const { isSmartphone, isLandscape, isLowResTabletPortrait, isLowResTabletLandscape, isLowResTablet } = useDeviceType();
   const { t } = useTranslation();
 
   // We get the credentials and loading state from the useCredentials hook
@@ -44,6 +45,16 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [isRotating, setIsRotating] = useState(false);
+
+  useLayoutEffect(() => {
+    setIsRotating(true);
+    const timer = setTimeout(() => {
+      setIsRotating(false);
+    }, 300); // Durée de la transition
+
+    return () => clearTimeout(timer);
+  }, [isLandscape]);
 
   /**
    * @description Loads the high quality image
@@ -429,6 +440,23 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
     }
   };
 
+  useEffect(() => {
+    const lockOrientation = async () => {
+      if (visible) {
+        const currentOrientation = await ScreenOrientation.getOrientationAsync();
+        if (isLandscape) {
+          await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+        } else {
+          await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+        }
+      } else {
+        await ScreenOrientation.unlockAsync();
+      }
+    };
+
+    lockOrientation();
+  }, [visible, isLandscape]);
+
   return (
     <Modal
       visible={visible}
@@ -439,12 +467,18 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       <View style={[
         styles.modalContainer,
         isLandscape && styles.modalContainerLandscape,
+        isLowResTablet && styles.modalContainerLowResTablet,
+        isRotating && styles.modalContainerRotating,
       ]}>
         <View
           style={[
           styles.modalContent,
+          isLowResTablet && styles.modalContentLowResTablet,
           isSmartphone && styles.modalContentSmartphone,
-          isLandscape && styles.modalContentLandscape
+          isLandscape && styles.modalContentLandscape,
+          isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
+          isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+          isRotating && styles.modalContentRotating,
         ]}>
           <TouchableOpacity style={styles.closeButtonContainer} onPress={onClose} testID="close-button">
             <View style={styles.closeButton}>
@@ -526,6 +560,21 @@ const styles = StyleSheet.create({
   },
   modalContentLandscape: {
     width: '40%',
+    height: '100%',
+    marginTop: '0%',
+  },
+  modalContainerLowResTablet: {
+    paddingBottom: '10%',
+    paddingTop: '10%',
+  },
+  modalContentLowResTabletPortrait: {
+    marginTop: '10%',
+    marginBottom: '10%',
+    width: '60%',
+    height: '50%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
     height: '100%',
     marginTop: '0%',
   },
@@ -693,5 +742,11 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: SIZES.fonts.textTablet,
     marginHorizontal: 10,
+  },
+  modalContainerRotating: {
+    opacity: 0.8,
+  },
+  modalContentRotating: {
+    transform: [{ scale: 0.95 }],
   },
 });

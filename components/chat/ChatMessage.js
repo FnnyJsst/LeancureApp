@@ -97,7 +97,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   const [menuMessageVisible, setMenuMessageVisible] = useState(false);
 
   // Get the device type and the translation function
-  const { isSmartphone } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
   const { t } = useTranslation();
 
   // Format the timestamp to display in the chat message
@@ -272,7 +272,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                 <View style={styles.fileHeader}>
                   <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
                   <View>
-                    <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={[
+                      styles.fileName,
+                      isLowResTablet && styles.fileNameLowResTablet
+                    ]} numberOfLines={1} ellipsizeMode="tail">
                       {message.fileName || (isPDF ? 'PDF' : 'CSV')}
                     </Text>
                     <Text style={styles.fileSize}>
@@ -286,6 +289,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
             {isImage && message.base64 && (
               <View style={[
                 styles.imagePreviewContainer,
+                isLowResTablet && styles.imagePreviewContainerLowResTablet,
                 { height: Math.min(240, imageSize.height) }
               ]}>
                 <Image
@@ -296,12 +300,12 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                     styles.preview,
                     { height: Math.min(300, imageSize.height) }
                   ]}
-                  resizeMode="contain"
+                  resizeMode="cover"
                   onLoad={(event) => {
                     const { width, height } = event.nativeEvent.source;
                     const ratio = height / width;
-                    const newHeight = 200 * ratio;
-                    setImageSize({ width: 200, height: newHeight });
+                    const newHeight = (isLowResTablet ? 180 : 200) * ratio;
+                    setImageSize({ width: isLowResTablet ? 180 : 200, height: newHeight });
                   }}
                 />
                 <View style={styles.imageFileHeader}>
@@ -311,7 +315,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                     color={COLORS.white}
                   />
                   <View>
-                    <Text style={styles.pictureName} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={[
+                      styles.pictureName,
+                      isLowResTablet && styles.pictureNameLowResTablet
+                    ]} numberOfLines={1} ellipsizeMode="tail">
                       {message.fileName || 'Image'}
                     </Text>
                     <Text style={styles.fileSize}>
@@ -521,6 +528,9 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.medium,
     maxWidth: 150,
   },
+  pictureNameLowResTablet: {
+    maxWidth: 160,
+  },
   fileSize: {
     color: COLORS.gray300,
     fontSize: SIZES.fonts.errorText,
@@ -537,6 +547,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
     alignSelf: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  imagePreviewContainerLowResTablet: {
+    width: 180,
   },
   imageFileHeader: {
     flexDirection: 'row',
@@ -545,13 +560,17 @@ const styles = StyleSheet.create({
     padding: 8,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     position: 'absolute',
-    bottom: 0,
+    bottom: -1,
+    left: 0,
+    right: 0,
     width: '100%',
+    zIndex: 1,
   },
   preview: {
     width: '100%',
     height: '100%',
     borderRadius: SIZES.borderRadius.medium,
+    objectFit: 'cover',
   },
   fileMessageContainer: {
     backgroundColor: COLORS.gray850,
