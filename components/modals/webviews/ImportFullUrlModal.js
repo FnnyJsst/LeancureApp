@@ -17,14 +17,14 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onImport - The function to call when the URL is imported
  */
-const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
+const ImportFullUrlModal = ({ visible, onClose, onImport }) => {
   const { t } = useTranslation();
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
 
-  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   /**
    * @function validateUrl
@@ -110,6 +110,8 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
       <View style={MODAL_STYLES.modalContainer}>
         <View style={[
             MODAL_STYLES.content,
+            isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+            isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
             isSmartphone && styles.modalContentSmartphone,
             isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
             isTabletPortrait && styles.modalContentTabletPortrait,
@@ -167,6 +169,12 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
 const styles = StyleSheet.create({
   modalContentSmartphone: {
     width: '95%',
+  },
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
   },
   modalContentSmartphoneLandscape: {
     width: '50%',
