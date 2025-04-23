@@ -40,7 +40,8 @@ export const handleError = (error, source, options = {}) => {
 
   // Log in the console
   if (!silent) {
-    console.error(`[${source}] ${formattedError.message}`);
+    const errorMessage = formattedError.message || 'Une erreur est survenue';
+    console.error(`[${source}] ${errorMessage}`);
   }
 
   // Call the callback if provided

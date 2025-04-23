@@ -151,11 +151,49 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @returns {object} Formatted error
    */
   const handleChatError = (error, source, options = {}) => {
-    const { t } = useTranslation();
-    return handleError(error, `chatWindow.${source}`, {
-      type: ErrorType.SYSTEM,
-      ...options
-    });
+    try {
+      // Si l'erreur est déjà un objet Error, on l'utilise directement
+      if (error instanceof Error) {
+        return handleError(error, `chatWindow.${source}`, {
+          type: ErrorType.SYSTEM,
+          ...options
+        });
+      }
+
+      // Si l'erreur est une chaîne, on crée un nouvel objet Error
+      if (typeof error === 'string') {
+        const formattedError = new Error(error);
+        return handleError(formattedError, `chatWindow.${source}`, {
+          type: ErrorType.SYSTEM,
+          ...options
+        });
+      }
+
+      // Si l'erreur est un objet, on essaie d'extraire le message
+      if (typeof error === 'object' && error !== null) {
+        const errorMessage = error.message || error.error || JSON.stringify(error);
+        const formattedError = new Error(errorMessage);
+        return handleError(formattedError, `chatWindow.${source}`, {
+          type: ErrorType.SYSTEM,
+          ...options
+        });
+      }
+
+      // Si on ne peut pas déterminer le type d'erreur, on crée une erreur par défaut
+      const defaultError = new Error('Une erreur inattendue est survenue');
+      return handleError(defaultError, `chatWindow.${source}`, {
+        type: ErrorType.SYSTEM,
+        ...options
+      });
+    } catch (e) {
+      // En cas d'erreur dans la gestion de l'erreur, on crée une erreur par défaut
+      console.error('Erreur dans handleChatError:', e);
+      const fallbackError = new Error('Erreur lors de la gestion de l\'erreur');
+      return handleError(fallbackError, `chatWindow.${source}`, {
+        type: ErrorType.SYSTEM,
+        ...options
+      });
+    }
   };
 
   /**
@@ -422,14 +460,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = useCallback(async (messageData) => {
     try {
-
       // We record the timestamp of the sent message to avoid notifications
       const currentTime = Date.now();
       recordSentMessage(currentTime);
 
       // If the channel is not set, we throw an error
       if (!channel) {
-        handleChatError(t('errors.noChannel'), 'sendMessage.validation');
+        const error = new Error(t('errors.noChannel'));
+        handleChatError(error, 'sendMessage.validation');
         return;
       }
 
@@ -437,7 +475,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       if (!credentials) {
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         if (!credentialsStr) {
-          handleChatError(t('errors.noCredentials'), 'sendMessage.validation');
+          const error = new Error(t('errors.noCredentials'));
+          handleChatError(error, 'sendMessage.validation');
           return;
         }
         const userCredentials = JSON.parse(credentialsStr);
@@ -454,7 +493,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       const isEditing = messageData.isEditing === true && messageData.messageId;
 
       if (isEditing) {
-
         try {
           // We send the editing request
           const response = await editMessageApi(messageData.messageId, messageData, userCredentials);
@@ -479,7 +517,9 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
               return updatedMessages;
             });
           } else {
-            throw new Error(response.message || t('errors.editFailed'));
+            const error = new Error(response.message || t('errors.editFailed'));
+            handleChatError(error, 'editMessage');
+            return;
           }
 
           return; // We stop the execution here
@@ -492,17 +532,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       // For a new message (non-editing), we continue with the existing code
       // We check the type of message
       if (messageData.type === 'file') {
-
         if (!messageData.base64) {
-          handleChatError(t('errors.invalidFile'), 'sendMessage.validation');
+          const error = new Error(t('errors.invalidFile'));
+          handleChatError(error, 'sendMessage.validation');
           return;
         }
-
       } else {
         const messageText = typeof messageData === 'object' ? messageData.text : messageData;
         // If the message text is invalid, we throw an error
         if (!messageText || messageText.trim() === '') {
-          handleChatError(t('errors.emptyMessage'), 'sendMessage.validation');
+          const error = new Error(t('errors.emptyMessage'));
+          handleChatError(error, 'sendMessage.validation');
           return;
         }
       }
@@ -548,11 +588,15 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           return [...prevMessages, completeMessage];
         });
       } else {
-        throw new Error(response.message || 'Failed to send message');
+        const errorMessage = response?.message || t('errors.sendFailed');
+        const error = new Error(errorMessage);
+        handleChatError(error, 'sendMessage');
+        return;
       }
     } catch (error) {
+      console.error('Error in sendMessage:', error);
       handleChatError(error, 'sendMessage', { silent: false });
-      throw error;
+      return;
     }
   }, [channel, credentials, t, recordSentMessage, markChannelAsUnread]);
 
