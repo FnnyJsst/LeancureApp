@@ -17,10 +17,14 @@ import { useTranslation } from 'react-i18next';
 const  FilePreview = ({ file, onRemove }) => {
 
   // Device type hook
-  const { isSmartphone } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
 
   return (
-    <View style={[styles.previewContainer, isSmartphone && styles.previewContainerSmartphone]}>
+    <View style={[
+      styles.previewContainer,
+      isSmartphone && styles.previewContainerSmartphone,
+      isLowResTablet && styles.previewContainerLowResTablet
+    ]}>
       <View style={styles.fileInfo}>
         <Ionicons
           name="document-outline"
@@ -405,10 +409,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray650,
     borderRadius: SIZES.borderRadius.small,
     justifyContent: 'space-between',
-    height: 40,
+    height: 42,
   },
   previewContainerSmartphone: {
     width: '100%',
+  },
+  previewContainerLowResTablet: {
+    width: '80%',
   },
   fileInfo: {
     flexDirection: 'row',

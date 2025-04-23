@@ -1,0 +1,18 @@
+# Fichiers à ignorer spécifiquement
+node_modules/
+.expo/
+dist/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+android/
+ios/
+
+# Ne pas ignorer les fichiers importants
+!.secrets/
+!.secrets/google-services.json

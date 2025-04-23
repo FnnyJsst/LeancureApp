@@ -31,7 +31,7 @@ import { useCredentials } from '../../../hooks/useCredentials';
 export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64: initialBase64, messageId, channelId }) {
 
   // We get the device type and translation
-  const { isSmartphone, isLandscape } = useDeviceType();
+  const { isSmartphone, isLandscape, isLowResTabletPortrait, isLowResTabletLandscape, isLowResTablet } = useDeviceType();
   const { t } = useTranslation();
 
   // We get the credentials and loading state from the useCredentials hook

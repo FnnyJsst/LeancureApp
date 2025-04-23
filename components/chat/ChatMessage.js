@@ -97,7 +97,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   const [menuMessageVisible, setMenuMessageVisible] = useState(false);
 
   // Get the device type and the translation function
-  const { isSmartphone } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
   const { t } = useTranslation();
 
   // Format the timestamp to display in the chat message
@@ -272,7 +272,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                 <View style={styles.fileHeader}>
                   <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
                   <View>
-                    <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={[
+                      styles.fileName,
+                      isLowResTablet && styles.fileNameLowResTablet
+                    ]} numberOfLines={1} ellipsizeMode="tail">
                       {message.fileName || (isPDF ? 'PDF' : 'CSV')}
                     </Text>
                     <Text style={styles.fileSize}>
@@ -311,7 +314,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                     color={COLORS.white}
                   />
                   <View>
-                    <Text style={styles.pictureName} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={[
+                      styles.pictureName,
+                      isLowResTablet && styles.pictureNameLowResTablet
+                    ]} numberOfLines={1} ellipsizeMode="tail">
                       {message.fileName || 'Image'}
                     </Text>
                     <Text style={styles.fileSize}>
@@ -502,7 +508,7 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.regular,
   },
   fileContainer: {
-    alignItems: 'center',
+    // alignItems: 'center',
   },
   fileHeader: {
     flexDirection: 'row',
