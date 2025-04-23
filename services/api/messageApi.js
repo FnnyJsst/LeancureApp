@@ -4,6 +4,9 @@ import { createApiRequest, createSignature } from './baseApi';
 import i18n from '../../i18n';
 import { handleError, ErrorType } from '../../utils/errorHandling';
 
+// Ajouter la fonction de traduction
+const t = (key) => i18n.t(key);
+
 /**
  * @function fetchUserChannels
  * @description Fetches the user's channels
@@ -155,41 +158,60 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       timeout: 30000,
     });
 
-    // If the response is valid, we return the message data
-    if (response.status === 200) {
-      if (typeof response.data === 'string' && response.data.includes('xdebug-error')) {
-        throw new Error(t('error.serverError'));
-      }
+    // Vérifier si l'opération a réussi
+    const isSuccess = response.data?.cmd?.[0]?.amaiia_msg_srv?.message?.add?.status === 'ok';
 
-      const serverMessageId = response.data?.cmd?.[0]?.amaiia_msg_srv?.message?.add?.data?.messageid;
-
-      return {
-        status: 'ok',
-        message: {
-          id: serverMessageId || timestamp,
-          title: messageTitle,
-          message: isFile ? messageContent.messageText : messageContent.message,
-          savedTimestamp: timestamp,
-          endTimestamp: timestamp + 99999,
-          fileType: isFile ? fileType : 'none',
-          login: userCredentials.login,
-          isOwnMessage: true,
-          isUnread: false,
-          username: 'Moi',
-          ...(isFile && {
-            type: 'file',
-            fileName: messageContent.fileName,
-            fileSize: messageContent.fileSize ? parseInt(messageContent.fileSize, 10) : 0,
-            fileType: fileType,
-            base64: messageContent.base64,
-          }),
-        },
-      };
+    if (!isSuccess) {
+      console.error('Response data:', JSON.stringify(response.data, null, 2));
+      throw new Error(t('error.messageNotSaved'));
     }
 
-    throw new Error(t('error.messageNotSaved'));
+    // Utiliser le timestamp comme ID temporaire
+    const messageData = {
+      status: 'ok',
+      id: timestamp.toString(),
+      message: {
+        id: timestamp.toString(),
+        title: messageTitle,
+        message: isFile ? messageContent.messageText : messageContent.message,
+        savedTimestamp: timestamp,
+        endTimestamp: timestamp + 99999,
+        fileType: isFile ? fileType : 'none',
+        login: userCredentials.login,
+        isOwnMessage: true,
+        isUnread: false,
+        username: t('messages.me'),
+        ...(isFile && {
+          type: 'file',
+          fileName: messageContent.fileName,
+          fileSize: messageContent.fileSize ? parseInt(messageContent.fileSize, 10) : 0,
+          fileType: fileType,
+          base64: messageContent.base64,
+        }),
+      },
+    };
+
+    console.log('Message data:', messageData);
+    return messageData;
   } catch (error) {
-    throw error;
+    // Si l'erreur est déjà un objet Error, on le renvoie
+    if (error instanceof Error) {
+      throw error;
+    }
+
+    // Si l'erreur est une chaîne, on crée un nouvel objet Error
+    if (typeof error === 'string') {
+      throw new Error(error);
+    }
+
+    // Si l'erreur est un objet, on essaie d'extraire le message
+    if (typeof error === 'object' && error !== null) {
+      const errorMessage = error.message || error.error || JSON.stringify(error);
+      throw new Error(errorMessage);
+    }
+
+    // Si on ne peut pas déterminer le type d'erreur, on crée une erreur par défaut
+    throw new Error('Une erreur inattendue est survenue lors de l\'envoi du message');
   }
 };
 
