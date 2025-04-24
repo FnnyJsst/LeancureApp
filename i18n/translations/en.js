@@ -2,7 +2,8 @@
 export default {
   screens: {
     enterSettings: "Please enter settings to import channels",
-    useButton: "Use the top right button to import channels"
+    useButton: "Use the top right button to import channels",
+    selectChannel: "Select a channel to start chatting",
   },
 
   sidebar: {
@@ -12,17 +13,25 @@ export default {
     loading: "Loading..."
   },
 
+  alerts: {
+    information: "Information",
+    allChannelsAlreadyImported: "All channels already imported",
+  },
+
   auth: {
     signIn: "Sign in to your account",
     contractNumber: "Enter your contract number",
     login: "Enter your login",
     password: "Enter your password",
+    rememberMe: "Remember me",
   },
 
   messages: {
     typeMessage: "Type your message here...",
     SelectAChannel: "Select a channel to start chatting",
     Me: "Me",
+    GroupWithoutName: "Group without name",
+    ChannelWithoutName: "Channel without name",
   },
 
   dateTime: {
@@ -83,8 +92,12 @@ export default {
       channelTitle: "Enter channel title",
       channelUrl: "Enter channel URL",
       import: {
-      importChannels: "Import channels",
-      importUrl: "Enter an URL to import channels",
+        importChannels: "Import channels",
+        importUrl: "Enter an URL",
+        importFullUrl: "Import full URL",
+        importOffline: "Import channels from offline mode",
+        degradedImport: "Import channels in degraded mode",
+        degradedImportTooltip: "This feature allows you to import channels in degraded mode. Enter an URL respecting one of the following formats: http(s)://LINE.DOMAIN OR http(s)://LINE/a/DOMAIN OR http(s)://IP/a/LINE",
       },
       edit: {
         editChannel: "Edit channel",
@@ -117,13 +130,14 @@ export default {
     },
 
     server: {
-      address: "Enter the new server address"
+      address: "Enter the new server address",
+      change: "Change the server address",
     }
   },
 
   buttons: {
     messages: "Messages",
-    webview: "Webview",
+    webviews: "Webviews",
     save: "Save",
     cancel: "Cancel",
     delete: "Delete",
@@ -136,24 +150,32 @@ export default {
     no: "No",
     yes: "Yes",
     import: "Import",
+    importing: "Importing...",
     importChannels: "Import channels",
     doNotUse: "Do not use",
-    ok: "Ok",
-    deleting: "Deleting...",
-    importing: "Importing...",
+    connecting: "Connecting...",
+    switchAccount: "Switch account",
+    edit: "Edit",
+    download: "Download",
+    gotIt: "Got it",
   },
 
   titles: {
-    Welcome: "Welcome",
+    welcome: "Welcome",
     contractNumber: "Contract number",
     login: "Login",
-    password: "Password",
+    password: "Define a password",
     stayConnected: "Stay connected",
     messages: "Messages",
     channels: "Channels",
     security: "Security",
     app: "App",
+    signIn: "Sign in to your account",
+    welcomeBack: "Welcome back",
+    noNameGroup: "Group without name",
+    noNameChannel: "Channel without name",
     version: "Version",
+    server: "Server",
   },
 
   settings: {
@@ -163,7 +185,7 @@ export default {
     },
     webview: {
       quit: "Quit app",
-      quitDescription: "Quit the app and go back to the home screen",
+      quitDescription: "Go back to the home screen",
       management: "Channel management",
       managementDescription: "Access to imported channels",
       autoRefresh: "Auto-refresh",
@@ -171,48 +193,171 @@ export default {
       readOnly: "Read-only access",
       readOnlyDescription: "Access to channels without the ability to modify them",
       password: "Password",
-      passwordDescription: "Define a password to access the settings",
+      passwordDescription: "To access the settings",
       deleteChannel: "Are you sure you want to delete this channel?",
     },
     common: {
-      showHide: "Show/hide messages",
-      showHideDescription: "Show or hide messages section of the app",
+      showHide: "Show/hide",
+      showHideMessages: "Show/hide messages of the app",
+      showHideDescription: "Show/hide messages section of the app",
       changeServer: "Change server address",
       changeServerDescription: "Change the server address of the app",
     }
   },
+
+  // New section for information messages
+  info: {
+    websocketAddressWillBeUpdated: "WebSocket connection address will be updated",
+  },
+
+  // New section for success messages
+  success: {
+    serverAddressChanged: "Server address updated successfully!",
+    messageDeleted: "Message deleted successfully",
+    messagesHidden: "Messages hidden successfully",
+    messagesShown: "Messages shown successfully",
+  },
+
   errors: {
     required: "This field is required",
     titleRequired: "Title is required",
     invalidUrl: "Invalid URL",
+    invalidResponse: "Invalid response format - missing data",
+    errorLoadingLoginInfo: "Error loading login info",
     passwordMismatch: "Passwords do not match",
     passwordTooShort: "Password must be at least 6 characters",
     success: "Success",
     passwordSuccess: "Password has been set successfully",
     error: "Error",
     enterPassword: "Please enter a password",
-    enterUrl: "Please enter an URL",
-    noChannelsFound: "No channels found at this URL",
-    invalidResponseFormat: "Invalid response format",
-    errorDuringDownload: "Error during the download of channels",
-    screenNotFound: "Screen not found",
-    errorSavingReadOnlyMode: "Error saving read-only mode",
-    errorSelectingChannels: "Error selecting channels",
-    errorSavingRefreshOption: "Error saving refresh option",
-    errorSavingWebviews: "Error saving webviews",
+    fieldsRequired: "All fields are required",
     errorLoadingChannels: "Error loading channels",
-    errorLoadingRefreshOption: "Error loading refresh option",
+    invalidCredentials: "Invalid credentials",
+    loginFailed: "Login failed",
+    errorSavingLoginInfo: "Error saving login info:",
+    errorLoadingFile: "Error loading file:",
+    noCredentialsFound: "No credentials found",
+    errorSendingMessage: "Error sending message:",
     errorSavingPassword: "Error saving password",
     errorLoadingPassword: "Error loading password",
     incorrectPassword: "Incorrect password",
-    errorInitializingApp: "Error initializing app",
-    errorLockingOrientation: "Error locking orientation",
-    errorSavingOrder: "Error saving order of webviews",
-    urlNotDefined: "URL not defined",
-    errorDeletingWebview: "Error deleting webview",
+    errorCleaningPassword: "Error cleaning password",
+    incorrectPassword: "Incorrect password",
+    noGroupsFound: "No groups found",
+    serverError: "Server error",
+    messageNotSaved: "Message not saved",
+    messageNotDeleted: "Message not deleted",
+    messageFileNotFound: "Message file not found",
+    errorFetchingMessages: "Error fetching messages",
+    fetchUserChannels: "Error fetching user channels",
+    webSocketNotConnected: "WebSocket not connected",
+    errorSendingSubscription: "Error sending subscription",
+    webSocketUrlNotDefined: "WebSocket URL not defined",
+    errorParsingMessage: "Error parsing message",
+    errorWebSocket: "Error WebSocket",
+    errorLoadingUserData: "Error loading user data",
+    noChannelSelected: "No channel selected",
+    invalidFile: "Invalid file",
+    invalidMessageText: "Invalid message text",
+    noCredentialsFound: "No credentials found",
+    invalidChannel: "Invalid channel",
+    invalidMessageEdit: "Invalid message for editing",
+    errorEditingMessage: "Error editing message",
+    messageSendError: "Error sending message",
+    connectionError: "Error connecting to server",
+    messageParsingError: "Error parsing message",
+    subscriptionError: "Error subscribing to channels",
+    webSocketClosed: "Server connection closed",
+    channelSelectError: "Error selecting channel",
+    inputFocusError: "Error focusing input",
+    fetchMessagesError: "Error fetching messages",
+    emptyMessage: "Message cannot be empty",
+    fileTypeNotAllowed: "File type not allowed",
+    filePickError: "Error picking file",
+    fileProcessingError: "Error processing file",
+    noCurrentChannel: "No current channel",
+    channelMismatch: "Channel mismatch",
+    noMessageContent: "No message content",
+    messageValidationError: "Message validation error",
+    messageProcessingError: "Message processing error",
+    messageFormatError: "Message format error",
+    appInitializationError: "Error initializing application",
+    appNavigationError: "Navigation error",
+    appLogoutError: "Error during logout",
+    appSettingsError: "Error accessing settings",
+    appFontLoadingError: "Error loading fonts",
+    appSecureStoreError: "Error accessing secure storage",
+    appDecryptionError: "Error decrypting data",
+    noGroupsFound: "No groups found",
+    messageNotDeleted: "Message not deleted",
+    messageNotEdited: "Message not edited",
+    hashPasswordError: "Error hashing password",
+    verifyPasswordError: "Error verifying password",
+    addressCannotBeEmpty: "Address cannot be empty",
+    invalidUrlFormat: "Invalid URL format",
+    invalidProtocol: "The protocol must be http or https",
+    saveServerAddressError: "Error saving the server address",
+    enterUrl: "Please enter an URL",
+    invalidUrl: "Invalid URL",
+    errorLoadingChannels: "Error loading channels",
+    sessionExpired: "Session expired. Please reconnect.",
+    loginFailed: "Login failed",
+    errorDuringImport: "Error during import",
+    errorDuringDownload: "Error during download",
+    noChannelsFound: "No channels found",
+    couldNotDecrypt: "Could not decrypt data",
+    verifyPasswordError: "Error verifying password",
+    errorCleaningSecureStore: "Error cleaning secure store",
+    errorRegisteringPushNotifications: "Error registering push notifications",
+    errorCheckingNotificationConditions: "Error checking notification conditions",
+    errorSynchronizingTokenWithAPI: "Error synchronizing expo token with API",
+    setChannelName: "Error setting channel name",
+    deleteChannelName: "Error deleting channel name",
+    saveUnreadChannels: "Error saving unread channels",
+    loadUnreadChannels: "Error loading unread channels",
+    notificationCleanup: "Error cleaning notification",
+    notificationProvider: "Error providing notification",
+    errorLoadingTooltips: "Error loading tooltips",
+    errorMarkingTooltipAsSeen: "Error marking tooltip as seen",
+    errorRefreshingMessages: "Error refreshing messages",
+    errorChannelSelect: "Error selecting channel",
+    errorValidation: "Error validating input",
+    errorChangingHideMessagesParameter: "Error changing hide messages parameter",
+    errorLoadingMessagesVisibility: "Error loading messages visibility",
+    messageIdMissing: "Message ID is missing",
+    dataTooLargeForSecureStore: "Data is too large for SecureStore, some information will be truncated",
   },
-  alerts: {
-    information: 'Information',
-    allChannelsAlreadyImported: 'All channels from this URL have already been imported.'
-  }
+
+  tooltips: {
+    defaultTitle: 'Information',
+    defaultMessage: 'Here is a useful information to help you use this feature.',
+    autoRefresh: {
+      title: 'Auto-Refresh',
+      message: 'This feature allows you to automatically refresh channels at regular intervals.'
+    },
+    readOnly: {
+      title: 'Read-Only Access',
+      message: 'Read-only access prevents users from modifying messages in channels. Only administrators can disable this option.'
+    },
+    password: {
+      title: 'Password',
+      message: 'The password protects access to channels. Users will need to enter it to access messages.'
+    },
+    hideMessages: {
+      title: 'Show/Hide Messages',
+      message: 'This option allows you to temporarily hide messages in channels. Useful for focusing on a specific task.'
+    },
+    channels: {
+      title: 'Channel Management',
+      message: 'This section allows you to manage channels and their auto-refresh settings. Configure the refresh frequency according to your needs.'
+    },
+    security: {
+      title: 'Channel Security',
+      message: 'In this section, you can configure channel security by enabling read-only access and setting a password to protect access.'
+    },
+    server: {
+      title: 'Server Configuration',
+      message: 'This section allows you to modify the application server address.'
+    }
+  },
 }

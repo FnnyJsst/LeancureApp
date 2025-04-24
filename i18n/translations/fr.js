@@ -2,14 +2,20 @@
 export default {
   screens: {
     enterSettings: "Veuillez entrer dans les paramètres pour importer des chaînes",
-    useButton: "Utilisez le bouton en haut à droite pour importer des chaînes"
+    useButton: "Utilisez le bouton en haut à droite pour importer des chaînes",
+    selectChannel: "Sélectionnez un canal pour commencer à discuter",
   },
 
   sidebar: {
-    search: "Rechercher un canal de discussion",
+    search: "Rechercher un canal",
     groups: "Groupes",
     settings: "Paramètres",
     loading: "Chargement..."
+  },
+
+  alerts: {
+    information: "Information",
+    allChannelsAlreadyImported: "Toutes les chaînes sont déjà importées",
   },
 
   auth: {
@@ -17,12 +23,15 @@ export default {
     contractNumber: "Entrez votre numéro de contrat",
     login: "Entrez votre identifiant",
     password: "Entrez votre mot de passe",
+    rememberMe: "Se souvenir de moi",
   },
 
   messages: {
     typeMessage: "Tapez votre message ici...",
     SelectAChannel: "Sélectionnez un canal pour commencer à discuter",
     Me: "Moi",
+    GroupWithoutName: "Groupe sans nom",
+    ChannelWithoutName: "Canal sans nom",
   },
 
   dateTime: {
@@ -84,8 +93,12 @@ export default {
       channelTitle: "Entrez le titre de la chaîne",
       channelUrl: "Entrez l'URL de la chaîne",
       import: {
-        importChannels: "Importer ses chaînes",
-        importUrl: "Entrez une URL pour importer des chaînes",
+        importChannels: "Importer des chaînes",
+        importUrl: "Entrez une URL",
+        importFullUrl: "Importer une URL complète",
+        importOffline: "Importer des chaînes en mode hors ligne",
+        degradedImport: "Importer les chaînes en mode dégradé",
+        degradedImportTooltip: "Le mode dégradé permet d'importer les chaînes en mode hors ligne. Rentrez une URL en respectant l'un des formats suivants :\n\n• http(s)://LIGNE.DOMAINE\n• http(s)://LIGNE/a/DOMAINE\n• http(s)://ADRESSEIP/a/LIGNE",
       },
       edit: {
         editChannel: "Modifier une chaîne",
@@ -118,13 +131,14 @@ export default {
     },
 
     server: {
-      address: "Entrez la nouvelle adresse du serveur"
+      address: "Entrez la nouvelle adresse du serveur",
+      change: "Changer l'adresse du serveur",
     }
   },
 
   buttons: {
     messages: "Messages",
-    webview: "Webview",
+    webviews: "Chaînes",
     save: "Enregistrer",
     cancel: "Annuler",
     delete: "Supprimer",
@@ -137,24 +151,31 @@ export default {
     no: "Non",
     yes: "Oui",
     import: "Importer",
+    importing: "Importation...",
     importChannels: "Importer des chaînes",
     doNotUse: "Ne pas utiliser",
-    ok: "Ok",
-    deleting: "Suppression...",
-    importing: "Importation...",
+    connecting: "Connexion...",
+    switchAccount: "Changer de compte",
+    edit: "Modifier",
+    download: "Télécharger",
+    gotIt: "J'ai compris",
   },
 
   titles: {
-    Welcome: "Bienvenue",
+    welcome: "Bienvenue",
     contractNumber: "Numéro de contrat",
     app: "Application",
     login: "Identifiant",
-    password: "Mot de passe",
+    password: "Définir un mot de passe",
     stayConnected: "Rester connecté",
     messages: "Messages",
     channels: "Canaux",
     security: "Sécurité",
-    version: "Version",
+    signIn: "Connectez-vous à votre compte",
+    welcomeBack: "Bienvenue",
+    noNameGroup: "Groupe sans nom",
+    noNameChannel: "Canal sans nom",
+    server: "Serveur",
   },
 
   settings: {
@@ -164,58 +185,181 @@ export default {
     },
     webview: {
       quit: "Quitter l'application",
-      quitDescription: "Quitter l'application et retourner à l'écran d'accueil",
+      quitDescription: "Retourner à l'écran d'accueil",
       management: "Gestion des canaux",
       managementDescription: "Accès aux canaux importés",
       autoRefresh: "Actualisation automatique",
-      autoRefreshDescription: "Définir l'intervalle d'actualisation automatique des canaux",
+      autoRefreshDescription: "Définir l'intervalle de rafraîchissement",
       readOnly: "Accès en lecture seule",
       readOnlyDescription: "Accès aux canaux sans possibilité de modification",
       password: "Mot de passe",
-      passwordDescription: "Définir un mot de passe pour accéder aux paramètres",
+      passwordDescription: "Pour accéder aux paramètres",
       deleteChannel: "Êtes-vous sûr de vouloir supprimer ce canal ?",
+
     },
     common: {
-      showHide: "Afficher/masquer les messages",
+      showHide: "Afficher/masquer",
+      showHideMessages: "Afficher/masquer les messages de l'application",
       showHideDescription: "Afficher ou masquer la section messages de l'application",
       changeServer: "Changer l'adresse du serveur",
       changeServerDescription: "Modifier l'adresse du serveur de l'application",
     }
   },
 
+  info: {
+    websocketAddressWillBeUpdated: "L'adresse de connexion WebSocket est bien mise à jour",
+  },
+
+  success: {
+    messageDeleted: "Message supprimé avec succès",
+    serverAddressChanged: "Adresse du serveur mise à jour avec succès !",
+    title: "Succès",
+    messagesHidden: "Les messages ont été masqués avec succès",
+    messagesShown: "Les messages ont été affichés avec succès"
+  },
+
   errors: {
     required: "Ce champ est obligatoire",
     titleRequired: "Le titre est obligatoire",
     invalidUrl: "URL invalide",
+    invalidResponse: "Format de réponse invalide - données manquantes",
+    errorLoadingLoginInfo: "Erreur lors du chargement des informations de connexion",
     passwordMismatch: "Les mots de passe ne correspondent pas",
     passwordTooShort: "Le mot de passe doit contenir 6+ caractères",
     success: "Succès",
     passwordSuccess: "Le mot de passe a été défini avec succès",
     error: "Erreur",
     enterPassword: "Veuillez entrer un mot de passe",
-    enterUrl: "Veuillez entrer une URL",
-    noChannelsFound: "Aucun canal trouvé à cette URL",
-    invalidResponseFormat: "Format de réponse invalide",
-    errorDuringDownload: "Erreur lors du téléchargement des canaux",
-    screenNotFound: "Écran non trouvé",
-    errorSavingReadOnlyMode: "Erreur lors de la sauvegarde du mode lecture seule",
-    errorSelectingChannels: "Erreur lors de la sélection des canaux",
-    errorSavingRefreshOption: "Erreur lors de la sauvegarde de l'option d'actualisation",
-    errorSavingWebviews: "Erreur lors de la sauvegarde des canaux",
+    fieldsRequired: "Tous les champs doivent être renseignés",
     errorLoadingChannels: "Erreur lors du chargement des canaux",
-    errorLoadingRefreshOption: "Erreur lors du chargement de l'option d'actualisation",
+    invalidCredentials: "Identifiants invalides",
+    loginFailed: "Connexion impossible",
+    errorSavingLoginInfo: "Erreur lors de l'enregistrement des informations de connexion :",
+    errorLoadingFile: "Erreur lors du chargement du fichier :",
+    noCredentialsFound: "Aucune information de connexion trouvée",
+    errorSendingMessage: "Erreur lors de l'envoi du message :",
     errorSavingPassword: "Erreur lors de la sauvegarde du mot de passe",
     errorLoadingPassword: "Erreur lors du chargement du mot de passe",
     incorrectPassword: "Mot de passe incorrect",
-    errorInitializingApp: "Erreur lors de l'initialisation de l'application",
-    errorLockingOrientation: "Erreur lors du verrouillage de l'orientation",
-    errorSavingOrder: "Erreur lors de la sauvegarde de l'ordre des canaux",
-    urlNotDefined: "URL non définie",
-    errorDeletingWebview: "Erreur lors de la suppression du canal",
+    errorCleaningPassword: "Erreur lors du nettoyage du mot de passe",
+    errorDeletingMessage: "Erreur lors de la suppression du message",
+    incorrectPassword: "Mot de passe incorrect",
+    noGroupsFound: "Aucun groupe trouvé",
+    serverError: "Erreur serveur",
+    messageNotSaved: "Message non enregistré",
+    messageNotDeleted: "Message non supprimé",
+    messageFileNotFound: "Fichier non trouvé",
+    errorFetchingMessages: "Erreur lors du chargement des messages",
+    fetchUserChannels: "Erreur lors du chargement des canaux",
+    webSocketNotConnected: "WebSocket non connecté",
+    errorSendingSubscription: "Erreur lors de l'envoi de la souscription",
+    webSocketUrlNotDefined: "URL WebSocket non définie",
+    errorParsingMessage: "Erreur lors de la lecture du message",
+    errorWebSocket: "Erreur WebSocket",
+    errorLoadingUserData: "Erreur lors du chargement des données de l'utilisateur",
+    noChannelSelected: "Aucun canal sélectionné",
+    invalidFile: "Fichier invalide",
+    invalidMessageText: "Message texte invalide",
+    noCredentialsFound: "Aucune information de connexion trouvée",
+    invalidChannel: "Canal invalide",
+    invalidMessageEdit: "Message invalide pour l'édition",
+    errorEditingMessage: "Erreur lors de l'édition du message",
+    messageSendError: "Erreur lors de l'envoi du message",
+    connectionError: "Erreur de connexion au serveur",
+    messageParsingError: "Erreur lors de l'analyse du message",
+    subscriptionError: "Erreur lors de l'abonnement aux canaux",
+    webSocketClosed: "Connexion au serveur fermée",
+    channelSelectError: "Erreur lors de la sélection du canal",
+    inputFocusError: "Erreur lors de la mise au point de l'entrée",
+    fetchMessagesError: "Erreur lors de la récupération des messages",
+    emptyMessage: "Le message ne peut pas être vide",
+    fileTypeNotAllowed: "Type de fichier non autorisé",
+    filePickError: "Erreur lors de la sélection du fichier",
+    fileProcessingError: "Erreur lors du traitement du fichier",
+    noCurrentChannel: "Aucun canal actuel",
+    channelMismatch: "Incompatibilité de canal",
+    noMessageContent: "Aucun contenu de message",
+    messageValidationError: "Erreur de validation du message",
+    messageProcessingError: "Erreur de traitement du message",
+    messageFormatError: "Erreur de format du message",
+    appInitializationError: "Erreur lors de l'initialisation de l'application",
+    appNavigationError: "Erreur lors de la navigation",
+    appLogoutError: "Erreur lors de la déconnexion",
+    appSettingsError: "Erreur lors de l'accès aux paramètres",
+    appFontLoadingError: "Erreur lors du chargement des polices",
+    appSecureStoreError: "Erreur lors de l'accès au stockage sécurisé",
+    appDecryptionError: "Erreur lors du déchiffrement des données",
+    noGroupsFound: "Aucun groupe trouvé",
+    messageNotDeleted: "Message non supprimé",
+    messageNotEdited: "Message non modifié",
+    hashPasswordError: "Erreur lors du hashage du mot de passe",
+    verifyPasswordError: "Erreur lors de la vérification du mot de passe",
+    addressCannotBeEmpty: "L'adresse ne peut pas être vide",
+    invalidUrlFormat: "Format d'URL invalide",
+    invalidProtocol: "Le protocole doit être http ou https",
+    saveServerAddressError: "Erreur lors de la sauvegarde de l'adresse du serveur",
+    enterUrl: "Veuillez entrer une URL",
+    invalidUrl: "URL invalide",
+    errorLoadingChannels: "Erreur lors du chargement des canaux",
+    sessionExpired: "Session expirée. Veuillez vous reconnecter.",
+    loginFailed: "Connexion impossible",
+    errorDuringImport: "Erreur lors de l'importation",
+    errorDuringDownload: "Erreur lors du téléchargement",
+    noChannelsFound: "Aucune chaîne trouvée",
+    couldNotDecrypt: "Impossible de déchiffrer les données",
+    verifyPasswordError: "Erreur lors de la vérification du mot de passe",
+    errorCleaningSecureStore: "Erreur lors du nettoyage du stockage sécurisé",
+    errorRegisteringPushNotifications: "Erreur lors de l'enregistrement des notifications",
+    errorCheckingNotificationConditions: "Erreur lors de la vérification des conditions de notification",
+    errorPlayingNotificationSound: "Erreur lors de la lecture du son de notification",
+    errorSynchronizingTokenWithAPI: "Erreur lors de la synchronisation du token avec l'API",
+    setChannelName: "Erreur lors de la définition du nom du canal",
+    deleteChannelName: "Erreur lors de la suppression du nom du canal",
+    saveUnreadChannels: "Erreur lors de la sauvegarde des canaux non lus",
+    loadUnreadChannels: "Erreur lors du chargement des canaux non lus",
+    notificationCleanup: "Erreur lors du nettoyage des notifications",
+    notificationProvider: "Erreur lors de la fourniture des notifications",
+    errorLoadingTooltips: "Erreur lors du chargement des tooltips",
+    errorMarkingTooltipAsSeen: "Erreur lors de la marque du tooltip comme vu",
+    errorRefreshingMessages: "Erreur lors du rafraîchissement des messages",
+    errorChannelSelect: "Erreur lors de la sélection du canal",
+    errorValidation: "Erreur de validation des entrées",
+    errorChangingHideMessagesParameter: "Erreur lors de la modification du paramètre de masquage des messages",
+    errorLoadingMessagesVisibility: "Erreur lors du chargement de la visibilité des messages",
+    messageIdMissing: "L'ID du message est manquant",
+    dataTooLargeForSecureStore: "Les données sont trop grandes pour SecureStore, certaines informations seront tronquées",
   },
 
-  alerts: {
-    information: 'Information',
-    allChannelsAlreadyImported: 'Toutes les chaînes de cette URL ont déjà été importées.'
-  }
+  tooltips: {
+    defaultTitle: 'Information',
+    defaultMessage: 'Voici une information utile pour vous aider à utiliser cette fonctionnalité.',
+    autoRefresh: {
+      title: 'Actualisation automatique',
+      message: 'Cette fonctionnalité permet de rafraîchir automatiquement les canaux à intervalles réguliers.'
+    },
+    readOnly: {
+      title: 'Accès en lecture seule',
+      message: 'L\'accès en lecture seule empêche les utilisateurs de modifier les messages dans les canaux. Seuls les administrateurs peuvent désactiver cette option.'
+    },
+    password: {
+      title: 'Mot de passe',
+      message: 'Le mot de passe protège l\'accès aux canaux. Les utilisateurs devront le saisir pour accéder aux messages.'
+    },
+    hideMessages: {
+      title: 'Afficher/Masquer les messages',
+      message: 'Cette option permet de masquer les messages de l\'application.'
+    },
+    channels: {
+      title: 'Gestion des canaux',
+      message: 'Cette section vous permet de gérer les canaux et leurs paramètres d\'actualisation automatique. Configurez la fréquence de rafraîchissement selon vos besoins.'
+    },
+    security: {
+      title: 'Sécurité des canaux',
+      message: 'Dans cette section, vous pouvez configurer la sécurité des canaux en activant l\'accès en lecture seule et en définissant un mot de passe pour protéger l\'accès.'
+    },
+    server: {
+      title: 'Configuration du serveur',
+      message: 'Cette section vous permet de modifier l\'adresse du serveur de l\'application.'
+    }
+  },
 }
