@@ -352,14 +352,14 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
                 onPress={handleClose}
                 backgroundColor={COLORS.gray950}
                 textColor={COLORS.gray300}
-                width={isSmartphone ? '23%' : '33%'}
+                width={isSmartphone ? '23%' : isLowResTabletPortrait ? '36%' : '33%'}
                 testID="cancel-import-button"
               />
               <Button
                 title={isImporting ? t('buttons.importing') : t('buttons.import')}
                 onPress={handleDownload}
                 backgroundColor={COLORS.orange}
-                width= '33%'
+                width= {isSmartphone ? '23%' : isLowResTabletPortrait ? '36%' : '33%'}
                 disabled={isImporting}
                 icon={isImporting ?
                   <ActivityIndicator size="small" color={COLORS.white} /> :
