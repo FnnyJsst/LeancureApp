@@ -18,7 +18,7 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
   // Translation
   const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait, isLowResTablet } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   /**
    * @function handleYes
@@ -53,7 +53,8 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
           isTabletPortrait && styles.modalContentTabletPortrait,
-          isLowResTablet && styles.modalContentLowResTablet,
+          isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+          isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
         ]}>
           <View style={[
             styles.titleContainer,
@@ -95,8 +96,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.backgroundModal,
     paddingBottom: '20%',
   },
-  modalContentLowResTablet: {
-    width: '60%',
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
   },
   modalContent: {
     width: '40%',

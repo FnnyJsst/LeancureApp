@@ -65,7 +65,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
       path: 'player.php?a=&screen=defaultscreen&display=disp_ppm&actor=produnit1'
     },
 
-    // Ajoutez d'autres vues ici si nécessaire
+    //We can add more views here if needed
   ];
 
   /**
@@ -130,6 +130,18 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
       appName = urlObj.hostname.split('.')[0];
     } else if (isParamFormat) {
       appName = baseUrl.split('/a/')[1].split('/')[0];
+    } else if (isIpFormat) {
+      // Pour les adresses IP, on extrait le nom de l'application entre a= et &
+      const match = baseUrl.match(/a=([^&]+)/);
+      if (match && match[1]) {
+        appName = match[1];
+      }
+    }
+
+    // Validation du nom d'application
+    if (!appName || appName === 'undefined') {
+      // If no app name is found, we throw an error
+      throw new Error(t('errors.wrongUrlFormat'));
     }
 
     AVAILABLE_VIEWS.forEach(view => {
@@ -154,9 +166,14 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
         fullUrl = `${urlObj.protocol}//${urlObj.hostname}${basePath}`;
       }
 
+      // Ajout de logs pour le débogage
+      console.log('[ImportWebviewModal] URL générée:', fullUrl);
+      console.log('[ImportWebviewModal] Nom de la vue:', view.name);
+      console.log('[ImportWebviewModal] Nom de l\'application:', appName);
+
       urls.push({
         href: fullUrl,
-        title: `${view.name} - ${appName}`
+        title: `${view.name} (${appName})` // Format plus clair pour le nom
       });
     });
 
@@ -352,14 +369,14 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
                 onPress={handleClose}
                 backgroundColor={COLORS.gray950}
                 textColor={COLORS.gray300}
-                width={isSmartphone ? '23%' : '33%'}
+                width={isSmartphone ? '23%' : isLowResTabletPortrait ? '36%' : '33%'}
                 testID="cancel-import-button"
               />
               <Button
                 title={isImporting ? t('buttons.importing') : t('buttons.import')}
                 onPress={handleDownload}
                 backgroundColor={COLORS.orange}
-                width= '33%'
+                width= {isSmartphone ? '23%' : isLowResTabletPortrait ? '36%' : '33%'}
                 disabled={isImporting}
                 icon={isImporting ?
                   <ActivityIndicator size="small" color={COLORS.white} /> :

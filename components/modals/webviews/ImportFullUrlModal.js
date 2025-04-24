@@ -144,7 +144,7 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
               onPress={handleClose}
               backgroundColor={COLORS.gray950}
               textColor={COLORS.gray300}
-              width={isSmartphone ? '23%' : '26%'}
+              width={isSmartphone ? '23%' : '29%'}
               testID="cancel-import-button"
             />
             <Button

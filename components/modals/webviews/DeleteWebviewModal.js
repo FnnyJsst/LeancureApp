@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 export default function DeleteWebviewModal({ visible, onClose, handleDelete, testID }) {
 
   // Hook to determine the device type and orientation
-  const { isSmartphonePortrait, isSmartphoneLandscape, isSmartphone, isTabletPortrait, isLowResTablet } = useDeviceType();
+  const { isSmartphonePortrait, isSmartphoneLandscape, isSmartphone, isTabletPortrait, isLowResTablet, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -50,6 +50,8 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
           isTabletPortrait && styles.modalContentTabletPortrait,
+          isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+          isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
         ]}>
           <View style={[
             styles.titleContainer,
@@ -97,6 +99,12 @@ const styles = StyleSheet.create({
   },
   modalContentTabletPortrait: {
     width: '60%',
+  },
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
   },
   titleContainerSmartphone: {
     display: 'flex',

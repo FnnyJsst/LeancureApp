@@ -22,7 +22,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
   //
   const { t } = useTranslation();
   // We create a hook to determine the device type and orientation
-  const { isSmartphone, isTabletLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType();
+  const { isSmartphone, isTabletLandscape, isSmartphonePortrait, isSmartphoneLandscape, isLowResTablet, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   // State management for form inputs
   const [url, setUrl] = useState(initialUrl || '');
@@ -87,6 +87,8 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
           isTabletLandscape && styles.modalContentTabletLandscape,
+          isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+          isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
         ]}>
           <TitleModal title={t('modals.webview.edit.editChannel')} />
           {error && (
@@ -141,7 +143,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               title={t('buttons.cancel')}
               backgroundColor={COLORS.gray950}
               color={COLORS.gray300}
-              width={isSmartphone ? '23%' : '30%'}
+              width={isSmartphone ? '23%' : isLowResTablet ? '36%' : '30%'}
               onPress={onClose}
               testID="cancel-button"
             />
@@ -149,7 +151,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               title={t('buttons.save')}
               backgroundColor={COLORS.orange}
               color={COLORS.white}
-              width={isSmartphone ? '23%' : '30%'}
+              width={isSmartphone ? '23%' : isLowResTablet ? '36%' : '30%'}
               onPress={handleOk}
               testID="save-edit-button"
             />
@@ -172,8 +174,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.borderColor,
   },
-  modalContentLowResTablet: {
-    width: '60%',
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
   },
   modalContentTabletLandscape: {
     width: '40%',
