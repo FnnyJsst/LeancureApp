@@ -19,6 +19,7 @@ import { handleError, ErrorType } from '../../../utils/errorHandling';
 import * as Notifications from 'expo-notifications';
 import { ENV } from '../../../config/env';
 import { synchronizeTokenWithAPI } from '../../../services/notification/notificationService';
+import CustomAlert from '../../../components/modals/webviews/CustomAlert';
 
 /**
  * @component Login
@@ -40,6 +41,9 @@ export default function Login({ onNavigate }) {
     const [isChecked, setIsChecked] = useState(false);
     const [isSimplifiedLogin, setIsSimplifiedLogin] = useState(false);
     const [savedLoginInfo, setSavedLoginInfo] = useState(null);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertTitle, setAlertTitle] = useState('');
 
     /**
      * @function handleLoginError
@@ -47,10 +51,14 @@ export default function Login({ onNavigate }) {
      */
     const handleLoginError = (error, source) => {
         console.log(`[Login] Erreur dans ${source}:`, error);
-        return handleError(error, `login.${source}`, {
+        const errorMessage = handleError(error, `login.${source}`, {
             type: ErrorType.AUTH,
             silent: false
         });
+        setAlertTitle(t('alerts.error'));
+        setAlertMessage(errorMessage);
+        setShowAlert(true);
+        return errorMessage;
     };
 
     /**
@@ -78,7 +86,6 @@ export default function Login({ onNavigate }) {
             try {
                 await SecureStore.deleteItemAsync('userCredentials');
             } catch (error) {
-
                 // If it's a decryption error, we clean the SecureStore
                 if (error.message && (
                     error.message.includes('decrypt') ||
@@ -88,19 +95,17 @@ export default function Login({ onNavigate }) {
                     await cleanSecureStore();
                     console.log('[Login] SecureStore nettoyé avec succès');
                 } else {
-                    handleError(error, t('error.errorCleaningSecureStore'), {
-                        type: ErrorType.SYSTEM,
-                        silent: false
-                    });
+                    setAlertTitle(t('alerts.error'));
+                    setAlertMessage(t('error.errorCleaningSecureStore'));
+                    setShowAlert(true);
                 }
             }
 
             const validationError = validateInputs();
             if (validationError) {
-                handleError(validationError, t('error.errorValidation'), {
-                    type: ErrorType.VALIDATION,
-                    silent: false
-                });
+                setAlertTitle(t('alerts.error'));
+                setAlertMessage(validationError);
+                setShowAlert(true);
                 return;
             }
 
@@ -185,10 +190,9 @@ export default function Login({ onNavigate }) {
                 const oldCredentials = await SecureStore.getItemAsync('userCredentials');
                 if (!oldCredentials) {
                     console.log('[Login] Pas d\'anciens credentials trouvés');
-                    handleError(t('error.invalidCredentials'), {
-                        type: ErrorType.SYSTEM,
-                        silent: false
-                    });
+                    setAlertTitle(t('alerts.error'));
+                    setAlertMessage(t('error.invalidCredentials'));
+                    setShowAlert(true);
                     return;
                 }
 
@@ -205,10 +209,9 @@ export default function Login({ onNavigate }) {
                 // If the refresh token is not successful, we set the error
                 if (!refreshTokenResponse.success) {
                     console.log('[Login] Refresh token invalide, connexion impossible');
-                    handleError(t('error.sessionExpired'), {
-                        type: ErrorType.SYSTEM,
-                        silent: false
-                    });
+                    setAlertTitle(t('alerts.error'));
+                    setAlertMessage(t('error.sessionExpired'));
+                    setShowAlert(true);
                     return;
                 }
 
@@ -268,10 +271,9 @@ export default function Login({ onNavigate }) {
                 }
             }
         } catch (error) {
-            handleError(error, t('error.loginFailed'), {
-                type: ErrorType.SYSTEM,
-                silent: false
-            });
+            setAlertTitle(t('alerts.error'));
+            setAlertMessage(t('error.loginFailed'));
+            setShowAlert(true);
         } finally {
             setIsLoading(false);
         }
@@ -371,7 +373,9 @@ export default function Login({ onNavigate }) {
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            handleLoginError(error, 'simplifiedLogin');
+            setAlertTitle(t('alerts.error'));
+            setAlertMessage(t('error.loginFailed'));
+            setShowAlert(true);
             setIsSimplifiedLogin(false);
         } finally {
             setIsLoading(false);
@@ -568,6 +572,14 @@ export default function Login({ onNavigate }) {
                     </View>
                 </ScrollView>
             </GradientBackground>
+            <CustomAlert
+                visible={showAlert}
+                title={alertTitle}
+                message={alertMessage}
+                onClose={() => setShowAlert(false)}
+                onConfirm={() => setShowAlert(false)}
+                type="error"
+            />
         </>
     );
 }
