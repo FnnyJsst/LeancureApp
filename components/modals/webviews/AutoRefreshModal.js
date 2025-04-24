@@ -233,7 +233,6 @@ const styles = StyleSheet.create({
     gap: 2,
   },
 
-  //Radio styles
   radioContainer: {
     flexDirection: 'row',
     marginBottom: 10,
@@ -263,7 +262,7 @@ const styles = StyleSheet.create({
   },
   tooltipButton: {
     marginLeft: 10,
-    marginTop: -10,
+    marginTop: -20,
   },
 });
 

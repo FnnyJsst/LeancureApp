@@ -1,10 +1,13 @@
-import React from 'react';
-import { View, Modal, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 import Button from '../../buttons/Button';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../../constants/style';
+import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../text/CustomText';
 import { useTranslation } from 'react-i18next';
+import TooltipModal from './TooltipModal';
+import CustomAlert from './CustomAlert';
 
 /**
  * @component ReadOnly
@@ -19,6 +22,8 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
   const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   /**
    * @function handleYes
@@ -26,7 +31,7 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
    */
   const handleYes = () => {
     onToggleReadOnly(true);
-    onClose();
+    setShowAlert(true);
   };
 
   /**
@@ -35,56 +40,83 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
    */
   const handleNo = () => {
     onToggleReadOnly(false);
+    setShowAlert(true);
+  };
+
+  const handleAlertClose = () => {
+    setShowAlert(false);
     onClose();
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-      statusBarTranslucent={true}
-      testID="read-only-modal"
-    >
-      <View style={styles.modalContainer}>
-        <View style={[
-          styles.modalContent,
-          isSmartphonePortrait && styles.modalContentSmartphonePortrait,
-          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-          isTabletPortrait && styles.modalContentTabletPortrait,
-          isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
-          isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
-        ]}>
+    <>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={visible}
+        onRequestClose={onClose}
+        statusBarTranslucent={true}
+        testID="read-only-modal"
+      >
+        <View style={styles.modalContainer}>
           <View style={[
-            styles.titleContainer,
+            styles.modalContent,
+            isSmartphonePortrait && styles.modalContentSmartphonePortrait,
+            isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+            isTabletPortrait && styles.modalContentTabletPortrait,
+            isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+            isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
           ]}>
-            <Text style={[
-              styles.titleText,
-              isSmartphone && styles.titleTextSmartphone,
-            ]}>{t('modals.webview.readOnly.readOnly')}</Text>
-          </View>
-          <View style={[
-            styles.buttonContainer,
-            isSmartphone && styles.buttonContainerSmartphone,
-          ]}>
-            <Button
-              title={t('buttons.yes')}
-              backgroundColor={COLORS.orange}
-              width={isSmartphone ? '23%' : '26%'}
-              onPress={handleYes}
-            />
-            <Button
-              title={t('buttons.no')}
-              backgroundColor={COLORS.gray950}
-              color={COLORS.gray300}
-              width={isSmartphone ? '23%' : '26%'}
-              onPress={handleNo}
-            />
+            <View style={styles.titleContainer}>
+              <Text style={[
+                styles.titleText,
+                isSmartphone && styles.titleTextSmartphone,
+              ]}>{t('modals.webview.readOnly.readOnly')}</Text>
+              <TouchableOpacity
+                onPress={() => setShowTooltip(true)}
+                style={styles.tooltipButton}
+              >
+                <Ionicons
+                  name="information-circle-outline"
+                  size={isSmartphone ? 16 : 18}
+                  color={COLORS.gray300}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={[
+              styles.buttonContainer,
+              isSmartphone && styles.buttonContainerSmartphone,
+            ]}>
+              <Button
+                title={t('buttons.yes')}
+                backgroundColor={COLORS.orange}
+                width={isSmartphone ? '23%' : '26%'}
+                onPress={handleYes}
+              />
+              <Button
+                title={t('buttons.no')}
+                backgroundColor={COLORS.gray950}
+                color={COLORS.gray300}
+                width={isSmartphone ? '23%' : '26%'}
+                onPress={handleNo}
+              />
+            </View>
           </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+      <TooltipModal
+        visible={showTooltip}
+        onClose={() => setShowTooltip(false)}
+        message={t('tooltips.readOnly.message')}
+      />
+      <CustomAlert
+        visible={showAlert}
+        message={t('modals.webview.readOnly.settingsSaved')}
+        onClose={handleAlertClose}
+        onConfirm={handleAlertClose}
+        type="success"
+      />
+    </>
   );
 }
 
@@ -120,7 +152,11 @@ const styles = StyleSheet.create({
     width: '60%',
   },
   titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
+    marginHorizontal: '3%',
   },
   titleText: {
     fontSize: SIZES.fonts.subtitleTablet,
@@ -141,5 +177,9 @@ const styles = StyleSheet.create({
   },
   buttonContainerSmartphone: {
     gap: 10,
+  },
+  tooltipButton: {
+    marginLeft: 10,
+    marginTop: -20,
   },
 });
