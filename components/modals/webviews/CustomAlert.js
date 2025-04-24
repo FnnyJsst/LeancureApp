@@ -19,7 +19,7 @@ import { Text } from '../../text/CustomText';
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error', testID }) {
 
   // We get the device type
-  const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   return (
     <Modal
@@ -35,6 +35,8 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
           isLandscape && styles.modalContentLandscape,
           isTabletPortrait && styles.modalContentTabletPortrait,
+          isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+          isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
         ]}>
           <TitleModal title={title} />
           <Text style={[styles.message, isSmartphone && styles.messageSmartphone]}>{message}</Text>
@@ -86,8 +88,11 @@ const styles = StyleSheet.create({
   modalContentLandscape: {
     width: '40%',
   },
-  modalContentLowResTablet: {
-    width: '60%',
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
   },
   modalContentSmartphonePortrait: {
     width: '80%',
