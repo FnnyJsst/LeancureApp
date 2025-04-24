@@ -128,6 +128,7 @@ export default {
       },
       readOnly: {
         readOnly: "Voulez-vous définir la gestion des canaux en lecture seule ?",
+        settingsSaved: 'Paramètres d\'accès en lecture seule enregistrés avec succès',
       }
     },
 
@@ -341,7 +342,7 @@ export default {
     },
     readOnly: {
       title: 'Accès en lecture seule',
-      message: 'L\'accès en lecture seule empêche les utilisateurs de modifier les messages dans les canaux. Seuls les administrateurs peuvent désactiver cette option.'
+      message: 'L\'accès en lecture seule empêche les utilisateurs de modifier les messages dans les canaux. Seuls les administrateurs peuvent désactiver cette option.',
     },
     password: {
       title: 'Mot de passe',
