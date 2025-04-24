@@ -124,6 +124,7 @@ export default {
         every3h: "Toutes les 3 heures",
         every6h: "Toutes les 6 heures",
         everyDay: "Tous les jours",
+        refreshSettingsSaved: "Paramètres d'actualisation automatique enregistrés",
       },
       readOnly: {
         readOnly: "Voulez-vous définir la gestion des canaux en lecture seule ?",
@@ -195,7 +196,7 @@ export default {
       password: "Mot de passe",
       passwordDescription: "Pour accéder aux paramètres",
       deleteChannel: "Êtes-vous sûr de vouloir supprimer ce canal ?",
-
+      refreshSettingsSaved: "Paramètres d'actualisation automatique enregistrés",
     },
     common: {
       showHide: "Afficher/masquer",

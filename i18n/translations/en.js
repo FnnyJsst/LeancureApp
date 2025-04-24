@@ -123,6 +123,7 @@ export default {
         every3h: "Every 3 hours",
         every6h: "Every 6 hours",
         everyDay: "Every day",
+        refreshSettingsSaved: "Refresh settings saved",
       },
       readOnly: {
         readOnly: "Do you want to set channel management to read-only?",

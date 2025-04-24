@@ -7,6 +7,8 @@ import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../text/CustomText';
 import { useTranslation } from 'react-i18next';
+import CustomAlert from './CustomAlert';
+import TooltipModal from './TooltipModal';
 
 const createOptions = (t) => [
   { label: t('modals.webview.refresh.never'), value: 'never' },
@@ -55,6 +57,8 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
   const { isSmartphone, isSmartphoneLandscape, isTabletLandscape, isLowResTablet, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   const [selectedOption, setSelectedOption] = useState('never');
+  const [showAlert, setShowAlert] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   // Options for the auto-refresh modal
   const options =  React.useMemo(() => createOptions(t), [t]);
@@ -72,8 +76,13 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
 
   const handleSave = useCallback(() => {
     onSelectOption(selectedOption);
+    setShowAlert(true);
+  }, [selectedOption, onSelectOption]);
+
+  const handleAlertClose = useCallback(() => {
+    setShowAlert(false);
     onClose();
-  }, [selectedOption, onSelectOption, onClose]);
+  }, [onClose]);
 
   // Mémoiser le rendu des items
   const renderItem = useCallback(({ item }) => (
@@ -95,19 +104,20 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
   ], [isSmartphone]);
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-      statusBarTranslucent={true}
-      testID="auto-refresh-modal"
-    >
-      <View style={[
-        styles.modalContainer,
-        isSmartphone && styles.modalContainerSmartphone,
-      ]}>
+    <>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={visible}
+        onRequestClose={onClose}
+        statusBarTranslucent={true}
+        testID="auto-refresh-modal"
+      >
         <View style={[
+          styles.modalContainer,
+          isSmartphone && styles.modalContainerSmartphone,
+        ]}>
+          <View style={[
             styles.modalContent,
             isSmartphone && styles.modalContentSmartphone,
             isTabletLandscape && styles.modalContentTabletLandscape,
@@ -115,23 +125,35 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
             isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
             isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
           ]}>
-            <TitleModal title={t('modals.webview.refresh.refreshChannels')}/>
+            <View style={styles.titleContainer}>
+              <TitleModal title={t('modals.webview.refresh.refreshChannels')}/>
+              <TouchableOpacity
+                onPress={() => setShowTooltip(true)}
+                style={styles.tooltipButton}
+              >
+                <Ionicons
+                  name="information-circle-outline"
+                  size={isSmartphone ? 16 : 18}
+                  color={COLORS.gray300}
+                />
+              </TouchableOpacity>
+            </View>
             <FlatList
-            data={options}
-            renderItem={renderItem}
-            keyExtractor={keyExtractor}
-            contentContainerStyle={contentContainerStyle}
-            showsVerticalScrollIndicator={false}
-            initialNumToRender={8}
-            maxToRenderPerBatch={8}
-            windowSize={2}
-            removeClippedSubviews={true}
-            getItemLayout={(data, index) => ({
-              length: isSmartphone ? 30 : 40,
-              offset: isSmartphone ? 30 * index : 40 * index,
-              index,
-            })}
-          />
+              data={options}
+              renderItem={renderItem}
+              keyExtractor={keyExtractor}
+              contentContainerStyle={contentContainerStyle}
+              showsVerticalScrollIndicator={false}
+              initialNumToRender={8}
+              maxToRenderPerBatch={8}
+              windowSize={2}
+              removeClippedSubviews={true}
+              getItemLayout={(data, index) => ({
+                length: isSmartphone ? 30 : 40,
+                offset: isSmartphone ? 30 * index : 40 * index,
+                index,
+              })}
+            />
             <View style={MODAL_STYLES.buttonContainer}>
               <Button
                 title={t('buttons.close')}
@@ -144,16 +166,25 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
                 width={isSmartphone ? '23%' : isLowResTablet ? '36%' : '33%'}
-                onPress={() => {
-                  // We send the selected option to the parent component
-                  onSelectOption(selectedOption);
-                  onClose();
-                }}
+                onPress={handleSave}
               />
             </View>
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+      <CustomAlert
+        visible={showAlert}
+        message={t('modals.webview.refresh.refreshSettingsSaved')}
+        onClose={handleAlertClose}
+        onConfirm={handleAlertClose}
+        type="success"
+      />
+      <TooltipModal
+        visible={showTooltip}
+        onClose={() => setShowTooltip(false)}
+        message={t('tooltips.autoRefresh.message')}
+      />
+    </>
   );
 };
 
@@ -223,6 +254,16 @@ const styles = StyleSheet.create({
   radioTextSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.medium,
+  },
+
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tooltipButton: {
+    marginLeft: 10,
+    marginTop: -10,
   },
 });
 

@@ -356,7 +356,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
               >
                 <Ionicons
                   name="information-circle-outline"
-                  size={20}
+                  size={isSmartphone ? 16 : 18}
                   color={COLORS.gray300}
                 />
               </TouchableOpacity>
