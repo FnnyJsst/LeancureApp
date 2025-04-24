@@ -30,7 +30,7 @@ export default function Login({ onNavigate }) {
 
     // We get the translations and the device type
     const { t } = useTranslation();
-    const { isSmartphone, isSmartphoneLandscape, isLandscape, isLowResTabletPortrait, isLowResTabletLandscape, isLowResTablet } = useDeviceType();
+    const { isSmartphone, isSmartphoneLandscape, isLandscape, isLowResTablet } = useDeviceType();
 
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -43,19 +43,16 @@ export default function Login({ onNavigate }) {
     const [savedLoginInfo, setSavedLoginInfo] = useState(null);
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
-    const [alertTitle, setAlertTitle] = useState('');
 
     /**
      * @function handleLoginError
      * @description Handle login-related errors
      */
     const handleLoginError = (error, source) => {
-        console.log(`[Login] Erreur dans ${source}:`, error);
         const errorMessage = handleError(error, `login.${source}`, {
             type: ErrorType.AUTH,
             silent: false
         });
-        setAlertTitle(t('alerts.error'));
         setAlertMessage(errorMessage);
         setShowAlert(true);
         return errorMessage;
@@ -67,7 +64,6 @@ export default function Login({ onNavigate }) {
      * @returns {string} The error message if the inputs are not valid, otherwise null
      */
     const validateInputs = useCallback(() => {
-        console.log('[Login] Validation des inputs:', { contractNumber, login, password: password ? '***' : '' });
         if (!contractNumber || !login || !password) {
             return t('errors.fieldsRequired');
         }
@@ -93,24 +89,19 @@ export default function Login({ onNavigate }) {
                     error.message.includes('decryption')
                 )) {
                     await cleanSecureStore();
-                    console.log('[Login] SecureStore nettoyé avec succès');
                 } else {
-                    setAlertTitle(t('alerts.error'));
-                    setAlertMessage(t('error.errorCleaningSecureStore'));
-                    setShowAlert(true);
+                    console.log('[Login] Erreur lors de la nettoyage du SecureStore:', error);
                 }
             }
 
             const validationError = validateInputs();
             if (validationError) {
-                setAlertTitle(t('alerts.error'));
                 setAlertMessage(validationError);
                 setShowAlert(true);
                 return;
             }
 
-            // Première tentative de login
-            console.log('[Login] Tentative de login avec credentials...');
+            // First login attempt
             const loginResponse = await loginApi(contractNumber, login, password, '');
 
             // If the login is successful, we save the credentials
@@ -120,7 +111,7 @@ export default function Login({ onNavigate }) {
                     refreshToken: loginResponse.refreshToken?.substring(0, 10) + '...'
                 });
 
-                // Sauvegarde des credentials avec les tokens
+                // Save credentials with tokens
                 const credentials = {
                     contractNumber,
                     login,
@@ -131,7 +122,6 @@ export default function Login({ onNavigate }) {
                 };
 
                 await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-                console.log('[Login] Tokens sauvegardés dans SecureStore');
 
                 // If the user has checked the "Remember me" checkbox, we save the login info
                 if (isChecked) {
@@ -163,7 +153,6 @@ export default function Login({ onNavigate }) {
                         const tokenData = await Notifications.getExpoPushTokenAsync({
                             projectId: ENV.EXPO_PROJECT_ID,
                         });
-                        console.log('[Login] Token obtenu:', tokenData.data);
 
                         // Synchronize the token with the API
                         const syncResult = await synchronizeTokenWithAPI(tokenData.data);
@@ -184,22 +173,18 @@ export default function Login({ onNavigate }) {
                     });
                 }
             } else {
-                console.log('[Login] Échec de la première tentative, vérification du refresh token...');
 
-                // Récupération des anciens credentials pour le refresh token
+                // Get old credentials for the refresh token
                 const oldCredentials = await SecureStore.getItemAsync('userCredentials');
                 if (!oldCredentials) {
-                    console.log('[Login] Pas d\'anciens credentials trouvés');
-                    setAlertTitle(t('alerts.error'));
                     setAlertMessage(t('error.invalidCredentials'));
                     setShowAlert(true);
                     return;
                 }
 
                 const { refreshToken, accountApiKey } = JSON.parse(oldCredentials);
-                console.log('[Login] Ancien refresh token trouvé:', refreshToken?.substring(0, 10) + '...');
 
-                // Tentative de refresh du token
+                // Login attempt with the refresh token
                 const refreshTokenResponse = await checkRefreshToken(
                     contractNumber,
                     accountApiKey,
@@ -208,17 +193,12 @@ export default function Login({ onNavigate }) {
 
                 // If the refresh token is not successful, we set the error
                 if (!refreshTokenResponse.success) {
-                    console.log('[Login] Refresh token invalide, connexion impossible');
-                    setAlertTitle(t('alerts.error'));
                     setAlertMessage(t('error.sessionExpired'));
                     setShowAlert(true);
                     return;
                 }
 
-                console.log('[Login] Nouveau refresh token obtenu:', refreshTokenResponse.data.refresh_token?.substring(0, 10) + '...');
-
-                // Nouvelle tentative de login avec le nouveau refresh token
-                console.log('[Login] Nouvelle tentative avec le refresh token...');
+                // New login attempt with the new refresh token
                 const retryLoginResponse = await loginApi(
                     contractNumber,
                     login,
@@ -228,10 +208,6 @@ export default function Login({ onNavigate }) {
 
                 // If the login is successful, we save the credentials
                 if (retryLoginResponse.success) {
-                    console.log('[Login] Login réussi avec refresh token, nouveaux tokens:', {
-                        accessToken: retryLoginResponse.accessToken?.substring(0, 10) + '...',
-                        refreshToken: refreshTokenResponse.data.refresh_token?.substring(0, 10) + '...'
-                    });
 
                     const credentials = {
                         contractNumber,
@@ -243,7 +219,6 @@ export default function Login({ onNavigate }) {
                     };
 
                     await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-                    console.log('[Login] Nouveaux tokens sauvegardés dans SecureStore');
 
                     const channelsResponse = await fetchUserChannels(
                         contractNumber,
@@ -263,7 +238,6 @@ export default function Login({ onNavigate }) {
                         });
                     }
                 } else {
-                    console.log('[Login] Échec de la connexion avec refresh token');
                     handleError(t('error.invalidCredentials'), {
                         type: ErrorType.SYSTEM,
                         silent: false
@@ -271,7 +245,6 @@ export default function Login({ onNavigate }) {
                 }
             }
         } catch (error) {
-            setAlertTitle(t('alerts.error'));
             setAlertMessage(t('error.loginFailed'));
             setShowAlert(true);
         } finally {
@@ -373,7 +346,6 @@ export default function Login({ onNavigate }) {
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            setAlertTitle(t('alerts.error'));
             setAlertMessage(t('error.loginFailed'));
             setShowAlert(true);
             setIsSimplifiedLogin(false);
@@ -579,7 +551,6 @@ export default function Login({ onNavigate }) {
             </GradientBackground>
             <CustomAlert
                 visible={showAlert}
-                title={alertTitle}
                 message={alertMessage}
                 onClose={() => setShowAlert(false)}
                 onConfirm={() => setShowAlert(false)}
