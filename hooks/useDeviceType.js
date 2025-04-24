@@ -17,14 +17,33 @@ export const useDeviceType = () => {
    * @description Check if the device is a low resolution tablet
    */
   const isLowResTablet = (() => {
-    const minWidth = 550;
-    const minHeight = 700;
+    const minWidth = 500;
+    const minHeight = 600;
+    const maxPixelDensity = 2.0;
+    const minDiagonalInches = 5.0;
+    const maxDiagonalInches = 7.0;
 
     const result = (
       Math.min(width, height) >= minWidth &&
       Math.max(width, height) >= minHeight &&
-      pixelDensity > 1.5
+      pixelDensity <= maxPixelDensity &&
+      diagonalInches >= minDiagonalInches &&
+      diagonalInches < maxDiagonalInches
     );
+
+    // console.log('[DeviceType] Vérification tablette basse résolution:', {
+    //   width,
+    //   height,
+    //   pixelDensity,
+    //   diagonalInches,
+    //   isLowResTablet: result,
+    //   conditions: {
+    //     minWidth: Math.min(width, height) >= minWidth,
+    //     minHeight: Math.max(width, height) >= minHeight,
+    //     pixelDensity: pixelDensity <= maxPixelDensity,
+    //     diagonal: diagonalInches >= minDiagonalInches && diagonalInches < maxDiagonalInches
+    //   }
+    // });
 
     return result;
   })();
@@ -33,21 +52,36 @@ export const useDeviceType = () => {
    * @description Check if the device is a tablet
    */
   const isTablet = (() => {
-    const minimumTabletDiagonal = 6.0;
+    const minimumTabletDiagonal = 7.0;
     const aspectRatio = Math.max(width, height) / Math.min(width, height);
 
     const result = (
-      isLowResTablet ||
-      (diagonalInches >= minimumTabletDiagonal &&
+      !isLowResTablet && // Exclure les tablettes basse résolution
+      diagonalInches >= minimumTabletDiagonal &&
       aspectRatio <= 2.0 &&
-      Math.min(width, height) >= 500)
+      Math.min(width, height) >= 500
     );
+
+    // console.log('[DeviceType] Vérification tablette normale:', {
+    //   width,
+    //   height,
+    //   pixelDensity,
+    //   diagonalInches,
+    //   aspectRatio,
+    //   isTablet: result,
+    //   conditions: {
+    //     notLowRes: !isLowResTablet,
+    //     diagonal: diagonalInches >= minimumTabletDiagonal,
+    //     aspectRatio: aspectRatio <= 2.0,
+    //     minWidth: Math.min(width, height) >= 500
+    //   }
+    // });
 
     return result;
   })();
 
   // If a device is not a tablet, it's a smartphone
-  const isSmartphone = !isTablet;
+  const isSmartphone = !isTablet && !isLowResTablet;
 
   // We determine the orientation of the device
   const isPortrait = height > width;
@@ -58,6 +92,8 @@ export const useDeviceType = () => {
   const isTabletPortrait = isTablet && isPortrait;
   const isSmartphoneLandscape = isSmartphone && isLandscape;
   const isTabletLandscape = isTablet && isLandscape;
+  const isLowResTabletPortrait = isLowResTablet && isPortrait;
+  const isLowResTabletLandscape = isLowResTablet && isLandscape;
 
   return {
     // Base properties
@@ -72,5 +108,7 @@ export const useDeviceType = () => {
     isTabletPortrait,
     isSmartphoneLandscape,
     isTabletLandscape,
+    isLowResTabletPortrait,
+    isLowResTabletLandscape,
   };
 };

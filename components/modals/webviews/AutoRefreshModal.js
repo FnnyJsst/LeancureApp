@@ -52,7 +52,7 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
 
   const { t } = useTranslation();
   // We create a hook to determine the device type and orientation
-  const { isSmartphone, isSmartphoneLandscape, isTabletLandscape, isLowResTablet } = useDeviceType();
+  const { isSmartphone, isSmartphoneLandscape, isTabletLandscape, isLowResTablet, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   const [selectedOption, setSelectedOption] = useState('never');
 
@@ -112,6 +112,8 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
             isSmartphone && styles.modalContentSmartphone,
             isTabletLandscape && styles.modalContentTabletLandscape,
             isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+            isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+            isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
           ]}>
             <TitleModal title={t('modals.webview.refresh.refreshChannels')}/>
             <FlatList
@@ -135,13 +137,13 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
                 title={t('buttons.close')}
                 backgroundColor={COLORS.gray950}
                 textColor={COLORS.gray300}
-                width={isSmartphone ? '23%' : '26%'}
+                width={isSmartphone ? '23%' : isLowResTablet ? '36%' : '33%'}
                 onPress={onClose} />
               <Button
                 title={t('buttons.set')}
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
-                width={isSmartphone ? '23%' : '26%'}
+                width={isSmartphone ? '23%' : isLowResTablet ? '36%' : '33%'}
                 onPress={() => {
                   // We send the selected option to the parent component
                   onSelectOption(selectedOption);
@@ -156,7 +158,7 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
 };
 
 const styles = StyleSheet.create({
-  //Container styles
+
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -167,8 +169,6 @@ const styles = StyleSheet.create({
   modalContainerSmartphone: {
     paddingBottom: 0,
   },
-
-  //Content styles
   modalContent: {
     width: '55%',
     padding: 20,
@@ -186,8 +186,13 @@ const styles = StyleSheet.create({
   modalContentSmartphoneLandscape: {
     width: '45%',
   },
-
-  //Options container styles
+  modalContentLowResTabletPortrait: {
+    width: '60%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '40%',
+    marginTop: 50,
+  },
   optionsContainer: {
     marginTop: 15,
     gap: 6,

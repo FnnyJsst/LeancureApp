@@ -30,7 +30,7 @@ export default function Login({ onNavigate }) {
 
     // We get the translations and the device type
     const { t } = useTranslation();
-    const { isSmartphone, isSmartphoneLandscape, isLandscape } = useDeviceType();
+    const { isSmartphone, isSmartphoneLandscape, isLandscape, isLowResTabletPortrait, isLowResTabletLandscape, isLowResTablet } = useDeviceType();
 
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -471,7 +471,12 @@ export default function Login({ onNavigate }) {
                                         isLandscape && styles.loginContainerLandscape,
                                     ]}>
                                         <View style={styles.titleContainer}>
-                                            <Text style={[styles.title, isSmartphone && styles.titleSmartphone, isLandscape && styles.titleLandscape]}>{t('titles.welcome')}</Text>
+                                            <Text style={[
+                                                styles.title,
+                                                isSmartphone && styles.titleSmartphone,
+                                                isLandscape && styles.titleLandscape,
+                                                isLowResTablet && styles.titleLowResTablet,
+                                                ]}>{t('titles.welcome')}</Text>
                                             <Text style={[styles.subtitle, isSmartphone && styles.subtitleSmartphone, isLandscape && styles.subtitleLandscape]}>{t('titles.signIn')}</Text>
                                         </View>
 
@@ -599,6 +604,9 @@ const styles = StyleSheet.create({
         fontWeight: SIZES.fontWeight.semibold,
         textAlign: 'center',
         marginBottom: 10,
+    },
+    titleLowResTablet: {
+        fontSize: SIZES.fonts.headerSmartphone,
     },
     titleLandscape: {
         marginTop: 0,

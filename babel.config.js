@@ -3,14 +3,45 @@ module.exports = function (api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
-      ['module:react-native-dotenv', {
-        moduleName: '@env',
-        path: '.env',
-        blacklist: null,
-        whitelist: null,
-        safe: true,
-        allowUndefined: false,
-      }],
-    ],
+      [
+        'module-resolver',
+        {
+          root: ['./'],
+          alias: {
+            '@components': './components',
+            '@screens': './screens',
+            '@constants': './constants',
+            '@utils': './utils',
+            '@services': './services',
+            '@hooks': './hooks',
+            '@config': './config',
+            '@assets': './assets',
+            '@navigation': './navigation',
+            '@context': './context',
+            '@store': './store',
+            '@api': './api',
+            '@theme': './theme',
+            '@types': './types',
+            '@i18n': './i18n',
+            '@validation': './validation',
+            '@errors': './errors',
+            '@models': './models',
+            '@interfaces': './interfaces',
+            '@enums': './enums'
+          }
+        }
+      ],
+      [
+        'module:react-native-dotenv',
+        {
+          moduleName: '@env',
+          path: '.env.production',
+          blacklist: null,
+          whitelist: null,
+          safe: false,
+          allowUndefined: true
+        }
+      ]
+    ]
   };
 };

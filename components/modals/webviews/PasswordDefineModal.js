@@ -21,7 +21,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
 
   const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTablet } = useDeviceType();
+  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTablet, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   // State management for the password and the alert
   const [password, setPassword] = useState('');
@@ -109,7 +109,8 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
               isSmartphone && styles.modalContentSmartphone,
               isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
               isTabletPortrait && styles.modalContentTabletPortrait,
-              isLowResTablet && styles.modalContentLowResTablet,
+              isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+              isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
             ]}>
             <TitleModal title={t('modals.webview.password.enterPassword')} />
             <View style={[
@@ -194,7 +195,6 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
 }
 
 const styles = StyleSheet.create({
-  //Container styles
   modalContainerSmartphone: {
     paddingBottom: 'auto',
   },
@@ -211,6 +211,12 @@ const styles = StyleSheet.create({
   modalContentTabletPortrait: {
     width: '60%',
     padding: 20,
+  },
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
   },
   inputContainer: {
     gap: 15,

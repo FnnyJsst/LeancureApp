@@ -35,7 +35,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
   const [showTooltip, setShowTooltip] = useState(false);
 
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTablet } = useDeviceType();
+  const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   const AVAILABLE_VIEWS = [
     {
@@ -65,7 +65,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
       path: 'player.php?a=&screen=defaultscreen&display=disp_ppm&actor=produnit1'
     },
 
-    // Ajoutez d'autres vues ici si nécessaire
+    //We can add more views here if needed
   ];
 
   /**
@@ -130,6 +130,18 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
       appName = urlObj.hostname.split('.')[0];
     } else if (isParamFormat) {
       appName = baseUrl.split('/a/')[1].split('/')[0];
+    } else if (isIpFormat) {
+      // Pour les adresses IP, on extrait le nom de l'application entre a= et &
+      const match = baseUrl.match(/a=([^&]+)/);
+      if (match && match[1]) {
+        appName = match[1];
+      }
+    }
+
+    // Validation du nom d'application
+    if (!appName || appName === 'undefined') {
+      // If no app name is found, we throw an error
+      throw new Error(t('errors.wrongUrlFormat'));
     }
 
     AVAILABLE_VIEWS.forEach(view => {
@@ -154,13 +166,17 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
         fullUrl = `${urlObj.protocol}//${urlObj.hostname}${basePath}`;
       }
 
+      // Ajout de logs pour le débogage
+      console.log('[ImportWebviewModal] URL générée:', fullUrl);
+      console.log('[ImportWebviewModal] Nom de la vue:', view.name);
+      console.log('[ImportWebviewModal] Nom de l\'application:', appName);
+
       urls.push({
         href: fullUrl,
-        title: `${view.name} - ${appName}`
+        title: `${view.name} (${appName})` // Format plus clair pour le nom
       });
     });
 
-    console.log('[ImportWebviewModal] URLs générées:', urls);
     return urls;
   };
 
@@ -202,39 +218,30 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
       }
 
 
-      // Mode normal
+      // Normal mode
       const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
-      console.log('[ImportWebviewModal] Tentative de fetch avec URL complète:', fullUrl);
 
       const response = await fetch(fullUrl);
       console.log('[ImportWebviewModal] Réponse reçue, status:', response.status);
-      console.log('[ImportWebviewModal] Headers:', response.headers);
 
       // We get the content type
       const contentType = response.headers.get('content-type');
-      console.log('[ImportWebviewModal] Content-Type:', contentType);
 
       // If the content type is not defined, we throw an error
       if (!contentType) {
-        console.log('[ImportWebviewModal] Erreur: Content-Type non défini');
         setError(t('errors.contentTypeNotDefined'));
         return;
       }
 
       let data;
       if (contentType.includes('application/json')) {
-        console.log('[ImportWebviewModal] Parsing JSON...');
         data = await response.json();
-        console.log('[ImportWebviewModal] Données JSON reçues:', data);
         if (!Array.isArray(data)) {
-          console.log('[ImportWebviewModal] Erreur: Format de réponse invalide (pas un tableau)');
           setError(t('errors.invalidResponseFormat'));
           return;
         }
       } else if (contentType.includes('text/html')) {
-        console.log('[ImportWebviewModal] Parsing HTML...');
         data = await response.text();
-        console.log('[ImportWebviewModal] Données HTML reçues:', data);
       } else {
         setError(t('errors.invalidContentType'));
         return;
@@ -242,7 +249,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
 
       if (typeof data === 'string') {
         const extractedChannels = parseHtml(data);
-        console.log('[ImportWebviewModal] Chaînes extraites:', extractedChannels);
 
         if (extractedChannels.length === 0) {
           console.log('[ImportWebviewModal] Erreur: Aucune chaîne trouvée');
@@ -309,6 +315,8 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
               isSmartphone && styles.modalContentSmartphone,
               isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
               isTabletPortrait && styles.modalContentTabletPortrait,
+              isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+              isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
             ]}>
             <TitleModal title={t('modals.webview.import.importChannels')}/>
             <InputModal
@@ -361,14 +369,14 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
                 onPress={handleClose}
                 backgroundColor={COLORS.gray950}
                 textColor={COLORS.gray300}
-                width={isSmartphone ? '23%' : '26%'}
+                width={isSmartphone ? '23%' : isLowResTabletPortrait ? '36%' : '33%'}
                 testID="cancel-import-button"
               />
               <Button
                 title={isImporting ? t('buttons.importing') : t('buttons.import')}
                 onPress={handleDownload}
                 backgroundColor={COLORS.orange}
-                width= '33%'
+                width= {isSmartphone ? '23%' : isLowResTabletPortrait ? '36%' : '33%'}
                 disabled={isImporting}
                 icon={isImporting ?
                   <ActivityIndicator size="small" color={COLORS.white} /> :
@@ -408,7 +416,12 @@ const styles = StyleSheet.create({
   modalContentTabletPortrait: {
     width: '60%',
   },
-
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
+  },
   errorContainer: {
     alignItems: 'flex-start',
     paddingHorizontal: '5%',
