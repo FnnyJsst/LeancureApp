@@ -45,20 +45,6 @@ export default function Login({ onNavigate }) {
     const [alertMessage, setAlertMessage] = useState('');
 
     /**
-     * @function handleLoginError
-     * @description Handle login-related errors
-     */
-    const handleLoginError = (error, source) => {
-        const errorMessage = handleError(error, `login.${source}`, {
-            type: ErrorType.AUTH,
-            silent: false
-        });
-        setAlertMessage(errorMessage);
-        setShowAlert(true);
-        return errorMessage;
-    };
-
-    /**
      * @function validateInputs
      * @description Validate the inputs of the login form
      * @returns {string} The error message if the inputs are not valid, otherwise null
@@ -82,15 +68,12 @@ export default function Login({ onNavigate }) {
             try {
                 await SecureStore.deleteItemAsync('userCredentials');
             } catch (error) {
-                // If it's a decryption error, we clean the SecureStore
                 if (error.message && (
                     error.message.includes('decrypt') ||
                     error.message.includes('decipher') ||
                     error.message.includes('decryption')
                 )) {
                     await cleanSecureStore();
-                } else {
-                    console.log('[Login] Erreur lors de la nettoyage du SecureStore:', error);
                 }
             }
 
@@ -106,12 +89,7 @@ export default function Login({ onNavigate }) {
 
             // If the login is successful, we save the credentials
             if (loginResponse.success) {
-                console.log('[Login] Login réussi, tokens reçus:', {
-                    accessToken: loginResponse.accessToken?.substring(0, 10) + '...',
-                    refreshToken: loginResponse.refreshToken?.substring(0, 10) + '...'
-                });
 
-                // Save credentials with tokens
                 const credentials = {
                     contractNumber,
                     login,
@@ -157,9 +135,9 @@ export default function Login({ onNavigate }) {
                         // Synchronize the token with the API
                         const syncResult = await synchronizeTokenWithAPI(tokenData.data);
                         if (!syncResult) {
-                            handleError(t('error.errorSynchronizingTokenWithAPI'), {
+                            console.error(t('errors.errorSynchronizingTokenWithAPI'), {
                                 type: ErrorType.SYSTEM,
-                                silent: false
+                                silent: true
                             });
                         }
                     }
@@ -167,17 +145,15 @@ export default function Login({ onNavigate }) {
                     // We navigate to the chat screen
                     onNavigate(SCREENS.CHAT);
                 } else {
-                    handleError(t('error.errorLoadingChannels'), {
-                        type: ErrorType.SYSTEM,
-                        silent: false
-                    });
+                    setAlertMessage(t('errors.errorLoadingChannels'));
+                    setShowAlert(true);
                 }
             } else {
 
                 // Get old credentials for the refresh token
                 const oldCredentials = await SecureStore.getItemAsync('userCredentials');
                 if (!oldCredentials) {
-                    setAlertMessage(t('error.invalidCredentials'));
+                    setAlertMessage(t('errors.invalidCredentials'));
                     setShowAlert(true);
                     return;
                 }
@@ -193,7 +169,7 @@ export default function Login({ onNavigate }) {
 
                 // If the refresh token is not successful, we set the error
                 if (!refreshTokenResponse.success) {
-                    setAlertMessage(t('error.sessionExpired'));
+                    setAlertMessage(t('errors.sessionExpired'));
                     setShowAlert(true);
                     return;
                 }
@@ -232,20 +208,16 @@ export default function Login({ onNavigate }) {
                     if (channelsResponse.status === 'ok') {
                         onNavigate(SCREENS.CHAT);
                     } else {
-                        handleError(t('error.errorLoadingChannels'), {
-                            type: ErrorType.SYSTEM,
-                            silent: false
-                        });
+                        setAlertMessage(t('errors.errorLoadingChannels'));
+                        setShowAlert(true);
                     }
                 } else {
-                    handleError(t('error.invalidCredentials'), {
-                        type: ErrorType.SYSTEM,
-                        silent: false
-                    });
+                    setAlertMessage(t('errors.invalidCredentials'));
+                    setShowAlert(true);
                 }
             }
         } catch (error) {
-            setAlertMessage(t('error.loginFailed'));
+            setAlertMessage(t('errors.loginFailed'));
             setShowAlert(true);
         } finally {
             setIsLoading(false);
@@ -272,7 +244,13 @@ export default function Login({ onNavigate }) {
             try {
                 await SecureStore.deleteItemAsync('userCredentials');
             } catch (error) {
-                throw error;
+                if (error.message && (
+                    error.message.includes('decrypt') ||
+                    error.message.includes('decipher') ||
+                    error.message.includes('decryption')
+                )) {
+                    await cleanSecureStore();
+                }
             }
 
             // We login with the saved credentials
@@ -280,73 +258,54 @@ export default function Login({ onNavigate }) {
 
             // If the login is successful, we save the credentials and navigate to the chat screen
             if (loginResponse && loginResponse.success) {
-                try {
-                    const credentials = {
-                        contractNumber,
-                        login,
-                        password: hashPassword(password),
-                        accountApiKey: loginResponse.accountApiKey,
-                        refreshToken: loginResponse.refreshToken,
-                        accessToken: loginResponse.accessToken
-                    };
+                const credentials = {
+                    contractNumber,
+                    login,
+                    password: hashPassword(password),
+                    accountApiKey: loginResponse.accountApiKey,
+                    refreshToken: loginResponse.refreshToken,
+                    accessToken: loginResponse.accessToken
+                };
 
-                    await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+                await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
 
-                    // We fetch the user channels
-                    const channelsResponse = await fetchUserChannels(
-                        contractNumber,
-                        login,
-                        password,
-                        loginResponse.accessToken,
-                        loginResponse.accountApiKey
-                    );
+                const channelsResponse = await fetchUserChannels(
+                    contractNumber,
+                    login,
+                    password,
+                    loginResponse.accessToken,
+                    loginResponse.accountApiKey
+                );
 
-                    // If the channels are loaded, we navigate to the chat screen
-                    if (channelsResponse.status === 'ok') {
-                        // We get the notification token
-                        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-                        let finalStatus = existingStatus;
+                if (channelsResponse.status === 'ok') {
+                    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+                    let finalStatus = existingStatus;
 
-                        if (existingStatus !== 'granted') {
-                            const { status } = await Notifications.requestPermissionsAsync();
-                            finalStatus = status;
-                        }
-
-                        if (finalStatus === 'granted') {
-                            const tokenData = await Notifications.getExpoPushTokenAsync({
-                                projectId: ENV.EXPO_PROJECT_ID,
-                            });
-
-                            // Synchroniser le token
-                            const syncResult = await synchronizeTokenWithAPI(tokenData.data);
-                            if (syncResult) {
-                                console.log('[Login] Token de notification synchronisé avec succès');
-                            } else {
-                                console.log('[Login] Échec de la synchronisation du token de notification');
-                            }
-                        }
-
-                        onNavigate(SCREENS.CHAT);
-                    } else {
-                        handleError(t('error.errorLoadingChannels'), {
-                            type: ErrorType.SYSTEM,
-                            silent: false
-                        });
-                        setIsSimplifiedLogin(false);
+                    if (existingStatus !== 'granted') {
+                        const { status } = await Notifications.requestPermissionsAsync();
+                        finalStatus = status;
                     }
-                } catch (error) {
-                    handleLoginError(error, 'saveCredentials');
+
+                    if (finalStatus === 'granted') {
+                        const tokenData = await Notifications.getExpoPushTokenAsync({
+                            projectId: ENV.EXPO_PROJECT_ID,
+                        });
+                        await synchronizeTokenWithAPI(tokenData.data);
+                    }
+
+                    onNavigate(SCREENS.CHAT);
+                } else {
+                    setAlertMessage(t('errors.errorLoadingChannels'));
+                    setShowAlert(true);
                     setIsSimplifiedLogin(false);
                 }
             } else {
-                handleError(t('error.invalidCredentials'), {
-                    type: ErrorType.SYSTEM,
-                    silent: false
-                });
+                setAlertMessage(t('errors.invalidCredentials'));
+                setShowAlert(true);
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            setAlertMessage(t('error.loginFailed'));
+            setAlertMessage(t('errors.loginFailed'));
             setShowAlert(true);
             setIsSimplifiedLogin(false);
         } finally {
@@ -372,8 +331,7 @@ export default function Login({ onNavigate }) {
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            handleLoginError(error, 'saveLoginInfo');
-            throw error;
+            console.error('[Login] Erreur lors de la sauvegarde des informations de connexion:', error);
         }
     }, [isChecked, contractNumber, login, password]);
 
@@ -404,13 +362,8 @@ export default function Login({ onNavigate }) {
                         setIsSimplifiedLogin(false);
                         setSavedLoginInfo(null);
                     } catch (cleanError) {
-                        handleError(cleanError, t('error.errorCleaningSecureStore'), {
-                            type: ErrorType.SYSTEM,
-                            silent: false
-                        });
+                        console.error(t('errors.errorCleaningSecureStore'));
                     }
-                } else {
-                    handleLoginError(error, 'checkSavedLogin');
                 }
             } finally {
                 setIsInitialLoading(false);
