@@ -9,17 +9,16 @@ import { useTranslation } from 'react-i18next';
 /**
  * @component DeleteWebviewModal
  * @description A component that renders a modal for deleting a webview
- *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.handleDelete - The function to call when the webview is deleted
  */
 export default function DeleteWebviewModal({ visible, onClose, handleDelete, testID }) {
-  const [isDeleting, setIsDeleting] = useState(false);
 
   // Hook to determine the device type and orientation
-  const { isSmartphone, isLowResTablet } = useDeviceType();
+  const { isSmartphonePortrait, isSmartphoneLandscape, isSmartphone, isTabletPortrait, isLowResTablet, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
+
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { t } = useTranslation();
 
@@ -48,10 +47,16 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
           MODAL_STYLES.content,
           isSmartphone && styles.modalContentSmartphone,
           isLowResTablet && styles.modalContentLowResTablet,
+          isSmartphonePortrait && styles.modalContentSmartphonePortrait,
+          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+          isTabletPortrait && styles.modalContentTabletPortrait,
+          isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+          isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
         ]}>
           <View style={[
             styles.titleContainer,
             isSmartphone && styles.titleContainerSmartphone,
+            isTabletPortrait && styles.titleContainerTabletPortrait,
           ]}>
             <Text style={[
               styles.title,
@@ -65,10 +70,9 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
               color={COLORS.white}
               width={isSmartphone ? '27%' : '30%'}
               onPress={onClose}
-              disabled={isDeleting}
             />
             <Button
-              title={isDeleting ? t('buttons.deleting') : t('buttons.delete')}
+              title={t('buttons.delete')}
               backgroundColor={COLORS.orange}
               color={COLORS.white}
               width={isSmartphone ? '27%' : '30%'}
@@ -87,11 +91,20 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
 }
 
 const styles = StyleSheet.create({
-  modalContentSmartphone: {
+  modalContentSmartphonePortrait: {
+    width: '95%',
+  },
+  modalContentSmartphoneLandscape: {
+    width: '55%',
+  },
+  modalContentTabletPortrait: {
     width: '60%',
   },
-  modalContentLowResTablet: {
-    width: '60%',
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
   },
   titleContainerSmartphone: {
     display: 'flex',

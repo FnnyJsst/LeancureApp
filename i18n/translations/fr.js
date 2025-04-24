@@ -328,6 +328,7 @@ export default {
     errorLoadingMessagesVisibility: "Erreur lors du chargement de la visibilité des messages",
     messageIdMissing: "L'ID du message est manquant",
     dataTooLargeForSecureStore: "Les données sont trop grandes pour SecureStore, certaines informations seront tronquées",
+    wrongUrlFormat: "Format d'URL invalide, cliquez sur le bouton d'aide pour plus d'informations",
   },
 
   tooltips: {

@@ -21,7 +21,7 @@ import TooltipModal from './TooltipModal';
  * @param {Function} props.onImport - The function to call when the channels are imported
  * @param {Array} props.selectedWebviews - The currently selected webviews
  */
-const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] }) => {
+const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [], testID }) => {
 
   // Translation
   const { t } = useTranslation();
@@ -33,7 +33,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
   const [isImporting, setIsImporting] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-
 
   // Customized hook to determine the device type and orientation
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
@@ -65,6 +64,8 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
     {name: 'PPM view',
       path: 'player.php?a=&screen=defaultscreen&display=disp_ppm&actor=produnit1'
     },
+
+    //We can add more views here if needed
   ];
 
   /**
@@ -113,12 +114,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
     return links;
   };
 
-  /**
-   * @function generateOfflineUrls
-   * @description A function to generate the offline URLs
-   * @param {string} baseUrl - The base URL
-   * @returns {Array} - The offline URLs
-   */
   const generateOfflineUrls = (baseUrl) => {
     console.log('[ImportWebviewModal] Génération des URLs en mode dégradé pour:', baseUrl);
     const urls = [];
@@ -132,9 +127,23 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
     // Extract the application name according to the format
     let appName;
     if (isSubdomainFormat) {
+      // For subdomains, we use the first part of the hostname
       appName = urlObj.hostname.split('.')[0];
     } else if (isParamFormat) {
+      // For parameters, we extract the app name between a= and /
       appName = baseUrl.split('/a/')[1].split('/')[0];
+    } else if (isIpFormat) {
+      // For IP addresses, we extract the app name between a= and &
+      const match = baseUrl.match(/a=([^&]+)/);
+      if (match && match[1]) {
+        appName = match[1];
+      }
+    }
+
+    // Validation of the app name
+    if (!appName || appName === 'undefined') {
+      // If no app name is found, we throw an error
+      throw new Error(t('errors.wrongUrlFormat'));
     }
 
     AVAILABLE_VIEWS.forEach(view => {
@@ -159,21 +168,24 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
         fullUrl = `${urlObj.protocol}//${urlObj.hostname}${basePath}`;
       }
 
+      // console.log('[ImportWebviewModal] URL générée:', fullUrl);
+      // console.log('[ImportWebviewModal] Nom de la vue:', view.name);
+      // console.log('[ImportWebviewModal] Nom de l\'application:', appName);
+
       urls.push({
         href: fullUrl,
-        title: `${view.name} - ${appName}`
+        title: `${view.name} (${appName})` // Format plus clair pour le nom
       });
     });
 
     return urls;
   };
 
-
-   /**
+  /**
    * @function handleDownload
    * @description A function to handle the download of channels from URL
    */
-   const handleDownload = async () => {
+    const handleDownload = async () => {
 
     if (!url) {
       setError(t('errors.enterUrl'));
@@ -211,10 +223,10 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
       const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
 
       const response = await fetch(fullUrl);
+      console.log('[ImportWebviewModal] Réponse reçue, status:', response.status);
 
       // We get the content type
       const contentType = response.headers.get('content-type');
-
 
       // If the content type is not defined, we throw an error
       if (!contentType) {
@@ -240,6 +252,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
         const extractedChannels = parseHtml(data);
 
         if (extractedChannels.length === 0) {
+          console.log('[ImportWebviewModal] Erreur: Aucune chaîne trouvée');
           setError(t('errors.noChannelsFound'));
           return;
         }
@@ -249,17 +262,23 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
             existingChannel.href === newChannel.href
           )
         );
+        console.log('[ImportWebviewModal] Nouvelles chaînes filtrées:', newChannels);
 
         if (newChannels.length === 0) {
+          console.log('[ImportWebviewModal] Aucune nouvelle chaîne à importer');
           setShowAlert(true);
         } else {
+          console.log('[ImportWebviewModal] Import des nouvelles chaînes...');
           await onImport(newChannels);
+          console.log('[ImportWebviewModal] Import réussi');
           onClose();
         }
       } else {
+        console.log('[ImportWebviewModal] Erreur: Format de données invalide');
         setError(t('errors.invalidResponseFormat'));
       }
     } catch (error) {
+      console.error('[ImportWebviewModal] Erreur détaillée:', error);
       setError(t('errors.errorDuringDownload'));
     } finally {
       setIsImporting(false);
@@ -289,6 +308,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
         visible={visible}
         onRequestClose={handleClose}
         statusBarTranslucent={true}
+        testID="import-modal"
       >
         <View style={MODAL_STYLES.modalContainer}>
           <View style={[
@@ -324,7 +344,7 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
                 ]}>{error}</Text>
               </View>
             ) : null}
-            <View style={styles.checkBoxContainer}>
+            <View style={styles.checkboxContainer}>
               <CheckBox
                 label={t('modals.webview.import.degradedImport')}
                 style={styles.checkBox}
@@ -332,15 +352,15 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
                 onPress={() => setIsChecked(!isChecked)}
               />
               <TouchableOpacity
-              onPress={() => setShowTooltip(true)}
-              style={styles.tooltipButton}
-            >
-              <Ionicons
-                name="information-circle-outline"
-                size={20}
-                color={COLORS.gray300}
-              />
-            </TouchableOpacity>
+                onPress={() => setShowTooltip(true)}
+                style={styles.tooltipButton}
+              >
+                <Ionicons
+                  name="information-circle-outline"
+                  size={20}
+                  color={COLORS.gray300}
+                />
+              </TouchableOpacity>
             </View>
             <View style={[
               MODAL_STYLES.buttonContainer,
@@ -350,14 +370,14 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [] 
                 onPress={handleClose}
                 backgroundColor={COLORS.gray950}
                 textColor={COLORS.gray300}
-                width={isSmartphone ? '23%' : '33%'}
+                width={isSmartphone ? '23%' : isLowResTabletPortrait ? '36%' : '33%'}
                 testID="cancel-import-button"
               />
               <Button
                 title={isImporting ? t('buttons.importing') : t('buttons.import')}
                 onPress={handleDownload}
                 backgroundColor={COLORS.orange}
-                width= '33%'
+                width= {isSmartphone ? '23%' : isLowResTabletPortrait ? '36%' : '33%'}
                 disabled={isImporting}
                 icon={isImporting ?
                   <ActivityIndicator size="small" color={COLORS.white} /> :
@@ -414,7 +434,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   checkBox: {
-    paddingVertical: 10,
+    flex: 1,
   },
   tooltipButton: {
     padding: 5,
@@ -430,3 +450,4 @@ const styles = StyleSheet.create({
 });
 
 export default ImportWebviewModal;
+

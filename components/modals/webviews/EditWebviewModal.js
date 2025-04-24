@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 /**
  * @component EditWebviewModal
  * @description A component that renders a modal for editing a channel
- *
  * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
@@ -20,9 +19,10 @@ import { useTranslation } from 'react-i18next';
  */
 export default function EditWebviewModal({ visible, onClose, onSave, initialUrl, initialTitle, testID }) {
 
+  //
   const { t } = useTranslation();
   // We create a hook to determine the device type and orientation
-  const { isSmartphone, isLowResTablet, isSmartphoneLandscape } = useDeviceType();
+  const { isSmartphone, isTabletLandscape, isSmartphonePortrait, isSmartphoneLandscape, isLowResTablet, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   // State management for form inputs
   const [url, setUrl] = useState(initialUrl || '');
@@ -84,8 +84,11 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
         isSmartphoneLandscape && styles.modalContainerSmartphoneLandscape]}>
         <View style={[
           styles.modalContent,
-          isSmartphone && styles.modalContentSmartphone,
-          isLowResTablet && styles.modalContentLowResTablet,
+          isSmartphonePortrait && styles.modalContentSmartphonePortrait,
+          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+          isTabletLandscape && styles.modalContentTabletLandscape,
+          isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+          isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
         ]}>
           <TitleModal title={t('modals.webview.edit.editChannel')} />
           {error && (
@@ -140,7 +143,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               title={t('buttons.cancel')}
               backgroundColor={COLORS.gray950}
               color={COLORS.gray300}
-              width={isSmartphone ? '23%' : '26%'}
+              width={isSmartphone ? '23%' : isLowResTablet ? '36%' : '30%'}
               onPress={onClose}
               testID="cancel-button"
             />
@@ -148,7 +151,7 @@ export default function EditWebviewModal({ visible, onClose, onSave, initialUrl,
               title={t('buttons.save')}
               backgroundColor={COLORS.orange}
               color={COLORS.white}
-              width={isSmartphone ? '23%' : '26%'}
+              width={isSmartphone ? '23%' : isLowResTablet ? '36%' : '30%'}
               onPress={handleOk}
               testID="save-edit-button"
             />
@@ -164,17 +167,26 @@ const styles = StyleSheet.create({
     paddingTop: '10%',
   },
   modalContent: {
-    width: '50%',
+    width: '60%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
   },
-  modalContentLowResTablet: {
-    width: '60%',
+  modalContentLowResTabletPortrait: {
+    width: '80%',
   },
-  modalContentSmartphone: {
+  modalContentLowResTabletLandscape: {
+    width: '50%',
+  },
+  modalContentTabletLandscape: {
+    width: '40%',
+  },
+  modalContentSmartphonePortrait: {
+    width: '95%',
+  },
+  modalContentSmartphoneLandscape: {
     width: '60%',
   },
   inputContainer: {

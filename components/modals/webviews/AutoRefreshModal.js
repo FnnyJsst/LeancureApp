@@ -8,17 +8,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../text/CustomText';
 import { useTranslation } from 'react-i18next';
 
-/**
- * @component AutoRefreshModal
- * @description A component that renders a modal for auto-refresh options
- *
- * @param {boolean} props.visible - Whether the modal is visible
- * @param {Function} props.onClose - The function to call when the modal is closed
- * @param {Function} props.onSelectOption - The function to call when the option is selected
- * @param {string} props.currentOption - The current selected option
- */
-
-// Déplacer les options en dehors du composant pour éviter leur recréation à chaque rendu
 const createOptions = (t) => [
   { label: t('modals.webview.refresh.never'), value: 'never' },
   { label: t('modals.webview.refresh.every1min'), value: 'every minute' },
@@ -52,13 +41,23 @@ const RadioItem = memo(({ item, selectedOption, onSelect, isSmartphone }) => (
   </TouchableOpacity>
 ));
 
-const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOption }) => {
-  const { t } = useTranslation();
-  const { isSmartphone, isLowResTablet } = useDeviceType();
-  const [selectedOption, setSelectedOption] = useState(currentOption || 'never');
+/**
+ * @component AutoRefreshModal
+ * @description A component that renders a modal for auto-refresh options
+ * @param {boolean} props.visible - Whether the modal is visible
+ * @param {Function} props.onClose - The function to call when the modal is closed
+ * @param {Function} props.onSelectOption - The function to call when the option is selected
+ */
+const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, testID }) => {
 
-  // Mémoiser les options
-  const options = React.useMemo(() => createOptions(t), [t]);
+  const { t } = useTranslation();
+  // We create a hook to determine the device type and orientation
+  const { isSmartphone, isSmartphoneLandscape, isTabletLandscape, isLowResTablet, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
+
+  const [selectedOption, setSelectedOption] = useState('never');
+
+  // Options for the auto-refresh modal
+  const options =  React.useMemo(() => createOptions(t), [t]);
 
   useEffect(() => {
     if (currentOption) {
@@ -109,12 +108,15 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOpt
         isSmartphone && styles.modalContainerSmartphone,
       ]}>
         <View style={[
-          styles.modalContent,
-          isSmartphone && styles.modalContentSmartphone,
-        ]}>
-          <TitleModal title={t('modals.webview.refresh.refreshChannels')}/>
-
-          <FlatList
+            styles.modalContent,
+            isSmartphone && styles.modalContentSmartphone,
+            isTabletLandscape && styles.modalContentTabletLandscape,
+            isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+            isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+            isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
+          ]}>
+            <TitleModal title={t('modals.webview.refresh.refreshChannels')}/>
+            <FlatList
             data={options}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
@@ -130,23 +132,25 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, testID, currentOpt
               index,
             })}
           />
-
-          <View style={MODAL_STYLES.buttonContainer}>
-            <Button
-              title={t('buttons.close')}
-              backgroundColor={COLORS.gray950}
-              textColor={COLORS.gray300}
-              width={isSmartphone ? '23%' : isLowResTablet ? '30%' : '26%'}
-              onPress={onClose}
-            />
-            <Button
-              title={t('buttons.set')}
-              backgroundColor={COLORS.orange}
-              color={COLORS.white}
-              width={isSmartphone ? '23%' : isLowResTablet ? '30%' : '26%'}
-              onPress={handleSave}
-            />
-          </View>
+            <View style={MODAL_STYLES.buttonContainer}>
+              <Button
+                title={t('buttons.close')}
+                backgroundColor={COLORS.gray950}
+                textColor={COLORS.gray300}
+                width={isSmartphone ? '23%' : isLowResTablet ? '36%' : '33%'}
+                onPress={onClose} />
+              <Button
+                title={t('buttons.set')}
+                backgroundColor={COLORS.orange}
+                color={COLORS.white}
+                width={isSmartphone ? '23%' : isLowResTablet ? '36%' : '33%'}
+                onPress={() => {
+                  // We send the selected option to the parent component
+                  onSelectOption(selectedOption);
+                  onClose();
+                }}
+              />
+            </View>
         </View>
       </View>
     </Modal>
@@ -160,12 +164,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.backgroundModal,
+    paddingBottom: '10%',
   },
   modalContainerSmartphone: {
     paddingBottom: 0,
   },
   modalContent: {
-    width: '40%',
+    width: '55%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,
@@ -173,7 +178,20 @@ const styles = StyleSheet.create({
     borderColor: COLORS.borderColor,
   },
   modalContentSmartphone: {
+    width: '90%',
+  },
+  modalContentTabletLandscape: {
+    width: '40%',
+  },
+  modalContentSmartphoneLandscape: {
     width: '45%',
+  },
+  modalContentLowResTabletPortrait: {
+    width: '60%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '40%',
+    marginTop: 50,
   },
   optionsContainer: {
     marginTop: 15,
@@ -183,6 +201,8 @@ const styles = StyleSheet.create({
     marginTop: 0,
     gap: 2,
   },
+
+  //Radio styles
   radioContainer: {
     flexDirection: 'row',
     marginBottom: 10,
@@ -206,5 +226,4 @@ const styles = StyleSheet.create({
   },
 });
 
-// Exporter le composant mémorisé
-export default memo(AutoRefreshModal);
+export default AutoRefreshModal;

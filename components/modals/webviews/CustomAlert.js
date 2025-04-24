@@ -5,12 +5,10 @@ import TitleModal from '../../../components/text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES,COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
-import { useTranslation } from 'react-i18next';
 
 /**
  * @component CustomAlert
  * @description A component that renders a custom alert
- *
  * @param {boolean} props.visible - Whether the alert is visible
  * @param {string} props.title - The title of the alert
  * @param {string} props.message - The message of the alert
@@ -20,10 +18,9 @@ import { useTranslation } from 'react-i18next';
  */
 export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error', testID }) {
 
+  // We get the device type
+  const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
-  const { isSmartphone, isLowResTablet } = useDeviceType();
-
-  const { t } = useTranslation();
   return (
     <Modal
       animationType="fade"
@@ -35,15 +32,18 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
       <View style={styles.modalContainer}>
         <View style={[
           styles.modalContent,
-          isLowResTablet && styles.modalContentLowResTablet,
-          isSmartphone && styles.modalContentSmartphone,
+          isSmartphonePortrait && styles.modalContentSmartphonePortrait,
+          isLandscape && styles.modalContentLandscape,
+          isTabletPortrait && styles.modalContentTabletPortrait,
+          isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+          isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
         ]}>
           <TitleModal title={title} />
           <Text style={[styles.message, isSmartphone && styles.messageSmartphone]}>{message}</Text>
           <View style={styles.buttonContainer}>
             {type === 'success' ? (
               <Button
-                title={t('buttons.ok')}
+                title="OK"
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
                 width={isSmartphone ? '23%' : '26%'}
@@ -52,7 +52,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
               />
             ) : (
               <Button
-                title={t('buttons.close')}
+                title="Close"
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
                 width={isSmartphone ? '23%' : '26%'}
@@ -75,18 +75,27 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 1)',
   },
   modalContent: {
-    width: '40%',
+    width: '60%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
   },
-  modalContentLowResTablet: {
-    width: '60%',
-  },
   modalContentSmartphone: {
     width: '60%',
+  },
+  modalContentLandscape: {
+    width: '40%',
+  },
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
+  },
+  modalContentSmartphonePortrait: {
+    width: '80%',
   },
   message: {
     color: COLORS.gray300,

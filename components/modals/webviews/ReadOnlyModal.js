@@ -9,16 +9,16 @@ import { useTranslation } from 'react-i18next';
 /**
  * @component ReadOnly
  * @description A component that renders a modal for setting the read-only mode
- *
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onToggleReadOnly - The function to call when the read-only mode is toggled
  */
 export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID }) {
 
+  // Translation
   const { t } = useTranslation();
   // Customized hook to determine the device type and orientation
-  const { isSmartphone, isLowResTablet } = useDeviceType();
+  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   /**
    * @function handleYes
@@ -50,8 +50,11 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
       <View style={styles.modalContainer}>
         <View style={[
           styles.modalContent,
-          isSmartphone && styles.modalContentSmartphone,
-          isLowResTablet && styles.modalContentLowResTablet,
+          isSmartphonePortrait && styles.modalContentSmartphonePortrait,
+          isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
+          isTabletPortrait && styles.modalContentTabletPortrait,
+          isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
+          isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
         ]}>
           <View style={[
             styles.titleContainer,
@@ -86,13 +89,18 @@ export default function ReadOnly({ visible, onClose, onToggleReadOnly, testID })
 }
 
 const styles = StyleSheet.create({
-
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.backgroundModal,
     paddingBottom: '20%',
+  },
+  modalContentLowResTabletPortrait: {
+    width: '80%',
+  },
+  modalContentLowResTabletLandscape: {
+    width: '50%',
   },
   modalContent: {
     width: '40%',
@@ -102,13 +110,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.borderColor,
   },
-  modalContentLowResTablet: {
-    width: '60%',
+  modalContentSmartphonePortrait: {
+    width: '95%',
   },
-  modalContentSmartphone: {
+  modalContentSmartphoneLandscape: {
     width: '50%',
   },
-
+  modalContentTabletPortrait: {
+    width: '60%',
+  },
   titleContainer: {
     marginBottom: 20,
   },
