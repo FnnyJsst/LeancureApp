@@ -123,9 +123,11 @@ export default {
         every3h: "Every 3 hours",
         every6h: "Every 6 hours",
         everyDay: "Every day",
+        refreshSettingsSaved: "Refresh settings saved",
       },
       readOnly: {
         readOnly: "Do you want to set channel management to read-only?",
+        settingsSaved: 'Read-only access settings saved successfully',
       }
     },
 
@@ -337,7 +339,7 @@ export default {
     },
     readOnly: {
       title: 'Read-Only Access',
-      message: 'Read-only access prevents users from modifying messages in channels. Only administrators can disable this option.'
+      message: 'Read-only access prevents users from modifying messages in channels. Only administrators can disable this option.',
     },
     password: {
       title: 'Password',
