@@ -645,7 +645,7 @@ const styles = StyleSheet.create({
         width: '98%',
     },
     loginContainerLandscape: {
-        width: '55%',
+        width: '50%',
     },
     inputsContainer: {
         width: '100%',
