@@ -38,8 +38,8 @@ Notifications.setNotificationHandler({
     try {
       // We check if the user is connected
       const savedCredentials = await SecureStore.getItemAsync('userCredentials');
+      // If the user is not connected, we don't display the notification
       if (!savedCredentials) {
-        console.log('🔒 Notification ignorée: utilisateur non connecté');
         return {
           shouldShowAlert: false,
           shouldPlaySound: false,
@@ -60,21 +60,17 @@ Notifications.setNotificationHandler({
           notificationData.body &&
           notificationData.body.includes("channel")) {
 
-        // Also check if the user is currently on the channel
+        // We check if the user is currently on the channel
         try {
-          // Extract the channel name from the notification
+          // We extract the channel name from the notification
           const channelMatch = notificationData.body.match(/channel\s+(.+)$/i);
           const channelName = channelMatch ? channelMatch[1] : null;
 
           if (channelName) {
-
             // Get the name of the currently displayed channel
             const viewedChannelName = await SecureStore.getItemAsync('viewedChannelName');
-            console.log('📌 Canal actuellement visualisé:', viewedChannelName);
-
             // If the channel name is the same as the currently displayed channel, we block the notification
             if (viewedChannelName && channelName.includes(viewedChannelName)) {
-              console.log('🔕 Notification bloquée: canal actuellement visualisé');
               return {
                 shouldShowAlert: false,
                 shouldPlaySound: false,
@@ -85,7 +81,6 @@ Notifications.setNotificationHandler({
             // Get the channel ID from the notification data
             const channelId = notificationData.data.channelId;
             if (channelId) {
-              console.log('🔔 Marquer le canal comme non lu:', channelId);
               // Emit the unread message event
               if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
                 global.unreadMessageEmitter.emit(channelId);
@@ -95,7 +90,6 @@ Notifications.setNotificationHandler({
               if (typeof global !== 'undefined' && global.channels) {
                 const channel = global.channels.find(c => c.title === channelName);
                 if (channel) {
-                  console.log('🔔 Marquer le canal comme non lu:', channel.id);
                   // Emit the unread message event
                   if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
                     global.unreadMessageEmitter.emit(channel.id);
@@ -226,7 +220,6 @@ export default function App({ testID, initialScreen }) {
    */
   const hideMessages = useCallback(async (shouldHide) => {
     try {
-      console.log(`[App] Changement de visibilité des messages: ${shouldHide ? 'masquer' : 'afficher'}`);
 
       // We save the messages hidden state
       await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
@@ -251,7 +244,6 @@ export default function App({ testID, initialScreen }) {
 
         try {
           await cleanSecureStoreKeys();
-
           // We try to save again after cleaning
           await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
           setIsMessagesHidden(shouldHide);
@@ -278,8 +270,6 @@ export default function App({ testID, initialScreen }) {
    */
   useEffect(() => {
     const initializeApp = async () => {
-      const startTime = Date.now();
-
       // If the app is already initialized, we return
       if (appInitialized) {
         return;
@@ -289,7 +279,6 @@ export default function App({ testID, initialScreen }) {
         // We initialize the translations
         await initI18n();
         setIsI18nInitialized(true);
-
         // We load the selected channels and timeout interval
         await Promise.all([
           loadSelectedChannels(),
@@ -347,15 +336,13 @@ export default function App({ testID, initialScreen }) {
             error.message.includes('decipher') ||
             error.message.includes('decryption'))
         ) {
-          console.log('🧹 [App] Erreur de déchiffrement détectée, nettoyage du SecureStore...');
           handleAppError(error, 'decryption');
           try {
 
             await cleanSecureStoreKeys();
           } catch (cleanError) {
-            console.error('❌ [App] Erreur lors du nettoyage du SecureStore:', cleanError);
+            console.log('❌ [App] Erreur lors du nettoyage du SecureStore:', cleanError);
           }
-
           // We reset the states after cleaning
           setIsMessagesHidden(false);
           setIsLoading(false);
@@ -384,6 +371,10 @@ export default function App({ testID, initialScreen }) {
   useEffect(() => {
     if (!appInitialized) return;
 
+    /**
+     * @function handleMessagesHiddenChange
+     * @description Handles the change of the messages hidden state
+     */
     const handleMessagesHiddenChange = async () => {
       // If the value has not changed, we return
       if (isMessagesHiddenRef.current === isMessagesHidden) return;
@@ -444,7 +435,6 @@ export default function App({ testID, initialScreen }) {
 
       // Then, we delete the connection information
       await SecureStore.deleteItemAsync('savedLoginInfo');
-      console.log('✅ Credentials supprimées');
 
       // Finally, we redirect to the login screen
       navigate(SCREENS.LOGIN);
@@ -475,7 +465,6 @@ export default function App({ testID, initialScreen }) {
             }
           }
         } catch (error) {
-          console.error('❌ Erreur lors de la vérification des credentials:', error);
           handleAppError(error, 'appStateChange');
         }
       }
@@ -496,7 +485,7 @@ export default function App({ testID, initialScreen }) {
     // Configuration of notifications
     const setupNotifications = async () => {
       try {
-        console.log('🔔 Initialization of notifications...');
+
         const token = await registerForPushNotificationsAsync();
         if (token) {
           console.log('✅ Token obtenu dans App.js :', token);
@@ -601,7 +590,6 @@ export default function App({ testID, initialScreen }) {
         href: newWebviews,
         title: newWebviews // We use the URL as the default title
       };
-      console.log('[App] Création d\'un nouveau webview:', newWebview);
       handleSelectChannels([newWebview]);
       // We stay on the webviews management screen
       navigate(SCREENS.WEBVIEWS_MANAGEMENT);
@@ -767,20 +755,17 @@ export default function App({ testID, initialScreen }) {
       <NotificationProvider>
         <View style={styles.container} testID={testID || "app-root"}>
           {renderWebviewScreen()}
-
           <PasswordDefineModal
             visible={isPasswordDefineModalVisible}
             onClose={closePasswordDefineModal}
             onSubmitPassword={handlePasswordSubmit}
             onDisablePassword={disablePassword}
           />
-
           <PasswordCheckModal
             visible={passwordCheckModalVisible}
             onClose={() => setPasswordCheckModalVisible(false)}
             onSubmit={handlePasswordCheck}
           />
-
           <View accessible={true} testID="settings-button">
             <Ionicons />
           </View>

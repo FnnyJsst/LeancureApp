@@ -10,15 +10,21 @@ export const NotificationContext = createContext();
 let currentlyViewedChannelId = null;
 
 // Initialize a global event emitter for unread messages
+// We check if the global object exists to avoid errors
 if (typeof global !== 'undefined') {
+  // We create a global variable to store the unread message emitter
   global.unreadMessageEmitter = {
+    // We create a set to store the listeners
     listeners: new Set(),
+    // We create a function to emit the unread message event
     emit: function(channelId) {
       this.listeners.forEach(listener => listener(channelId));
     },
+    // We create a function to add a listener
     addListener: function(listener) {
       this.listeners.add(listener);
     },
+    // We create a function to remove a listener
     removeListener: function(listener) {
       this.listeners.delete(listener);
     }
@@ -111,18 +117,16 @@ export const NotificationProvider = ({ children }) => {
    */
   const markChannelAsUnread = (channelId, isUnread = true) => {
 
+    // If it's the active channel, don't mark as unread
     if (!channelId || channelId === activeChannelId) {
       return;
     }
 
     setUnreadChannels(prev => {
-      console.log('📊 État précédent des canaux non lus:', prev);
-
       // If marking as read, remove from dictionary
       if (!isUnread && prev[channelId]) {
         const updated = { ...prev };
         delete updated[channelId];
-        console.log('✅ Canal marqué comme lu:', channelId);
 
         // Save updated state
         saveUnreadChannels(updated);

@@ -10,10 +10,9 @@ import { Text } from '../text/CustomText';
  * @param {string} props.title - The title of the card
  * @param {ReactNode} props.icon - The icon of the card
  * @param {Function} props.onPress - The function to call when the card is pressed
- * @param {number} props.unreadCount - The number of unread messages
  */
 
-const AppMenuCard = ({ title, icon, onPress, unreadCount }) => {
+const AppMenuCard = ({ title, icon, onPress }) => {
 
   const { isSmartphone } = useDeviceType();
 
@@ -22,12 +21,6 @@ const AppMenuCard = ({ title, icon, onPress, unreadCount }) => {
       style={[styles.card, isSmartphone && styles.cardSmartphone]}
       onPress={onPress}
     >
-      {/* If there are unread messages, we display a badge with the number of unread messages */}
-      {unreadCount > 0 && (
-        <View style={[styles.badge, isSmartphone && styles.badgeSmartphone]}>
-          <Text style={[styles.badgeText, isSmartphone && styles.badgeTextSmartphone]}>{unreadCount}</Text>
-        </View>
-      )}
       <View style={styles.iconContainer}>
         {icon}
         <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
@@ -68,32 +61,6 @@ const styles = StyleSheet.create({
   },
   titleSmartphone: {
     fontSize: SIZES.fonts.titleSmartphone,
-  },
-  badge: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    backgroundColor: COLORS.orange,
-    borderRadius: 30,
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 4,
-  },
-  badgeSmartphone: {
-    width: 35,
-    height: 35,
-    top: -5,
-    right: -5,
-  },
-  badgeText: {
-    color: COLORS.white,
-    fontSize: SIZES.fonts.subtitleTablet,
-    fontWeight: SIZES.fontWeight.semibold,
-  },
-  badgeTextSmartphone: {
-    fontSize: SIZES.fonts.subtitleSmartphone,
   },
 });
 
