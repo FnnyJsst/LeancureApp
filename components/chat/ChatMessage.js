@@ -78,11 +78,40 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   };
 
   /**
+   * @function renderMenu
+   * @description Render the menu
+   * @returns {React.ReactNode} The menu
+   */
+  const renderMenu = () => {
+    if (!menuMessageVisible) return null;
+
+    return (
+      <>
+        <TouchableOpacity
+          style={styles.menuOverlay}
+          onPress={() => setMenuMessageVisible(false)}
+          activeOpacity={1}
+        />
+        <MenuMessage
+          onDelete={handleDelete}
+          onEdit={isOwnMessage ? handleEdit : null}
+          onClose={() => setMenuMessageVisible(false)}
+          style={[
+            styles.menuMessageContainer,
+            isOwnMessage ? styles.menuRight : styles.menuLeft
+          ]}
+        />
+      </>
+    );
+  };
+
+  /**
    * @function handleDelete
    * @description Handle the delete event to allow the user to delete the message
    */
   const handleDelete = () => {
     try {
+
       if (!message.id) {
         handleMessageError(t('error.messageIdMissing'), 'delete.validation', { silent: false });
         return;
@@ -154,19 +183,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
         // The approximate size in bytes is approximately 3/4 of the length of the base64 string
         fileSizeInBytes = Math.ceil(message.base64.length * 0.75);
       }
-      // Option 3: Use a default value based on the type
-      else {
-        // Default values more realistic based on the type
-        if (isPDF) {
-          fileSizeInBytes = 150 * 1024; // ~150 Ko for a typical PDF
-        } else if (isCSV) {
-          fileSizeInBytes = 100 * 1024; // ~100 Ko for a typical CSV
-        } else if (isImage) {
-          fileSizeInBytes = 350 * 1024; // ~350 Ko for a typical image
-        } else {
-          fileSizeInBytes = 100 * 1024; // ~100 Ko by default
-        }
-      }
 
       const messageContent = (
         <TouchableOpacity
@@ -178,7 +194,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
             isOwnMessage ? styles.ownMessage : styles.otherMessage,
             styles.fileMessageContainer,
             isOwnMessage && styles.ownFileMessageContainer,
-            message.isUnread && styles.unreadMessage,
           ]}
         >
           <View
@@ -198,10 +213,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                 <View style={styles.fileHeader}>
                   <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
                   <View>
-                    <Text style={[
-                      styles.fileName,
-                      isLowResTablet && styles.fileNameLowResTablet
-                    ]} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="tail">
                       {message.fileName || (isPDF ? 'PDF' : 'CSV')}
                     </Text>
                     <Text style={styles.fileSize}>
@@ -273,24 +285,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
 
       return (
         <View style={styles.messageWrapper(isOwnMessage)}>
-          {menuMessageVisible && (
-            <>
-              <TouchableOpacity
-                style={styles.menuOverlay}
-                onPress={() => setMenuMessageVisible(false)}
-                activeOpacity={1}
-              />
-              <MenuMessage
-                onDelete={handleDelete}
-                onEdit={isOwnMessage ? handleEdit : null}
-                onClose={() => setMenuMessageVisible(false)}
-                style={[
-                  styles.menuMessageContainer,
-                  isOwnMessage ? styles.menuRight : styles.menuLeft
-                ]}
-              />
-            </>
-          )}
+          {renderMenu()}
           <View style={[
             styles.messageHeader,
             isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft,
@@ -311,24 +306,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
 
     return (
       <View style={styles.messageWrapper(isOwnMessage)}>
-        {menuMessageVisible && (
-          <>
-            <TouchableOpacity
-              style={styles.menuOverlay}
-              onPress={() => setMenuMessageVisible(false)}
-              activeOpacity={1}
-            />
-            <MenuMessage
-              onDelete={handleDelete}
-              onEdit={isOwnMessage ? handleEdit : null}
-              onClose={() => setMenuMessageVisible(false)}
-              style={[
-                styles.menuMessageContainer,
-                isOwnMessage ? styles.menuRight : styles.menuLeft
-              ]}
-            />
-          </>
-        )}
+        {renderMenu()}
         <View style={[
           styles.messageHeader,
           isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft,
@@ -348,7 +326,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
             style={[
               styles.messageContainer,
               isOwnMessage ? styles.ownMessage : styles.otherMessage,
-              message.isUnread && styles.unreadMessage,
             ]}
           >
             <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
@@ -416,10 +393,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.light,
-    fontFamily: Platform.select({
-      android: 'Roboto',
-      ios: 'System',
-    }),
+    fontFamily: 'Roboto',
     marginHorizontal: 8,
     marginVertical: 6,
   },
@@ -511,7 +485,7 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
   },
   ownDarkContainer: {
-    backgroundColor: '#a32f05',
+    backgroundColor: COLORS.darkOrange,
   },
   messageContentWrapper: {
     position: 'relative',
