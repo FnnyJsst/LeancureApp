@@ -88,8 +88,11 @@ Notifications.setNotificationHandler({
           const channelName = channelMatch ? channelMatch[1] : null;
 
           if (channelName) {
+            console.log('📌 Nom du canal extrait:', channelName);
+
             // Get the name of the currently displayed channel
             const viewedChannelName = await SecureStore.getItemAsync('viewedChannelName');
+            console.log('📌 Canal actuellement visualisé:', viewedChannelName);
 
             // If the channel name is the same as the currently displayed channel, we block the notification
             if (viewedChannelName && channelName.includes(viewedChannelName)) {
@@ -99,6 +102,32 @@ Notifications.setNotificationHandler({
                 shouldPlaySound: false,
                 shouldSetBadge: false,
               };
+            }
+
+            // Get the channel ID from the notification data
+            const channelId = notificationData.data.channelId;
+            if (channelId) {
+              console.log('🔔 Marquer le canal comme non lu:', channelId);
+              // Emit the unread message event
+              if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
+                global.unreadMessageEmitter.emit(channelId);
+              }
+            } else {
+              // Try to get the channel ID from the global channels
+              if (typeof global !== 'undefined' && global.channels) {
+                const channel = global.channels.find(c => c.title === channelName);
+                if (channel) {
+                  console.log('🔔 Marquer le canal comme non lu:', channel.id);
+                  // Emit the unread message event
+                  if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
+                    global.unreadMessageEmitter.emit(channel.id);
+                  }
+                } else {
+                  console.log('❌ Canal non trouvé dans la liste des canaux');
+                }
+              } else {
+                console.log('❌ Liste des canaux non disponible');
+              }
             }
           }
         } catch (error) {

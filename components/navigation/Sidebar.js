@@ -51,6 +51,8 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
    */
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  // Animation pour le point orange
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   /**
    * @description Animate the sidebar and the overlay
@@ -70,6 +72,24 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
     ]).start();
   }, [isExpanded, isSmartphone, slideAnim, fadeAnim]);
 
+  useEffect(() => {
+    if (unreadChannels && Object.keys(unreadChannels).length > 0) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.2,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    }
+  }, [unreadChannels]);
 
   /**
    * @description Loads the channels and groups
@@ -97,6 +117,16 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           if (response.status === 'ok' && response.privateGroups) {
             setGroups(response.privateGroups);
             setChannels(response.publicChannels || []);
+
+            // Store channels globally
+            if (typeof global !== 'undefined') {
+              const allChannels = [
+                ...(response.publicChannels || []),
+                ...response.privateGroups.flatMap(group => group.channels || [])
+              ];
+              global.channels = allChannels;
+              console.log('✅ Canaux stockés globalement:', allChannels.length);
+            }
           } else {
             throw new Error(t('errors.errorLoadingChannels'));
           }
@@ -244,6 +274,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                   {/* List of channels if the group is selected */}
                   {selectedGroup?.id === group.id && group.channels && group.channels.map((channel) => {
                     const hasUnreadMessages = unreadChannels && unreadChannels[channel.id];
+                    console.log('🔍 Canal:', channel.id, 'Messages non lus:', hasUnreadMessages);
 
                     return (
                       <TouchableOpacity
@@ -262,9 +293,16 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                           ]}>{channel.title}</Text>
                         </View>
                         {hasUnreadMessages && (
-                          <View style={styles.unreadBadge}>
+                          <Animated.View
+                            style={[
+                              styles.unreadBadge,
+                              {
+                                transform: [{ scale: pulseAnim }]
+                              }
+                            ]}
+                          >
                             <View style={styles.unreadDot} />
-                          </View>
+                          </Animated.View>
                         )}
                       </TouchableOpacity>
                     );
@@ -460,10 +498,20 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: COLORS.orange,
     marginLeft: 8,
+    shadowColor: COLORS.orange,
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 5,
   },
   unreadBadge: {
     padding: 4,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'absolute',
+    right: 10,
   },
 });

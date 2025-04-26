@@ -227,31 +227,70 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const handleWebSocketMessage = useCallback(async (data) => {
     try {
+      console.log('📨 Message WebSocket reçu:', JSON.stringify(data, null, 2));
+
       const messageId = data.message?.id || data.notification?.message?.id;
+      console.log('🔑 ID du message:', messageId);
 
       // If the message has already been processed, we ignore it
       if (messageId && processedMessageIds.current.has(messageId)) {
+        console.log('🔄 Message déjà traité, ignoré');
         return;
       }
 
       // We add the message ID to the list of processed messages
       if (messageId) {
         processedMessageIds.current.add(messageId);
+        console.log('✅ Message ajouté à la liste des messages traités');
       }
 
       // Check if it's a notification to mark a channel as unread
       if (data.notification && data.notification.type === 'chat' && data.notification.message) {
+        console.log('🔔 Notification de chat détectée');
         // It's a chat message notification
         const notifMessage = data.notification.message;
+        console.log('📝 Détails du message:', JSON.stringify(notifMessage, null, 2));
 
         // Check if the message is from the current user
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         const userCredentials = credentialsStr ? JSON.parse(credentialsStr) : null;
         const isOwnMessage = userCredentials && notifMessage.login === userCredentials.login;
+        console.log('👤 Message propre:', isOwnMessage);
 
-        // If not from the current user and has a channel ID, mark as unread
-        if (!isOwnMessage && notifMessage.channelId) {
-          markChannelAsUnread(notifMessage.channelId.toString());
+        // Extract channel ID from the notification
+        let channelId = null;
+        if (notifMessage.channelId) {
+          channelId = notifMessage.channelId.toString().replace('channel_', '');
+        } else if (data.notification.body) {
+          // Try to extract channel name from the notification body
+          const channelMatch = data.notification.body.match(/channel\s+(.+)$/i);
+          if (channelMatch) {
+            const channelName = channelMatch[1].trim();
+            console.log('📌 Nom du canal extrait:', channelName);
+
+            // Get the channel ID from the notification filters
+            if (data.notification.filters?.values?.channel) {
+              channelId = data.notification.filters.values.channel.toString().replace('channel_', '');
+              console.log('✅ ID du canal trouvé dans les filtres:', channelId);
+            }
+          }
+        }
+
+        // If we have a channel ID and it's not the current channel, mark as unread
+        if (channelId) {
+          const currentChannelId = channel?.id?.toString();
+          console.log('📌 Canal du message:', channelId);
+          console.log('📌 Canal actuel:', currentChannelId);
+
+          // Only mark as unread if it's not the current channel
+          if (channelId !== currentChannelId) {
+            console.log('🔔 Marquer le canal comme non lu:', channelId);
+            markChannelAsUnread(channelId, true);
+          } else {
+            console.log('🔕 Canal actuel, pas marqué comme non lu');
+          }
+        } else {
+          console.log('❌ Impossible de trouver l\'ID du canal');
         }
       }
 
@@ -381,6 +420,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       }
 
     } catch (error) {
+      console.error('❌ Erreur dans handleWebSocketMessage:', error);
       handleChatError(error, 'message.processing', { silent: false });
     }
   }, [channel, credentials, t, markChannelAsUnread]);

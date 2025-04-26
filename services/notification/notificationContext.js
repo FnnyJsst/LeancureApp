@@ -9,6 +9,22 @@ export const NotificationContext = createContext();
 // Initialize a global variable to store the ID of the currently viewed channel
 let currentlyViewedChannelId = null;
 
+// Initialize a global event emitter for unread messages
+if (typeof global !== 'undefined') {
+  global.unreadMessageEmitter = {
+    listeners: new Set(),
+    emit: function(channelId) {
+      this.listeners.forEach(listener => listener(channelId));
+    },
+    addListener: function(listener) {
+      this.listeners.add(listener);
+    },
+    removeListener: function(listener) {
+      this.listeners.delete(listener);
+    }
+  };
+}
+
 // Functions to access the global variable
 export const getCurrentlyViewedChannel = () => currentlyViewedChannelId;
 export const setCurrentlyViewedChannel = (channelId) => {
@@ -20,11 +36,33 @@ export const setCurrentlyViewedChannel = (channelId) => {
   }
 };
 
+// Function to emit unread message event
+export const emitUnreadMessage = (channelId) => {
+  if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
+    global.unreadMessageEmitter.emit(channelId);
+  }
+};
+
 // Context provider for notifications
 export const NotificationProvider = ({ children }) => {
   const [lastSentMessageTimestamp, setLastSentMessageTimestamp] = useState(null);
   const [activeChannelId, setActiveChannelId] = useState(null);
   const [unreadChannels, setUnreadChannels] = useState({});
+
+  // Listen for unread message events
+  useEffect(() => {
+    if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
+      const handleUnreadMessage = (channelId) => {
+        markChannelAsUnread(channelId, true);
+      };
+
+      global.unreadMessageEmitter.addListener(handleUnreadMessage);
+
+      return () => {
+        global.unreadMessageEmitter.removeListener(handleUnreadMessage);
+      };
+    }
+  }, []);
 
   /**
    * @function updateActiveChannel
@@ -67,16 +105,27 @@ export const NotificationProvider = ({ children }) => {
 
   // Mark a channel as unread
   const markChannelAsUnread = (channelId, isUnread = true) => {
-    if (!channelId) return;
+    console.log('📝 markChannelAsUnread appelé avec:', { channelId, isUnread });
+
+    if (!channelId) {
+      console.log('❌ Pas d\'ID de canal fourni');
+      return;
+    }
 
     // If it's the active channel, don't mark as unread
-    if (channelId === activeChannelId) return;
+    if (channelId === activeChannelId) {
+      console.log('🔕 Canal actif, pas marqué comme non lu');
+      return;
+    }
 
     setUnreadChannels(prev => {
+      console.log('📊 État précédent des canaux non lus:', prev);
+
       // If marking as read, remove from dictionary
       if (!isUnread && prev[channelId]) {
         const updated = { ...prev };
         delete updated[channelId];
+        console.log('✅ Canal marqué comme lu:', channelId);
 
         // Save updated state
         saveUnreadChannels(updated);
@@ -84,7 +133,7 @@ export const NotificationProvider = ({ children }) => {
       }
 
       // If marking as unread, add to dictionary
-      if (isUnread && !prev[channelId]) {
+      if (isUnread) {
         const updated = {
           ...prev,
           [channelId]: {
@@ -92,6 +141,8 @@ export const NotificationProvider = ({ children }) => {
             count: (prev[channelId]?.count || 0) + 1
           }
         };
+        console.log('✅ Canal marqué comme non lu:', channelId);
+        console.log('📊 Nouvel état des canaux non lus:', updated);
 
         // Save updated state
         saveUnreadChannels(updated);
@@ -105,8 +156,11 @@ export const NotificationProvider = ({ children }) => {
   // Save unread channels state
   const saveUnreadChannels = async (unreadState) => {
     try {
+      console.log('💾 Sauvegarde des canaux non lus:', unreadState);
       await SecureStore.setItemAsync('unreadChannels', JSON.stringify(unreadState));
+      console.log('✅ État des canaux non lus sauvegardé');
     } catch (err) {
+      console.error('❌ Erreur lors de la sauvegarde des canaux non lus:', err);
       handleError(err, i18n.t('error.saveUnreadChannels'), {
         type: ErrorType.SYSTEM
       });

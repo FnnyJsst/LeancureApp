@@ -136,7 +136,7 @@ export const ENV = {
             }
 
             // If no custom URL is found, use the default URL
-            const defaultWsUrl = 'ws://192.168.77.101:8000';
+            const defaultWsUrl = 'ws://192.168.1.67:8000';
             console.log('✅ Utilisation de l\'URL WebSocket par défaut:', defaultWsUrl);
             return defaultWsUrl;
         } catch (error) {

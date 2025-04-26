@@ -4,7 +4,7 @@ import { ENV } from '../../config/env';
 import '../../config/firebase';
 import axios from 'axios';
 import { createApiRequest } from '../api/baseApi';
-import { getCurrentlyViewedChannel } from './notificationContext';
+import { getCurrentlyViewedChannel, useNotification, emitUnreadMessage } from './notificationContext';
 import { handleError, ErrorType } from '../../utils/errorHandling';
 import i18n from '../../i18n';
 import * as SecureStore from 'expo-secure-store';
@@ -116,6 +116,9 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
           console.log('🔕 Notification ignorée: canal actuellement visualisé');
           return false;
         }
+
+        // Émettre l'événement de message non lu
+        emitUnreadMessage(cleanNotifChannelId);
       }
 
       return true;
@@ -305,7 +308,7 @@ export const removeNotificationToken = async () => {
       return false;
     }
 
-    // Récupérer le token directement depuis Expo Notifications
+    // We get the current token
     let currentToken = null;
     try {
       const tokenData = await Notifications.getExpoPushTokenAsync({
@@ -317,16 +320,15 @@ export const removeNotificationToken = async () => {
       console.error('❌ Erreur lors de la récupération du token depuis Expo:', error);
     }
 
-    // Si le token n'est pas trouvé via Expo, essayer le stockage
+    // If the token is not found via Expo, try the storage
     if (!currentToken) {
       const possibleTokenKeys = ['expoPushToken', 'pushToken', 'notificationToken'];
-      console.log('🔍 Recherche du token dans le stockage:', possibleTokenKeys);
+      console.log('🔍 Search for token in storage:', possibleTokenKeys);
 
       for (const key of possibleTokenKeys) {
         const token = await SecureStore.getItemAsync(key);
         if (token) {
           currentToken = token;
-          console.log(`✅ Token trouvé dans le stockage avec la clé ${key}:`, currentToken);
           break;
         }
       }
@@ -339,7 +341,7 @@ export const removeNotificationToken = async () => {
 
     const deviceId = await getDeviceId();
 
-    // Vérifier et extraire les credentials
+    // Check and extract credentials
     let parsedCredentials;
     try {
       parsedCredentials = JSON.parse(credentials);
@@ -388,9 +390,9 @@ export const removeNotificationToken = async () => {
       timeout: 10000,
     });
 
-    // Vérifier la réponse en détail
+    // Check the detailed response
     const responseData = response.data;
-    console.log('📥 [Notification] Réponse détaillée de suppression:', {
+    console.log('📥 [Notification] Detailed response:', {
       status: response.status,
       data: responseData,
       success: responseData?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok'
@@ -398,7 +400,7 @@ export const removeNotificationToken = async () => {
 
     // We delete the stored token if it exists
     if (currentToken) {
-      // Supprimer le token de toutes les clés possibles
+
       const possibleTokenKeys = ['expoPushToken', 'pushToken', 'notificationToken'];
       for (const key of possibleTokenKeys) {
         try {
