@@ -7,6 +7,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
+import { formatFileSize } from '../../utils/fileUtils';
 
 /**
  * @component FilePreview
@@ -71,21 +72,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
   const { t } = useTranslation();
 
   /**
-   * @function formatFileSize
-   * @description A function to format the file size
-   * @param {number} bytes - The size of the file in bytes
-   * @returns {string} The size of the file in a readable format
-   */
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) {return '0 B';}
-
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  /**
    * @function pickDocument
    * @description A function to pick a document
    */
@@ -120,7 +106,12 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
           return;
         }
 
-        const fileSize = formatFileSize(file.size);
+        // We format the file size to display in Ko
+        const fileSize = formatFileSize(file.size, {
+          startWithBytes: false,  // Start with Ko
+          precision: 1,           // 1 decimal
+          defaultUnit: 'Ko'       // Default unit in Ko
+        });
 
         // We store the file in base64 format
         const base64 = await FileSystem.readAsStringAsync(file.uri, {
@@ -177,6 +168,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
    * @description A function to handle the send of the message
    */
   const handleSend = () => {
+    // If the message is empty and there is no file, we return
     if (!message.trim() && !selectedFile) return;
 
     // If the message is being edited, we send the edited message
@@ -202,7 +194,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
         });
       }
     }
-
     // We reset the input
     setMessage('');
     setSelectedFile(null);
@@ -215,18 +206,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
    */
   const handleRemoveFile = () => {
     setSelectedFile(null);
-  };
-
-  /**
-   * @function handleKeyPress
-   * @description A function to handle the key press of the input
-   */
-  const handleKeyPress = (event) => {
-    console.log('event', event);
-    if (event.nativeEvent.key === 'Enter') {
-      console.log('Enter key pressed');
-      handleSend();
-    }
   };
 
   return (
@@ -364,7 +343,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     height: 40,
     borderWidth: 0.5,
-    borderColor: '#403430',
+    borderColor: COLORS.borderColor,
     flex: 1,
     paddingRight: 35,
   },
@@ -416,11 +395,6 @@ const styles = StyleSheet.create({
   },
   previewContainerLowResTablet: {
     width: '80%',
-  },
-  fileInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 2,
   },
   fileDetails: {
     marginLeft: 8,

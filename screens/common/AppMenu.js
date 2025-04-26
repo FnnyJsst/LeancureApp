@@ -26,12 +26,13 @@ export default function AppMenu({ onNavigate, testID }) {
   const [isMessagesHidden, setIsMessagesHidden] = useState(false);
   const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
 
-  /**
-   * @description Load the messages visibility from the secure store depending on if the user has hidden them or not
-   */
   useEffect(() => {
-      const loadMessagesVisibility = async () => {
-        try {
+    /**
+     * @function loadMessagesVisibility
+     * @description Load the messages visibility from the secure store
+     */
+    const loadMessagesVisibility = async () => {
+      try {
           const savedValue = await SecureStore.getItemAsync('isMessagesHidden');
           if (savedValue !== null) {
             setIsMessagesHidden(JSON.parse(savedValue));
