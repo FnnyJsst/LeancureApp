@@ -54,28 +54,43 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
      * @description Cleanup the WebSocket connection
      */
     const cleanup = useCallback(() => {
+        // Éviter les nettoyages multiples
+        if (isClosingRef.current) {
+            console.log('⚠️ Nettoyage déjà en cours, ignoré');
+            return;
+        }
+
+        console.log('🧹 Nettoyage de la connexion WebSocket');
+        isClosingRef.current = true;
+
         if (ws.current) {
-            isClosingRef.current = true;
             try {
+                console.log('🔌 Fermeture de la connexion WebSocket');
                 ws.current.close();
             } catch (error) {
-                console.log('❌ Erreur lors de la fermeture de la connexion:', error);
+                console.error('❌ Erreur lors de la fermeture de la connexion:', error);
             }
             ws.current = null;
         }
+
         if (reconnectTimeout.current) {
+            console.log('⏱️ Nettoyage du timeout de reconnexion');
             clearTimeout(reconnectTimeout.current);
             reconnectTimeout.current = null;
         }
+
         if (connectionTimeout.current) {
+            console.log('⏱️ Nettoyage du timeout de connexion');
             clearTimeout(connectionTimeout.current);
             connectionTimeout.current = null;
         }
+
         isConnectingRef.current = false;
         isClosingRef.current = false;
         setIsConnected(false);
         activeChannel.current = null;
         reconnectAttempts.current = 0;
+        console.log('✅ Nettoyage terminé');
     }, []);
 
     /**
@@ -83,19 +98,16 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
      */
     const sendSubscription = useCallback(async () => {
         try {
-            // Check if the WebSocket is not initialized or if there are no channels
-            if (!ws.current || !channels.length ||ws.current.readyState !== WebSocket.OPEN)  {
+            if (!ws.current || !channels.length || ws.current.readyState !== WebSocket.OPEN) {
                 return;
             }
 
-            // Clean the channels
             const cleanChannels = channels.map(channel =>
                 typeof channel === 'string' ?
                     channel.replace('channel_', '') :
                     channel.toString()
             );
 
-            // Send the subscription to the WebSocket server to receive messages from the channels
             const subscriptionData = {
                 "sender": "client",
                 "subscriptions": [
@@ -178,10 +190,16 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
     // Connect to the WebSocket server
     const connect = useCallback(async () => {
         if (isConnectingRef.current || isClosingRef.current || reconnectAttempts.current >= MAX_RECONNECT_ATTEMPTS) {
+            console.log('⚠️ Tentative de connexion ignorée:', {
+                isConnecting: isConnectingRef.current,
+                isClosing: isClosingRef.current,
+                reconnectAttempts: reconnectAttempts.current
+            });
             return;
         }
 
         if (ws.current) {
+            console.log('🔄 Nettoyage de la connexion existante avant nouvelle connexion');
             cleanup();
         }
 
@@ -190,13 +208,13 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             const wsUrl = await ENV.WS_URL();
             console.log('🌐 Tentative de connexion à:', wsUrl);
 
-            // Ajout d'un timeout pour la connexion
             connectionTimeout.current = setTimeout(() => {
                 if (ws.current && ws.current.readyState !== WebSocket.OPEN) {
                     console.log('⏰ Timeout de connexion WebSocket');
                     cleanup();
                     reconnectAttempts.current++;
                     if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+                        console.log(`🔄 Tentative de reconnexion ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS}`);
                         reconnectTimeout.current = setTimeout(() => {
                             connect();
                         }, RECONNECT_DELAY);
@@ -219,13 +237,18 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             };
 
             ws.current.onclose = (event) => {
-                if (isClosingRef.current) return;
+                if (isClosingRef.current) {
+                    console.log('🔌 Fermeture intentionnelle de la connexion');
+                    return;
+                }
+                console.log('🔌 WebSocket fermé. Code:', event.code, 'Raison:', event.reason);
                 cleanup();
                 clearInterval(pingInterval);
 
                 if (event.code !== 1000) {
                     reconnectAttempts.current++;
                     if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+                        console.log(`🔄 Tentative de reconnexion ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS}`);
                         reconnectTimeout.current = setTimeout(() => {
                             connect();
                         }, RECONNECT_DELAY);
@@ -243,6 +266,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                     cleanup();
                     reconnectAttempts.current++;
                     if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+                        console.log(`🔄 Tentative de reconnexion ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS}`);
                         reconnectTimeout.current = setTimeout(() => {
                             connect();
                         }, RECONNECT_DELAY);
@@ -294,12 +318,13 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             }, 30000); // Ping every 30 seconds
 
         } catch (error) {
-            // If the connection is not created, we log the error
+            console.error('❌ Erreur lors de la création de la connexion:', error);
             handleWSError(error, 'connection.create');
             isConnectingRef.current = false;
             cleanup();
             reconnectAttempts.current++;
             if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+                console.log(`🔄 Tentative de reconnexion ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS}`);
                 reconnectTimeout.current = setTimeout(() => {
                     connect();
                 }, RECONNECT_DELAY);
@@ -310,7 +335,9 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
     // Handle the channel change with debounce
     useEffect(() => {
         if (channels.length === 0) {
-            cleanup();
+            if (ws.current) {
+                cleanup();
+            }
             return;
         }
 
@@ -321,22 +348,33 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         if (cleanCurrentChannel !== cleanActiveChannel) {
             activeChannel.current = currentChannel;
 
-            // Debounce la reconnexion
-            if (reconnectTimeout.current) {
-                clearTimeout(reconnectTimeout.current);
-            }
-
-            reconnectTimeout.current = setTimeout(() => {
-                if (!isConnectingRef.current && !isClosingRef.current) {
-                    connect();
+            // Si nous avons une connexion active, on met juste à jour l'abonnement
+            if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+                console.log('🔄 Mise à jour de l\'abonnement pour le canal:', cleanCurrentChannel);
+                sendSubscription();
+            } else if (!isConnectingRef.current && !isClosingRef.current) {
+                // Sinon on établit une nouvelle connexion
+                if (reconnectTimeout.current) {
+                    clearTimeout(reconnectTimeout.current);
                 }
-            }, 500);
+
+                reconnectTimeout.current = setTimeout(() => {
+                    connect();
+                }, 500);
+            }
         }
-    }, [channels, connect, cleanup]);
+    }, [channels, connect, cleanup, sendSubscription]);
 
     // Nettoyage lors du démontage du composant
     useEffect(() => {
+        console.log('🔄 Initialisation du hook useWebSocket');
+        let isMounted = true;
+
         return () => {
+            if (!isMounted) return;
+            console.log('🧹 Démontage du hook useWebSocket');
+            isMounted = false;
+
             if (reconnectTimeout.current) {
                 clearTimeout(reconnectTimeout.current);
             }
@@ -406,7 +444,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         }
 
         try {
-
             if (!credentials) {
                 throw new Error(t('errors.noCredentialsFound'));
             }
@@ -414,8 +451,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             const cleanChannelId = activeChannel.current?.replace('channel_', '');
 
             const messageData = {
-                "package": "amaiia_msg_srv",
-                "page": "message",
+                "sender": "client",
                 "cmd": [
                     {
                         "amaiia_msg_srv": {
@@ -440,6 +476,22 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             return false;
         }
     };
+
+    // Gestion des erreurs de connexion
+    const handleConnectionError = useCallback((error, source) => {
+        console.error(`❌ Erreur de connexion (${source}):`, error);
+        handleWSError(error, source);
+        cleanup();
+        reconnectAttempts.current++;
+        if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+            console.log(`🔄 Tentative de reconnexion ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS}`);
+            reconnectTimeout.current = setTimeout(() => {
+                connect();
+            }, RECONNECT_DELAY);
+        } else {
+            console.error('❌ Nombre maximum de tentatives de reconnexion atteint');
+        }
+    }, [connect, cleanup]);
 
     return {
         sendMessage,
