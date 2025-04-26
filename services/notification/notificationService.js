@@ -257,3 +257,87 @@ export const synchronizeTokenWithAPI = async (token) => {
     return false;
   }
 };
+
+/**
+ * @function removeNotificationToken
+ * @description Supprime le token de notification lors de la déconnexion
+ * @returns {Promise<boolean>} - Si la suppression a réussi
+ */
+export const removeNotificationToken = async () => {
+  try {
+    // Récupérer les informations nécessaires
+    const credentials = await SecureStore.getItemAsync('userCredentials');
+    if (!credentials) {
+      console.error('❌ [Notification] Pas de credentials trouvés');
+      return false;
+    }
+
+    // Récupérer le token actuel
+    const currentToken = await SecureStore.getItemAsync('expoPushToken');
+    if (!currentToken) {
+      console.error('❌ [Notification] Pas de token trouvé');
+      return false;
+    }
+
+    const { contractNumber, accountApiKey, accessToken } = JSON.parse(credentials);
+
+    // Créer le timestamp et le chemin de données
+    const timestamp = Date.now();
+    const data = `amaiia_msg_srv/notifications/synchronize/${timestamp}/`;
+
+    // Générer la signature
+    const hash = CryptoJS.HmacSHA256(data, contractNumber);
+    const hashHex = hash.toString(CryptoJS.enc.Hex);
+
+    // Construire le corps de la requête
+    const requestBody = {
+      "api-version": "2",
+      "api-contract-number": contractNumber,
+      "api-signature": hashHex,
+      "api-signature-hash": "sha256",
+      "api-signature-timestamp": timestamp,
+      "client-type": "mobile",
+      "client-login": "admin",
+      "client-token": accessToken,
+      "cmd": [
+        {
+          "amaiia_msg_srv": {
+            "notifications": {
+              "synchronize": {
+                "action": "delete",
+                "accountapikey": accountApiKey,
+                "token": currentToken
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    console.log('📤 [Notification] Envoi de la requête de suppression du token');
+
+    // Envoyer la requête
+    const response = await axios({
+      method: 'POST',
+      url: await ENV.API_URL(),
+      data: requestBody,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: 10000,
+    });
+
+    console.log('📥 [Notification] Réponse reçue:', {
+      status: response.status,
+      data: response.data
+    });
+
+    // Supprimer le token stocké localement
+    await SecureStore.deleteItemAsync('expoPushToken');
+
+    return response.status === 200;
+  } catch (error) {
+    console.error('❌ [Notification] Erreur lors de la suppression du token:', error);
+    return false;
+  }
+};

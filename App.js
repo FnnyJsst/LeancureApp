@@ -26,7 +26,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
 import { useTranslation } from 'react-i18next';
 import { handleError, ErrorType } from './utils/errorHandling';
-import { registerForPushNotificationsAsync, shouldDisplayNotification } from './services/notification/notificationService';
+import { registerForPushNotificationsAsync, shouldDisplayNotification, removeNotificationToken } from './services/notification/notificationService';
 import * as Notifications from 'expo-notifications';
 import { cleanSecureStoreKeys } from './utils/secureStore';
 import './config/firebase';
@@ -422,6 +422,10 @@ export default function App({ testID, initialScreen }) {
    */
   const handleChatLogout = async () => {
     try {
+      // Supprimer le token de notification
+      await removeNotificationToken();
+
+      // Supprimer les informations de connexion
       await SecureStore.deleteItemAsync('savedLoginInfo');
       navigate(SCREENS.LOGIN);
     } catch (error) {
