@@ -152,7 +152,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const handleChatError = (error, source, options = {}) => {
     try {
-      // Si l'erreur est déjà un objet Error, on l'utilise directement
+      // If the error is already an Error object, we use it directly
       if (error instanceof Error) {
         return handleError(error, `chatWindow.${source}`, {
           type: ErrorType.SYSTEM,
@@ -160,7 +160,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         });
       }
 
-      // Si l'erreur est une chaîne, on crée un nouvel objet Error
+      // If the error is a string, we create a new Error object
       if (typeof error === 'string') {
         const formattedError = new Error(error);
         return handleError(formattedError, `chatWindow.${source}`, {
@@ -169,7 +169,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         });
       }
 
-      // Si l'erreur est un objet, on essaie d'extraire le message
+      // If the error is an object, we try to extract the message
       if (typeof error === 'object' && error !== null) {
         const errorMessage = error.message || error.error || JSON.stringify(error);
         const formattedError = new Error(errorMessage);
@@ -179,16 +179,16 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         });
       }
 
-      // Si on ne peut pas déterminer le type d'erreur, on crée une erreur par défaut
-      const defaultError = new Error('Une erreur inattendue est survenue');
+      // If we can't determine the type of error, we create a default error
+      const defaultError = new Error('An unexpected error occurred');
       return handleError(defaultError, `chatWindow.${source}`, {
         type: ErrorType.SYSTEM,
         ...options
       });
     } catch (e) {
-      // En cas d'erreur dans la gestion de l'erreur, on crée une erreur par défaut
-      console.error('Erreur dans handleChatError:', e);
-      const fallbackError = new Error('Erreur lors de la gestion de l\'erreur');
+      // In case of error in the error handling, we create a default error
+      console.error('Error in handleChatError:', e);
+      const fallbackError = new Error('Error handling the error');
       return handleError(fallbackError, `chatWindow.${source}`, {
         type: ErrorType.SYSTEM,
         ...options
@@ -227,10 +227,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const handleWebSocketMessage = useCallback(async (data) => {
     try {
-      console.log('📨 Message WebSocket reçu:', JSON.stringify(data, null, 2));
 
       const messageId = data.message?.id || data.notification?.message?.id;
-      console.log('🔑 ID du message:', messageId);
 
       // If the message has already been processed, we ignore it
       if (messageId && processedMessageIds.current.has(messageId)) {
@@ -241,7 +239,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       // We add the message ID to the list of processed messages
       if (messageId) {
         processedMessageIds.current.add(messageId);
-        console.log('✅ Message ajouté à la liste des messages traités');
       }
 
       // Check if it's a notification to mark a channel as unread
@@ -249,13 +246,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         console.log('🔔 Notification de chat détectée');
         // It's a chat message notification
         const notifMessage = data.notification.message;
-        console.log('📝 Détails du message:', JSON.stringify(notifMessage, null, 2));
 
         // Check if the message is from the current user
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         const userCredentials = credentialsStr ? JSON.parse(credentialsStr) : null;
         const isOwnMessage = userCredentials && notifMessage.login === userCredentials.login;
-        console.log('👤 Message propre:', isOwnMessage);
 
         // Extract channel ID from the notification
         let channelId = null;
@@ -266,12 +261,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           const channelMatch = data.notification.body.match(/channel\s+(.+)$/i);
           if (channelMatch) {
             const channelName = channelMatch[1].trim();
-            console.log('📌 Nom du canal extrait:', channelName);
 
             // Get the channel ID from the notification filters
             if (data.notification.filters?.values?.channel) {
               channelId = data.notification.filters.values.channel.toString().replace('channel_', '');
-              console.log('✅ ID du canal trouvé dans les filtres:', channelId);
             }
           }
         }
@@ -279,8 +272,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         // If we have a channel ID and it's not the current channel, mark as unread
         if (channelId) {
           const currentChannelId = channel?.id?.toString();
-          console.log('📌 Canal du message:', channelId);
-          console.log('📌 Canal actuel:', currentChannelId);
 
           // Only mark as unread if it's not the current channel
           if (channelId !== currentChannelId) {
@@ -363,7 +354,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         setMessages(prevMessages => {
           const newMessage = formatMessage(messageContent, credentials);
 
-          // On vérifie si le message existe déjà
+          // We check if the message exists
           const messageExists = prevMessages.some(msg => msg.id === newMessage.id);
 
           if (messageExists) {
@@ -391,10 +382,9 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           return;
         }
 
-        // Enrichissement du message avec les informations nécessaires pour le filtrage des notifications
         messageContent.channelId = channelId;
 
-        // Si nous avons des credentials et un login, nous pouvons pré-déterminer si c'est un message propre
+        // If we have credentials and a login, we can pre-determine if it's a own message
         if (credentials && credentials.login && messageContent.login) {
           messageContent.isOwnMessage = messageContent.login === credentials.login;
         }

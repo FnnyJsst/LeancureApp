@@ -103,18 +103,15 @@ export const NotificationProvider = ({ children }) => {
     setLastSentMessageTimestamp(timestamp);
   };
 
-  // Mark a channel as unread
+  /**
+   * @function markChannelAsUnread
+   * @description Mark a channel as unread
+   * @param {string} channelId - The ID of the channel
+   * @param {boolean} isUnread - Whether the channel is unread
+   */
   const markChannelAsUnread = (channelId, isUnread = true) => {
-    console.log('📝 markChannelAsUnread appelé avec:', { channelId, isUnread });
 
-    if (!channelId) {
-      console.log('❌ Pas d\'ID de canal fourni');
-      return;
-    }
-
-    // If it's the active channel, don't mark as unread
-    if (channelId === activeChannelId) {
-      console.log('🔕 Canal actif, pas marqué comme non lu');
+    if (!channelId || channelId === activeChannelId) {
       return;
     }
 
@@ -142,7 +139,6 @@ export const NotificationProvider = ({ children }) => {
           }
         };
         console.log('✅ Canal marqué comme non lu:', channelId);
-        console.log('📊 Nouvel état des canaux non lus:', updated);
 
         // Save updated state
         saveUnreadChannels(updated);
@@ -153,14 +149,15 @@ export const NotificationProvider = ({ children }) => {
     });
   };
 
-  // Save unread channels state
+  /**
+   * @function saveUnreadChannels
+   * @description Save the unread channels state
+   * @param {Object} unreadState - The unread channels state
+   */
   const saveUnreadChannels = async (unreadState) => {
     try {
-      console.log('💾 Sauvegarde des canaux non lus:', unreadState);
       await SecureStore.setItemAsync('unreadChannels', JSON.stringify(unreadState));
-      console.log('✅ État des canaux non lus sauvegardé');
     } catch (err) {
-      console.error('❌ Erreur lors de la sauvegarde des canaux non lus:', err);
       handleError(err, i18n.t('error.saveUnreadChannels'), {
         type: ErrorType.SYSTEM
       });

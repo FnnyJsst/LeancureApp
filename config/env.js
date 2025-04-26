@@ -43,7 +43,7 @@ export const ENV = {
                 }
             }
             // If the custom API URL is not defined, we use the default API URL
-            // console.log('✅ Utilisation de l\'URL par défaut:', DEFAULT_API_URL);
+            console.log('✅ Utilisation de l\'URL par défaut:', DEFAULT_API_URL);
             return DEFAULT_API_URL;
         } catch (error) {
             // console.error('🔴 Erreur détaillée:', {
@@ -76,7 +76,6 @@ export const ENV = {
             // We delete the old API and WebSocket URLs
             await SecureStore.deleteItemAsync('custom_api_url');
             await SecureStore.deleteItemAsync('custom_ws_url');
-            console.log('🗑️ Anciennes URLs supprimées');
 
             // We save the new API URL
             await SecureStore.setItemAsync('custom_api_url', trimmedUrl);
@@ -94,10 +93,6 @@ export const ENV = {
 
             return true;
         } catch (error) {
-            console.error('🔴 Erreur lors de la sauvegarde:', {
-                name: error.name,
-                message: error.message,
-            });
             throw error;
         }
     },

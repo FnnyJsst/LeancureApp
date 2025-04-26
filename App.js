@@ -36,7 +36,7 @@ import { NotificationProvider } from './services/notification/notificationContex
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
     try {
-      // Vérifier si l'utilisateur est connecté
+      // We check if the user is connected
       const savedCredentials = await SecureStore.getItemAsync('userCredentials');
       if (!savedCredentials) {
         console.log('🔒 Notification ignorée: utilisateur non connecté');
@@ -54,32 +54,11 @@ Notifications.setNotificationHandler({
         data: notification.request.content.data || {}
       };
 
-      console.log('🔍 Notification interceptée par le gestionnaire global:',
-        JSON.stringify(notificationData));
-
       // Case 1: Detection of new message notifications
       // If the notification has a title "New message" and contains "channel" in the body
       if (notificationData.title === "New message" &&
           notificationData.body &&
           notificationData.body.includes("channel")) {
-
-        console.log('🔍 Notification de nouveau message détectée');
-
-        // On utilise le contexte de notification pour récupérer les informations
-        const lastMessageTime = global.lastSentMessageTimestamp || 0;
-        const now = Date.now();
-        const timeSinceLastMessage = now - lastMessageTime;
-        const messageWindow = 5000; // 5 secondes par défaut
-
-        // Si un message a été envoyé récemment, c'est probablement notre propre message
-        if (timeSinceLastMessage < messageWindow) {
-          console.log('🔕 Notification bloquée: détection de message propre par proximité temporelle');
-          return {
-            shouldShowAlert: false,
-            shouldPlaySound: false,
-            shouldSetBadge: false,
-          };
-        }
 
         // Also check if the user is currently on the channel
         try {
@@ -88,7 +67,6 @@ Notifications.setNotificationHandler({
           const channelName = channelMatch ? channelMatch[1] : null;
 
           if (channelName) {
-            console.log('📌 Nom du canal extrait:', channelName);
 
             // Get the name of the currently displayed channel
             const viewedChannelName = await SecureStore.getItemAsync('viewedChannelName');
@@ -263,7 +241,6 @@ export default function App({ testID, initialScreen }) {
         }, 3000);
       }
     } catch (error) {
-      console.log('❌ [App] Erreur lors du changement de visibilité des messages:', error.message);
 
       // If the error is a decryption error, we clean the secure store
       if (error.message && (
@@ -271,7 +248,7 @@ export default function App({ testID, initialScreen }) {
         error.message.includes('decipher') ||
         error.message.includes('decryption')
       )) {
-        console.log('🧹 [App] Erreur de déchiffrement dans hideMessages, nettoyage...');
+
         try {
           await cleanSecureStoreKeys();
 
@@ -287,7 +264,7 @@ export default function App({ testID, initialScreen }) {
             }, 3000);
           }
         } catch (cleanError) {
-          console.error('❌ [App] Erreur lors du nettoyage dans hideMessages:', cleanError);
+
           handleAppError(cleanError, 'hideMessages.clean');
         }
       } else {
@@ -373,21 +350,20 @@ export default function App({ testID, initialScreen }) {
           console.log('🧹 [App] Erreur de déchiffrement détectée, nettoyage du SecureStore...');
           handleAppError(error, 'decryption');
           try {
-            // Utilisez cleanSecureStore au lieu de clearSecureStore
+
             await cleanSecureStoreKeys();
-            console.log('✅ [App] SecureStore nettoyé avec succès après erreur de déchiffrement');
           } catch (cleanError) {
             console.error('❌ [App] Erreur lors du nettoyage du SecureStore:', cleanError);
           }
 
-          // Réinitialisation des états après nettoyage
+          // We reset the states after cleaning
           setIsMessagesHidden(false);
           setIsLoading(false);
           if (currentScreen !== SCREENS.APP_MENU) {
             navigate(SCREENS.APP_MENU);
           }
         } else {
-          // Autres types d'erreurs
+          // Other types of errors
           handleAppError(error, 'initApp');
           setIsLoading(false);
           if (currentScreen !== SCREENS.APP_MENU) {
@@ -430,7 +406,7 @@ export default function App({ testID, initialScreen }) {
       } catch (error) {
         console.log('❌ [App] Erreur lors de la mise à jour de isMessagesHidden:', error.message);
 
-        // Vérifier si c'est une erreur de déchiffrement
+        // Check if it's a decryption error
         if (error.message && (
           error.message.includes('decrypt') ||
           error.message.includes('decipher') ||
@@ -441,7 +417,7 @@ export default function App({ testID, initialScreen }) {
             await cleanSecureStoreKeys();
             console.log('✅ [App] SecureStore nettoyé avec succès');
 
-            // On réessaie de sauvegarder après nettoyage
+            // We try to save again after cleaning
             await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(isMessagesHidden));
             isMessagesHiddenRef.current = isMessagesHidden;
           } catch (cleanError) {
@@ -462,41 +438,38 @@ export default function App({ testID, initialScreen }) {
    */
   const handleChatLogout = async () => {
     try {
-      // D'abord, on supprime le token de notification
-      console.log('🔔 Suppression du token de notification...');
+      // First, we delete the notification token
       const tokenRemoved = await removeNotificationToken();
       console.log('✅ Token de notification supprimé:', tokenRemoved);
 
-      // Ensuite, on supprime les informations de connexion
-      console.log('🔑 Suppression des credentials...');
+      // Then, we delete the connection information
       await SecureStore.deleteItemAsync('savedLoginInfo');
-      console.log('✅ Credentials supprimés');
+      console.log('✅ Credentials supprimées');
 
-      // Enfin, on redirige vers l'écran de connexion
+      // Finally, we redirect to the login screen
       navigate(SCREENS.LOGIN);
     } catch (error) {
-      console.error('❌ Erreur lors de la déconnexion:', error);
       handleAppError(error, 'logout');
       throw error;
     }
   };
 
-  // Gestion du redémarrage de l'application
+  /**
+   * @function handleAppStateChange
+   * @description Handles the app state change
+   */
   useEffect(() => {
     const handleAppStateChange = async (nextAppState) => {
       if (nextAppState === 'active') {
-        console.log('🔄 Application redémarrée');
         try {
-          // Vérifier si les credentials existent
+          // Check if the credentials exist
           const savedCredentials = await SecureStore.getItemAsync('savedLoginInfo');
           if (savedCredentials) {
-            console.log('✅ Credentials trouvés au redémarrage');
-            // Si on est sur l'écran de login mais qu'on a des credentials, on redirige vers le menu
+            // If we are on the login screen but have credentials, we redirect to the app menu
             if (currentScreen === SCREENS.LOGIN) {
               navigate(SCREENS.APP_MENU);
             }
           } else {
-            console.log('⚠️ Aucun credential trouvé au redémarrage');
             if (currentScreen !== SCREENS.LOGIN) {
               navigate(SCREENS.LOGIN);
             }
@@ -508,7 +481,7 @@ export default function App({ testID, initialScreen }) {
       }
     };
 
-    // S'abonner aux changements d'état de l'application
+    // Subscribe to the app state changes
     const subscription = AppState.addEventListener('change', handleAppStateChange);
 
     return () => {
@@ -517,19 +490,19 @@ export default function App({ testID, initialScreen }) {
   }, [currentScreen, navigate]);
 
   useEffect(() => {
-    // Initialisation
+
     let subscription = null;
 
-    // Configuration des notifications
+    // Configuration of notifications
     const setupNotifications = async () => {
       try {
-        console.log('🔔 Initialisation des notifications...');
+        console.log('🔔 Initialization of notifications...');
         const token = await registerForPushNotificationsAsync();
         if (token) {
           console.log('✅ Token obtenu dans App.js :', token);
         }
 
-        // Vérification des permissions
+        // Get the permissions status
         const { status } = await Notifications.getPermissionsAsync();
         console.log("🔔 Statut des permissions:", status);
       } catch (error) {
@@ -537,44 +510,38 @@ export default function App({ testID, initialScreen }) {
       }
     };
 
-    // Appel de la fonction d'initialisation
     setupNotifications();
 
-    // Configuration d'un seul abonnement pour éviter les problèmes
     subscription = Notifications.addNotificationReceivedListener(async notification => {
-      // Extraire les informations de la notification
+      // Extract the notification data
       const notificationData = {
         title: notification.request.content.title,
         body: notification.request.content.body,
         data: notification.request.content.data
       };
 
-      console.log('📬 Notification reçue dans App.js:', notificationData);
-
       try {
-        // Essayer d'extraire des informations du message pour notre logique de filtrage
-        // On cherche des indices dans le corps du message pour déterminer s'il s'agit d'un message propre
+        // Try to extract information from the message for our filtering logic
+        // We search for indices in the message body to determine if it's a clean message
         const notificationBody = notificationData.body || '';
         const channelInfo = notificationBody.includes('channel') ? notificationBody.split('channel ')[1] : null;
 
-        // Construire un objet de notification formaté pour notre fonction de filtrage
+        // Build a formatted notification object for our filtering function
         const formattedData = {
-          // On essaie de déterminer si c'est notre propre message
-          // Si une authentification récente est disponible, la récupérer pour comparaison
+          // Try to determine if it's our own message
+          // If a recent authentication is available, retrieve it for comparison
           channelId: channelInfo,
         };
 
-        // Vérifier si la notification devrait être affichée
+        // Check if the notification should be displayed
         const shouldDisplay = await shouldDisplayNotification(formattedData);
 
-        // Si la notification ne doit pas être affichée, l'intercepter
+        // If the notification should not be displayed, intercept it
         if (!shouldDisplay) {
-          console.log('🔕 Notification interceptée par App.js: message propre ou canal actif');
 
-          // Annuler la notification en utilisant son identifiant
+          // Dismiss the notification using its identifier
           if (notification.request && notification.request.identifier) {
             await Notifications.dismissNotificationAsync(notification.request.identifier);
-            console.log('🔕 Notification supprimée avec succès');
           }
         }
       } catch (error) {
@@ -582,7 +549,7 @@ export default function App({ testID, initialScreen }) {
       }
     });
 
-    // Fonction de nettoyage qui ne dépend que de variables définies dans ce scope
+    // Cleanup function that depends only on variables defined in this scope
     return () => {
       if (subscription) {
         subscription.remove();
@@ -597,17 +564,14 @@ export default function App({ testID, initialScreen }) {
         // On vérifie d'abord si on peut accéder à une clé sensible
         try {
           await SecureStore.getItemAsync('isMessagesHidden');
-          console.log('✅ [App] Vérification préventive: SecureStore accessible');
         } catch (checkError) {
-          // Si une erreur de déchiffrement est détectée, on nettoie
+          // If a decryption error is detected, we clean
           if (checkError.message && (
             checkError.message.includes('decrypt') ||
             checkError.message.includes('decipher') ||
             checkError.message.includes('decryption')
           )) {
-            console.log('🔄 [App] Erreur de déchiffrement détectée au démarrage, nettoyage préventif...');
             await cleanSecureStoreKeys();
-            console.log('✅ [App] Nettoyage préventif terminé');
           }
         }
       } catch (error) {
@@ -632,22 +596,20 @@ export default function App({ testID, initialScreen }) {
     console.log('[App] handleImportWebviews appelé avec:', newWebviews);
 
     if (typeof newWebviews === 'string') {
-      // Si c'est une URL unique, créer un objet webview et l'ajouter directement
+      // If it's a unique URL, create a webview object and add it directly
       const newWebview = {
         href: newWebviews,
-        title: newWebviews // On utilise l'URL comme titre par défaut
+        title: newWebviews // We use the URL as the default title
       };
       console.log('[App] Création d\'un nouveau webview:', newWebview);
       handleSelectChannels([newWebview]);
-      // On reste sur l'écran de gestion des webviews
+      // We stay on the webviews management screen
       navigate(SCREENS.WEBVIEWS_MANAGEMENT);
     } else if (Array.isArray(newWebviews) && newWebviews.length > 0) {
-      // Si c'est un tableau de webviews, on les ajoute à la liste des webviews sélectionnés
-      console.log('[App] Ajout des nouvelles chaînes:', newWebviews);
+      // If it's an array of webviews, add them to the selected webviews list
       handleSelectChannels([...selectedWebviews, ...newWebviews]);
-      // On vide le state channels
       setChannels([]);
-      // On retourne à l'écran de gestion des webviews
+      // We return to the webviews management screen
       navigate(SCREENS.WEBVIEWS_MANAGEMENT);
     }
   };

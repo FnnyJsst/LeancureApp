@@ -117,7 +117,7 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
           return false;
         }
 
-        // Émettre l'événement de message non lu
+        // We emit the unread message event
         emitUnreadMessage(cleanNotifChannelId);
       }
 
@@ -208,14 +208,6 @@ export const synchronizeTokenWithAPI = async (token) => {
 
     const { contractNumber, accountApiKey, accessToken } = JSON.parse(credentials);
 
-    // We create the timestamp and the data path
-    const timestamp = Date.now();
-    const data = `amaiia_msg_srv/notifications/synchronize/${timestamp}/`;
-
-    // We generate the signature
-    const hash = CryptoJS.HmacSHA256(data, contractNumber);
-    const hashHex = hash.toString(CryptoJS.enc.Hex);
-
     // We build the request
     const requestBody = createApiRequest({
       "amaiia_msg_srv": {
@@ -282,8 +274,8 @@ const getDeviceId = async () => {
 
 /**
  * @function removeNotificationToken
- * @description Supprime le token de notification lors de la déconnexion
- * @returns {Promise<boolean>} - Si la suppression a réussi
+ * @description Removes the notification token when logging out
+ * @returns {Promise<boolean>} - Whether the removal was successful
  */
 export const removeNotificationToken = async () => {
   try {
@@ -297,14 +289,12 @@ export const removeNotificationToken = async () => {
       if (savedCreds) {
         credentials = savedCreds;
         usedKey = key;
-        console.log(`✅ Credentials trouvés avec la clé ${key}`);
         break;
       }
     }
 
     // If the credentials are not found, we return false
     if (!credentials) {
-      console.log('❌ [Notification] Pas de credentials trouvés pour la suppression du token');
       return false;
     }
 
@@ -318,20 +308,6 @@ export const removeNotificationToken = async () => {
       console.log('✅ Token récupéré depuis Expo:', currentToken);
     } catch (error) {
       console.error('❌ Erreur lors de la récupération du token depuis Expo:', error);
-    }
-
-    // If the token is not found via Expo, try the storage
-    if (!currentToken) {
-      const possibleTokenKeys = ['expoPushToken', 'pushToken', 'notificationToken'];
-      console.log('🔍 Search for token in storage:', possibleTokenKeys);
-
-      for (const key of possibleTokenKeys) {
-        const token = await SecureStore.getItemAsync(key);
-        if (token) {
-          currentToken = token;
-          break;
-        }
-      }
     }
 
     if (!currentToken) {
@@ -356,7 +332,6 @@ export const removeNotificationToken = async () => {
     }
 
     if (!parsedCredentials.accountApiKey) {
-      console.error('❌ Account API Key manquant dans les credentials');
       return false;
     }
 
@@ -373,11 +348,7 @@ export const removeNotificationToken = async () => {
       }
     }, parsedCredentials.contractNumber, parsedCredentials.accessToken);
 
-    console.log('📤 [Notification] Envoi de la requête de suppression du token:', {
-      hasToken: !!currentToken,
-      accountApiKey: parsedCredentials.accountApiKey,
-      token: currentToken
-    });
+    console.log('📤 [Notification] Envoi de la requête de suppression du token:');
 
     // We send the request
     const response = await axios({
