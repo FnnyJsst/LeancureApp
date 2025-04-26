@@ -36,6 +36,17 @@ import { NotificationProvider } from './services/notification/notificationContex
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
     try {
+      // Vérifier si l'utilisateur est connecté
+      const savedCredentials = await SecureStore.getItemAsync('savedLoginInfo');
+      if (!savedCredentials) {
+        console.log('🔒 Notification ignorée: utilisateur non connecté');
+        return {
+          shouldShowAlert: false,
+          shouldPlaySound: false,
+          shouldSetBadge: false,
+        };
+      }
+
       // Extract the notification data
       const notificationData = {
         title: notification.request.content.title,

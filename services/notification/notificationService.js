@@ -79,6 +79,12 @@ export const registerForPushNotificationsAsync = async () => {
  */
 export const shouldDisplayNotification = async (messageData, currentChannelId = null, credentials = null) => {
   try {
+    // Vérifier si l'utilisateur est connecté
+    const savedCredentials = await SecureStore.getItemAsync('savedLoginInfo');
+    if (!savedCredentials) {
+      console.log('🔒 Notification ignorée: utilisateur non connecté');
+      return false;
+    }
 
     // We check if the notification is a push notification
     const isPushNotification = !messageData.login && !messageData.isOwnMessage &&
