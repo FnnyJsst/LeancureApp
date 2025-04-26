@@ -221,7 +221,8 @@ export const synchronizeTokenWithAPI = async (token) => {
               "synchronize": {
                 "action": "add",
                 "accountapikey": accountApiKey,
-                "token": token
+                "token": token,
+                "deviceId": await getDeviceId()
               }
             }
           }
@@ -232,7 +233,8 @@ export const synchronizeTokenWithAPI = async (token) => {
     console.log('📤 [Notification] Envoi de la requête de synchronisation:', {
       contractNumber,
       accountApiKey,
-      token
+      token,
+      deviceId: await getDeviceId()
     });
 
     // Envoyer la requête
@@ -259,6 +261,26 @@ export const synchronizeTokenWithAPI = async (token) => {
 };
 
 /**
+ * @function getDeviceId
+ * @description Génère un identifiant unique pour l'appareil
+ * @returns {Promise<string>} - L'identifiant de l'appareil
+ */
+const getDeviceId = async () => {
+  try {
+    let deviceId = await SecureStore.getItemAsync('deviceId');
+    if (!deviceId) {
+      // Générer un ID unique si non existant
+      deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      await SecureStore.setItemAsync('deviceId', deviceId);
+    }
+    return deviceId;
+  } catch (error) {
+    console.error('❌ [Notification] Erreur lors de la génération de l\'ID appareil:', error);
+    return `device_${Date.now()}`;
+  }
+};
+
+/**
  * @function removeNotificationToken
  * @description Supprime le token de notification lors de la déconnexion
  * @returns {Promise<boolean>} - Si la suppression a réussi
@@ -274,10 +296,7 @@ export const removeNotificationToken = async () => {
 
     // Récupérer le token actuel
     const currentToken = await SecureStore.getItemAsync('expoPushToken');
-    if (!currentToken) {
-      console.error('❌ [Notification] Pas de token trouvé');
-      return false;
-    }
+    const deviceId = await getDeviceId();
 
     const { contractNumber, accountApiKey, accessToken } = JSON.parse(credentials);
 
@@ -306,7 +325,8 @@ export const removeNotificationToken = async () => {
               "synchronize": {
                 "action": "delete",
                 "accountapikey": accountApiKey,
-                "token": currentToken
+                "deviceId": deviceId,
+                "token": currentToken || "" // Toujours envoyer un token, même vide
               }
             }
           }
@@ -314,7 +334,10 @@ export const removeNotificationToken = async () => {
       ]
     };
 
-    console.log('📤 [Notification] Envoi de la requête de suppression du token');
+    console.log('📤 [Notification] Envoi de la requête de suppression du token:', {
+      deviceId,
+      hasToken: !!currentToken
+    });
 
     // Envoyer la requête
     const response = await axios({
@@ -332,8 +355,10 @@ export const removeNotificationToken = async () => {
       data: response.data
     });
 
-    // Supprimer le token stocké localement
-    await SecureStore.deleteItemAsync('expoPushToken');
+    // Supprimer le token stocké localement s'il existe
+    if (currentToken) {
+      await SecureStore.deleteItemAsync('expoPushToken');
+    }
 
     return response.status === 200;
   } catch (error) {

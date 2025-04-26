@@ -50,7 +50,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
                 title="OK"
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
-                width={isSmartphone ? '23%' : '26%'}
+                width='26%'
                 onPress={onConfirm}
                 testID="alert-confirm-button"
               />
@@ -59,7 +59,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
                 title={t('buttons.close')}
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
-                width={isSmartphone ? '23%' : '26%'}
+                width='26%'
                 onPress={onClose}
                 testID="alert-close-button"
               />

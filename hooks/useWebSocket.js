@@ -332,10 +332,29 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         }
     }, [onMessage, sendSubscription, cleanup]);
 
+    // Nettoyage lors du démontage du composant
+    useEffect(() => {
+        console.log('🔄 Initialisation du hook useWebSocket');
+        let isMounted = true;
+        let cleanupCalled = false;
+
+        return () => {
+            if (!isMounted || cleanupCalled) return;
+            console.log('🧹 Démontage du hook useWebSocket');
+            isMounted = false;
+            cleanupCalled = true;
+
+            if (reconnectTimeout.current) {
+                clearTimeout(reconnectTimeout.current);
+            }
+            cleanup();
+        };
+    }, []);
+
     // Handle the channel change with debounce
     useEffect(() => {
         if (channels.length === 0) {
-            if (ws.current) {
+            if (ws.current && !isClosingRef.current) {
                 cleanup();
             }
             return;
@@ -364,23 +383,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             }
         }
     }, [channels, connect, cleanup, sendSubscription]);
-
-    // Nettoyage lors du démontage du composant
-    useEffect(() => {
-        console.log('🔄 Initialisation du hook useWebSocket');
-        let isMounted = true;
-
-        return () => {
-            if (!isMounted) return;
-            console.log('🧹 Démontage du hook useWebSocket');
-            isMounted = false;
-
-            if (reconnectTimeout.current) {
-                clearTimeout(reconnectTimeout.current);
-            }
-            cleanup();
-        };
-    }, []);
 
     /**
      * @description Refresh the messages when the channel is changed

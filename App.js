@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, AppState } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
@@ -433,6 +433,41 @@ export default function App({ testID, initialScreen }) {
       throw error;
     }
   };
+
+  // Gestion du redémarrage de l'application
+  useEffect(() => {
+    const handleAppStateChange = async (nextAppState) => {
+      if (nextAppState === 'active') {
+        console.log('🔄 Application redémarrée');
+        try {
+          // Vérifier si les credentials existent
+          const savedCredentials = await SecureStore.getItemAsync('savedLoginInfo');
+          if (savedCredentials) {
+            console.log('✅ Credentials trouvés au redémarrage');
+            // Si on est sur l'écran de login mais qu'on a des credentials, on redirige vers le menu
+            if (currentScreen === SCREENS.LOGIN) {
+              navigate(SCREENS.APP_MENU);
+            }
+          } else {
+            console.log('⚠️ Aucun credential trouvé au redémarrage');
+            if (currentScreen !== SCREENS.LOGIN) {
+              navigate(SCREENS.LOGIN);
+            }
+          }
+        } catch (error) {
+          console.error('❌ Erreur lors de la vérification des credentials:', error);
+          handleAppError(error, 'appStateChange');
+        }
+      }
+    };
+
+    // S'abonner aux changements d'état de l'application
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [currentScreen, navigate]);
 
   useEffect(() => {
     // Initialisation
