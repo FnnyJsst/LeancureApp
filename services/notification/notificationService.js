@@ -57,7 +57,7 @@ export const registerForPushNotificationsAsync = async () => {
     });
 
     const token = tokenData.data;
-    console.log(i18n.t('notification.tokenRetrieved'), token);
+    console.log('🔑 Token récupéré:', token);
 
     return token;
   } catch (error) {
@@ -79,8 +79,9 @@ export const registerForPushNotificationsAsync = async () => {
  */
 export const shouldDisplayNotification = async (messageData, currentChannelId = null, credentials = null) => {
   try {
-    // Vérifier si l'utilisateur est connecté
+    // We check if the user is connected
     const savedCredentials = await SecureStore.getItemAsync('savedLoginInfo');
+    // If the user is not connected, we return false
     if (!savedCredentials) {
       console.log('🔒 Notification ignorée: utilisateur non connecté');
       return false;
@@ -106,11 +107,13 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
 
       const viewedChannelId = currentChannelId || getCurrentlyViewedChannel();
 
+      // We only display the notification if the user is not already on the channel
       if (notificationChannelId && viewedChannelId) {
         const cleanNotifChannelId = notificationChannelId.toString().replace('channel_', '');
         const cleanViewedChannelId = viewedChannelId.toString().replace('channel_', '');
 
         if (cleanNotifChannelId === cleanViewedChannelId) {
+          console.log('🔕 Notification ignorée: canal actuellement visualisé');
           return false;
         }
       }
@@ -193,48 +196,36 @@ export const playNotificationSound = async (messageData, currentChannelId = null
  */
 export const synchronizeTokenWithAPI = async (token) => {
   try {
-    // Récupérer les informations nécessaires
+    // We get the credentials
     const credentials = await SecureStore.getItemAsync('userCredentials');
+    // If the credentials are not found, we return false
     if (!credentials) {
-      console.error('❌ [Notification] Pas de credentials trouvés');
       return false;
     }
 
     const { contractNumber, accountApiKey, accessToken } = JSON.parse(credentials);
 
-    // Créer le timestamp et le chemin de données
+    // We create the timestamp and the data path
     const timestamp = Date.now();
     const data = `amaiia_msg_srv/notifications/synchronize/${timestamp}/`;
 
-    // Générer la signature
+    // We generate the signature
     const hash = CryptoJS.HmacSHA256(data, contractNumber);
     const hashHex = hash.toString(CryptoJS.enc.Hex);
 
-    // Construire le corps de la requête
-    const requestBody = {
-      "api-version": "2",
-      "api-contract-number": contractNumber,
-      "api-signature": hashHex,
-      "api-signature-hash": "sha256",
-      "api-signature-timestamp": timestamp,
-      "client-type": "mobile",
-      "client-login": "admin",
-      "client-token": accessToken,
-      "cmd": [
-        {
-          "amaiia_msg_srv": {
-            "notifications": {
-              "synchronize": {
-                "action": "add",
-                "accountapikey": accountApiKey,
-                "token": token,
-                "deviceId": await getDeviceId()
-              }
-            }
+    // We build the request
+    const requestBody = createApiRequest({
+      "amaiia_msg_srv": {
+        "notifications": {
+          "synchronize": {
+            "action": "add",
+            "accountapikey": accountApiKey,
+            "token": token,
+            "deviceId": await getDeviceId()
           }
         }
-      ]
-    };
+      }
+    }, contractNumber, accessToken);
 
     console.log('📤 [Notification] Envoi de la requête de synchronisation:', {
       contractNumber,
@@ -243,7 +234,7 @@ export const synchronizeTokenWithAPI = async (token) => {
       deviceId: await getDeviceId()
     });
 
-    // Envoyer la requête
+    // We send the request
     const response = await axios({
       method: 'POST',
       url: await ENV.API_URL(),
@@ -268,14 +259,14 @@ export const synchronizeTokenWithAPI = async (token) => {
 
 /**
  * @function getDeviceId
- * @description Génère un identifiant unique pour l'appareil
- * @returns {Promise<string>} - L'identifiant de l'appareil
+ * @description Generates a unique identifier for the device
+ * @returns {Promise<string>} - The identifier of the device
  */
 const getDeviceId = async () => {
   try {
     let deviceId = await SecureStore.getItemAsync('deviceId');
     if (!deviceId) {
-      // Générer un ID unique si non existant
+      // Generate a unique ID if it does not exist
       deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       await SecureStore.setItemAsync('deviceId', deviceId);
     }
@@ -293,59 +284,100 @@ const getDeviceId = async () => {
  */
 export const removeNotificationToken = async () => {
   try {
-    // Récupérer les informations nécessaires
-    const credentials = await SecureStore.getItemAsync('userCredentials');
+    // We get the credentials from all possible keys
+    const possibleCredentialKeys = ['savedLoginInfo', 'userCredentials', 'credentials'];
+    let credentials = null;
+    let usedKey = null;
+
+    for (const key of possibleCredentialKeys) {
+      const savedCreds = await SecureStore.getItemAsync(key);
+      if (savedCreds) {
+        credentials = savedCreds;
+        usedKey = key;
+        console.log(`✅ Credentials trouvés avec la clé ${key}`);
+        break;
+      }
+    }
+
+    // If the credentials are not found, we return false
     if (!credentials) {
-      console.error('❌ [Notification] Pas de credentials trouvés');
+      console.log('❌ [Notification] Pas de credentials trouvés pour la suppression du token');
       return false;
     }
 
-    // Récupérer le token actuel
-    const currentToken = await SecureStore.getItemAsync('expoPushToken');
+    // Récupérer le token directement depuis Expo Notifications
+    let currentToken = null;
+    try {
+      const tokenData = await Notifications.getExpoPushTokenAsync({
+        projectId: ENV.EXPO_PROJECT_ID,
+      });
+      currentToken = tokenData.data;
+      console.log('✅ Token récupéré depuis Expo:', currentToken);
+    } catch (error) {
+      console.error('❌ Erreur lors de la récupération du token depuis Expo:', error);
+    }
+
+    // Si le token n'est pas trouvé via Expo, essayer le stockage
+    if (!currentToken) {
+      const possibleTokenKeys = ['expoPushToken', 'pushToken', 'notificationToken'];
+      console.log('🔍 Recherche du token dans le stockage:', possibleTokenKeys);
+
+      for (const key of possibleTokenKeys) {
+        const token = await SecureStore.getItemAsync(key);
+        if (token) {
+          currentToken = token;
+          console.log(`✅ Token trouvé dans le stockage avec la clé ${key}:`, currentToken);
+          break;
+        }
+      }
+    }
+
+    if (!currentToken) {
+      console.log('❌ Aucun token trouvé');
+      return false;
+    }
+
     const deviceId = await getDeviceId();
 
-    const { contractNumber, accountApiKey, accessToken } = JSON.parse(credentials);
+    // Vérifier et extraire les credentials
+    let parsedCredentials;
+    try {
+      parsedCredentials = JSON.parse(credentials);
+      console.log('✅ Credentials parsés:', {
+        contractNumber: parsedCredentials.contractNumber,
+        accountApiKey: parsedCredentials.accountApiKey,
+        hasAccessToken: !!parsedCredentials.accessToken
+      });
+    } catch (error) {
+      console.error('❌ Erreur lors du parsing des credentials:', error);
+      return false;
+    }
 
-    // Créer le timestamp et le chemin de données
-    const timestamp = Date.now();
-    const data = `amaiia_msg_srv/notifications/synchronize/${timestamp}/`;
+    if (!parsedCredentials.accountApiKey) {
+      console.error('❌ Account API Key manquant dans les credentials');
+      return false;
+    }
 
-    // Générer la signature
-    const hash = CryptoJS.HmacSHA256(data, contractNumber);
-    const hashHex = hash.toString(CryptoJS.enc.Hex);
-
-    // Construire le corps de la requête
-    const requestBody = {
-      "api-version": "2",
-      "api-contract-number": contractNumber,
-      "api-signature": hashHex,
-      "api-signature-hash": "sha256",
-      "api-signature-timestamp": timestamp,
-      "client-type": "mobile",
-      "client-login": "admin",
-      "client-token": accessToken,
-      "cmd": [
-        {
-          "amaiia_msg_srv": {
-            "notifications": {
-              "synchronize": {
-                "action": "delete",
-                "accountapikey": accountApiKey,
-                "deviceId": deviceId,
-                "token": currentToken || "" // Toujours envoyer un token, même vide
-              }
-            }
+    // We build the request
+    const requestBody = createApiRequest({
+      "amaiia_msg_srv": {
+        "notifications": {
+          "synchronize": {
+            "action": "delete",
+            "accountapikey": parsedCredentials.accountApiKey,
+            "token": currentToken
           }
         }
-      ]
-    };
+      }
+    }, parsedCredentials.contractNumber, parsedCredentials.accessToken);
 
     console.log('📤 [Notification] Envoi de la requête de suppression du token:', {
-      deviceId,
-      hasToken: !!currentToken
+      hasToken: !!currentToken,
+      accountApiKey: parsedCredentials.accountApiKey,
+      token: currentToken
     });
 
-    // Envoyer la requête
+    // We send the request
     const response = await axios({
       method: 'POST',
       url: await ENV.API_URL(),
@@ -356,17 +388,29 @@ export const removeNotificationToken = async () => {
       timeout: 10000,
     });
 
-    console.log('📥 [Notification] Réponse reçue:', {
+    // Vérifier la réponse en détail
+    const responseData = response.data;
+    console.log('📥 [Notification] Réponse détaillée de suppression:', {
       status: response.status,
-      data: response.data
+      data: responseData,
+      success: responseData?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok'
     });
 
-    // Supprimer le token stocké localement s'il existe
+    // We delete the stored token if it exists
     if (currentToken) {
-      await SecureStore.deleteItemAsync('expoPushToken');
+      // Supprimer le token de toutes les clés possibles
+      const possibleTokenKeys = ['expoPushToken', 'pushToken', 'notificationToken'];
+      for (const key of possibleTokenKeys) {
+        try {
+          await SecureStore.deleteItemAsync(key);
+          console.log(`✅ Token supprimé de la clé ${key}`);
+        } catch (error) {
+          console.log(`⚠️ Pas de token trouvé pour la clé ${key}`);
+        }
+      }
     }
 
-    return response.status === 200;
+    return response.status === 200 && responseData?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok';
   } catch (error) {
     console.error('❌ [Notification] Erreur lors de la suppression du token:', error);
     return false;

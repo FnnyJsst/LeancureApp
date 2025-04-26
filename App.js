@@ -37,7 +37,7 @@ Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
     try {
       // Vérifier si l'utilisateur est connecté
-      const savedCredentials = await SecureStore.getItemAsync('savedLoginInfo');
+      const savedCredentials = await SecureStore.getItemAsync('userCredentials');
       if (!savedCredentials) {
         console.log('🔒 Notification ignorée: utilisateur non connecté');
         return {
@@ -433,13 +433,20 @@ export default function App({ testID, initialScreen }) {
    */
   const handleChatLogout = async () => {
     try {
-      // Supprimer le token de notification
-      await removeNotificationToken();
+      // D'abord, on supprime le token de notification
+      console.log('🔔 Suppression du token de notification...');
+      const tokenRemoved = await removeNotificationToken();
+      console.log('✅ Token de notification supprimé:', tokenRemoved);
 
-      // Supprimer les informations de connexion
+      // Ensuite, on supprime les informations de connexion
+      console.log('🔑 Suppression des credentials...');
       await SecureStore.deleteItemAsync('savedLoginInfo');
+      console.log('✅ Credentials supprimés');
+
+      // Enfin, on redirige vers l'écran de connexion
       navigate(SCREENS.LOGIN);
     } catch (error) {
+      console.error('❌ Erreur lors de la déconnexion:', error);
       handleAppError(error, 'logout');
       throw error;
     }
