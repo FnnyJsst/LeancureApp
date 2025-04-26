@@ -59,7 +59,7 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
       setError('');
 
       if (!serverAddress.trim()) {
-        setError(t('error.addressCannotBeEmpty'));
+        setError(t('errors.addressCannotBeEmpty'));
         return;
       }
 
@@ -67,11 +67,11 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
         const url = new URL(serverAddress.trim());
 
         if (!url.protocol || !url.host) {
-          setError(t('error.invalidUrlFormat'));
+          setError(t('errors.invalidUrlFormat'));
           return;
         }
         if (!['http:', 'https:'].includes(url.protocol)) {
-          setError(t('error.invalidProtocol'));
+          setError(t('errors.invalidProtocol'));
           return;
         }
 

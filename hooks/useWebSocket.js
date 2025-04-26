@@ -25,9 +25,15 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
     // We create a new WebSocket instance
     const ws = useRef(null);
-    const isConnecting = useRef(false);
+    const isConnectingRef = useRef(false);
+    const isClosingRef = useRef(false);
     const [isConnected, setIsConnected] = useState(false);
     const activeChannel = useRef(null);
+    const reconnectTimeout = useRef(null);
+    const reconnectAttempts = useRef(0);
+    const MAX_RECONNECT_ATTEMPTS = 5;
+    const RECONNECT_DELAY = 3000;
+    const connectionTimeout = useRef(null);
 
     /**
      * @description Handle WebSocket errors
@@ -49,13 +55,27 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
      */
     const cleanup = useCallback(() => {
         if (ws.current) {
-            ws.current.close();
+            isClosingRef.current = true;
+            try {
+                ws.current.close();
+            } catch (error) {
+                console.log('❌ Erreur lors de la fermeture de la connexion:', error);
+            }
             ws.current = null;
         }
-        // Set the connection state to disconnected and the active channel to null
-        isConnecting.current = false;
+        if (reconnectTimeout.current) {
+            clearTimeout(reconnectTimeout.current);
+            reconnectTimeout.current = null;
+        }
+        if (connectionTimeout.current) {
+            clearTimeout(connectionTimeout.current);
+            connectionTimeout.current = null;
+        }
+        isConnectingRef.current = false;
+        isClosingRef.current = false;
         setIsConnected(false);
         activeChannel.current = null;
+        reconnectAttempts.current = 0;
     }, []);
 
     /**
@@ -157,54 +177,77 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
     // Connect to the WebSocket server
     const connect = useCallback(async () => {
-        // We check if the connection is already in progress
-        if (isConnecting.current) {
+        if (isConnectingRef.current || isClosingRef.current || reconnectAttempts.current >= MAX_RECONNECT_ATTEMPTS) {
             return;
         }
 
-        // We clean the existing connection
         if (ws.current) {
             cleanup();
         }
 
-        // Try to connect to the WebSocket server
         try {
-            isConnecting.current = true;
-            // We get the WebSocket URL from the environment variables
+            isConnectingRef.current = true;
             const wsUrl = await ENV.WS_URL();
             console.log('🌐 Tentative de connexion à:', wsUrl);
 
-            // We create a new WebSocket instance
+            // Ajout d'un timeout pour la connexion
+            connectionTimeout.current = setTimeout(() => {
+                if (ws.current && ws.current.readyState !== WebSocket.OPEN) {
+                    console.log('⏰ Timeout de connexion WebSocket');
+                    cleanup();
+                    reconnectAttempts.current++;
+                    if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+                        reconnectTimeout.current = setTimeout(() => {
+                            connect();
+                        }, RECONNECT_DELAY);
+                    }
+                }
+            }, 5000);
+
             ws.current = new WebSocket(wsUrl);
 
-            // We handle the connection open event
             ws.current.onopen = () => {
+                if (!ws.current) return;
                 console.log('🟢 WebSocket connecté avec succès. État:', ws.current.readyState);
-                isConnecting.current = false;
+                if (connectionTimeout.current) {
+                    clearTimeout(connectionTimeout.current);
+                }
+                isConnectingRef.current = false;
                 setIsConnected(true);
+                reconnectAttempts.current = 0;
                 sendSubscription();
             };
 
-            // We handle the connection close event
             ws.current.onclose = (event) => {
+                if (isClosingRef.current) return;
                 cleanup();
+                clearInterval(pingInterval);
 
-                // If the disconnection is not normal, we try to reconnect
                 if (event.code !== 1000) {
-                    setTimeout(() => {
-                        connect();
-                    }, 3000);
+                    reconnectAttempts.current++;
+                    if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+                        reconnectTimeout.current = setTimeout(() => {
+                            connect();
+                        }, RECONNECT_DELAY);
+                    } else {
+                        console.error('❌ Nombre maximum de tentatives de reconnexion atteint');
+                        handleWSError(new Error('Nombre maximum de tentatives de reconnexion atteint'), 'connection.max_attempts');
+                    }
                 }
             };
 
-            // We handle the connection error event
             ws.current.onerror = (error) => {
                 console.error('❌ Erreur WebSocket:', error);
                 handleWSError(error, 'connection.error');
-                // We try to reconnect
-                setTimeout(() => {
-                    connect();
-                }, 3000);
+                if (!isClosingRef.current) {
+                    cleanup();
+                    reconnectAttempts.current++;
+                    if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+                        reconnectTimeout.current = setTimeout(() => {
+                            connect();
+                        }, RECONNECT_DELAY);
+                    }
+                }
             };
 
             // We handle the notification event received from the WebSocket server
@@ -250,53 +293,56 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 }
             }, 30000); // Ping every 30 seconds
 
-            // We clean the interval when the connection is closed
-            ws.current.onclose = (event) => {
-                clearInterval(pingInterval);
-            };
-
         } catch (error) {
             // If the connection is not created, we log the error
             handleWSError(error, 'connection.create');
-            isConnecting.current = false;
-            // We try to reconnect
-            setTimeout(() => {
-                connect();
-            }, 3000);
+            isConnectingRef.current = false;
+            cleanup();
+            reconnectAttempts.current++;
+            if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+                reconnectTimeout.current = setTimeout(() => {
+                    connect();
+                }, RECONNECT_DELAY);
+            }
         }
     }, [onMessage, sendSubscription, cleanup]);
 
-    // Handle the channel change
+    // Handle the channel change with debounce
     useEffect(() => {
-        // If there are no channels, we clean the connection
         if (channels.length === 0) {
             cleanup();
             return;
         }
 
-        // We get the current channel
         const currentChannel = channels[0];
-
-        // We clean the current and active channels
         const cleanCurrentChannel = currentChannel?.replace('channel_', '');
         const cleanActiveChannel = activeChannel.current?.replace('channel_', '');
 
-        // If the current channel is different from the active channel, we change the channel
         if (cleanCurrentChannel !== cleanActiveChannel) {
-            // We update the active channel
             activeChannel.current = currentChannel;
 
-            // We reconnect to ensure we have a clean connection
-            connect();
+            // Debounce la reconnexion
+            if (reconnectTimeout.current) {
+                clearTimeout(reconnectTimeout.current);
+            }
+
+            reconnectTimeout.current = setTimeout(() => {
+                if (!isConnectingRef.current && !isClosingRef.current) {
+                    connect();
+                }
+            }, 500);
         }
     }, [channels, connect, cleanup]);
 
-    // When the component is unmounted, we clean the connection
+    // Nettoyage lors du démontage du composant
     useEffect(() => {
         return () => {
+            if (reconnectTimeout.current) {
+                clearTimeout(reconnectTimeout.current);
+            }
             cleanup();
         };
-    }, [cleanup]);
+    }, []);
 
     /**
      * @description Refresh the messages when the channel is changed
