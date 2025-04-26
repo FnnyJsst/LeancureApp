@@ -7,81 +7,7 @@ import { Text } from '../text/CustomText';
 import MenuMessage from './MenuMessage';
 import { handleError, ErrorType } from '../../utils/errorHandling';
 import { useTranslation } from 'react-i18next';
-
-/**
- * @function formatTimestamp
- * @description Format the timestamp to display in the chat message
- * @param {string} timestamp - The timestamp to format
- * @returns {string} The formatted timestamp
- */
-const formatTimestamp = (timestamp) => {
-  if (!timestamp) {return '';}
-  const date = new Date(parseInt(timestamp, 10));
-  return date.toLocaleTimeString('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
-/**
- * @function formatFileSize
- * @description Format the file size to display in the chat message
- * @param {number} bytes - The file size in bytes
- * @returns {string} The formatted file size
- */
-const formatFileSize = (bytes) => {
-  // If the value is a string, try to convert it to a number
-  if (typeof bytes === 'string') {
-    bytes = parseFloat(bytes);
-  }
-
-  // If the value is not a number, we return nothing
-  if (!bytes || isNaN(bytes) || bytes === 0) {
-    return '';
-  }
-
-  const k = 1024;
-  const sizes = ['Ko', 'Mo', 'Go'];
-
-  // If the size is very small (< 100 bytes) for a real file, assume it is already in Ko and not in bytes
-  if (bytes < 100) {
-    let size = bytes;
-    let unitIndex = 0;
-
-    // If the size is very small (< 10), display one decimal for more precision
-    if (size < 10) {
-      const result = `${size.toFixed(1)} ${sizes[unitIndex]}`;
-      return result;
-    }
-
-    // For larger sizes, round to the nearest integer
-    const result = `${Math.round(size)} ${sizes[unitIndex]}`;
-    return result;
-  }
-
-  // Normal conversion to Ko as a starting point
-  let size = bytes / 1024;
-  let unitIndex = 0;
-
-  // If the size is very small (< 0.1 Ko), display at least 0.1 Ko
-  if (size < 0.1) {
-    return '0.1 Ko';
-  }
-
-  // Conversion to higher units if necessary
-  while (size >= 1024 && unitIndex < sizes.length - 1) {
-    size /= 1024;
-    unitIndex++;
-  }
-
-  if (size < 10) {
-    const result = `${size.toFixed(1)} ${sizes[unitIndex]}`;
-    return result;
-  }
-
-  const result = `${Math.round(size)} ${sizes[unitIndex]}`;
-  return result;
-};
+import { formatFileSize, formatTimestamp } from '../../utils/fileUtils';
 
 /**
  * @component ChatMessage
@@ -279,7 +205,11 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                       {message.fileName || (isPDF ? 'PDF' : 'CSV')}
                     </Text>
                     <Text style={styles.fileSize}>
-                      {message.fileType?.toUpperCase() || (isPDF ? 'PDF' : 'CSV')} • {formatFileSize(fileSizeInBytes)}
+                    {message.fileType?.toUpperCase() || (isPDF ? 'PDF' : 'CSV')} • {formatFileSize(fileSizeInBytes, {
+                      startWithBytes: false,
+                      precision: 1,
+                      defaultUnit: 'Ko'
+                    })}
                     </Text>
                   </View>
                 </View>
@@ -322,7 +252,11 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                       {message.fileName || 'Image'}
                     </Text>
                     <Text style={styles.fileSize}>
-                      {message.fileType?.toUpperCase() || 'IMAGE'} • {formatFileSize(fileSizeInBytes)}
+                    {message.fileType?.toUpperCase() || 'IMAGE'} • {formatFileSize(fileSizeInBytes, {
+                      startWithBytes: false,
+                      precision: 1,
+                      defaultUnit: 'Ko'
+                    })}
                     </Text>
                   </View>
                 </View>
@@ -427,20 +361,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   } catch (error) {
     // Global error handling for the component rendering
     handleMessageError(error, 'render', { silent: false });
-
-    // Fallback rendering in case of error
-    return (
-      <View style={styles.messageWrapper(isOwnMessage)}>
-        <View style={[
-          styles.messageContainer,
-          styles.errorMessage
-        ]}>
-          <Text style={styles.errorText}>
-            {t('errors.messageDisplayError')}
-          </Text>
-        </View>
-      </View>
-    );
   }
 }
 
@@ -483,7 +403,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     borderRadius: SIZES.borderRadius.xLarge,
     padding: 8,
-
   },
   ownMessage: {
     alignSelf: 'flex-end',
@@ -592,7 +511,7 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
   },
   ownDarkContainer: {
-    backgroundColor: '#cc5200',
+    backgroundColor: '#a32f05',
   },
   messageContentWrapper: {
     position: 'relative',
@@ -619,13 +538,4 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     zIndex: 9998,
   },
-  errorMessage: {
-    backgroundColor: COLORS.gray850,
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.burgundy,
-  },
-  errorText: {
-    color: COLORS.red,
-    fontSize: SIZES.fonts.smallTextSmartphone,
-  }
 });

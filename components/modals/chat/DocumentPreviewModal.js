@@ -9,13 +9,13 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Text } from '../../text/CustomText';
 import { fetchMessageFile } from '../../../services/api/messageApi';
-import * as SecureStore from 'expo-secure-store';
 import { ActivityIndicator } from 'react-native';
 import { handleError, ErrorType } from '../../../utils/errorHandling';
 import { useTranslation } from 'react-i18next';
 import { Buffer } from 'buffer';
 import { useCredentials } from '../../../hooks/useCredentials';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import { formatFileSize } from '../../../utils/fileUtils';
 
 
 /**
@@ -51,17 +51,18 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
     setIsRotating(true);
     const timer = setTimeout(() => {
       setIsRotating(false);
-    }, 300); // Durée de la transition
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [isLandscape]);
 
-  /**
-   * @description Loads the high quality image
-   */
   useEffect(() => {
     const isImageType = fileType?.toLowerCase().match(/jpg|jpeg|png|gif/);
 
+    /**
+     * @function loadHighQualityImage
+     * @description Loads the high quality image
+     */
     const loadHighQualityImage = async () => {
       if (!visible || !messageId || !channelId || !credentials) return;
 
@@ -188,76 +189,6 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         silent: false
       });
       setError(t('errors.errorLoadingFile'));
-    }
-  };
-
-  /**
-   * @function formatFileSize
-   * @description Formats the file size with the appropriate unit
-   */
-  const formatFileSize = () => {
-    try {
-      let calculatedSize = 0;
-
-      // Option 1: Use the provided size if it is valid
-      if (fileSize && !isNaN(parseInt(fileSize, 10))) {
-        calculatedSize = parseInt(fileSize, 10);
-      }
-      // Option 2: Estimate the size from the base64
-      else if (initialBase64) {
-        calculatedSize = Math.ceil(initialBase64.length * 0.75);
-      }
-      // Option 3: Use default values based on the type
-      else {
-        if (fileType?.toLowerCase().includes('pdf')) {
-          calculatedSize = 150 * 1024; // ~150 Ko for a typical PDF
-        } else if (fileType?.toLowerCase().includes('csv')) {
-          calculatedSize = 100 * 1024; // ~100 Ko for a typical CSV
-        } else if (fileType?.toLowerCase().match(/jpg|jpeg|png|gif/)) {
-          calculatedSize = 350 * 1024; // ~350 Ko for a typical image
-        } else {
-          calculatedSize = 100 * 1024; // ~100 Ko by default
-        }
-      }
-
-      if (!calculatedSize) return '0 Ko';
-
-      // If the size is very small (< 100 bytes) for a real file,
-      // assume it is already in Ko and not in bytes
-      if (calculatedSize < 100) {
-        const size = calculatedSize;
-        return size < 10 ? `${size.toFixed(1)} Ko` : `${Math.round(size)} Ko`;
-      }
-
-      // Direct conversion to Ko, always start in Ko
-      const units = ['Ko', 'Mo', 'Go'];
-      let size = calculatedSize / 1024; // Direct conversion to Ko
-      let unitIndex = 0;
-
-      // For very small files (less than 0.1 Ko), display at least 0.1 Ko
-      if (size < 0.1) {
-        return '0.1 Ko';
-      }
-
-      // Increase in units if necessary
-      while (size >= 1024 && unitIndex < units.length - 1) {
-        size /= 1024;
-        unitIndex++;
-      }
-
-      // For small sizes (< 10), display one decimal for more precision
-      if (size < 10) {
-        return `${size.toFixed(1)} ${units[unitIndex]}`;
-      }
-
-      // For larger sizes, round to the nearest integer
-      return `${Math.round(size)} ${units[unitIndex]}`;
-    } catch (err) {
-      handleError(err, 'documentPreview.formatFileSize', {
-        type: ErrorType.SYSTEM,
-        silent: true
-      });
-      return '0 Ko';
     }
   };
 
@@ -504,9 +435,26 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
               </Text>
             </View>
             <View style={styles.fileSizeContainer}>
-
               <Text style={[styles.fileSize, isSmartphone && styles.fileSizeSmartphone]}>
-                {formatFileSize()}
+                {formatFileSize(
+                  // Calcul of the size in bytes
+                  fileSize && !isNaN(parseInt(fileSize, 10))
+                    ? parseInt(fileSize, 10)
+                    : initialBase64
+                      ? Math.ceil(initialBase64.length * 0.75)
+                      : fileType?.toLowerCase().includes('pdf')
+                        ? 150 * 1024  // ~150 Ko for a typical PDF
+                        : fileType?.toLowerCase().includes('csv')
+                          ? 100 * 1024  // ~100 Ko for a typical CSV
+                          : fileType?.toLowerCase().match(/jpg|jpeg|png|gif/)
+                            ? 350 * 1024  // ~350 Ko for a typical image
+                            : 100 * 1024,  // ~100 Ko for a default
+                  {
+                    startWithBytes: false,  // Start with Ko
+                    precision: 1,           // 1 decimal
+                    defaultUnit: 'Ko'       // Default unit in Ko
+                  }
+                )}
               </Text>
             </View>
           </View>
