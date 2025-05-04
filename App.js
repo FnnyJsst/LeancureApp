@@ -32,99 +32,6 @@ import { cleanSecureStoreKeys } from './utils/secureStore';
 import './config/firebase';
 import { NotificationProvider } from './services/notification/notificationContext';
 
-// This configuration is global and will be called for all notifications
-Notifications.setNotificationHandler({
-  handleNotification: async (notification) => {
-    try {
-      // We check if the user is connected
-      const savedCredentials = await SecureStore.getItemAsync('userCredentials');
-      // If the user is not connected, we don't display the notification
-      if (!savedCredentials) {
-        return {
-          shouldShowAlert: false,
-          shouldPlaySound: false,
-          shouldSetBadge: false,
-        };
-      }
-
-      // Extract the notification data
-      const notificationData = {
-        title: notification.request.content.title,
-        body: notification.request.content.body,
-        data: notification.request.content.data || {}
-      };
-
-      // Case 1: Detection of new message notifications
-      // If the notification has a title "New message" and contains "channel" in the body
-      if (notificationData.title === "New message" &&
-          notificationData.body &&
-          notificationData.body.includes("channel")) {
-
-        // We check if the user is currently on the channel
-        try {
-          // We extract the channel name from the notification
-          const channelMatch = notificationData.body.match(/channel\s+(.+)$/i);
-          const channelName = channelMatch ? channelMatch[1] : null;
-
-          if (channelName) {
-            // Get the name of the currently displayed channel
-            const viewedChannelName = await SecureStore.getItemAsync('viewedChannelName');
-            // If the channel name is the same as the currently displayed channel, we block the notification
-            if (viewedChannelName && channelName.includes(viewedChannelName)) {
-              return {
-                shouldShowAlert: false,
-                shouldPlaySound: false,
-                shouldSetBadge: false,
-              };
-            }
-
-            // Get the channel ID from the notification data
-            const channelId = notificationData.data.channelId;
-            if (channelId) {
-              // Emit the unread message event
-              if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
-                global.unreadMessageEmitter.emit(channelId);
-              }
-            } else {
-              // Try to get the channel ID from the global channels
-              if (typeof global !== 'undefined' && global.channels) {
-                const channel = global.channels.find(c => c.title === channelName);
-                if (channel) {
-                  // Emit the unread message event
-                  if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
-                    global.unreadMessageEmitter.emit(channel.id);
-                  }
-                } else {
-                  console.log('❌ Canal non trouvé dans la liste des canaux');
-                }
-              } else {
-                console.log('❌ Liste des canaux non disponible');
-              }
-            }
-          }
-        } catch (error) {
-          console.error('❌ Erreur lors de la vérification du canal:', error);
-        }
-      }
-
-      // In all other cases, we display the notification
-      return {
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true,
-      };
-    } catch (error) {
-      console.error('❌ Erreur dans le gestionnaire global de notification:', error);
-      // In case of error, we display the default notification
-      return {
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true,
-      };
-    }
-  },
-});
-
 /**
  * @function handleAppError
  * @description Handle application-related errors
@@ -479,13 +386,11 @@ export default function App({ testID, initialScreen }) {
   }, [currentScreen, navigate]);
 
   useEffect(() => {
-
     let subscription = null;
 
     // Configuration of notifications
     const setupNotifications = async () => {
       try {
-
         const token = await registerForPushNotificationsAsync();
         if (token) {
           console.log('✅ Token obtenu dans App.js :', token);
@@ -527,7 +432,6 @@ export default function App({ testID, initialScreen }) {
 
         // If the notification should not be displayed, intercept it
         if (!shouldDisplay) {
-
           // Dismiss the notification using its identifier
           if (notification.request && notification.request.identifier) {
             await Notifications.dismissNotificationAsync(notification.request.identifier);

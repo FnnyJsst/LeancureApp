@@ -8,15 +8,133 @@ import { getCurrentlyViewedChannel, useNotification, emitUnreadMessage } from '.
 import { handleError, ErrorType } from '../../utils/errorHandling';
 import i18n from '../../i18n';
 import * as SecureStore from 'expo-secure-store';
-import CryptoJS from 'crypto-js';
 
 // Handler for notifications to be displayed
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
+  handleNotification: async (notification) => {
+    try {
+      console.log('🔔 [NotificationService] Réception d\'une notification:', {
+        title: notification.request.content.title,
+        body: notification.request.content.body,
+        data: notification.request.content.data
+      });
+
+      // We check if the user is connected
+      const savedCredentials = await SecureStore.getItemAsync('userCredentials');
+      // If the user is not connected, we don't display the notification
+      if (!savedCredentials) {
+        console.log('🔒 [NotificationService] Notification ignorée: utilisateur non connecté');
+        return {
+          shouldShowAlert: false,
+          shouldPlaySound: false,
+          shouldSetBadge: false,
+        };
+      }
+
+      // Extract the notification data
+      const notificationData = {
+        title: notification.request.content.title,
+        body: notification.request.content.body,
+        data: notification.request.content.data || {}
+      };
+
+      console.log('📝 [NotificationService] Données de notification extraites:', notificationData);
+
+      // Case 1: Detection of new message notifications
+      // If the notification has a title "New message" and contains "channel" in the body
+      if (notificationData.title === "New message" &&
+          notificationData.body &&
+          notificationData.body.includes("channel")) {
+
+        console.log('📨 [NotificationService] Notification de nouveau message détectée');
+
+        // We check if the user is currently on the channel
+        try {
+          // We extract the channel name from the notification
+          const channelMatch = notificationData.body.match(/channel\s+(.+)$/i);
+          const channelName = channelMatch ? channelMatch[1] : null;
+
+          console.log('🔍 [NotificationService] Extraction du nom du canal:', {
+            channelMatch,
+            channelName
+          });
+
+          if (channelName) {
+            // Get the name of the currently displayed channel
+            const viewedChannelName = await SecureStore.getItemAsync('viewedChannelName');
+            console.log('👁️ [NotificationService] Canal actuellement visualisé:', {
+              viewedChannelName,
+              notificationChannelName: channelName
+            });
+
+            // If the channel name is the same as the currently displayed channel, we block the notification
+            if (viewedChannelName && channelName.includes(viewedChannelName)) {
+              console.log('🔕 [NotificationService] Notification ignorée: canal actuellement visualisé');
+              return {
+                shouldShowAlert: false,
+                shouldPlaySound: false,
+                shouldSetBadge: false,
+              };
+            }
+
+            // Get the channel ID from the notification data
+            const channelId = notificationData.data.channelId;
+            console.log('🆔 [NotificationService] ID du canal:', {
+              fromData: channelId,
+              hasGlobalChannels: typeof global !== 'undefined' && !!global.channels
+            });
+
+            if (channelId) {
+              // Emit the unread message event
+              if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
+                console.log('🔔 [NotificationService] Émission d\'un message non lu via ID:', channelId);
+                global.unreadMessageEmitter.emit(channelId);
+              }
+            } else {
+              // Try to get the channel ID from the global channels
+              if (typeof global !== 'undefined' && global.channels) {
+                const channel = global.channels.find(c => c.title === channelName);
+                console.log('🔍 [NotificationService] Recherche du canal dans la liste globale:', {
+                  found: !!channel,
+                  channelTitle: channel?.title
+                });
+
+                if (channel) {
+                  // Emit the unread message event
+                  if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
+                    console.log('🔔 [NotificationService] Émission d\'un message non lu via titre:', channel.id);
+                    global.unreadMessageEmitter.emit(channel.id);
+                  }
+                } else {
+                  console.log('❌ [NotificationService] Canal non trouvé dans la liste des canaux');
+                }
+              } else {
+                console.log('❌ [NotificationService] Liste des canaux non disponible');
+              }
+            }
+          }
+        } catch (error) {
+          console.error('❌ [NotificationService] Erreur lors de la vérification du canal:', error);
+        }
+      }
+
+      console.log('✅ [NotificationService] Notification à afficher');
+      // In all other cases, we display the notification
+      return {
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      };
+    } catch (error) {
+      console.error('❌ [NotificationService] Erreur dans le gestionnaire global de notification:', error);
+      // In case of error, we display the default notification
+      return {
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      };
+    }
+  },
 });
 
 /**
@@ -79,17 +197,29 @@ export const registerForPushNotificationsAsync = async () => {
  */
 export const shouldDisplayNotification = async (messageData, currentChannelId = null, credentials = null) => {
   try {
+    console.log('🔍 [NotificationService] Vérification des conditions d\'affichage:', {
+      messageData,
+      currentChannelId,
+      hasCredentials: !!credentials
+    });
+
     // We check if the user is connected
     const savedCredentials = await SecureStore.getItemAsync('savedLoginInfo');
     // If the user is not connected, we return false
     if (!savedCredentials) {
-      console.log('🔒 Notification ignorée: utilisateur non connecté');
+      console.log('🔒 [NotificationService] Notification ignorée: utilisateur non connecté');
       return false;
     }
 
     // We check if the notification is a push notification
     const isPushNotification = !messageData.login && !messageData.isOwnMessage &&
       (messageData.title || messageData.body);
+
+    console.log('📱 [NotificationService] Type de notification:', {
+      isPushNotification,
+      hasTitle: !!messageData.title,
+      hasBody: !!messageData.body
+    });
 
     if (isPushNotification) {
       // We get the channel ID from the notification
@@ -101,23 +231,35 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
           const matches = body.match(/channel\s+(\w+)|canal\s+(\w+)/i);
           if (matches && (matches[1] || matches[2])) {
             notificationChannelId = matches[1] || matches[2];
+            console.log('🔍 [NotificationService] Canal extrait du corps:', notificationChannelId);
           }
         }
       }
 
       const viewedChannelId = currentChannelId || getCurrentlyViewedChannel();
+      console.log('👁️ [NotificationService] Canaux:', {
+        notificationChannelId,
+        viewedChannelId
+      });
 
       // We only display the notification if the user is not already on the channel
       if (notificationChannelId && viewedChannelId) {
         const cleanNotifChannelId = notificationChannelId.toString().replace('channel_', '');
         const cleanViewedChannelId = viewedChannelId.toString().replace('channel_', '');
 
+        console.log('🔄 [NotificationService] Comparaison des canaux:', {
+          cleanNotifChannelId,
+          cleanViewedChannelId,
+          areEqual: cleanNotifChannelId === cleanViewedChannelId
+        });
+
         if (cleanNotifChannelId === cleanViewedChannelId) {
-          console.log('🔕 Notification ignorée: canal actuellement visualisé');
+          console.log('🔕 [NotificationService] Notification ignorée: canal actuellement visualisé');
           return false;
         }
 
         // We emit the unread message event
+        console.log('🔔 [NotificationService] Émission d\'un message non lu:', cleanNotifChannelId);
         emitUnreadMessage(cleanNotifChannelId);
       }
 
@@ -130,7 +272,15 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
     const isOwnMessageByLogin = senderLogin && credentials?.login === senderLogin;
     const isOwnMessageByUsername = messageData.username === 'Me' || messageData.username === 'Moi';
 
+    console.log('👤 [NotificationService] Vérification de l\'expéditeur:', {
+      senderLogin,
+      isOwnMessageFlag,
+      isOwnMessageByLogin,
+      isOwnMessageByUsername
+    });
+
     if (isOwnMessageFlag || isOwnMessageByLogin || isOwnMessageByUsername) {
+      console.log('🔕 [NotificationService] Notification ignorée: message de l\'utilisateur');
       return false;
     }
 
@@ -141,17 +291,31 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
 
     const viewedChannelId = currentChannelId || getCurrentlyViewedChannel();
 
+    console.log('📺 [NotificationService] Vérification du canal actif:', {
+      messageChannelId,
+      viewedChannelId
+    });
+
     if (messageChannelId && viewedChannelId) {
       const cleanMessageChannelId = messageChannelId.toString().replace('channel_', '');
       const cleanViewedChannelId = viewedChannelId.toString().replace('channel_', '');
 
+      console.log('🔄 [NotificationService] Comparaison finale des canaux:', {
+        cleanMessageChannelId,
+        cleanViewedChannelId,
+        areEqual: cleanMessageChannelId === cleanViewedChannelId
+      });
+
       if (cleanMessageChannelId === cleanViewedChannelId) {
+        console.log('🔕 [NotificationService] Notification ignorée: canal actif');
         return false;
       }
     }
 
+    console.log('✅ [NotificationService] Notification à afficher');
     return true;
   } catch (error) {
+    console.error('❌ [NotificationService] Erreur lors de la vérification des conditions:', error);
     handleError(error, i18n.t('error.errorCheckingNotificationConditions'), {
       type: ErrorType.SYSTEM,
       silent: false
@@ -169,9 +333,15 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
  */
 export const playNotificationSound = async (messageData, currentChannelId = null, credentials = null) => {
   try {
+    console.log('🔊 [NotificationService] Tentative de lecture du son:', {
+      hasMessageData: !!messageData,
+      currentChannelId
+    });
+
     const shouldDisplay = await shouldDisplayNotification(messageData, currentChannelId, credentials);
 
     if (shouldDisplay) {
+      console.log('🎵 [NotificationService] Lecture du son de notification');
       // The notification must be displayed, so we use the Notifications API to play the sound
       await Notifications.scheduleNotificationAsync({
         content: {
@@ -182,8 +352,12 @@ export const playNotificationSound = async (messageData, currentChannelId = null
         },
         trigger: null, // Immediate trigger
       });
+      console.log('✅ [NotificationService] Son de notification joué avec succès');
+    } else {
+      console.log('🔕 [NotificationService] Son de notification ignoré');
     }
   } catch (error) {
+    console.error('❌ [NotificationService] Erreur lors de la lecture du son:', error);
     handleError(error, i18n.t('error.errorPlayingNotificationSound'), {
       type: ErrorType.SYSTEM,
       silent: false
@@ -199,10 +373,13 @@ export const playNotificationSound = async (messageData, currentChannelId = null
  */
 export const synchronizeTokenWithAPI = async (token) => {
   try {
+    console.log('🔄 [NotificationService] Début de la synchronisation du token');
+
     // We get the credentials
     const credentials = await SecureStore.getItemAsync('userCredentials');
     // If the credentials are not found, we return false
     if (!credentials) {
+      console.log('❌ [NotificationService] Synchronisation échouée: pas de credentials');
       return false;
     }
 
@@ -222,7 +399,7 @@ export const synchronizeTokenWithAPI = async (token) => {
       }
     }, contractNumber, accessToken);
 
-    console.log('📤 [Notification] Envoi de la requête de synchronisation:', {
+    console.log('📤 [NotificationService] Envoi de la requête de synchronisation:', {
       contractNumber,
       accountApiKey,
       token,
@@ -240,14 +417,16 @@ export const synchronizeTokenWithAPI = async (token) => {
       timeout: 10000,
     });
 
-    console.log('📥 [Notification] Réponse reçue:', {
+    console.log('📥 [NotificationService] Réponse reçue:', {
       status: response.status,
       data: response.data
     });
 
-    return response.status === 200;
+    const success = response.status === 200;
+    console.log(success ? '✅ [NotificationService] Synchronisation réussie' : '❌ [NotificationService] Synchronisation échouée');
+    return success;
   } catch (error) {
-    console.error('❌ [Notification] Erreur lors de la synchronisation du token:', error);
+    console.error('❌ [NotificationService] Erreur lors de la synchronisation:', error);
     return false;
   }
 };

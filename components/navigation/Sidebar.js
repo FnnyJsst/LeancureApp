@@ -125,7 +125,6 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                 ...response.privateGroups.flatMap(group => group.channels || [])
               ];
               global.channels = allChannels;
-              console.log('✅ Canaux stockés globalement:', allChannels.length);
             }
           } else {
             throw new Error(t('errors.errorLoadingChannels'));

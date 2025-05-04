@@ -43,7 +43,6 @@ export default function Login({ onNavigate }) {
     const [savedLoginInfo, setSavedLoginInfo] = useState(null);
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
-    const [alertTitle, setAlertTitle] = useState('');
 
     /**
      * @function handleLoginError
@@ -55,7 +54,6 @@ export default function Login({ onNavigate }) {
             type: ErrorType.AUTH,
             silent: false
         });
-        setAlertTitle(t('alerts.error'));
         setAlertMessage(errorMessage);
         setShowAlert(true);
         return errorMessage;
@@ -67,10 +65,16 @@ export default function Login({ onNavigate }) {
      * @returns {string} The error message if the inputs are not valid, otherwise null
      */
     const validateInputs = useCallback(() => {
-        console.log('[Login] Validation des inputs:', { contractNumber, login, password: password ? '***' : '' });
+        console.log('🔍 [Login] Validation des inputs:', {
+            contractNumber,
+            login,
+            password: password ? '***' : ''
+        });
         if (!contractNumber || !login || !password) {
+            console.log('❌ [Login] Champs requis manquants');
             return t('errors.fieldsRequired');
         }
+        console.log('✅ [Login] Validation des inputs réussie');
         return null;
     }, [contractNumber, login, password, t]);
 
@@ -81,21 +85,25 @@ export default function Login({ onNavigate }) {
      */
     const handleLogin = useCallback(async () => {
         try {
+            console.log('🚀 [Login] Début du processus de connexion');
             setIsLoading(true);
 
             try {
+                console.log('🧹 [Login] Nettoyage des anciens credentials');
                 await SecureStore.deleteItemAsync('userCredentials');
             } catch (error) {
+                console.error('⚠️ [Login] Erreur lors du nettoyage des credentials:', error);
                 // If it's a decryption error, we clean the SecureStore
                 if (error.message && (
                     error.message.includes('decrypt') ||
                     error.message.includes('decipher') ||
                     error.message.includes('decryption')
                 )) {
+                    console.log('🔐 [Login] Erreur de déchiffrement détectée, nettoyage du SecureStore');
                     await cleanSecureStore();
-                    console.log('[Login] SecureStore nettoyé avec succès');
+                    console.log('✅ [Login] SecureStore nettoyé avec succès');
                 } else {
-                    setAlertTitle(t('alerts.error'));
+                    console.error('❌ [Login] Erreur non liée au déchiffrement:', error);
                     setAlertMessage(t('errors.errorCleaningSecureStore'));
                     setShowAlert(true);
                 }
@@ -103,19 +111,19 @@ export default function Login({ onNavigate }) {
 
             const validationError = validateInputs();
             if (validationError) {
-                setAlertTitle(t('alerts.error'));
+                console.log('❌ [Login] Erreur de validation:', validationError);
                 setAlertMessage(validationError);
                 setShowAlert(true);
                 return;
             }
 
             // Première tentative de login
-            console.log('[Login] Tentative de login avec credentials...');
+            console.log('🔑 [Login] Tentative de login avec credentials...');
             const loginResponse = await loginApi(contractNumber, login, password, '');
 
             // If the login is successful, we save the credentials
             if (loginResponse.success) {
-                console.log('[Login] Login réussi, tokens reçus:', {
+                console.log('✅ [Login] Login réussi, tokens reçus:', {
                     accessToken: loginResponse.accessToken?.substring(0, 10) + '...',
                     refreshToken: loginResponse.refreshToken?.substring(0, 10) + '...'
                 });
@@ -130,15 +138,18 @@ export default function Login({ onNavigate }) {
                     accessToken: loginResponse.accessToken
                 };
 
+                console.log('💾 [Login] Sauvegarde des credentials dans SecureStore');
                 await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-                console.log('[Login] Tokens sauvegardés dans SecureStore');
+                console.log('✅ [Login] Tokens sauvegardés avec succès');
 
                 // If the user has checked the "Remember me" checkbox, we save the login info
                 if (isChecked) {
+                    console.log('💾 [Login] Sauvegarde des informations de connexion (Remember me)');
                     await saveLoginInfo();
                 }
 
                 // We fetch the user channels
+                console.log('📡 [Login] Récupération des canaux utilisateur');
                 const channelsResponse = await fetchUserChannels(
                     contractNumber,
                     login,
@@ -149,56 +160,69 @@ export default function Login({ onNavigate }) {
 
                 // If the channels are loaded, we get the notification token
                 if (channelsResponse.status === 'ok') {
+                    console.log('✅ [Login] Canaux récupérés avec succès');
                     const { status: existingStatus } = await Notifications.getPermissionsAsync();
                     let finalStatus = existingStatus;
 
+                    console.log('🔔 [Login] Statut des permissions de notification:', existingStatus);
+
                     // If the user has not granted the notification permission, we request it
                     if (existingStatus !== 'granted') {
+                        console.log('🔔 [Login] Demande de permission de notification');
                         const { status } = await Notifications.requestPermissionsAsync();
                         finalStatus = status;
+                        console.log('🔔 [Login] Nouveau statut des permissions:', status);
                     }
 
                     // If the user has granted the notification permission, we get the token and synchronize it with the API
                     if (finalStatus === 'granted') {
+                        console.log('🔑 [Login] Récupération du token de notification');
                         const tokenData = await Notifications.getExpoPushTokenAsync({
                             projectId: ENV.EXPO_PROJECT_ID,
                         });
-                        console.log('[Login] Token obtenu:', tokenData.data);
+                        console.log('✅ [Login] Token obtenu:', tokenData.data);
 
                         // Synchronize the token with the API
+                        console.log('🔄 [Login] Synchronisation du token avec l\'API');
                         const syncResult = await synchronizeTokenWithAPI(tokenData.data);
                         if (!syncResult) {
+                            console.error('❌ [Login] Échec de la synchronisation du token');
                             handleError(t('error.errorSynchronizingTokenWithAPI'), {
                                 type: ErrorType.SYSTEM,
                                 silent: false
                             });
+                        } else {
+                            console.log('✅ [Login] Token synchronisé avec succès');
                         }
                     }
 
                     // We navigate to the chat screen
+                    console.log('🚀 [Login] Navigation vers l\'écran de chat');
                     onNavigate(SCREENS.CHAT);
                 } else {
+                    console.error('❌ [Login] Échec de la récupération des canaux');
                     handleError(t('errors.errorLoadingChannels'), {
                         type: ErrorType.SYSTEM,
                         silent: false
                     });
                 }
             } else {
-                console.log('[Login] Échec de la première tentative, vérification du refresh token...');
+                console.log('⚠️ [Login] Échec de la première tentative, vérification du refresh token...');
 
                 // Récupération des anciens credentials pour le refresh token
                 const oldCredentials = await SecureStore.getItemAsync('userCredentials');
                 if (!oldCredentials) {
-                    console.log('[Login] Pas d\'anciens credentials trouvés');
+                    console.log('❌ [Login] Pas d\'anciens credentials trouvés');
                     setAlertMessage(t('errors.invalidCredentials'));
                     setShowAlert(true);
                     return;
                 }
 
                 const { refreshToken, accountApiKey } = JSON.parse(oldCredentials);
-                console.log('[Login] Ancien refresh token trouvé:', refreshToken?.substring(0, 10) + '...');
+                console.log('🔑 [Login] Ancien refresh token trouvé:', refreshToken?.substring(0, 10) + '...');
 
                 // Tentative de refresh du token
+                console.log('🔄 [Login] Tentative de refresh du token');
                 const refreshTokenResponse = await checkRefreshToken(
                     contractNumber,
                     accountApiKey,
@@ -207,16 +231,16 @@ export default function Login({ onNavigate }) {
 
                 // If the refresh token is not successful, we set the error
                 if (!refreshTokenResponse.success) {
-                    console.log('[Login] Refresh token invalide, connexion impossible');
+                    console.log('❌ [Login] Refresh token invalide, connexion impossible');
                     setAlertMessage(t('errors.sessionExpired'));
                     setShowAlert(true);
                     return;
                 }
 
-                console.log('[Login] Nouveau refresh token obtenu:', refreshTokenResponse.data.refresh_token?.substring(0, 10) + '...');
+                console.log('✅ [Login] Nouveau refresh token obtenu:', refreshTokenResponse.data.refresh_token?.substring(0, 10) + '...');
 
                 // Nouvelle tentative de login avec le nouveau refresh token
-                console.log('[Login] Nouvelle tentative avec le refresh token...');
+                console.log('🔑 [Login] Nouvelle tentative avec le refresh token...');
                 const retryLoginResponse = await loginApi(
                     contractNumber,
                     login,
@@ -226,7 +250,7 @@ export default function Login({ onNavigate }) {
 
                 // If the login is successful, we save the credentials
                 if (retryLoginResponse.success) {
-                    console.log('[Login] Login réussi avec refresh token, nouveaux tokens:', {
+                    console.log('✅ [Login] Login réussi avec refresh token, nouveaux tokens:', {
                         accessToken: retryLoginResponse.accessToken?.substring(0, 10) + '...',
                         refreshToken: refreshTokenResponse.data.refresh_token?.substring(0, 10) + '...'
                     });
@@ -240,9 +264,11 @@ export default function Login({ onNavigate }) {
                         accessToken: retryLoginResponse.accessToken
                     };
 
+                    console.log('💾 [Login] Sauvegarde des nouveaux tokens');
                     await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-                    console.log('[Login] Nouveaux tokens sauvegardés dans SecureStore');
+                    console.log('✅ [Login] Nouveaux tokens sauvegardés avec succès');
 
+                    console.log('📡 [Login] Récupération des canaux utilisateur');
                     const channelsResponse = await fetchUserChannels(
                         contractNumber,
                         login,
@@ -253,29 +279,29 @@ export default function Login({ onNavigate }) {
 
                     // If the channels are loaded, we navigate to the chat screen
                     if (channelsResponse.status === 'ok') {
+                        console.log('✅ [Login] Canaux récupérés avec succès');
+                        console.log('🚀 [Login] Navigation vers l\'écran de chat');
                         onNavigate(SCREENS.CHAT);
                     } else {
+                        console.error('❌ [Login] Échec de la récupération des canaux');
                         handleError(t('errors.errorLoadingChannels'), {
                             type: ErrorType.SYSTEM,
                             silent: false
                         });
                     }
                 } else {
-                    console.log('[Login] Échec de la connexion avec refresh token');
-                    handleError(t('errors.invalidCredentials'), {
-                        type: ErrorType.SYSTEM,
-                        silent: false
-                    });
+                    console.log('❌ [Login] Échec de la connexion avec le refresh token');
+                    setAlertMessage(t('errors.invalidCredentials'));
+                    setShowAlert(true);
                 }
             }
         } catch (error) {
-            setAlertTitle(t('alerts.error'));
-            setAlertMessage(t('errors.loginFailed'));
-            setShowAlert(true);
+            console.error('❌ [Login] Erreur lors du processus de connexion:', error);
+            handleLoginError(error, 'process');
         } finally {
             setIsLoading(false);
         }
-    }, [contractNumber, login, password, isChecked, onNavigate, saveLoginInfo, validateInputs, t]);
+    }, [contractNumber, login, password, isChecked, onNavigate, t]);
 
 
     /**
@@ -371,7 +397,6 @@ export default function Login({ onNavigate }) {
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            setAlertTitle(t('alerts.error'));
             setAlertMessage(t('errors.loginFailed'));
             setShowAlert(true);
             setIsSimplifiedLogin(false);
@@ -577,7 +602,6 @@ export default function Login({ onNavigate }) {
             </GradientBackground>
             <CustomAlert
                 visible={showAlert}
-                title={alertTitle}
                 message={alertMessage}
                 onClose={() => setShowAlert(false)}
                 onConfirm={() => setShowAlert(false)}
