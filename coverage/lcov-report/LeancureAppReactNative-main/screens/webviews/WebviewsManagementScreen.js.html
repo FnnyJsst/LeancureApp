@@ -25,21 +25,21 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/146</span>
+                <span class='fraction'>0/147</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/90</span>
+                <span class='fraction'>0/94</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/60</span>
+                <span class='fraction'>0/61</span>
             </div>
         
             
@@ -773,7 +773,19 @@
 <a name='L708'></a><a href='#L708'>708</a>
 <a name='L709'></a><a href='#L709'>709</a>
 <a name='L710'></a><a href='#L710'>710</a>
-<a name='L711'></a><a href='#L711'>711</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L711'></a><a href='#L711'>711</a>
+<a name='L712'></a><a href='#L712'>712</a>
+<a name='L713'></a><a href='#L713'>713</a>
+<a name='L714'></a><a href='#L714'>714</a>
+<a name='L715'></a><a href='#L715'>715</a>
+<a name='L716'></a><a href='#L716'>716</a>
+<a name='L717'></a><a href='#L717'>717</a>
+<a name='L718'></a><a href='#L718'>718</a>
+<a name='L719'></a><a href='#L719'>719</a>
+<a name='L720'></a><a href='#L720'>720</a>
+<a name='L721'></a><a href='#L721'>721</a>
+<a name='L722'></a><a href='#L722'>722</a>
+<a name='L723'></a><a href='#L723'>723</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1059,12 +1071,24 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -1769,15 +1793,27 @@ export default function <span class="fstat-no" title="function not covered" >Web
   const handleDeleteWebview = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >as</span>ync (webviewToDelete) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (webviewToDelete) {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
+        // Filtrer les webviews pour ne garder que celles qui ne sont pas à supprimer
         const updatedWebviews = <span class="cstat-no" title="statement not covered" >selectedWebviews.filter(</span>
-<span class="fstat-no" title="function not covered" >          ch</span>annel =&gt; <span class="cstat-no" title="statement not covered" >channel.href !== webviewToDelete.href</span>
+<span class="fstat-no" title="function not covered" >          we</span>bview =&gt; <span class="cstat-no" title="statement not covered" >webview.href !== webviewToDelete.href</span>
         );
+&nbsp;
+        // Mettre à jour l'état local
 <span class="cstat-no" title="statement not covered" >        setSelectedWebviews(updatedWebviews);</span>
-<span class="cstat-no" title="statement not covered" >        await saveSelectedWebviews(updatedWebviews);</span>
-<span class="cstat-no" title="statement not covered" >        await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(updatedWebviews));</span>
+&nbsp;
+        // Sauvegarder uniquement les données essentielles avec une taille limitée
+        const simplifiedWebviews = <span class="cstat-no" title="statement not covered" >updatedWebviews.map(<span class="fstat-no" title="function not covered" >we</span>bview =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+          href: (webview.href || '').substring(0, 100),
+          title: (webview.title || '').substring(0, 50)
+        }));
+&nbsp;
+        // Sauvegarder les webviews simplifiées
+<span class="cstat-no" title="statement not covered" >        await saveSelectedWebviews(simplifiedWebviews);</span>
+&nbsp;
+        // Fermer la modal
 <span class="cstat-no" title="statement not covered" >        handleCloseModal('delete');</span>
-      } catch (err) {;
-<span class="cstat-no" title="statement not covered" >        handleError(err, i18n.t('errors.errorDeletingWebview'), {</span>
+      } catch (error) {
+<span class="cstat-no" title="statement not covered" >        handleError(error, t('errors.errorDeletingWebview'), {</span>
           type: ErrorType.SYSTEM,
           silent: false
         });
@@ -2200,7 +2236,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-22T06:54:27.433Z
+                at 2025-05-03T12:41:14.403Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

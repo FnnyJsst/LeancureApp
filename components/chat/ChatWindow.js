@@ -41,7 +41,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     }] : []
   });
 
-
   // Refs are used to avoid re-rendering the component when the state changes
   const scrollViewRef = useRef();
   const updatingRef = useRef(false);
@@ -152,46 +151,51 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const handleChatError = (error, source, options = {}) => {
     try {
-      // If the error is already an Error object, we use it directly
+      // Si l'erreur est déjà un objet Error, on l'utilise directement
       if (error instanceof Error) {
         return handleError(error, `chatWindow.${source}`, {
           type: ErrorType.SYSTEM,
-          ...options
+          silent: options.silent ?? false,
+          showNotification: options.showNotification ?? true
         });
       }
 
-      // If the error is a string, we create a new Error object
+      // Si l'erreur est une chaîne de caractères, on crée un nouvel objet Error
       if (typeof error === 'string') {
         const formattedError = new Error(error);
         return handleError(formattedError, `chatWindow.${source}`, {
           type: ErrorType.SYSTEM,
-          ...options
+          silent: options.silent ?? false,
+          showNotification: options.showNotification ?? true
         });
       }
 
-      // If the error is an object, we try to extract the message
+      // Si l'erreur est un objet, on essaie d'extraire le message
       if (typeof error === 'object' && error !== null) {
         const errorMessage = error.message || error.error || JSON.stringify(error);
         const formattedError = new Error(errorMessage);
         return handleError(formattedError, `chatWindow.${source}`, {
           type: ErrorType.SYSTEM,
-          ...options
+          silent: options.silent ?? false,
+          showNotification: options.showNotification ?? true
         });
       }
 
-      // If we can't determine the type of error, we create a default error
-      const defaultError = new Error('An unexpected error occurred');
+      // Si on ne peut pas déterminer le type d'erreur, on crée une erreur par défaut
+      const defaultError = new Error(t('errors.unexpected'));
       return handleError(defaultError, `chatWindow.${source}`, {
         type: ErrorType.SYSTEM,
-        ...options
+        silent: options.silent ?? false,
+        showNotification: options.showNotification ?? true
       });
     } catch (e) {
-      // In case of error in the error handling, we create a default error
-      console.error('Error in handleChatError:', e);
-      const fallbackError = new Error('Error handling the error');
+      // En cas d'erreur dans la gestion des erreurs, on crée une erreur par défaut
+      console.error('Erreur dans handleChatError:', e);
+      const fallbackError = new Error(t('errors.errorHandling'));
       return handleError(fallbackError, `chatWindow.${source}`, {
         type: ErrorType.SYSTEM,
-        ...options
+        silent: false,
+        showNotification: true
       });
     }
   };
@@ -227,53 +231,52 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const handleWebSocketMessage = useCallback(async (data) => {
     try {
-
       const messageId = data.message?.id || data.notification?.message?.id;
 
-      // If the message has already been processed, we ignore it
+      // Si le message a déjà été traité, on l'ignore
       if (messageId && processedMessageIds.current.has(messageId)) {
         console.log('🔄 Message déjà traité, ignoré');
         return;
       }
 
-      // We add the message ID to the list of processed messages
+      // On ajoute l'ID du message à la liste des messages traités
       if (messageId) {
         processedMessageIds.current.add(messageId);
       }
 
-      // Check if it's a notification to mark a channel as unread
+      // On vérifie si c'est une notification pour marquer un canal comme non lu
       if (data.notification && data.notification.type === 'chat' && data.notification.message) {
         console.log('🔔 Notification de chat détectée');
-        // It's a chat message notification
+        // C'est une notification de message de chat
         const notifMessage = data.notification.message;
 
-        // Check if the message is from the current user
+        // On vérifie si le message est de l'utilisateur actuel
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         const userCredentials = credentialsStr ? JSON.parse(credentialsStr) : null;
         const isOwnMessage = userCredentials && notifMessage.login === userCredentials.login;
 
-        // Extract channel ID from the notification
+        // On extrait l'ID du canal de la notification
         let channelId = null;
         if (notifMessage.channelId) {
           channelId = notifMessage.channelId.toString().replace('channel_', '');
         } else if (data.notification.body) {
-          // Try to extract channel name from the notification body
+          // On essaie d'extraire le nom du canal du corps de la notification
           const channelMatch = data.notification.body.match(/channel\s+(.+)$/i);
           if (channelMatch) {
             const channelName = channelMatch[1].trim();
 
-            // Get the channel ID from the notification filters
+            // On récupère l'ID du canal des filtres de notification
             if (data.notification.filters?.values?.channel) {
               channelId = data.notification.filters.values.channel.toString().replace('channel_', '');
             }
           }
         }
 
-        // If we have a channel ID and it's not the current channel, mark as unread
+        // Si on a un ID de canal et que ce n'est pas le canal actuel, on le marque comme non lu
         if (channelId) {
           const currentChannelId = channel?.id?.toString();
 
-          // Only mark as unread if it's not the current channel
+          // On marque comme non lu seulement si ce n'est pas le canal actuel
           if (channelId !== currentChannelId) {
             console.log('🔔 Marquer le canal comme non lu:', channelId);
             markChannelAsUnread(channelId, true);
@@ -285,60 +288,69 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }
       }
 
-      // We check if the message is a notification or a message
+      // On vérifie si le message est une notification ou un message
       if (data.type === 'notification' || data.type === 'message') {
-        // We extract the channel ID
+        // On extrait l'ID du canal
         const channelId = data.filters?.values?.channel;
         const currentChannelId = channel?.id?.toString();
 
-        // If the current channel ID is not set, we throw an error
+        // Si l'ID du canal actuel n'est pas défini, on lance une erreur
         if (!currentChannelId) {
-          handleChatError(t('errors.noCurrentChannel'), 'message.validation');
+          handleChatError(t('errors.noCurrentChannel'), 'message.validation', {
+            silent: false,
+            showNotification: true
+          });
           return;
         }
 
-        // We clean the received and current channel IDs
+        // On nettoie les IDs de canal reçus et actuels
         const cleanReceivedChannelId = channelId?.toString()?.replace('channel_', '');
         const cleanCurrentChannelId = currentChannelId?.toString()?.replace('channel_', '');
 
-        // If the cleaned channel IDs are not the same, we throw an error
+        // Si les IDs de canal nettoyés ne sont pas les mêmes, on lance une erreur
         if (cleanReceivedChannelId !== cleanCurrentChannelId) {
-          handleChatError(t('errors.channelMismatch'), 'message.validation');
+          handleChatError(t('errors.channelMismatch'), 'message.validation', {
+            silent: false,
+            showNotification: true
+          });
           return;
         }
 
-        // We extract the message content
+        // On extrait le contenu du message
         const messageContent = data.message;
 
-        // If the message content is not set, we throw an error
+        // Si le contenu du message n'est pas défini, on lance une erreur
         if (!messageContent) {
-          handleChatError(t('errors.noMessageContent'), 'message.validation');
+          handleChatError(t('errors.noMessageContent'), 'message.validation', {
+            silent: false,
+            showNotification: true
+          });
           return;
         }
 
         messageContent.channelId = cleanReceivedChannelId;
 
-        // We check if we are the sender of the message
+        // On vérifie si nous sommes l'expéditeur du message
         if (credentials && credentials.login && messageContent.login) {
           messageContent.isOwnMessage = messageContent.login === credentials.login;
         }
 
-        // We play the notification sound
+        // On joue le son de notification
         await playNotificationSound(messageContent, null, credentials);
 
-        // If the message content is an array of messages, we update the messages
+        // Si le contenu du message est un tableau de messages, on met à jour les messages
         if (messageContent.type === 'messages' && Array.isArray(messageContent.messages)) {
           setMessages(prevMessages => {
             const newMessages = messageContent.messages
               .filter(msg => {
-                // We check if the message exists in the previous messages
+                // On vérifie si le message existe dans les messages précédents
                 const messageExists = prevMessages.some(prevMsg => prevMsg.id === msg.id);
                 if (messageExists) {
                   return false;
                 }
                 return true;
               })
-              // We format the messages
+              // On formate les messages
               .map(msg => {
                 processedMessageIds.current.add(msg.id);
                 return formatMessage(msg, credentials);
@@ -350,11 +362,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           return;
         }
 
-        // If the message content is a unique message, we update the messages
+        // Si le contenu du message est un message unique, on met à jour les messages
         setMessages(prevMessages => {
           const newMessage = formatMessage(messageContent, credentials);
 
-          // We check if the message exists
+          // On vérifie si le message existe
           const messageExists = prevMessages.some(msg => msg.id === newMessage.id);
 
           if (messageExists) {
@@ -366,17 +378,20 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         return;
       }
 
-      // If the message is in the format of a nested notification
+      // Si le message est au format d'une notification imbriquée
       if (data.notification) {
         const channelId = data.notification.filters?.values?.channel;
         const currentChannelId = channel ? channel.id.toString() : null;
 
         if (!currentChannelId || channelId !== currentChannelId) {
-          handleChatError(t('errors.channelMismatch'), 'message.validation');
+          handleChatError(t('errors.channelMismatch'), 'message.validation', {
+            silent: false,
+            showNotification: true
+          });
           return;
         }
 
-        // If the message content is not set, we return nothing
+        // Si le contenu du message n'est pas défini, on ne retourne rien
         const messageContent = data.notification.message;
         if (!messageContent) {
           return;
@@ -384,20 +399,19 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
         messageContent.channelId = channelId;
 
-        // If we have credentials and a login, we can pre-determine if it's a own message
+        // Si on a des identifiants et un login, on peut prédéterminer si c'est un message personnel
         if (credentials && credentials.login && messageContent.login) {
           messageContent.isOwnMessage = messageContent.login === credentials.login;
         }
 
-        // We play the notification sound
-        // The variable globally currentlyViewedChannel will be used automatically
+        // On joue le son de notification
         await playNotificationSound(messageContent, null, credentials);
 
-        // We format the message
+        // On formate le message
         setMessages(prevMessages => {
           const newMessage = formatMessage(messageContent, credentials);
 
-          // We check if the message exists in the previous messages
+          // On vérifie si le message existe dans les messages précédents
           const messageExists = prevMessages.some(msg => msg.id === newMessage.id);
 
           if (messageExists) {
@@ -410,8 +424,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       }
 
     } catch (error) {
-      console.error('❌ Erreur dans handleWebSocketMessage:', error);
-      handleChatError(error, 'message.processing', { silent: false });
+      handleChatError(error, 'message.processing', {
+        silent: false,
+        showNotification: true
+      });
     }
   }, [channel, credentials, t, markChannelAsUnread]);
 
@@ -490,52 +506,56 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = useCallback(async (messageData) => {
     try {
-      // We record the timestamp of the sent message to avoid notifications
+      // On enregistre le timestamp du message envoyé pour éviter les notifications
       const currentTime = Date.now();
       recordSentMessage(currentTime);
 
-      // If the channel is not set, we throw an error
+      // Si le canal n'est pas défini, on lance une erreur
       if (!channel) {
-        const error = new Error(t('errors.noChannel'));
-        handleChatError(error, 'sendMessage.validation');
+        handleChatError(t('errors.noChannel'), 'sendMessage.validation', {
+          silent: false,
+          showNotification: true
+        });
         return;
       }
 
-      // If the credentials are not set, we get them
+      // Si les identifiants ne sont pas définis, on les récupère
       if (!credentials) {
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         if (!credentialsStr) {
-          const error = new Error(t('errors.noCredentials'));
-          handleChatError(error, 'sendMessage.validation');
+          handleChatError(t('errors.noCredentials'), 'sendMessage.validation', {
+            silent: false,
+            showNotification: true
+          });
           return;
         }
         const userCredentials = JSON.parse(credentialsStr);
         setCredentials(userCredentials);
       }
 
-      // We get the user credentials
+      // On récupère les identifiants de l'utilisateur
       const userCredentials = credentials;
 
-      // Create a timestamp for the message
+      // On crée un timestamp pour le message
       const sendTimestamp = Date.now();
 
-      // Check if the message is an edit of an existing message
+      // On vérifie si le message est une modification d'un message existant
       const isEditing = messageData.isEditing === true && messageData.messageId;
 
       if (isEditing) {
         try {
-          // We send the editing request
+          // On envoie la requête de modification
           const response = await editMessageApi(messageData.messageId, messageData, userCredentials);
 
           if (response.status === 'ok') {
             setEditingMessage(null);
 
-            // We update the messages
+            // On met à jour les messages
             setMessages(prevMessages => {
               const updatedMessages = prevMessages.map(msg => {
                 if (msg.id === messageData.messageId) {
                   const updatedText = messageData.text || '';
-                  // We update the message
+                  // On met à jour le message
                   return {
                     ...msg,
                     message: updatedText,
@@ -547,37 +567,46 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
               return updatedMessages;
             });
           } else {
-            const error = new Error(response.message || t('errors.editFailed'));
-            handleChatError(error, 'editMessage');
+            handleChatError(response.message || t('errors.editFailed'), 'editMessage', {
+              silent: false,
+              showNotification: true
+            });
             return;
           }
 
-          return; // We stop the execution here
+          return; // On arrête l'exécution ici
         } catch (error) {
-          handleChatError(error, 'editMessage');
+          handleChatError(error, 'editMessage', {
+            silent: false,
+            showNotification: true
+          });
           return;
         }
       }
 
-      // For a new message (non-editing), we continue with the existing code
-      // We check the type of message
+      // Pour un nouveau message (non-modification), on continue avec le code existant
+      // On vérifie le type de message
       if (messageData.type === 'file') {
         if (!messageData.base64) {
-          const error = new Error(t('errors.invalidFile'));
-          handleChatError(error, 'sendMessage.validation');
+          handleChatError(t('errors.invalidFile'), 'sendMessage.validation', {
+            silent: false,
+            showNotification: true
+          });
           return;
         }
       } else {
         const messageText = typeof messageData === 'object' ? messageData.text : messageData;
-        // If the message text is invalid, we throw an error
+        // Si le texte du message est invalide, on lance une erreur
         if (!messageText || messageText.trim() === '') {
-          const error = new Error(t('errors.emptyMessage'));
-          handleChatError(error, 'sendMessage.validation');
+          handleChatError(t('errors.emptyMessage'), 'sendMessage.validation', {
+            silent: false,
+            showNotification: true
+          });
           return;
         }
       }
 
-      // We send the message
+      // On envoie le message
       const messageToSend = messageData.type === 'file' ? {
         ...messageData,
         login: userCredentials.login,
@@ -591,24 +620,24 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         sendTimestamp
       };
 
-      // We format the message and add it to the list of messages
+      // On formate le message et on l'ajoute à la liste des messages
       const message = formatMessage(messageToSend, userCredentials);
 
-      // Try to send the message
+      // On essaie d'envoyer le message
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
 
-      // We check if the sending was successful
+      // On vérifie si l'envoi a réussi
       if (response.status === 'ok' && response.id) {
-        // Add the message to the existing ones
+        // On ajoute le message aux messages existants
         setMessages((prevMessages) => {
-          // Check if the message already exists
+          // On vérifie si le message existe déjà
           const messageExists = prevMessages.some((msg) => msg.id === response.id);
 
           if (messageExists) {
             return prevMessages;
           }
 
-          // Create a complete message from the response
+          // On crée un message complet à partir de la réponse
           const completeMessage = {
             ...message,
             id: response.id,
@@ -618,17 +647,20 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           return [...prevMessages, completeMessage];
         });
       } else {
-        const errorMessage = response?.message || t('errors.sendFailed');
-        const error = new Error(errorMessage);
-        handleChatError(error, 'sendMessage');
+        handleChatError(response?.message || t('errors.sendFailed'), 'sendMessage', {
+          silent: false,
+          showNotification: true
+        });
         return;
       }
     } catch (error) {
-      console.error('Error in sendMessage:', error);
-      handleChatError(error, 'sendMessage', { silent: false });
+      handleChatError(error, 'sendMessage', {
+        silent: false,
+        showNotification: true
+      });
       return;
     }
-  }, [channel, credentials, t, recordSentMessage, markChannelAsUnread]);
+  }, [channel, credentials, t, recordSentMessage]);
 
   /**
    * @function handleDeleteMessage
@@ -642,7 +674,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       const isOwnMessage = messageToDelete?.isOwnMessage;
 
       if (!hasDeleteRights && !isOwnMessage) {
-        handleChatError(t('errors.noDeletePermission'), 'deleteMessage.validation');
+        handleChatError(t('errors.noDeletePermission'), 'deleteMessage.validation', {
+          silent: false,
+          showNotification: true
+        });
         return;
       }
 
@@ -652,24 +687,35 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         const updatedMessages = messages.filter(msg => msg.id !== messageId);
         setMessages(updatedMessages);
       } else {
-        handleChatError(t('errors.messageNotDeleted'), 'deleteMessage.process');
+        handleChatError(t('errors.messageNotDeleted'), 'deleteMessage.process', {
+          silent: false,
+          showNotification: true
+        });
       }
     } catch (error) {
-      handleChatError(error, 'deleteMessage.process', { silent: false });
-      throw error;
+      handleChatError(error, 'deleteMessage.process', {
+        silent: false,
+        showNotification: true
+      });
     }
   };
 
   const handleEditMessage = async (messageToEdit) => {
     try {
       if (!messageToEdit || !messageToEdit.id) {
-        handleChatError(t('errors.invalidMessageEdit'), 'editMessage.validation');
+        handleChatError(t('errors.invalidMessageEdit'), 'editMessage.validation', {
+          silent: false,
+          showNotification: true
+        });
         return;
       }
 
       setEditingMessage(messageToEdit);
     } catch (error) {
-      handleChatError(error, 'editMessage.process');
+      handleChatError(error, 'editMessage.process', {
+        silent: false,
+        showNotification: true
+      });
     }
   };
 
