@@ -302,7 +302,6 @@ export default function App({ testID, initialScreen }) {
           navigate(SCREENS.APP_MENU);
         }
       } catch (error) {
-        console.log('❌ [App] Erreur lors de la mise à jour de isMessagesHidden:', error.message);
 
         // Check if it's a decryption error
         if (error.message && (
@@ -310,10 +309,9 @@ export default function App({ testID, initialScreen }) {
           error.message.includes('decipher') ||
           error.message.includes('decryption')
         )) {
-          console.log('🧹 [App] Erreur de déchiffrement détectée dans handleMessagesHiddenChange, nettoyage...');
           try {
+
             await cleanSecureStoreKeys();
-            console.log('✅ [App] SecureStore nettoyé avec succès');
 
             // We try to save again after cleaning
             await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(isMessagesHidden));
@@ -496,7 +494,6 @@ export default function App({ testID, initialScreen }) {
    * @param {Array|string} newWebviews - The selected channels or a single URL
    */
   const handleImportWebviews = (newWebviews) => {
-    console.log('[App] handleImportWebviews appelé avec:', newWebviews);
 
     if (typeof newWebviews === 'string') {
       // If it's a unique URL, create a webview object and add it directly

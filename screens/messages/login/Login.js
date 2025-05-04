@@ -65,16 +65,11 @@ export default function Login({ onNavigate }) {
      * @returns {string} The error message if the inputs are not valid, otherwise null
      */
     const validateInputs = useCallback(() => {
-        console.log('🔍 [Login] Validation des inputs:', {
-            contractNumber,
-            login,
-            password: password ? '***' : ''
-        });
+
         if (!contractNumber || !login || !password) {
-            console.log('❌ [Login] Champs requis manquants');
             return t('errors.fieldsRequired');
         }
-        console.log('✅ [Login] Validation des inputs réussie');
+
         return null;
     }, [contractNumber, login, password, t]);
 
@@ -85,7 +80,7 @@ export default function Login({ onNavigate }) {
      */
     const handleLogin = useCallback(async () => {
         try {
-            console.log('🚀 [Login] Début du processus de connexion');
+
             setIsLoading(true);
 
             try {
@@ -99,9 +94,8 @@ export default function Login({ onNavigate }) {
                     error.message.includes('decipher') ||
                     error.message.includes('decryption')
                 )) {
-                    console.log('🔐 [Login] Erreur de déchiffrement détectée, nettoyage du SecureStore');
+
                     await cleanSecureStore();
-                    console.log('✅ [Login] SecureStore nettoyé avec succès');
                 } else {
                     console.error('❌ [Login] Erreur non liée au déchiffrement:', error);
                     setAlertMessage(t('errors.errorCleaningSecureStore'));
@@ -117,8 +111,7 @@ export default function Login({ onNavigate }) {
                 return;
             }
 
-            // Première tentative de login
-            console.log('🔑 [Login] Tentative de login avec credentials...');
+            // First login attempt
             const loginResponse = await loginApi(contractNumber, login, password, '');
 
             // If the login is successful, we save the credentials
@@ -128,7 +121,7 @@ export default function Login({ onNavigate }) {
                     refreshToken: loginResponse.refreshToken?.substring(0, 10) + '...'
                 });
 
-                // Sauvegarde des credentials avec les tokens
+                // Save the credentials with the tokens
                 const credentials = {
                     contractNumber,
                     login,
@@ -144,12 +137,10 @@ export default function Login({ onNavigate }) {
 
                 // If the user has checked the "Remember me" checkbox, we save the login info
                 if (isChecked) {
-                    console.log('💾 [Login] Sauvegarde des informations de connexion (Remember me)');
                     await saveLoginInfo();
                 }
 
                 // We fetch the user channels
-                console.log('📡 [Login] Récupération des canaux utilisateur');
                 const channelsResponse = await fetchUserChannels(
                     contractNumber,
                     login,
@@ -160,30 +151,23 @@ export default function Login({ onNavigate }) {
 
                 // If the channels are loaded, we get the notification token
                 if (channelsResponse.status === 'ok') {
-                    console.log('✅ [Login] Canaux récupérés avec succès');
                     const { status: existingStatus } = await Notifications.getPermissionsAsync();
                     let finalStatus = existingStatus;
 
-                    console.log('🔔 [Login] Statut des permissions de notification:', existingStatus);
-
                     // If the user has not granted the notification permission, we request it
                     if (existingStatus !== 'granted') {
-                        console.log('🔔 [Login] Demande de permission de notification');
                         const { status } = await Notifications.requestPermissionsAsync();
                         finalStatus = status;
-                        console.log('🔔 [Login] Nouveau statut des permissions:', status);
                     }
 
                     // If the user has granted the notification permission, we get the token and synchronize it with the API
                     if (finalStatus === 'granted') {
-                        console.log('🔑 [Login] Récupération du token de notification');
                         const tokenData = await Notifications.getExpoPushTokenAsync({
                             projectId: ENV.EXPO_PROJECT_ID,
                         });
                         console.log('✅ [Login] Token obtenu:', tokenData.data);
 
                         // Synchronize the token with the API
-                        console.log('🔄 [Login] Synchronisation du token avec l\'API');
                         const syncResult = await synchronizeTokenWithAPI(tokenData.data);
                         if (!syncResult) {
                             console.error('❌ [Login] Échec de la synchronisation du token');
@@ -197,7 +181,6 @@ export default function Login({ onNavigate }) {
                     }
 
                     // We navigate to the chat screen
-                    console.log('🚀 [Login] Navigation vers l\'écran de chat');
                     onNavigate(SCREENS.CHAT);
                 } else {
                     console.error('❌ [Login] Échec de la récupération des canaux');
@@ -212,7 +195,6 @@ export default function Login({ onNavigate }) {
                 // Récupération des anciens credentials pour le refresh token
                 const oldCredentials = await SecureStore.getItemAsync('userCredentials');
                 if (!oldCredentials) {
-                    console.log('❌ [Login] Pas d\'anciens credentials trouvés');
                     setAlertMessage(t('errors.invalidCredentials'));
                     setShowAlert(true);
                     return;
@@ -222,7 +204,6 @@ export default function Login({ onNavigate }) {
                 console.log('🔑 [Login] Ancien refresh token trouvé:', refreshToken?.substring(0, 10) + '...');
 
                 // Tentative de refresh du token
-                console.log('🔄 [Login] Tentative de refresh du token');
                 const refreshTokenResponse = await checkRefreshToken(
                     contractNumber,
                     accountApiKey,
@@ -264,11 +245,9 @@ export default function Login({ onNavigate }) {
                         accessToken: retryLoginResponse.accessToken
                     };
 
-                    console.log('💾 [Login] Sauvegarde des nouveaux tokens');
                     await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
                     console.log('✅ [Login] Nouveaux tokens sauvegardés avec succès');
 
-                    console.log('📡 [Login] Récupération des canaux utilisateur');
                     const channelsResponse = await fetchUserChannels(
                         contractNumber,
                         login,
@@ -279,8 +258,6 @@ export default function Login({ onNavigate }) {
 
                     // If the channels are loaded, we navigate to the chat screen
                     if (channelsResponse.status === 'ok') {
-                        console.log('✅ [Login] Canaux récupérés avec succès');
-                        console.log('🚀 [Login] Navigation vers l\'écran de chat');
                         onNavigate(SCREENS.CHAT);
                     } else {
                         console.error('❌ [Login] Échec de la récupération des canaux');
@@ -435,17 +412,13 @@ export default function Login({ onNavigate }) {
     useEffect(() => {
         const checkSavedLogin = async () => {
             try {
-                console.log('🔍 [Login] Vérification des informations de connexion sauvegardées');
                 const savedLoginInfo = await SecureStore.getItemAsync('savedLoginInfo');
                 if (savedLoginInfo) {
-                    console.log('✅ [Login] Informations de connexion trouvées');
                     const parsedInfo = JSON.parse(savedLoginInfo);
                     setContractNumber(parsedInfo.contractNumber);
                     setLogin(parsedInfo.login);
                     setSavedLoginInfo(parsedInfo);
                     setIsSimplifiedLogin(true);
-                } else {
-                    console.log('ℹ️ [Login] Aucune information de connexion sauvegardée');
                 }
             } catch (error) {
                 console.error('❌ [Login] Erreur lors de la vérification des informations sauvegardées:', error);

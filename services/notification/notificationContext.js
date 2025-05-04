@@ -34,10 +34,6 @@ if (typeof global !== 'undefined') {
 // Functions to access the global variable
 export const getCurrentlyViewedChannel = () => currentlyViewedChannelId;
 export const setCurrentlyViewedChannel = (channelId) => {
-  console.log('👁️ [NotificationContext] Mise à jour du canal actuel:', {
-    oldChannelId: currentlyViewedChannelId,
-    newChannelId: channelId
-  });
 
   currentlyViewedChannelId = channelId ? channelId.toString() : null;
 
@@ -47,12 +43,12 @@ export const setCurrentlyViewedChannel = (channelId) => {
   }
 };
 
-// Function to emit unread message event
+/**
+ * @function emitUnreadMessage
+ * @description Emit an unread message event
+ * @param {string} channelId - The ID of the channel
+ */
 export const emitUnreadMessage = (channelId) => {
-  console.log('🔔 [NotificationContext] Émission d\'un message non lu:', {
-    channelId,
-    currentlyViewedChannel: currentlyViewedChannelId
-  });
 
   if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
     global.unreadMessageEmitter.emit(channelId);
@@ -69,16 +65,13 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
       const handleUnreadMessage = (channelId) => {
-        console.log('👂 [NotificationContext] Réception d\'un événement de message non lu:', channelId);
         markChannelAsUnread(channelId, true);
       };
 
       global.unreadMessageEmitter.addListener(handleUnreadMessage);
-      console.log('🎯 [NotificationContext] Écouteur d\'événements ajouté');
 
       return () => {
         global.unreadMessageEmitter.removeListener(handleUnreadMessage);
-        console.log('🔕 [NotificationContext] Écouteur d\'événements supprimé');
       };
     }
   }, []);
@@ -90,18 +83,12 @@ export const NotificationProvider = ({ children }) => {
    * @param {string} channelTitle - The title of the channel
    */
   const updateActiveChannel = (channelId, channelTitle) => {
-    console.log('🔄 [NotificationContext] Mise à jour du canal actif:', {
-      channelId,
-      channelTitle,
-      previousActiveChannel: activeChannelId
-    });
 
     setActiveChannelId(channelId);
     setCurrentlyViewedChannel(channelId);
 
     // If activating a channel, mark as read
     if (channelId && unreadChannels[channelId]) {
-      console.log('📖 [NotificationContext] Marquage du canal comme lu:', channelId);
       const updatedUnreadChannels = { ...unreadChannels };
       delete updatedUnreadChannels[channelId];
       setUnreadChannels(updatedUnreadChannels);
@@ -112,16 +99,13 @@ export const NotificationProvider = ({ children }) => {
 
     // Store the channel name if available
     if (channelId && channelTitle) {
-      console.log('💾 [NotificationContext] Sauvegarde du nom du canal:', channelTitle);
       SecureStore.setItemAsync('viewedChannelName', channelTitle)
         .catch(err => {
-          console.error('❌ [NotificationContext] Erreur lors de la sauvegarde du nom du canal:', err);
           handleError(err, i18n.t('error.setChannelName'), {
             type: ErrorType.SYSTEM
           });
         });
     } else {
-      console.log('🗑️ [NotificationContext] Suppression du nom du canal');
       SecureStore.deleteItemAsync('viewedChannelName')
         .catch(err => {
           console.error('❌ [NotificationContext] Erreur lors de la suppression du nom du canal:', err);
@@ -134,10 +118,6 @@ export const NotificationProvider = ({ children }) => {
 
   // Record the timestamp of the sent message
   const recordSentMessage = (timestamp = Date.now()) => {
-    console.log('⏰ [NotificationContext] Enregistrement du timestamp du message envoyé:', {
-      timestamp,
-      previousTimestamp: lastSentMessageTimestamp
-    });
     setLastSentMessageTimestamp(timestamp);
   };
 
@@ -148,22 +128,15 @@ export const NotificationProvider = ({ children }) => {
    * @param {boolean} isUnread - Whether the channel is unread
    */
   const markChannelAsUnread = (channelId, isUnread = true) => {
-    console.log('📝 [NotificationContext] Marquage du canal comme non lu:', {
-      channelId,
-      isUnread,
-      isActiveChannel: channelId === activeChannelId
-    });
 
     // If it's the active channel, don't mark as unread
     if (!channelId || channelId === activeChannelId) {
-      console.log('ℹ️ [NotificationContext] Canal actif, pas marqué comme non lu');
       return;
     }
 
     setUnreadChannels(prev => {
       // If marking as read, remove from dictionary
       if (!isUnread && prev[channelId]) {
-        console.log('📖 [NotificationContext] Marquage du canal comme lu:', channelId);
         const updated = { ...prev };
         delete updated[channelId];
 
@@ -182,11 +155,6 @@ export const NotificationProvider = ({ children }) => {
           }
         };
 
-        console.log('📝 [NotificationContext] Canal marqué comme non lu:', {
-          channelId,
-          count: updated[channelId].count
-        });
-
         // Save updated state
         saveUnreadChannels(updated);
         return updated;
@@ -202,9 +170,6 @@ export const NotificationProvider = ({ children }) => {
    * @param {Object} unreadState - The unread channels state
    */
   const saveUnreadChannels = async (unreadState) => {
-    console.log('💾 [NotificationContext] Sauvegarde des canaux non lus:', {
-      channelsCount: Object.keys(unreadState).length
-    });
 
     try {
       await SecureStore.setItemAsync('unreadChannels', JSON.stringify(unreadState));
@@ -216,17 +181,15 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
-  // Load unread channels state on startup
+  // Load unread channels state on app startup
   useEffect(() => {
     const loadUnreadChannels = async () => {
-      console.log('📂 [NotificationContext] Chargement des canaux non lus');
       try {
+        // We get the unread channels data from the secure store
         const unreadChannelsData = await SecureStore.getItemAsync('unreadChannels');
         if (unreadChannelsData) {
           const parsedData = JSON.parse(unreadChannelsData);
-          console.log('📊 [NotificationContext] Canaux non lus chargés:', {
-            channelsCount: Object.keys(parsedData).length
-          });
+
           setUnreadChannels(parsedData);
         }
       } catch (err) {
@@ -243,11 +206,9 @@ export const NotificationProvider = ({ children }) => {
   // Clean up resources when unmounting
   useEffect(() => {
     return () => {
-      console.log('🧹 [NotificationContext] Nettoyage des ressources');
       setCurrentlyViewedChannel(null);
       SecureStore.deleteItemAsync('viewedChannelName')
         .catch(err => {
-          console.error('❌ [NotificationContext] Erreur lors du nettoyage:', err);
           handleError(err, i18n.t('error.notificationCleanup'), {
             type: ErrorType.SYSTEM
           });

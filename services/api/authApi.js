@@ -48,11 +48,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       },
       maxRedirects: 0,
     });
-    console.log('[Auth] Réponse reçue:', {
-      status: loginResponse.status,
-      hasData: !!loginResponse.data,
-      hasCmd: !!loginResponse.data?.cmd?.[0]?.accounts
-    });
+
 
     const accountsData = loginResponse.data.cmd[0].accounts;
 
