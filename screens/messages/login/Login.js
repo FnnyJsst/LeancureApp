@@ -190,7 +190,6 @@ export default function Login({ onNavigate }) {
                 const oldCredentials = await SecureStore.getItemAsync('userCredentials');
                 if (!oldCredentials) {
                     console.log('[Login] Pas d\'anciens credentials trouvés');
-                    setAlertTitle(t('alerts.error'));
                     setAlertMessage(t('errors.invalidCredentials'));
                     setShowAlert(true);
                     return;
@@ -209,7 +208,6 @@ export default function Login({ onNavigate }) {
                 // If the refresh token is not successful, we set the error
                 if (!refreshTokenResponse.success) {
                     console.log('[Login] Refresh token invalide, connexion impossible');
-                    setAlertTitle(t('alerts.error'));
                     setAlertMessage(t('errors.sessionExpired'));
                     setShowAlert(true);
                     return;
