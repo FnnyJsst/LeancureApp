@@ -9,6 +9,75 @@ import { handleError, ErrorType } from '../../utils/errorHandling';
 import i18n from '../../i18n';
 import * as SecureStore from 'expo-secure-store';
 
+const NOTIFICATION_CACHE_KEY = 'notification_cache';
+
+/**
+ * @function getNotificationCache
+ * @description Récupère le cache des notifications depuis le stockage sécurisé
+ * @returns {Promise<Object>} Le cache des notifications
+ */
+const getNotificationCache = async () => {
+  try {
+    const cache = await SecureStore.getItemAsync(NOTIFICATION_CACHE_KEY);
+    return cache ? JSON.parse(cache) : {};
+  } catch (error) {
+    console.error('❌ [NotificationService] Erreur lors de la récupération du cache:', error);
+    return {};
+  }
+};
+
+/**
+ * @function saveNotificationCache
+ * @description Sauvegarde le cache des notifications dans le stockage sécurisé
+ * @param {Object} cache - Le cache à sauvegarder
+ */
+const saveNotificationCache = async (cache) => {
+  try {
+    await SecureStore.setItemAsync(NOTIFICATION_CACHE_KEY, JSON.stringify(cache));
+  } catch (error) {
+    console.error('❌ [NotificationService] Erreur lors de la sauvegarde du cache:', error);
+  }
+};
+
+/**
+ * @function isDuplicateNotification
+ * @description Vérifie si une notification est un doublon basé sur le canal et le temps
+ * @param {string} channelId - L'ID du canal
+ * @param {number} timestamp - Le timestamp de la notification
+ * @returns {Promise<boolean>} true si c'est un doublon, false sinon
+ */
+const isDuplicateNotification = async (channelId, timestamp) => {
+  try {
+    const cache = await getNotificationCache();
+    const lastNotification = cache[channelId];
+
+    if (!lastNotification) {
+      cache[channelId] = { timestamp };
+      await saveNotificationCache(cache);
+      return false;
+    }
+
+    const timeDiff = timestamp - lastNotification.timestamp;
+    if (timeDiff < 5000) { // 5 secondes
+      console.log('🔕 [NotificationService] Notification en double détectée:', {
+        channelId,
+        timeDiff,
+        lastNotification: lastNotification.timestamp,
+        currentNotification: timestamp
+      });
+      return true;
+    }
+
+    // Mise à jour du cache
+    cache[channelId] = { timestamp };
+    await saveNotificationCache(cache);
+    return false;
+  } catch (error) {
+    console.error('❌ [NotificationService] Erreur lors de la vérification des doublons:', error);
+    return false;
+  }
+};
+
 // Handler for notifications to be displayed
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
@@ -204,7 +273,7 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
     });
 
     // We check if the user is connected
-    const savedCredentials = await SecureStore.getItemAsync('savedLoginInfo');
+    const savedCredentials = await SecureStore.getItemAsync('userCredentials');
     // If the user is not connected, we return false
     if (!savedCredentials) {
       console.log('🔒 [NotificationService] Notification ignorée: utilisateur non connecté');
@@ -234,6 +303,13 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
             console.log('🔍 [NotificationService] Canal extrait du corps:', notificationChannelId);
           }
         }
+      }
+
+      // Vérification des doublons
+      const timestamp = messageData.data?.timestamp || Date.now();
+      if (notificationChannelId && await isDuplicateNotification(notificationChannelId, timestamp)) {
+        console.log('🔕 [NotificationService] Notification ignorée: doublon détecté');
+        return false;
       }
 
       const viewedChannelId = currentChannelId || getCurrentlyViewedChannel();
