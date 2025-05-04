@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import { Platform, AppState } from 'react-native';
 import { ENV } from '../../config/env';
 import '../../config/firebase';
 import axios from 'axios';
@@ -534,22 +534,36 @@ const getDeviceId = async () => {
  */
 export const removeNotificationToken = async () => {
   try {
-    // We get the credentials from all possible keys
-    const possibleCredentialKeys = ['savedLoginInfo', 'userCredentials', 'credentials'];
-    let credentials = null;
-    let usedKey = null;
+    console.log('🔄 [NotificationService] Début de la suppression du token');
 
-    for (const key of possibleCredentialKeys) {
-      const savedCreds = await SecureStore.getItemAsync(key);
-      if (savedCreds) {
-        credentials = savedCreds;
-        usedKey = key;
-        break;
-      }
+    // We get the credentials
+    const credentials = await SecureStore.getItemAsync('userCredentials');
+    if (!credentials) {
+      console.log('❌ [NotificationService] Pas de credentials trouvés');
+      return false;
     }
 
-    // If the credentials are not found, we return false
-    if (!credentials) {
+    // Parse credentials
+    let parsedCredentials;
+    try {
+      parsedCredentials = JSON.parse(credentials);
+      console.log('✅ [NotificationService] Credentials parsés:', {
+        contractNumber: parsedCredentials.contractNumber,
+        accountApiKey: parsedCredentials.accountApiKey,
+        hasAccessToken: !!parsedCredentials.accessToken
+      });
+    } catch (error) {
+      console.error('❌ [NotificationService] Erreur lors du parsing des credentials:', error);
+      return false;
+    }
+
+    // Vérification des champs requis
+    if (!parsedCredentials.accountApiKey || !parsedCredentials.contractNumber || !parsedCredentials.accessToken) {
+      console.error('❌ [NotificationService] Credentials incomplets:', {
+        hasAccountApiKey: !!parsedCredentials.accountApiKey,
+        hasContractNumber: !!parsedCredentials.contractNumber,
+        hasAccessToken: !!parsedCredentials.accessToken
+      });
       return false;
     }
 
@@ -560,33 +574,14 @@ export const removeNotificationToken = async () => {
         projectId: ENV.EXPO_PROJECT_ID,
       });
       currentToken = tokenData.data;
-      console.log('✅ Token récupéré depuis Expo:', currentToken);
+      console.log('✅ [NotificationService] Token récupéré:', currentToken);
     } catch (error) {
-      console.error('❌ Erreur lors de la récupération du token depuis Expo:', error);
+      console.error('❌ [NotificationService] Erreur lors de la récupération du token:', error);
+      return false;
     }
 
     if (!currentToken) {
-      console.log('❌ Aucun token trouvé');
-      return false;
-    }
-
-    const deviceId = await getDeviceId();
-
-    // Check and extract credentials
-    let parsedCredentials;
-    try {
-      parsedCredentials = JSON.parse(credentials);
-      console.log('✅ Credentials parsés:', {
-        contractNumber: parsedCredentials.contractNumber,
-        accountApiKey: parsedCredentials.accountApiKey,
-        hasAccessToken: !!parsedCredentials.accessToken
-      });
-    } catch (error) {
-      console.error('❌ Erreur lors du parsing des credentials:', error);
-      return false;
-    }
-
-    if (!parsedCredentials.accountApiKey) {
+      console.log('❌ [NotificationService] Aucun token trouvé');
       return false;
     }
 
@@ -603,7 +598,11 @@ export const removeNotificationToken = async () => {
       }
     }, parsedCredentials.contractNumber, parsedCredentials.accessToken);
 
-    console.log('📤 [Notification] Envoi de la requête de suppression du token:');
+    console.log('📤 [NotificationService] Envoi de la requête de suppression:', {
+      contractNumber: parsedCredentials.contractNumber,
+      accountApiKey: parsedCredentials.accountApiKey,
+      token: currentToken
+    });
 
     // We send the request
     const response = await axios({
@@ -618,7 +617,7 @@ export const removeNotificationToken = async () => {
 
     // Check the detailed response
     const responseData = response.data;
-    console.log('📥 [Notification] Detailed response:', {
+    console.log('📥 [NotificationService] Réponse reçue:', {
       status: response.status,
       data: responseData,
       success: responseData?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok'
@@ -626,21 +625,115 @@ export const removeNotificationToken = async () => {
 
     // We delete the stored token if it exists
     if (currentToken) {
-
       const possibleTokenKeys = ['expoPushToken', 'pushToken', 'notificationToken'];
       for (const key of possibleTokenKeys) {
         try {
           await SecureStore.deleteItemAsync(key);
-          console.log(`✅ Token supprimé de la clé ${key}`);
+          console.log(`✅ [NotificationService] Token supprimé de la clé ${key}`);
         } catch (error) {
-          console.log(`⚠️ Pas de token trouvé pour la clé ${key}`);
+          console.log(`⚠️ [NotificationService] Pas de token trouvé pour la clé ${key}`);
         }
       }
     }
 
-    return response.status === 200 && responseData?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok';
+    const success = response.status === 200 && responseData?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok';
+    console.log(success ? '✅ [NotificationService] Suppression réussie' : '❌ [NotificationService] Suppression échouée');
+    return success;
   } catch (error) {
-    console.error('❌ [Notification] Erreur lors de la suppression du token:', error);
+    console.error('❌ [NotificationService] Erreur lors de la suppression du token:', error);
     return false;
   }
+};
+
+/**
+ * @function checkConnectionStatus
+ * @description Vérifie si l'utilisateur est toujours connecté
+ * @returns {Promise<boolean>} true si l'utilisateur est connecté, false sinon
+ */
+const checkConnectionStatus = async () => {
+  try {
+    const credentials = await SecureStore.getItemAsync('userCredentials');
+    if (!credentials) {
+      console.log('🔒 [NotificationService] Utilisateur non connecté');
+      return false;
+    }
+
+    const { accessToken, contractNumber, accountApiKey } = JSON.parse(credentials);
+    if (!accessToken || !contractNumber || !accountApiKey) {
+      console.log('🔒 [NotificationService] Credentials incomplets');
+      return false;
+    }
+
+    // Vérification de la validité du token
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: await ENV.API_URL(),
+        data: createApiRequest({
+          "amaiia_msg_srv": {
+            "auth": {
+              "check": {}
+            }
+          }
+        }, contractNumber, accessToken),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 5000,
+      });
+
+      const isValid = response.status === 200 &&
+                     response.data?.cmd?.[0]?.amaiia_msg_srv?.auth?.check?.status === 'ok';
+
+      console.log('🔍 [NotificationService] Statut de connexion:', isValid ? 'connecté' : 'déconnecté');
+      return isValid;
+    } catch (error) {
+      console.error('❌ [NotificationService] Erreur lors de la vérification de la connexion:', error);
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ [NotificationService] Erreur lors de la vérification des credentials:', error);
+    return false;
+  }
+};
+
+/**
+ * @function setupConnectionMonitor
+ * @description Configure la surveillance de l'état de connexion
+ */
+export const setupConnectionMonitor = () => {
+  let checkInterval = null;
+  let lastAppState = AppState.currentState;
+
+  // Fonction pour vérifier la connexion et supprimer le token si nécessaire
+  const checkAndHandleDisconnection = async () => {
+    const isConnected = await checkConnectionStatus();
+    if (!isConnected) {
+      console.log('🔒 [NotificationService] Déconnexion détectée, suppression du token');
+      await removeNotificationToken();
+    }
+  };
+
+  // Vérification initiale
+  checkAndHandleDisconnection();
+
+  // Configuration de l'intervalle de vérification (toutes les 5 minutes)
+  checkInterval = setInterval(checkAndHandleDisconnection, 5 * 60 * 1000);
+
+  // Surveillance du changement d'état de l'application
+  const subscription = AppState.addEventListener('change', async (nextAppState) => {
+    if (lastAppState.match(/inactive|background/) && nextAppState === 'active') {
+      console.log('📱 [NotificationService] Application revenue au premier plan');
+      await checkAndHandleDisconnection();
+    }
+    lastAppState = nextAppState;
+  });
+
+  // Fonction de nettoyage
+  return () => {
+    if (checkInterval) {
+      clearInterval(checkInterval);
+    }
+    subscription.remove();
+  };
 };

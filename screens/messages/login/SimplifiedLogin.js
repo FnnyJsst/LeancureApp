@@ -25,12 +25,12 @@ export default function SimplifiedLogin({
     const { t } = useTranslation();
 
     return (
-        <View>
-            <View style={[
-        styles.loginContainer,
-        isSmartphone && styles.loginContainerSmartphone,
-        isLandscape && styles.loginContainerLandscape,
-      ]}>
+        <View style={styles.container}>
+          <View style={[
+            styles.loginContainer,
+            isSmartphone && styles.loginContainerSmartphone,
+            isLandscape && styles.loginContainerLandscape,
+          ]}>
         <View>
           <Text style={[
             styles.welcomeText,
@@ -82,6 +82,9 @@ export default function SimplifiedLogin({
 }
 
 const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
   welcomeText: {
     color: COLORS.white,
     fontSize: SIZES.fonts.headerTablet,

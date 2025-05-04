@@ -469,7 +469,7 @@ export default function Login({ onNavigate }) {
                     setIsSimplifiedLogin(false);
                     setSavedLoginInfo(null);
                 }}
-                handleLogin={handleLogin}
+                handleLogin={handleSimplifiedLogin}
                 isLoading={isLoading}
             />
         );
@@ -481,112 +481,114 @@ export default function Login({ onNavigate }) {
                 <ScrollView>
                     <View style={styles.container} testID="login-screen">
                         <View style={[isSmartphone && styles.formContainerSmartphone]}>
-                            <View style={[
-                                styles.loginContainer,
-                                isSmartphone && styles.loginContainerSmartphone,
-                                isLandscape && styles.loginContainerLandscape,
-                            ]}>
-                                <View style={styles.titleContainer}>
-                                    <Text style={[
-                                        styles.title,
-                                        isSmartphone && styles.titleSmartphone,
-                                        isLandscape && styles.titleLandscape,
-                                        isLowResTablet && styles.titleLowResTablet,
-                                    ]}>{t('titles.welcome')}</Text>
-                                    <Text style={[styles.subtitle, isSmartphone && styles.subtitleSmartphone, isLandscape && styles.subtitleLandscape]}>{t('titles.signIn')}</Text>
+                            <>
+                                <View style={[
+                                    styles.loginContainer,
+                                    isSmartphone && styles.loginContainerSmartphone,
+                                    isLandscape && styles.loginContainerLandscape,
+                                ]}>
+                                    <View style={styles.titleContainer}>
+                                        <Text style={[
+                                            styles.title,
+                                            isSmartphone && styles.titleSmartphone,
+                                            isLandscape && styles.titleLandscape,
+                                            isLowResTablet && styles.titleLowResTablet,
+                                            ]}>{t('titles.welcome')}</Text>
+                                        <Text style={[styles.subtitle, isSmartphone && styles.subtitleSmartphone, isLandscape && styles.subtitleLandscape]}>{t('titles.signIn')}</Text>
+                                    </View>
+
+                                    <View style={styles.inputsContainer}>
+                                        <View style={styles.inputGroup}>
+                                            <Text style={[
+                                                styles.inputTitle,
+                                                isSmartphone && styles.inputTitleSmartphone,
+                                                isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape,
+                                            ]}>{t('titles.contractNumber')}</Text>
+                                            <View style={styles.inputWrapper}>
+                                                <InputLogin
+                                                    placeholder={t('auth.contractNumber')}
+                                                    value={contractNumber}
+                                                    onChangeText={setContractNumber}
+                                                    iconName="document-text-outline"
+                                                    iconLibrary="Ionicons"
+                                                    testID="contract-number-input"
+                                                />
+                                            </View>
+                                        </View>
+
+                                        <View style={styles.inputGroup}>
+                                            <Text style={[
+                                                styles.inputTitle,
+                                                isSmartphone && styles.inputTitleSmartphone,
+                                                isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape,
+                                            ]}>
+                                                {t('titles.login')}
+                                            </Text>
+                                            <View style={styles.inputWrapper}>
+                                                <InputLogin
+                                                    placeholder={t('auth.login')}
+                                                    value={login}
+                                                    onChangeText={setLogin}
+                                                    iconName="person-outline"
+                                                    testID="login-input"
+                                                />
+                                            </View>
+                                        </View>
+
+                                        <View style={styles.inputGroup}>
+                                            <Text style={[
+                                                styles.inputTitle,
+                                                isSmartphone && styles.inputTitleSmartphone,
+                                                isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>
+                                                {t('titles.password')}
+                                            </Text>
+                                            <View style={styles.inputWrapper}>
+                                                <InputLogin
+                                                    placeholder={t('auth.password')}
+                                                    value={password}
+                                                    onChangeText={setPassword}
+                                                    secureTextEntry
+                                                    iconName="lock-closed-outline"
+                                                    testID="password-input"
+                                                />
+                                            </View>
+                                        </View>
+
+                                        {error ? (
+                                            <Text style={styles.errorText}>{error}</Text>
+                                        ) : null}
+
+                                        <View style={styles.checkboxContainer}>
+                                            <CheckBox
+                                                checked={isChecked}
+                                                onPress={() => setIsChecked(!isChecked)}
+                                                label={t('auth.rememberMe')}
+                                            />
+                                        </View>
+
+                                        <View style={styles.buttonContainer}>
+                                            <ButtonWithSpinner
+                                                variant="large"
+                                                title={t('buttons.login')}
+                                                isLoading={isLoading}
+                                                onPress={handleLogin}
+                                                width="100%"
+                                                testID="login-button"
+                                            />
+                                        </View>
+                                    </View>
                                 </View>
-
-                                <View style={styles.inputsContainer}>
-                                    <View style={styles.inputGroup}>
-                                        <Text style={[
-                                            styles.inputTitle,
-                                            isSmartphone && styles.inputTitleSmartphone,
-                                            isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape,
-                                        ]}>{t('titles.contractNumber')}</Text>
-                                        <View style={styles.inputWrapper}>
-                                            <InputLogin
-                                                placeholder={t('auth.contractNumber')}
-                                                value={contractNumber}
-                                                onChangeText={setContractNumber}
-                                                iconName="document-text-outline"
-                                                iconLibrary="Ionicons"
-                                                testID="contract-number-input"
-                                            />
-                                        </View>
-                                    </View>
-
-                                    <View style={styles.inputGroup}>
-                                        <Text style={[
-                                            styles.inputTitle,
-                                            isSmartphone && styles.inputTitleSmartphone,
-                                            isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape,
-                                        ]}>
-                                            {t('titles.login')}
-                                        </Text>
-                                        <View style={styles.inputWrapper}>
-                                            <InputLogin
-                                                placeholder={t('auth.login')}
-                                                value={login}
-                                                onChangeText={setLogin}
-                                                iconName="person-outline"
-                                                testID="login-input"
-                                            />
-                                        </View>
-                                    </View>
-
-                                    <View style={styles.inputGroup}>
-                                        <Text style={[
-                                            styles.inputTitle,
-                                            isSmartphone && styles.inputTitleSmartphone,
-                                            isSmartphoneLandscape && styles.inputTitleSmartphoneLandscape]}>
-                                            {t('titles.password')}
-                                        </Text>
-                                        <View style={styles.inputWrapper}>
-                                            <InputLogin
-                                                placeholder={t('auth.password')}
-                                                value={password}
-                                                onChangeText={setPassword}
-                                                secureTextEntry
-                                                iconName="lock-closed-outline"
-                                                testID="password-input"
-                                            />
-                                        </View>
-                                    </View>
-
-                                    {error ? (
-                                        <Text style={styles.errorText}>{error}</Text>
-                                    ) : null}
-
-                                    <View style={styles.checkboxContainer}>
-                                        <CheckBox
-                                            checked={isChecked}
-                                            onPress={() => setIsChecked(!isChecked)}
-                                            label={t('auth.rememberMe')}
-                                        />
-                                    </View>
-
-                                    <View style={styles.buttonContainer}>
-                                        <ButtonWithSpinner
-                                            variant="large"
-                                            title={t('buttons.login')}
-                                            isLoading={isLoading}
-                                            onPress={handleLogin}
-                                            width="100%"
-                                            testID="login-button"
-                                        />
-                                    </View>
-                                </View>
-                            </View>
-                            <TouchableOpacity
-                                style={styles.backLink}
-                                onPress={() => onNavigate(SCREENS.APP_MENU)}
-                            >
-                                <Text
-                                    style={[styles.backLinkText, isSmartphone && styles.backLinkTextSmartphone]}
-                                    testID="login-back">
-                                    {t('buttons.returnToTitle')}
-                                </Text>
-                            </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.backLink}
+                                    onPress={() => onNavigate(SCREENS.APP_MENU)}
+                                >
+                                    <Text
+                                        style={[styles.backLinkText, isSmartphone && styles.backLinkTextSmartphone]}
+                                        testID="login-back">
+                                        {t('buttons.returnToTitle')}
+                                    </Text>
+                                </TouchableOpacity>
+                            </>
                         </View>
                     </View>
                 </ScrollView>
