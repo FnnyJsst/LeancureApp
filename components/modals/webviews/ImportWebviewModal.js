@@ -48,9 +48,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
     {name: 'Quality view',
       path: 'player.php?a=&screen=defaultscreen&display=disp_quality&actor=produnit1'
     },
-    {name: 'Quality view',
-      path: 'player.php?a=&screen=defaultscreen&display=disp_quality&actor=qualunit1'
-    },
     {name: 'Comments view',
       path: 'player.php?a=&screen=defaultscreen&display=disp_comments&actor=produnit1'
     },
