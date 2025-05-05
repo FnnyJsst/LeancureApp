@@ -121,6 +121,11 @@ export default function App({ testID }) {
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        // On verrouille d'abord l'orientation en mode paysage
+        await ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.LANDSCAPE
+        );
+
         // We initialize the translations
         await initI18n();
         setIsI18nInitialized(true);
@@ -145,27 +150,11 @@ export default function App({ testID }) {
     };
 
     initializeApp();
-  }, []);
 
-  /**
-   * @function useEffect
-   * @description Locks the orientation of the app to landscape
-   */
-  useEffect(() => {
-    const lockOrientation = async () => {
-      try {
-        await ScreenOrientation.lockAsync(
-          ScreenOrientation.OrientationLock.LANDSCAPE
-        );
-      } catch (error) {
-        throw new Error(t('errors.errorLockingOrientation'), error);
-      }
-    };
-
-    lockOrientation();
+    // Nettoyage lors du démontage
     return () => {
       ScreenOrientation.unlockAsync().catch(error => {
-        throw new Error(t('errors.errorUnlockingOrientation'), error);
+        console.error('Erreur lors du déverrouillage de l\'orientation:', error);
       });
     };
   }, []);
