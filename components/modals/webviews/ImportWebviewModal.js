@@ -49,9 +49,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
     {name: 'Quality view',
       path: 'player.php?a=&screen=defaultscreen&display=disp_quality&actor=produnit1'
     },
-    {name: 'Quality view',
-      path: 'player.php?a=&screen=defaultscreen&display=disp_quality&actor=qualunit1'
-    },
     {name: 'Comments view',
       path: 'player.php?a=&screen=defaultscreen&display=disp_comments&actor=produnit1'
     },
@@ -168,9 +165,9 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
         fullUrl = `${urlObj.protocol}//${urlObj.hostname}${basePath}`;
       }
 
-      // console.log('[ImportWebviewModal] URL générée:', fullUrl);
-      // console.log('[ImportWebviewModal] Nom de la vue:', view.name);
-      // console.log('[ImportWebviewModal] Nom de l\'application:', appName);
+      console.log('[ImportWebviewModal] URL générée:', fullUrl);
+      console.log('[ImportWebviewModal] Nom de la vue:', view.name);
+      console.log('[ImportWebviewModal] Nom de l\'application:', appName);
 
       urls.push({
         href: fullUrl,

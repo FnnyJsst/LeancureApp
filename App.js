@@ -217,9 +217,9 @@ export default function App({ testID }) {
       case SCREENS.WEBVIEWS_MANAGEMENT:
         return (
           <WebviewsManagementScreen
-            onImport={navigateToChannelsList}
+            onImport={handleImportWebviews}
             selectedWebviews={selectedWebviews}
-            setSelectedWebviews={setSelectedWebviews}
+            setSelectedWebviews={handleSelectChannels}
             saveSelectedWebviews={saveSelectedWebviews}
             onNavigate={navigate}
             onNavigateToWebview={navigateToWebview}
@@ -230,10 +230,8 @@ export default function App({ testID }) {
       case SCREENS.WEBVIEWS_LIST:
         return (
           <WebviewsListScreen
-            channels={channels}
+            channels={channels || []}
             selectedWebviews={selectedWebviews}
-            setSelectedWebviews={setSelectedWebviews}
-            saveSelectedWebviews={saveSelectedWebviews}
             onBack={handleImportWebviews}
             onBackPress={() => navigate(SCREENS.WEBVIEWS_MANAGEMENT)}
           />
@@ -245,7 +243,7 @@ export default function App({ testID }) {
             url={webViewUrl}
             onNavigate={navigate}
             onSettingsAccess={handleSettingsAccess}
-            refreshInterval={refreshInterval}
+            refreshInterval={refreshOption}
             testID="webview-screen"
           />
         );
