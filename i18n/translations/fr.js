@@ -127,6 +127,7 @@ export default {
       },
       readOnly: {
         readOnly: "Voulez-vous définir la gestion des canaux en lecture seule ?",
+        settingsSaved: "Les paramètres ont été enregistrés avec succès",
       }
     },
 

@@ -54,7 +54,7 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
 
   const { t } = useTranslation();
   // We create a hook to determine the device type and orientation
-  const { isSmartphone, isSmartphoneLandscape, isTabletLandscape, isLowResTablet, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
+  const { isSmartphone, isLowResTablet } = useDeviceType();
 
   const [selectedOption, setSelectedOption] = useState('never');
   const [showAlert, setShowAlert] = useState(false);
@@ -123,10 +123,7 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
           <View style={[
             styles.modalContent,
             isSmartphone && styles.modalContentSmartphone,
-            isTabletLandscape && styles.modalContentTabletLandscape,
-            isSmartphoneLandscape && styles.modalContentSmartphoneLandscape,
-            isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
-            isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
+            isLowResTablet && styles.modalContentLowResTablet,
           ]}>
             <View style={styles.titleContainer}>
               <TitleModal title={t('modals.webview.refresh.refreshChannels')}/>
@@ -204,7 +201,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
   },
   modalContent: {
-    width: '55%',
+    width: '35%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,
@@ -212,19 +209,9 @@ const styles = StyleSheet.create({
     borderColor: COLORS.borderColor,
   },
   modalContentSmartphone: {
-    width: '90%',
-  },
-  modalContentTabletLandscape: {
-    width: '40%',
-  },
-  modalContentSmartphoneLandscape: {
     width: '45%',
   },
-  modalContentLowResTabletPortrait: {
-    width: '60%',
-  },
-  modalContentLowResTabletLandscape: {
-    width: '40%',
+  modalContentLowResTablet: {
     marginTop: 50,
   },
   optionsContainer: {
@@ -235,7 +222,6 @@ const styles = StyleSheet.create({
     marginTop: 0,
     gap: 2,
   },
-
   radioContainer: {
     flexDirection: 'row',
     marginBottom: 10,
@@ -257,7 +243,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.medium,
   },
-
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',

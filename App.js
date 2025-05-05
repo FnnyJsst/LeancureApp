@@ -121,7 +121,7 @@ export default function App({ testID }) {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // On verrouille d'abord l'orientation en mode paysage
+        // We lock the orientation of the app to landscape
         await ScreenOrientation.lockAsync(
           ScreenOrientation.OrientationLock.LANDSCAPE
         );

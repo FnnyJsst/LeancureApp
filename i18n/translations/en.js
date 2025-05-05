@@ -126,6 +126,7 @@ export default {
       },
       readOnly: {
         readOnly: "Do you want to set channel management to read-only?",
+        settingsSaved: "Settings saved successfully",
       }
     },
 

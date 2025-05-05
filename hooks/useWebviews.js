@@ -122,16 +122,21 @@ export function useWebviews(setCurrentScreen) {
         setSelectedWebviews(parsedChannels);
         if (parsedChannels.length > 0) {
           setWebviewUrl(parsedChannels[0].href);
+          // Navigation automatique vers l'écran WebView si des webviews sont chargées
+          navigate(SCREENS.WEBVIEW);
+          return parsedChannels;
         }
       }
+      return [];
     } catch (error) {
       console.error('❌ Erreur de chargement des canaux:', error);
       if (error.message.includes('Could not decrypt')) {
         console.log('🔐 Erreur de décryptage détectée, nettoyage...');
         await clearSecureStore();
       }
+      return [];
     }
-  }, []);
+  }, [navigate]);
 
   /**
    * @function loadRefreshOption
