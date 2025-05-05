@@ -83,7 +83,6 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
   }, [selectedOption, onSelectOption]);
 
   const handleAlertClose = useCallback(() => {
-    console.log('[AutoRefreshModal] Fermeture de l\'alerte et de la modale');
     setShowAlert(false);
     onClose();
   }, [onClose]);
