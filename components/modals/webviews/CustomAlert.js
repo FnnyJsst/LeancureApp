@@ -5,7 +5,6 @@ import TitleModal from '../../../components/text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES,COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
-import { Text } from '../../text/CustomText';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -24,7 +23,7 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
   const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
    // We get the translation
-   const { t } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <Modal

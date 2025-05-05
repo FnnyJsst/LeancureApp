@@ -1,22 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, memo, useEffect } from 'react';
 import { ScrollView, View, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import SettingsCard from '../../components/cards/SettingsCard';
 import AutoRefreshModal from '../../components/modals/webviews/AutoRefreshModal';
 import ReadOnlyModal from '../../components/modals/webviews/ReadOnlyModal';
 import PasswordDefineModal from '../../components/modals/webviews/PasswordDefineModal';
+import TooltipModal from '../../components/modals/webviews/TooltipModal';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS, FONTS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import { Text } from '../../components/text/CustomText';
 import { useTranslation } from 'react-i18next';
+import * as SecureStore from 'expo-secure-store';
+
+/**
+ * Memoized components to prevent unnecessary re-renders
+ * This optimization is important for modals and cards that don't need to re-render unless their props change
+ */
+const MemoizedAutoRefreshModal = memo(AutoRefreshModal);
+const MemoizedReadOnlyModal = memo(ReadOnlyModal);
+const MemoizedPasswordDefineModal = memo(PasswordDefineModal);
+const MemoizedSettingsCard = memo(SettingsCard);
+const MemoizedTooltipModal = memo(TooltipModal);
+
 
 /**
  * @component SettingsWebviews
  * @description Displays the settings for the webviews
- *
  * @param {Function} onNavigate - A function to navigate to a screen
- * @param {Function} onSettingsAccess - A function to handle the settings access
  * @param {Array} selectedWebviews - The list of selected channels
  * @param {string} refreshOption - The refresh option
  * @param {Function} handlePasswordSubmit - A function to handle the password submit
@@ -39,36 +50,83 @@ export default function SettingsWebviews({
   testID,
 }) {
 
-  // Device type variables
+  const { t } = useTranslation();
   const { isSmartphone } = useDeviceType();
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [isPasswordDefineModalVisible, setPasswordDefineModalVisible] = useState(false);
-  const [isReadOnlyModalVisible, setReadOnlyModalVisible] = useState(false);
+  // const [modalVisible, setModalVisible] = useState(false);
+  // const [isPasswordDefineModalVisible, setPasswordDefineModalVisible] = useState(false);
+  // const [isReadOnlyModalVisible, setReadOnlyModalVisible] = useState(false);
+   // Tooltip actif
+  const [activeTooltip, setActiveTooltip] = useState(null);
 
-  const { t } = useTranslation();
+  const [modalState, setModalState] = useState({
+    autoRefresh: false,
+    password: false,
+    readOnly: false,
+    tooltip: false
+  });
+
+  // State to know if the tooltips have been displayed
+  const [hasSeenTooltips, setHasSeenTooltips] = useState({
+    autoRefresh: true,
+    readOnly: true,
+    password: true,
+  });
+
+    // Load the tooltips state on component load
+    useEffect(() => {
+      const checkTooltipsStatus = async () => {
+        try {
+          // Check the status of each tooltip
+          const tooltipKeys = ['autoRefresh', 'readOnly', 'password'];
+          const tooltipValues = {};
+
+          for (const key of tooltipKeys) {
+            const hasSeenTooltipStr = await SecureStore.getItemAsync(`hasSeen${key.charAt(0).toUpperCase() + key.slice(1)}Tooltip`);
+            tooltipValues[key] = hasSeenTooltipStr === 'true';
+          }
+
+          setHasSeenTooltips(tooltipValues);
+        } catch (error) {
+          handleError(error, i18n.t('errors.errorLoadingTooltips'), {
+            type: ErrorType.SYSTEM,
+            silent: false
+          });
+          // Default to show all tooltips if an error occurs
+          setHasSeenTooltips({
+            autoRefresh: true,
+            readOnly: true,
+            password: true
+          });
+        }
+      };
+
+      checkTooltipsStatus();
+    }, []);
+
 
   /**
-   * @function handleQuitApp
-   * @description Handles the quit app action
+   * Memoized callbacks to prevent unnecessary re-renders
+   * These functions are only recreated when their dependencies change
    */
-  const handleQuitApp = () => {
+  const handleQuitApp = useCallback(() => {
     BackHandler.exitApp();
-  };
+  }, []);
+
 
   /**
    * @functions
    * @description Open and close the different modals
    */
-  const openModal = () => setModalVisible(true);
+  // const openModal = () => setModalVisible(true);
 
-  const openPasswordDefineModal = () => setPasswordDefineModalVisible(true);
+  // const openPasswordDefineModal = () => setPasswordDefineModalVisible(true);
 
-  const closePasswordDefineModal = () => setPasswordDefineModalVisible(false);
+  // const closePasswordDefineModal = () => setPasswordDefineModalVisible(false);
 
-  const openReadOnlyModal = () => setReadOnlyModalVisible(true);
+  // const openReadOnlyModal = () => setReadOnlyModalVisible(true);
 
-  const closeReadOnlyModal = () => setReadOnlyModalVisible(false);
+  // const closeReadOnlyModal = () => setReadOnlyModalVisible(false);
 
   /**
    * @function handleBackPress
@@ -109,6 +167,78 @@ export default function SettingsWebviews({
     return t(`modals.webview.refresh.${key}`);
   };
 
+  /**
+   * @function updateModalState
+   * @description Updates the modal state
+   * @param {string} key - The key to update
+   * @param {boolean} value - The value to update
+   */
+  const updateModalState = useCallback((key, value) => {
+    setModalState(prev => ({ ...prev, [key]: value }));
+  }, []);
+
+  /**
+   * @function markTooltipAsSeen
+   * @description Marks the tooltip as seen
+   * @param {string} tooltipKey - The key of the tooltip
+   */
+  const markTooltipAsSeen = useCallback(async (tooltipKey) => {
+    try {
+      await SecureStore.setItemAsync(`hasSeen${tooltipKey.charAt(0).toUpperCase() + tooltipKey.slice(1)}Tooltip`, 'true');
+      setHasSeenTooltips(prev => ({ ...prev, [tooltipKey]: true }));
+      setActiveTooltip(null);
+      updateModalState('tooltip', false);
+
+      // Open the corresponding modal after closing the tooltip
+      updateModalState(tooltipKey, true);
+    } catch (error) {
+      handleError(error, i18n.t('errors.errorMarkingTooltipAsSeen'), {
+        type: ErrorType.SYSTEM,
+        silent: false
+      });
+    }
+  }, [updateModalState]);
+
+  /**
+   * @function openModalWithTooltip
+   * @description Opens a modal with tooltip verification
+   * @param {string} modalKey - The key of the modal
+   * @returns {Function} The function to open the modal
+   */
+  const openModalWithTooltip = useCallback((modalKey) => {
+    return () => {
+      // If the user has never seen the tooltip, display it
+      if (!hasSeenTooltips[modalKey]) {
+        setActiveTooltip(modalKey);
+        updateModalState('tooltip', true);
+      } else {
+        // Otherwise, open the modal directly
+        updateModalState(modalKey, true);
+      }
+    };
+  }, [hasSeenTooltips, updateModalState]);
+
+  // Memoized handlers pour chaque bouton
+  const openAutoRefreshModal = useCallback(openModalWithTooltip('autoRefresh'),
+    [openModalWithTooltip]);
+
+  const openReadOnlyModal = useCallback(openModalWithTooltip('readOnly'),
+    [openModalWithTooltip]);
+
+  const openPasswordModal = useCallback(openModalWithTooltip('password'),
+    [openModalWithTooltip]);
+
+  /**
+   * @function handleTooltipClose
+   * @description Handles the tooltip close
+   */
+  const handleTooltipClose = useCallback(() => {
+    if (activeTooltip) {
+      markTooltipAsSeen(activeTooltip);
+    }
+  }, [activeTooltip, markTooltipAsSeen]);
+
+
   return (
     <View testID={testID}>
       <ScrollView showsVerticalScrollIndicator={true}>
@@ -126,21 +256,14 @@ export default function SettingsWebviews({
           </TouchableOpacity>
         </View>
 
-        <View
-          testID={testID}
-          style={[
-          styles.pageContainer
-        ]}>
+        <View testID={testID} style={styles.pageContainer}>
           <View style={styles.titleContainer}>
             <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
               {t('titles.app')}
             </Text>
           </View>
-          <View style={[
-            styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone
-          ]}>
-            <SettingsCard
+          <View style={[styles.configContainer, isSmartphone && styles.configContainerSmartphone]}>
+            <MemoizedSettingsCard
               title={t('settings.webview.quit')}
               iconBackgroundColor={COLORS.burgundy}
               icon={
@@ -156,15 +279,23 @@ export default function SettingsWebviews({
             />
           </View>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
-              {t('titles.channels')}
-            </Text>
+            <View style={styles.titleRow}>
+              <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
+                {t('titles.channels')}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveTooltip('channels');
+                  updateModalState('tooltip', true);
+                }}
+                style={styles.infoIcon}
+              >
+                <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 18} color={COLORS.gray300} />
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={[
-            styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone
-          ]}>
-            <SettingsCard
+          <View style={[styles.configContainer, isSmartphone && styles.configContainerSmartphone]}>
+            <MemoizedSettingsCard
               title={t('settings.webview.management')}
               description={t('settings.webview.managementDescription')}
               icon={<Ionicons name="build-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
@@ -173,39 +304,44 @@ export default function SettingsWebviews({
             <View style={styles.separator} />
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
-                <SettingsCard
+                <MemoizedSettingsCard
                   title={t('settings.webview.autoRefresh')}
                   description={t('settings.webview.autoRefreshDescription')}
                   icon={<Ionicons name="reload-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
-                  onPress={openModal}
+                  onPress={openAutoRefreshModal}
                   testID="open-auto-refresh-button"
                 />
               </View>
               <TouchableOpacity
                 style={styles.baseToggle}
-                onPress={openModal}
+                onPress={openAutoRefreshModal}
               >
-                <Text style={[
-                  styles.text,
-                  isSmartphone && styles.textSmartphone,
-                ]}>
+                <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
                   {formatRefreshOption(refreshOption)}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
-              {t('titles.security')}
-            </Text>
+            <View style={styles.titleRow}>
+              <Text style={[styles.title, isSmartphone && styles.titleSmartphone]}>
+                {t('titles.security')}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveTooltip('security');
+                  updateModalState('tooltip', true);
+                }}
+                style={styles.infoIcon}
+              >
+                <Ionicons name="information-circle-outline" size={isSmartphone ? 16 : 18} color={COLORS.gray300} />
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={[
-            styles.configContainer,
-            isSmartphone && styles.configContainerSmartphone
-          ]}>
+          <View style={[styles.configContainer, isSmartphone && styles.configContainerSmartphone]}>
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
-                <SettingsCard
+                <MemoizedSettingsCard
                   title={t('settings.webview.readOnly')}
                   description={t('settings.webview.readOnlyDescription')}
                   icon={<Ionicons name="eye-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
@@ -217,10 +353,7 @@ export default function SettingsWebviews({
                 style={styles.baseToggle}
                 onPress={openReadOnlyModal}
               >
-                <Text style={[
-                  styles.text,
-                  isSmartphone && styles.textSmartphone,
-                ]}>
+                <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
                   {isReadOnly ? t('buttons.yes') : t('buttons.no')}
                 </Text>
               </TouchableOpacity>
@@ -228,22 +361,19 @@ export default function SettingsWebviews({
             <View style={styles.separator} />
             <View style={styles.rowContainer}>
               <View style={styles.leftContent}>
-                <SettingsCard
+                <MemoizedSettingsCard
                   title={t('settings.webview.password')}
                   description={t('settings.webview.passwordDescription')}
                   icon={<Ionicons name="lock-closed-outline" size={isSmartphone ? 22 : 28} color={COLORS.orange} />}
-                  onPress={openPasswordDefineModal}
+                  onPress={openPasswordModal}
                   testID="open-password-button"
                 />
               </View>
               <TouchableOpacity
                 style={styles.baseToggle}
-                onPress={openPasswordDefineModal}
+                onPress={openPasswordModal}
               >
-                <Text style={[
-                  styles.text,
-                  isSmartphone && styles.textSmartphone,
-                ]}>
+                <Text style={[styles.text, isSmartphone && styles.textSmartphone]}>
                   {isPasswordRequired ? t('buttons.yes') : t('buttons.no')}
                 </Text>
               </TouchableOpacity>
@@ -256,23 +386,31 @@ export default function SettingsWebviews({
           </Text>
         </View>
       </ScrollView>
-      {/* Modals */}
-      <AutoRefreshModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+
+      {/* Tooltip which is displayed only the first time */}
+      <MemoizedTooltipModal
+        visible={modalState.tooltip}
+        onClose={handleTooltipClose}
+        title={activeTooltip ? t(`tooltips.${activeTooltip}.title`) : ''}
+        message={activeTooltip ? t(`tooltips.${activeTooltip}.message`) : ''}
+      />
+
+      {/* Memoized modals */}
+      <MemoizedAutoRefreshModal
+        visible={modalState.autoRefresh}
+        onClose={() => updateModalState('autoRefresh', false)}
         onSelectOption={handleSelectOption}
-        currentOption={refreshOption}
         testID={testID}
       />
-      <ReadOnlyModal
-        visible={isReadOnlyModalVisible}
-        onClose={closeReadOnlyModal}
+      <MemoizedReadOnlyModal
+        visible={modalState.readOnly}
+        onClose={() => updateModalState('readOnly', false)}
         onToggleReadOnly={toggleReadOnly}
         testID={testID}
       />
-      <PasswordDefineModal
-        visible={isPasswordDefineModalVisible}
-        onClose={closePasswordDefineModal}
+      <MemoizedPasswordDefineModal
+        visible={modalState.password}
+        onClose={() => updateModalState('password', false)}
         onSubmitPassword={handlePasswordSubmit}
         onDisablePassword={disablePassword}
         testID="password-define-modal"
@@ -286,15 +424,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 15,
   },
-  settingsContentContainer: {
-    flex: 1,
+  pageContainerSmartphonePortrait: {
+    paddingHorizontal: 4,
   },
   configContainer: {
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xLarge,
     paddingVertical: 12,
     paddingHorizontal: 15,
-    marginHorizontal: 50,
+    marginHorizontal: 15,
     alignSelf: 'center',
     marginVertical: 12,
     width: '95%',
@@ -303,6 +441,9 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     paddingHorizontal: 14,
     paddingVertical: 10,
+  },
+  configContainerLandscape: {
+    marginHorizontal: 50,
   },
   rowContainer: {
     flexDirection: 'row',
@@ -329,7 +470,7 @@ const styles = StyleSheet.create({
   customHeaderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    // paddingVertical: 15,
+    paddingVertical: 15,
     paddingHorizontal: 15,
   },
   backButton: {
@@ -353,12 +494,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray700,
     marginVertical: 12,
   },
-  version: {
-    color: COLORS.gray300,
-    fontFamily: FONTS.medium,
-    fontSize: SIZES.fonts.smallTextTablet,
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  versionSmartphone: {
-    fontSize: SIZES.fonts.smallTextSmartphone,
+  infoIcon: {
+    padding: 4,
   },
 });

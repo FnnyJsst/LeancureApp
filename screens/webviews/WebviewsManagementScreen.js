@@ -13,7 +13,7 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import { useTranslation } from 'react-i18next';
-import { handleError, ErrorType } from '../../utils/errorHandling';
+// import { handleError, ErrorType } from '../../utils/errorHandling';
 
 /**
  * @component WebviewsManagementScreen
@@ -295,10 +295,10 @@ export default function WebviewsManagementScreen({
         handleCloseModal('delete');
         setError(null); // Réinitialiser l'erreur en cas de succès
       } catch (err) {
-        handleError(err, 'webviewsManagement.handleDeleteWebview', {
-          type: ErrorType.SYSTEM,
-          silent: false
-        });
+        // handleError(err, 'webviewsManagement.handleDeleteWebview', {
+        //   type: ErrorType.SYSTEM,
+        //   silent: false
+        // });
         setError(t('errors.errorDeletingWebview'));
       }
     }
@@ -375,10 +375,10 @@ export default function WebviewsManagementScreen({
         }
       }
     } catch (err) {
-      handleError(err, 'webviewsManagement.handleImport', {
-        type: ErrorType.SYSTEM,
-        silent: false
-      });
+      // handleError(err, 'webviewsManagement.handleImport', {
+      //   type: ErrorType.SYSTEM,
+      //   silent: false
+      // });
       setError(t('errors.errorImportingWebview'));
     }
   }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, isDuplicate]);
@@ -404,10 +404,10 @@ export default function WebviewsManagementScreen({
       setSelectedWebviews(updatedWebviews);
       await saveSelectedWebviews(updatedWebviews);
     } catch (err) {
-      handleError(err, 'webviewsManagement.handleEditWebviewModal', {
-        type: ErrorType.SYSTEM,
-        silent: false
-      });
+      // handleError(err, 'webviewsManagement.handleEditWebviewModal', {
+      //   type: ErrorType.SYSTEM,
+      //   silent: false
+      // });
       setError(t('errors.errorEditingWebview'));
     }
   };
