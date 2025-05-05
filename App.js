@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, StatusBar, Platform } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import ScreenSaver from './screens/common/ScreenSaver';
 import SettingsWebviews from './screens/webviews/SettingsWebviews';
 import NoUrlScreen from './screens/webviews/NoUrlScreen';
@@ -29,6 +29,7 @@ export default function App({ testID }) {
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
   const [currentScreen, setCurrentScreen] = useState(SCREENS.NO_URL);
   const [showSplash, setShowSplash] = useState(true);
+  const [appInitialized, setAppInitialized] = useState(false);
 
   // Loading of fonts used in the app
   const [fontsLoaded] = useFonts({
@@ -43,12 +44,13 @@ export default function App({ testID }) {
 
   // Custom hooks
   const { navigate } = useNavigation(setCurrentScreen);
+  const { t } = useTranslation();
+
   const {
-    channels,
+    channels: webviewChannels,
     selectedWebviews,
-    setSelectedWebviews,
     webViewUrl,
-    setRefreshInterval,
+    refreshInterval,
     refreshOption,
     isReadOnly,
     toggleReadOnly,
@@ -60,6 +62,7 @@ export default function App({ testID }) {
     handleSelectOption,
     navigateToChannelsList,
     navigateToWebview,
+    clearSecureStore,
   } = useWebviews(setCurrentScreen);
 
   const {
@@ -190,7 +193,7 @@ export default function App({ testID }) {
         return (
           <SettingsWebviews
             selectedWebviews={selectedWebviews}
-            setRefreshInterval={setRefreshInterval}
+            setRefreshInterval={refreshInterval}
             getIntervalInMilliseconds={getIntervalInMilliseconds}
             saveRefreshOption={saveRefreshOption}
             handleSelectOption={handleSelectOption}
@@ -241,6 +244,7 @@ export default function App({ testID }) {
             url={webViewUrl}
             onNavigate={navigate}
             onSettingsAccess={handleSettingsAccess}
+            refreshInterval={refreshInterval}
             testID="webview-screen"
           />
         );

@@ -5,6 +5,8 @@ import TitleModal from '../../../components/text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES,COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
+import { Text } from '../../text/CustomText';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @component CustomAlert
@@ -20,6 +22,9 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
 
   // We get the device type
   const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
+
+   // We get the translation
+   const { t } = useTranslation();
 
   return (
     <Modal
@@ -46,16 +51,16 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
                 title="OK"
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
-                width={isSmartphone ? '23%' : '26%'}
+                width='26%'
                 onPress={onConfirm}
                 testID="alert-confirm-button"
               />
             ) : (
               <Button
-                title="Close"
+                title={t('buttons.close')}
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
-                width={isSmartphone ? '23%' : '26%'}
+                width='26%'
                 onPress={onClose}
                 testID="alert-close-button"
               />

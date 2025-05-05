@@ -3,7 +3,6 @@ import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from './useNavigation';
 import { useWebviewsPassword } from './useWebViewsPassword';
 import { SCREENS } from '../constants/screens';
-import { useTranslation } from 'react-i18next';
 
 /**
  * @function useWebviews
@@ -11,46 +10,34 @@ import { useTranslation } from 'react-i18next';
  * @returns {Object} - The webviews state
  */
 export function useWebviews(setCurrentScreen) {
-
-  const { t } = useTranslation();
-
   const [channels, setChannels] = useState([]);
   const [selectedWebviews, setSelectedWebviews] = useState([]);
-  const [webViewUrl, setWebViewUrl] = useState('');
+  const [webViewUrl, setWebviewUrl] = useState('');
   const [refreshInterval, setRefreshInterval] = useState(null);
   const [refreshOption, setRefreshOption] = useState('never');
   const [isReadOnly, setIsReadOnly] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
 
+  // We get the navigation function
   const { navigate } = useNavigation(setCurrentScreen);
 
+  // We get the password from the SecureStore
   const {
     loadPasswordFromSecureStore,
   } = useWebviewsPassword(navigate);
 
-  const toggleReadOnly = useCallback(async (value) => {
-    const newValue = value !== undefined ? value : !isReadOnly;
-    setIsReadOnly(newValue);
-    try {
-      await SecureStore.setItemAsync('isReadOnly', JSON.stringify(newValue));
-    } catch (error) {
-      throw new Error(t('errors.errorSavingReadOnlyMode'), error);
-    }
+  // We toggle the read only mode
+  const toggleReadOnly = useCallback((value) => {
+    setIsReadOnly(value !== undefined ? value : !isReadOnly);
   }, [isReadOnly]);
 
+  // We handle the selection of the channels
   const handleSelectChannels = async (selectedChannels) => {
     try {
-      setSelectedWebviews(prev => {
-        const updatedWebviews = [...(prev || []), ...(selectedChannels || [])];
-        if (updatedWebviews[0]?.href) {
-          setWebViewUrl(updatedWebviews[0].href);
-        }
-        saveSelectedWebviews(updatedWebviews);
-        return updatedWebviews;
-      });
+      const updatedWebviews = [...(selectedWebviews || []), ...(selectedChannels || [])];
+      setSelectedWebviews(updatedWebviews);
+      await saveSelectedWebviews(updatedWebviews);
     } catch (error) {
-      throw new Error(t('errors.errorSelectingChannels'), error);
+      console.error('Error while selecting channels:', error);
     }
   };
 
@@ -69,6 +56,7 @@ export function useWebviews(setCurrentScreen) {
       case 'every hour': return 3600000;
       case 'every 2 hours': return 7200000;
       case 'every 6 hours': return 21600000;
+      case 'every day': return 86400000;
       default: return null;
     }
   }, []);
@@ -79,7 +67,6 @@ export function useWebviews(setCurrentScreen) {
    * @param {string} option - The option to select
    */
   const handleSelectOption = (option) => {
-
     setRefreshOption(option);
     setRefreshInterval(getIntervalInMilliseconds(option));
     saveRefreshOption(option);
@@ -92,50 +79,57 @@ export function useWebviews(setCurrentScreen) {
    */
   const saveRefreshOption = async (option) => {
     try {
-      await SecureStore.setItemAsync('refreshOption', option);
+      // We delete the old value, then we save the new one
+      await SecureStore.deleteItemAsync('refreshOption');
+      await SecureStore.setItemAsync('refreshOption', option, {
+        keychainAccessible: SecureStore.WHEN_UNLOCKED
+      });
     } catch (error) {
-      throw new Error(t('errors.errorSavingRefreshOption'), error);
+      console.error('Failed to save refresh option', error);
     }
   };
 
   /**
    * @function saveSelectedWebviews
    * @description Saves the channels selected by the user in AsyncStorage
-   * @param {Array} webviews - The channels to save
+   * @param {Array} channels - The channels to save
    */
   const saveSelectedWebviews = async (webviews) => {
     try {
       const webviewsToSave = webviews || [];
-      // Sauvegarder dans SecureStore
-      await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(webviewsToSave));
+      // Ne sauvegarder que les données essentielles et limiter la taille
+      const simplifiedWebviews = webviewsToSave.map(webview => ({
+        href: webview.href?.substring(0, 200) || '', // Limiter la taille de l'URL
+        title: webview.title?.substring(0, 100) || '' // Limiter la taille du titre
+      }));
+      setSelectedWebviews(webviewsToSave);
+      await SecureStore.setItemAsync('selectedWebviews', JSON.stringify(simplifiedWebviews));
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde des webviews:', error);
-      throw new Error(t('errors.errorSavingWebviews'), error);
+      console.error('Error while saving webviews:', error);
     }
   };
 
   /**
    * @function loadSelectedChannels
    * @description Loads the selected channels from the SecureStore
+   * @returns {void}
    */
   const loadSelectedChannels = useCallback(async () => {
     try {
       const storedChannels = await SecureStore.getItemAsync('selectedWebviews');
-      let parsedChannels = [];
-
       if (storedChannels) {
-        try {
-          parsedChannels = JSON.parse(storedChannels) || [];
-        } catch (e) {
-          console.error('Erreur de parsing des channels:', e);
+        const parsedChannels = JSON.parse(storedChannels);
+        setSelectedWebviews(parsedChannels);
+        if (parsedChannels.length > 0) {
+          setWebviewUrl(parsedChannels[0].href);
         }
       }
-
-      setSelectedWebviews(parsedChannels);
-      return parsedChannels;
     } catch (error) {
-      console.error('Erreur de chargement des channels:', error);
-      return [];
+      console.error('❌ Erreur de chargement des canaux:', error);
+      if (error.message.includes('Could not decrypt')) {
+        console.log('🔐 Erreur de décryptage détectée, nettoyage...');
+        await clearSecureStore();
+      }
     }
   }, []);
 
@@ -145,34 +139,27 @@ export function useWebviews(setCurrentScreen) {
    */
   const loadRefreshOption = useCallback(async () => {
     try {
-      const storedOption = await SecureStore.getItemAsync('refreshOption');
-      if (storedOption) {
-        setRefreshOption(storedOption);
-        setRefreshInterval(getIntervalInMilliseconds(storedOption));
+      // On essaie d'abord de charger la valeur existante
+      const savedOption = await SecureStore.getItemAsync('refreshOption');
+
+      if (savedOption) {
+        // Si une valeur existe, on l'utilise
+        setRefreshOption(savedOption);
+        setRefreshInterval(getIntervalInMilliseconds(savedOption));
+      } else {
+        // Si aucune valeur n'existe, on définit la valeur par défaut
+        const defaultOption = 'never';
+        await SecureStore.setItemAsync('refreshOption', defaultOption);
+        setRefreshOption(defaultOption);
+        setRefreshInterval(getIntervalInMilliseconds(defaultOption));
       }
     } catch (error) {
-      if (__DEV__) {
-        throw new Error(t('errors.errorLoadingRefreshOption'), error);
-      }
+      console.error('Failed to load refresh option', error);
+      // En cas d'erreur, on définit des valeurs par défaut
+      setRefreshOption('never');
+      setRefreshInterval(null);
     }
   }, [setRefreshOption, setRefreshInterval, getIntervalInMilliseconds]);
-
-  useEffect(() => {
-    if (!isInitialized) {
-      const loadReadOnlyMode = async () => {
-        try {
-          const savedMode = await SecureStore.getItemAsync('isReadOnly');
-          if (savedMode !== null) {
-            setIsReadOnly(savedMode === 'true');
-          }
-        } catch (error) {
-          setIsInitialized(true);
-        }
-      };
-
-      loadReadOnlyMode();
-    }
-  }, [isInitialized]);
 
   /**
    * @function navigateToChannelsList
@@ -190,67 +177,51 @@ export function useWebviews(setCurrentScreen) {
    * @param {string} url - The URL to navigate to
    */
   const navigateToWebview = (url) => {
-    setWebViewUrl(url);
+    setWebviewUrl(url);
     if (SCREENS.WEBVIEW) {
-      navigate(SCREENS.WEBVIEW);
-    } else {
-      throw new Error(t('errors.screenNotFound'), SCREENS.WEBVIEW);
+        navigate(SCREENS.WEBVIEW);
     }
   };
 
   /**
-   * @function useEffect
-   * @description Loads the selected channels from the SecureStore when user opens the app
-   */
-  useEffect(() => {
-    const initializeWebviews = async () => {
-      try {
-        await loadRefreshOption();
-        await loadPasswordFromSecureStore();
-
-        const storedChannels = await SecureStore.getItemAsync('selectedWebviews');
-        if (storedChannels) {
-          const parsedChannels = JSON.parse(storedChannels);
-          setSelectedWebviews(parsedChannels || []);
-          if (parsedChannels?.[0]?.href) {
-            setWebViewUrl(parsedChannels[0].href);
-          }
-        } else {
-          setSelectedWebviews([]);
-        }
-      } catch (error) {
-        setSelectedWebviews([]);
-        throw new Error(t('errors.errorLoadingWebviews'), error);
-      }
-    };
-
-    initializeWebviews();
-  }, []);
-
-  /**
-   * @function useEffect
    * @description Loads the interval chosen by the user in the settings to refresh the webviews
    */
   useEffect(() => {
-    if (!refreshInterval || selectedWebviews.length === 0) {
-      return;
+    if (refreshInterval) {
+      const interval = setInterval(() => {
+        // Logique de rafraîchissement
+      }, refreshInterval);
+      return () => clearInterval(interval);
     }
+  }, [refreshInterval]);
 
-    const interval = setInterval(() => {
-      const timestamp = new Date().toLocaleTimeString();
-
-      // Increment the refreshKey
-      setRefreshKey(prevKey => {
-        const newKey = prevKey + 1;
-        return newKey;
-      });
-    }, refreshInterval);
-
-    // Nettoyage de l'intervalle
-    return () => {
-      clearInterval(interval);
+  // Garder uniquement un seul useEffect pour le chargement initial
+  useEffect(() => {
+    const initializeData = async () => {
+      await loadSelectedChannels();
+      await loadPasswordFromSecureStore();
+      await loadRefreshOption();
     };
-  }, [refreshInterval, refreshOption]); // Réduire les dépendances
+    initializeData();
+  }, []);
+
+  const clearSecureStore = async () => {
+    try {
+      await SecureStore.deleteItemAsync('selectedWebviews');
+      await SecureStore.deleteItemAsync('refreshOption');
+      await SecureStore.deleteItemAsync('isReadOnly');
+      setSelectedWebviews([]);
+      setWebviewUrl('');
+      setRefreshOption('never');
+      setRefreshInterval(null);
+      setIsReadOnly(false);
+      console.log('✅ SecureStore nettoyé avec succès');
+      return true;
+    } catch (error) {
+      console.error('❌ Erreur lors du nettoyage:', error);
+      return false;
+    }
+  };
 
   return {
     channels,
@@ -258,7 +229,7 @@ export function useWebviews(setCurrentScreen) {
     selectedWebviews,
     setSelectedWebviews,
     webViewUrl,
-    setWebViewUrl,
+    setWebviewUrl,
     refreshInterval,
     setRefreshInterval,
     refreshOption,
@@ -273,6 +244,6 @@ export function useWebviews(setCurrentScreen) {
     handleSelectOption,
     navigateToChannelsList,
     navigateToWebview,
-    refreshKey,
+    clearSecureStore,
   };
 }
