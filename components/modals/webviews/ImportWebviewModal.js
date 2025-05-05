@@ -15,7 +15,6 @@ import TooltipModal from './TooltipModal';
 /**
  * @component ImportWebviewModal
  * @description A component that renders a modal for importing channels
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.onImport - The function to call when the channels are imported
@@ -115,7 +114,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
   };
 
   const generateOfflineUrls = (baseUrl) => {
-    console.log('[ImportWebviewModal] Génération des URLs en mode dégradé pour:', baseUrl);
     const urls = [];
     const urlObj = new URL(baseUrl);
 
@@ -140,8 +138,9 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
 
     // Validation du nom d'application
     if (!appName || appName === 'undefined') {
-      // If no app name is found, we throw an error
-      throw new Error(t('errors.wrongUrlFormat'));
+      // If no app name is found, we set the error message
+      setError(t('errors.wrongUrlFormat'));
+      return [];
     }
 
     AVAILABLE_VIEWS.forEach(view => {
@@ -165,11 +164,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
         }
         fullUrl = `${urlObj.protocol}//${urlObj.hostname}${basePath}`;
       }
-
-      // Ajout de logs pour le débogage
-      console.log('[ImportWebviewModal] URL générée:', fullUrl);
-      console.log('[ImportWebviewModal] Nom de la vue:', view.name);
-      console.log('[ImportWebviewModal] Nom de l\'application:', appName);
 
       urls.push({
         href: fullUrl,
@@ -222,7 +216,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
       const fullUrl = `${url}/p/mes_getchannelsxml/action/display`;
 
       const response = await fetch(fullUrl);
-      console.log('[ImportWebviewModal] Réponse reçue, status:', response.status);
 
       // We get the content type
       const contentType = response.headers.get('content-type');
@@ -251,7 +244,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
         const extractedChannels = parseHtml(data);
 
         if (extractedChannels.length === 0) {
-          console.log('[ImportWebviewModal] Erreur: Aucune chaîne trouvée');
           setError(t('errors.noChannelsFound'));
           return;
         }
@@ -261,23 +253,17 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
             existingChannel.href === newChannel.href
           )
         );
-        console.log('[ImportWebviewModal] Nouvelles chaînes filtrées:', newChannels);
 
         if (newChannels.length === 0) {
-          console.log('[ImportWebviewModal] Aucune nouvelle chaîne à importer');
           setShowAlert(true);
         } else {
-          console.log('[ImportWebviewModal] Import des nouvelles chaînes...');
           await onImport(newChannels);
-          console.log('[ImportWebviewModal] Import réussi');
           onClose();
         }
       } else {
-        console.log('[ImportWebviewModal] Erreur: Format de données invalide');
         setError(t('errors.invalidResponseFormat'));
       }
     } catch (error) {
-      console.error('[ImportWebviewModal] Erreur détaillée:', error);
       setError(t('errors.errorDuringDownload'));
     } finally {
       setIsImporting(false);
@@ -390,7 +376,6 @@ const ImportWebviewModal = ({ visible, onClose, onImport, selectedWebviews = [],
       </Modal>
       <CustomAlert
         visible={showAlert}
-        title={t('alerts.information')}
         message={t('alerts.allChannelsAlreadyImported')}
         onClose={handleCloseAlert}
         onConfirm={handleCloseAlert}

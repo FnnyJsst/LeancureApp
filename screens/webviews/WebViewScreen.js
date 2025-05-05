@@ -14,15 +14,78 @@ import Header from '../../components/Header';
  * @param {Function} onNavigate - A function to navigate to a screen
  * @param {Function} onSettingsAccess - A function to handle the settings access
  * @param {boolean} isMessagesHidden - A boolean to hide the header
+ * @param {Function} onRefresh - A function to refresh the web view
+ * @param {string} refreshInterval - The interval for automatic refresh
  */
 export default function WebviewScreen({
   url,
   onNavigate,
   onSettingsAccess,
   isMessagesHidden,
+  refreshInterval,
 }) {
 
   const webViewRef = useRef(null);
+  const intervalRef = useRef(null);
+
+  const refreshWebView = () => {
+    console.log('[WebViewScreen] Déclenchement du rafraîchissement automatique pour:', url);
+    console.log('[WebViewScreen] Intervalle actuel:', refreshInterval);
+    webViewRef.current?.reload();
+  };
+
+  // Gestion du rafraîchissement automatique
+  useEffect(() => {
+    console.log('[WebViewScreen] Mise à jour de l\'intervalle de rafraîchissement:', refreshInterval);
+
+    // Nettoyer l'intervalle précédent s'il existe
+    if (intervalRef.current) {
+      console.log('[WebViewScreen] Nettoyage de l\'ancien intervalle');
+      clearInterval(intervalRef.current);
+    }
+
+    // Convertir l'intervalle en millisecondes
+    const getIntervalInMs = (interval) => {
+      console.log('[WebViewScreen] Conversion de l\'intervalle:', interval);
+      switch (interval) {
+        case 'every minute':
+          return 60000;
+        case 'every 5 minutes':
+          return 300000;
+        case 'every 15 minutes':
+          return 900000;
+        case 'every 30 minutes':
+          return 1800000;
+        case 'every hour':
+          return 3600000;
+        case 'every 2 hours':
+          return 7200000;
+        case 'every 6 hours':
+          return 21600000;
+        default:
+          console.log('[WebViewScreen] Aucun intervalle défini ou intervalle non reconnu');
+          return null;
+      }
+    };
+
+    const intervalMs = getIntervalInMs(refreshInterval);
+
+    if (intervalMs) {
+      console.log('[WebViewScreen] Configuration du nouveau rafraîchissement automatique:', {
+        interval: refreshInterval,
+        milliseconds: intervalMs
+      });
+      intervalRef.current = setInterval(refreshWebView, intervalMs);
+    }
+
+    // Nettoyage lors du démontage du composant
+    return () => {
+      if (intervalRef.current) {
+        console.log('[WebViewScreen] Nettoyage de l\'intervalle lors du démontage');
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [refreshInterval, url]);
 
   useEffect(() => {
     // Lock orientation to landscape when entering WebviewScreen
@@ -56,6 +119,12 @@ export default function WebviewScreen({
         domStorageEnabled={true}
         startInLoadingState={true}
         scalesPageToFit={true}
+        onLoadStart={() => console.log('[WebViewScreen] Chargement de la page démarré:', url)}
+        onLoadEnd={() => console.log('[WebViewScreen] Chargement de la page terminé:', url)}
+        onError={(syntheticEvent) => {
+          const { nativeEvent } = syntheticEvent;
+          console.log('[WebViewScreen] Erreur de chargement:', nativeEvent);
+        }}
       />
       <View style={styles.buttonContainer}>
         <ParameterButton onPress={onSettingsAccess} testID="settings-button" />

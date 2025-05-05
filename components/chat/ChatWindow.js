@@ -228,34 +228,21 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const handleWebSocketMessage = useCallback(async (data) => {
     try {
-      console.log('🔍 [WebSocket] Message reçu:', {
-        type: data.type,
-        hasMessage: !!data.message,
-        hasNotification: !!data.notification,
-        messageId: data.message?.id || data.notification?.message?.id
-      });
 
       const messageId = data.message?.id || data.notification?.message?.id;
 
       // If the message has already been processed, we ignore it
       if (messageId && processedMessageIds.current.has(messageId)) {
-        console.log('🔄 [WebSocket] Message déjà traité, ignoré:', messageId);
         return;
       }
 
       // We add the message ID to the list of processed messages
       if (messageId) {
-        console.log('📝 [WebSocket] Ajout du message aux messages traités:', messageId);
         processedMessageIds.current.add(messageId);
       }
 
       // Check if it's a notification to mark a channel as unread
       if (data.notification && data.notification.type === 'chat' && data.notification.message) {
-        console.log('🔔 [WebSocket] Notification de chat détectée:', {
-          type: data.notification.type,
-          messageId: data.notification.message.id,
-          channelId: data.notification.message.channelId
-        });
 
         const notifMessage = data.notification.message;
 
@@ -263,12 +250,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         const userCredentials = credentialsStr ? JSON.parse(credentialsStr) : null;
         const isOwnMessage = userCredentials && notifMessage.login === userCredentials.login;
-
-        console.log('👤 [WebSocket] Vérification du message:', {
-          isOwnMessage,
-          messageLogin: notifMessage.login,
-          userLogin: userCredentials?.login
-        });
 
         // Extract channel ID from the notification
         let channelId = null;
@@ -287,19 +268,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           }
         }
 
-        console.log('📢 [WebSocket] ID du canal extrait:', {
-          channelId,
-          currentChannelId: channel?.id,
-          isCurrentChannel: channelId === channel?.id?.toString()
-        });
-
         // If we have a channel ID and it's not the current channel, mark as unread
         if (channelId) {
           const currentChannelId = channel?.id?.toString();
 
           // Only mark as unread if it's not the current channel
           if (channelId !== currentChannelId) {
-            console.log('🔔 [WebSocket] Marquer le canal comme non lu:', channelId);
             markChannelAsUnread(channelId, true);
           }
         }
@@ -307,12 +281,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // We check if the message is a notification or a message
       if (data.type === 'notification' || data.type === 'message') {
-        console.log('📨 [WebSocket] Traitement du message/notification:', {
-          type: data.type,
-          messageId: data.message?.id,
-          channelId: data.filters?.values?.channel
-        });
-
         // We extract the channel ID
         const channelId = data.filters?.values?.channel;
         const currentChannelId = channel?.id?.toString();
@@ -330,12 +298,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         // We clean the received and current channel IDs
         const cleanReceivedChannelId = channelId?.toString()?.replace('channel_', '');
         const cleanCurrentChannelId = currentChannelId?.toString()?.replace('channel_', '');
-
-        console.log('🔄 [WebSocket] Comparaison des IDs de canal:', {
-          received: cleanReceivedChannelId,
-          current: cleanCurrentChannelId,
-          match: cleanReceivedChannelId === cleanCurrentChannelId
-        });
 
         // If the cleaned channel IDs are not the same, we throw an error
         if (cleanReceivedChannelId !== cleanCurrentChannelId) {
@@ -367,19 +329,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           messageContent.isOwnMessage = messageContent.login === credentials.login;
         }
 
-        console.log('🔊 [WebSocket] Lecture du son de notification:', {
-          messageId: messageContent.id,
-          isOwnMessage: messageContent.isOwnMessage
-        });
-
         // We play the notification sound
         await playNotificationSound(messageContent, null, credentials);
 
         // If the message content is an array of messages, we update the messages
         if (messageContent.type === 'messages' && Array.isArray(messageContent.messages)) {
-          console.log('📦 [WebSocket] Mise à jour des messages (tableau):', {
-            count: messageContent.messages.length
-          });
 
           setMessages(prevMessages => {
             const newMessages = messageContent.messages
@@ -387,7 +341,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 // We check if the message exists in the previous messages
                 const messageExists = prevMessages.some(prevMsg => prevMsg.id === msg.id);
                 if (messageExists) {
-                  console.log('🔄 [WebSocket] Message existant ignoré:', msg.id);
                   return false;
                 }
                 return true;
@@ -398,10 +351,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                 return formatMessage(msg, credentials);
               });
 
-            console.log('📝 [WebSocket] Nouveaux messages à ajouter:', {
-              count: newMessages.length
-            });
-
             return [...prevMessages, ...newMessages].sort((a, b) =>
               parseInt(a.savedTimestamp) - parseInt(b.savedTimestamp)
             );
@@ -410,10 +359,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }
 
         // If the message content is a unique message, we update the messages
-        console.log('📨 [WebSocket] Mise à jour du message unique:', {
-          messageId: messageContent.id
-        });
-
         setMessages(prevMessages => {
           const newMessage = formatMessage(messageContent, credentials);
 
@@ -421,11 +366,9 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           const messageExists = prevMessages.some(msg => msg.id === newMessage.id);
 
           if (messageExists) {
-            console.log('🔄 [WebSocket] Message unique existant ignoré:', newMessage.id);
             return prevMessages;
           }
 
-          console.log('📝 [WebSocket] Nouveau message unique ajouté:', newMessage.id);
           return [...prevMessages, newMessage];
         });
         return;
@@ -433,11 +376,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // If the message is in the format of a nested notification
       if (data.notification) {
-        console.log('🔔 [WebSocket] Traitement de la notification imbriquée:', {
-          type: data.notification.type,
-          messageId: data.notification.message?.id,
-          channelId: data.notification.filters?.values?.channel
-        });
 
         const channelId = data.notification.filters?.values?.channel;
         const currentChannelId = channel ? channel.id.toString() : null;
@@ -454,7 +392,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         // If the message content is not set, we return nothing
         const messageContent = data.notification.message;
         if (!messageContent) {
-          console.log('ℹ️ [WebSocket] Pas de contenu de message dans la notification imbriquée');
           return;
         }
 
@@ -464,11 +401,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         if (credentials && credentials.login && messageContent.login) {
           messageContent.isOwnMessage = messageContent.login === credentials.login;
         }
-
-        console.log('🔊 [WebSocket] Lecture du son de notification (imbriquée):', {
-          messageId: messageContent.id,
-          isOwnMessage: messageContent.isOwnMessage
-        });
 
         // We play the notification sound
         await playNotificationSound(messageContent, null, credentials);
@@ -481,11 +413,9 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           const messageExists = prevMessages.some(msg => msg.id === newMessage.id);
 
           if (messageExists) {
-            console.log('🔄 [WebSocket] Message imbriqué existant ignoré:', newMessage.id);
             return prevMessages;
           }
 
-          console.log('📝 [WebSocket] Nouveau message imbriqué ajouté:', newMessage.id);
           return [...prevMessages, newMessage];
         });
         return;
@@ -575,16 +505,9 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = useCallback(async (messageData) => {
     try {
-      console.log('📤 [SendMessage] Début de l\'envoi du message:', {
-        type: messageData.type,
-        isEditing: messageData.isEditing,
-        messageId: messageData.messageId
-      });
-
       // We record the timestamp of the sent message to avoid notifications
       const currentTime = Date.now();
       recordSentMessage(currentTime);
-      console.log('⏰ [SendMessage] Timestamp enregistré:', currentTime);
 
       // If the channel is not defined, we throw an error
       if (!channel) {
@@ -598,7 +521,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // If the credentials are not defined, we get them
       if (!credentials) {
-        console.log('🔑 [SendMessage] Récupération des identifiants');
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         if (!credentialsStr) {
           console.error('❌ [SendMessage] Pas d\'identifiants trouvés');
@@ -622,13 +544,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       const isEditing = messageData.isEditing === true && messageData.messageId;
 
       if (isEditing) {
-        console.log('✏️ [SendMessage] Modification du message:', messageData.messageId);
         try {
           // We send the edit request
           const response = await editMessageApi(messageData.messageId, messageData, userCredentials);
 
           if (response.status === 'ok') {
-            console.log('✅ [SendMessage] Message modifié avec succès');
             setEditingMessage(null);
 
             // We update the messages
@@ -705,12 +625,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         sendTimestamp
       };
 
-      console.log('📤 [SendMessage] Envoi du message:', {
-        type: messageToSend.type,
-        login: messageToSend.login,
-        timestamp: sendTimestamp
-      });
-
       // We format the message and add it to the list of messages
       const message = formatMessage(messageToSend, userCredentials);
 
@@ -719,14 +633,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // We check if the sending has succeeded
       if (response.status === 'ok' && response.id) {
-        console.log('✅ [SendMessage] Message envoyé avec succès:', response.id);
         // We add the message to the existing messages
         setMessages((prevMessages) => {
           // We check if the message already exists
           const messageExists = prevMessages.some((msg) => msg.id === response.id);
 
           if (messageExists) {
-            console.log('🔄 [SendMessage] Message déjà existant ignoré:', response.id);
             return prevMessages;
           }
 
@@ -737,7 +649,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             savedTimestamp: Date.now().toString(),
           };
 
-          console.log('📝 [SendMessage] Nouveau message ajouté:', response.id);
           return [...prevMessages, completeMessage];
         });
       } else {

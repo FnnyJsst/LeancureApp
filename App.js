@@ -610,6 +610,7 @@ export default function App({ testID, initialScreen }) {
             onNavigate={navigate}
             onSettingsAccess={handleSettingsAccess}
             isMessagesHidden={isMessagesHidden}
+            refreshInterval={refreshOption}
             testID="webview-screen"
           />
         );

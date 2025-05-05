@@ -386,7 +386,7 @@ export default function SettingsWebviews({
               </Text>
               <TouchableOpacity
                 onPress={() => {
-                  setActiveTooltip('messages');
+                  setActiveTooltip('hideMessages');
                   updateModalState('tooltip', true);
                 }}
                 style={styles.infoIcon}

@@ -139,18 +139,23 @@ export function useWebviews(setCurrentScreen) {
    */
   const loadRefreshOption = useCallback(async () => {
     try {
-      // First, delete the old value
-      await SecureStore.deleteItemAsync('refreshOption');
+      // On essaie d'abord de charger la valeur existante
+      const savedOption = await SecureStore.getItemAsync('refreshOption');
 
-      // Then, we define a default value
-      const defaultOption = 'never';
-      await SecureStore.setItemAsync('refreshOption', defaultOption);
-
-      setRefreshOption(defaultOption);
-      setRefreshInterval(getIntervalInMilliseconds(defaultOption));
+      if (savedOption) {
+        // Si une valeur existe, on l'utilise
+        setRefreshOption(savedOption);
+        setRefreshInterval(getIntervalInMilliseconds(savedOption));
+      } else {
+        // Si aucune valeur n'existe, on définit la valeur par défaut
+        const defaultOption = 'never';
+        await SecureStore.setItemAsync('refreshOption', defaultOption);
+        setRefreshOption(defaultOption);
+        setRefreshInterval(getIntervalInMilliseconds(defaultOption));
+      }
     } catch (error) {
       console.error('Failed to load refresh option', error);
-      // In case of error, we define default values
+      // En cas d'erreur, on définit des valeurs par défaut
       setRefreshOption('never');
       setRefreshInterval(null);
     }

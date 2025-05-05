@@ -65,21 +65,25 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
 
   useEffect(() => {
     if (currentOption) {
+      console.log('[AutoRefreshModal] Option actuelle reçue:', currentOption);
       setSelectedOption(currentOption);
     }
   }, [currentOption]);
 
   // Mémoiser les callbacks
   const handleSelect = useCallback((value) => {
+    console.log('[AutoRefreshModal] Nouvelle option sélectionnée:', value);
     setSelectedOption(value);
   }, []);
 
   const handleSave = useCallback(() => {
+    console.log('[AutoRefreshModal] Sauvegarde de l\'option:', selectedOption);
     onSelectOption(selectedOption);
     setShowAlert(true);
   }, [selectedOption, onSelectOption]);
 
   const handleAlertClose = useCallback(() => {
+    console.log('[AutoRefreshModal] Fermeture de l\'alerte et de la modale');
     setShowAlert(false);
     onClose();
   }, [onClose]);
