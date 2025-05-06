@@ -99,14 +99,23 @@ export const NotificationProvider = ({ children }) => {
 
     // Store the channel name if available
     if (channelId && channelTitle) {
+      console.log('[NotificationContext] Mise à jour de viewedChannelName:', channelTitle);
       SecureStore.setItemAsync('viewedChannelName', channelTitle)
+        .then(() => {
+          console.log('[NotificationContext] viewedChannelName stocké avec succès:', channelTitle);
+        })
         .catch(err => {
+          console.error('[NotificationContext] Erreur lors du stockage de viewedChannelName:', err);
           handleError(err, i18n.t('error.setChannelName'), {
             type: ErrorType.SYSTEM
           });
         });
     } else {
+      console.log('[NotificationContext] Suppression de viewedChannelName');
       SecureStore.deleteItemAsync('viewedChannelName')
+        .then(() => {
+          console.log('[NotificationContext] viewedChannelName supprimé avec succès');
+        })
         .catch(err => {
           console.error('❌ [NotificationContext] Erreur lors de la suppression du nom du canal:', err);
           handleError(err, i18n.t('error.deleteChannelName'), {

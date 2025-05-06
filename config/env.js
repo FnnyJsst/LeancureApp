@@ -136,7 +136,7 @@ export const ENV = {
             return defaultWsUrl;
         } catch (error) {
             console.error('🔴 Erreur lors de la récupération de l\'URL WebSocket:', error);
-            return 'ws://192.168.77.101:8000';
+            return 'ws://192.168.1.67:8000';
         }
     },
 

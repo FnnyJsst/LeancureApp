@@ -476,41 +476,18 @@ const checkConnectionStatus = async () => {
   try {
     const credentials = await SecureStore.getItemAsync('userCredentials');
     if (!credentials) {
+      console.log('[checkConnectionStatus] Pas de credentials trouvés dans SecureStore');
       return false;
     }
-
     const { accessToken, contractNumber, accountApiKey } = JSON.parse(credentials);
     if (!accessToken || !contractNumber || !accountApiKey) {
+      console.log('[checkConnectionStatus] Credentials incomplets:', { accessToken, contractNumber, accountApiKey });
       return false;
     }
-
-    // Vérification de la validité du token
-    try {
-      const response = await axios({
-        method: 'POST',
-        url: await ENV.API_URL(),
-        data: createApiRequest({
-          "amaiia_msg_srv": {
-            "auth": {
-              "check": {}
-            }
-          }
-        }, contractNumber, accessToken),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 5000,
-      });
-
-      const isValid = response.status === 200 && response.data?.cmd?.[0]?.amaiia_msg_srv?.auth?.check?.status === 'ok';
-
-      return isValid;
-    } catch (error) {
-      console.error('❌ [NotificationService] Erreur lors de la vérification de la connexion:', error);
-      return false;
-    }
+    // Ici, on ne contacte plus le serveur
+    return true;
   } catch (error) {
-    console.error('❌ [NotificationService] Erreur lors de la vérification des credentials:', error);
+    console.error('[checkConnectionStatus] Erreur lors de la vérification des credentials:', error);
     return false;
   }
 };
