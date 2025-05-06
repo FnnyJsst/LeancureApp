@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.xLarge,
   },
   buttonLargeTablet: {
-    height: 60,
     paddingVertical: 12,
   },
   buttonSmartphone: {
