@@ -6,17 +6,11 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
 
-
 /**
  * @component ButtonWithSpinner
  * @description A component that renders a button with a spinner used in the login screen
- *
- * @param {Object} props - The properties of the component
  * @param {boolean} props.isLoading - Whether the button is loading
  * @param {string} props.title - The title of the button
- *
- * @example
- * <ButtonWithSpinner isLoading={true} title="Connecting..." />
  */
 
 export default function ButtonWithSpinner({ isLoading, title, testID, ...props }) {
@@ -42,6 +36,7 @@ export default function ButtonWithSpinner({ isLoading, title, testID, ...props }
 }
 
 const styles = StyleSheet.create({
+
   button: {
     flexDirection: 'row',
     alignItems: 'center',
