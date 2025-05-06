@@ -328,6 +328,8 @@ export default {
     errorLoadingMessagesVisibility: "Error loading messages visibility",
     messageIdMissing: "Message ID is missing",
     dataTooLargeForSecureStore: "Data is too large for SecureStore, some information will be truncated",
+    editFailed: "Failed to edit message",
+    noDeletePermission: "You don't have permission to delete this message"
   },
 
   tooltips: {

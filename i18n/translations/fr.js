@@ -331,6 +331,8 @@ export default {
     messageIdMissing: "L'ID du message est manquant",
     dataTooLargeForSecureStore: "Les données sont trop grandes pour SecureStore, certaines informations seront tronquées",
     wrongUrlFormat: "Format d'URL invalide, cliquez sur le bouton d'aide pour plus d'informations",
+    editFailed: "Échec de la modification du message",
+    noDeletePermission: "Vous n'avez pas la permission de supprimer ce message"
   },
 
   tooltips: {

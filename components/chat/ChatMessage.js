@@ -1,5 +1,5 @@
 import React, { useState} from 'react';
-import { View, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
@@ -22,7 +22,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [menuMessageVisible, setMenuMessageVisible] = useState(false);
 
-  // Get the device type and the translation function
   const { isSmartphone, isLowResTablet } = useDeviceType();
   const { t } = useTranslation();
 

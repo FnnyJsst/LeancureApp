@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
  * @param {Object} props.style - Style
  */
 const MenuMessage = ({ onDelete, onEdit, style }) => {
+
   const { isSmartphone } = useDeviceType();
   const { t } = useTranslation();
 
@@ -25,7 +26,7 @@ const MenuMessage = ({ onDelete, onEdit, style }) => {
             onPress={onEdit}
           >
             <Ionicons name="pencil-outline" size={isSmartphone ? 20 : 22} color={COLORS.white} />
-            <Text style={isSmartphone ? styles.menuTextSmartphone : styles.menuText}>
+            <Text style={[styles.menuText, isSmartphone && styles.menuTextSmartphone]}>
               {t('buttons.edit')}
             </Text>
           </TouchableOpacity>
@@ -37,7 +38,7 @@ const MenuMessage = ({ onDelete, onEdit, style }) => {
         onPress={onDelete}
       >
         <Ionicons name="trash-outline" size={isSmartphone ? 20 : 22} color={COLORS.red} />
-        <Text style={isSmartphone ? styles.deleteTextSmartphone : styles.deleteText}>
+        <Text style={[styles.deleteText, isSmartphone && styles.deleteTextSmartphone]}>
           {t('buttons.delete')}
         </Text>
       </TouchableOpacity>
@@ -72,7 +73,6 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.light,
   },
   menuTextSmartphone: {
-    color: COLORS.white,
     fontSize: SIZES.fonts.textSmartphone,
   },
   deleteText: {
@@ -81,7 +81,6 @@ const styles = StyleSheet.create({
     fontWeight: SIZES.fontWeight.light,
   },
   deleteTextSmartphone: {
-    color: COLORS.red,
     fontSize: SIZES.fonts.textSmartphone,
   },
   separator: {

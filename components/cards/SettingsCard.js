@@ -14,7 +14,6 @@ import { Text } from '../text/CustomText';
  */
 export default function SettingsCard({ icon, title, description, onPress, iconBackgroundColor = COLORS.borderColor, testID }) {
 
-  // Device type hook
   const { isSmartphone } = useDeviceType();
 
   return (
