@@ -7,7 +7,6 @@ import { Text } from '../text/CustomText';
 /**
  * @component Button
  * @description A component that renders a button for the app
- *
  * @param {string} props.title - The title of the button
  * @param {string} [props.backgroundColor = COLORS.orange] - The background color of the button
  * @param {string} [props.textColor = COLORS.white] - The text color of the button
@@ -21,7 +20,7 @@ export default function Button({
   textColor = COLORS.white,
   onPress,
   width,
-  variant = 'default', // 'default' for a small button, 'large' for a large one
+  variant = 'default',
   style,
   testID,
 }) {
@@ -75,7 +74,6 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadius.xLarge,
   },
   buttonLargeTablet: {
-    height: 60,
     paddingVertical: 12,
   },
   buttonSmartphone: {

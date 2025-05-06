@@ -8,7 +8,6 @@ import { COLORS, SIZES } from '../../constants/style';
 /**
  * @component ParameterButton
  * @description A component that renders a button used to access the parameters screen
- *
  * @param {Function} props.onPress - The function to call when the button is pressed
  */
 export default function ParameterButton({ onPress, testID }) {
