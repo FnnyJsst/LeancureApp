@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "react_native",
-    "slug": "react_native",
-    "version": "1.0.0",
+    "name": "Leancure-view ",
+    "slug": "leancure-view",
+    "version": "2.0.0",
     "orientation": "default",
     "userInterfaceStyle": "light",
     "splash": {
@@ -48,7 +48,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.fnnyjsst.react_native",
+      "package": "com.leancure.app.v2",
       "adaptiveIcon": {
         "backgroundColor": "#e5e5e5"
       },
