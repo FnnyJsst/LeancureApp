@@ -292,6 +292,14 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                           width: 100%;
                           height: 100%;
                           overflow: hidden;
+                          display: flex;
+                          justify-content: center;
+                          align-items: center;
+                        }
+                        canvas {
+                          max-width: 100%;
+                          max-height: 100%;
+                          object-fit: contain;
                         }
                       </style>
                     </head>
@@ -299,19 +307,42 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                       <div id="viewer"></div>
                       <script>
                         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
-                        const loadingTask = pdfjsLib.getDocument({data: atob('${initialBase64}')});
+
+                        const loadingTask = pdfjsLib.getDocument({
+                          data: atob('${initialBase64}'),
+                          cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.11.338/cmaps/',
+                          cMapPacked: true,
+                        });
+
                         loadingTask.promise.then(function(pdf) {
                           pdf.getPage(1).then(function(page) {
                             const canvas = document.createElement('canvas');
-                            const context = canvas.getContext('2d');
-                            const viewport = page.getViewport({scale: 0.55});
+                            const context = canvas.getContext('2d', { alpha: false });
+                            const viewport = page.getViewport({ scale: 2.0 }); // Augmentation de la résolution
 
-                            canvas.width = viewport.width;
-                            canvas.height = viewport.height;
+                            // On utilise un pixel ratio plus élevé pour les écrans haute densité
+                            const pixelRatio = window.devicePixelRatio || 1;
+
+                            canvas.width = viewport.width * pixelRatio;
+                            canvas.height = viewport.height * pixelRatio;
+
+                            // On ajuste la taille d'affichage du canvas
+                            canvas.style.width = viewport.width + 'px';
+                            canvas.style.height = viewport.height + 'px';
+
+                            // Configuration du contexte pour une meilleure qualité
+                            context.imageSmoothingEnabled = true;
+                            context.imageSmoothingQuality = 'high';
+
+                            // Mise à l'échelle du contexte pour les écrans haute densité
+                            context.scale(pixelRatio, pixelRatio);
 
                             const renderContext = {
                               canvasContext: context,
-                              viewport: viewport
+                              viewport: viewport,
+                              enableWebGL: true,
+                              renderInteractiveForms: true,
+                              antialiasing: true
                             };
 
                             document.getElementById('viewer').appendChild(canvas);
@@ -326,6 +357,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
               originWhitelist={['*']}
               scalesPageToFit={true}
               javaScriptEnabled={true}
+              style={styles.webview}
             />
           </View>
         );
@@ -704,5 +736,8 @@ const styles = StyleSheet.create({
   },
   modalContentRotating: {
     transform: [{ scale: 0.95 }],
+  },
+  webview: {
+    flex: 1,
   },
 });
