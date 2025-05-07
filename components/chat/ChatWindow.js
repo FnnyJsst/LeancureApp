@@ -97,10 +97,18 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                   const index = updatedMessages.findIndex(m => m.id === msg.id);
                   // If the message is found and the base64 is set, we update the message
                   if (index !== -1 && base64) {
+                    // On calcule la taille du fichier à partir du base64
+                    const fileSize = (() => {
+                      const base64Length = base64.length;
+                      const paddingLength = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0;
+                      return Math.floor(((base64Length - paddingLength) * 3) / 4);
+                    })();
+
                     updatedMessages[index] = {
                       ...updatedMessages[index],
                       base64: base64,
                       type: 'file',
+                      fileSize: fileSize
                     };
                     hasUpdates = true;
                   }
@@ -128,7 +136,26 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     if (channel && channelMessages) {
       // We update the messages only if there are new messages
       if (channelMessages.length > 0) {
-        setMessages(channelMessages);
+        // On traite chaque message pour s'assurer que la taille des fichiers est correcte
+        const processedMessages = channelMessages.map(msg => {
+          if (msg.type === 'file') {
+            // On calcule la taille du fichier si nécessaire
+            const fileSize = (() => {
+              if (msg.fileSize && !isNaN(parseInt(msg.fileSize, 10))) {
+                return parseInt(msg.fileSize, 10);
+              }
+              if (msg.base64) {
+                const base64Length = msg.base64.length;
+                const paddingLength = msg.base64.endsWith('==') ? 2 : msg.base64.endsWith('=') ? 1 : 0;
+                return Math.floor(((base64Length - paddingLength) * 3) / 4);
+              }
+              return 0;
+            })();
+            return { ...msg, fileSize };
+          }
+          return msg;
+        });
+        setMessages(processedMessages);
       }
     }
   }, [channel?.id, channelMessages]);
@@ -182,6 +209,21 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     const messageText = msg.text || msg.message || '';
     const isOwnMessageByLogin = msg.login === credentials?.login;
 
+    // Calcul de la taille du fichier
+    let fileSize = 0;
+    if (msg.type === 'file') {
+      // Si on a une taille stockée valide, on l'utilise
+      if (msg.fileSize && !isNaN(parseInt(msg.fileSize, 10))) {
+        fileSize = parseInt(msg.fileSize, 10);
+      }
+      // Sinon, si on a un base64, on calcule la taille
+      else if (msg.base64) {
+        const base64Length = msg.base64.length;
+        const paddingLength = msg.base64.endsWith('==') ? 2 : msg.base64.endsWith('=') ? 1 : 0;
+        fileSize = Math.floor(((base64Length - paddingLength) * 3) / 4);
+      }
+    }
+
     return {
       id: msg.id?.toString() || Date.now().toString(),
       type: msg.type || 'text',
@@ -192,7 +234,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       isOwnMessage: isOwnMessageByLogin,
       isUnread: false,
       username: isOwnMessageByLogin ? 'Me' : (msg.login || 'Unknown'),
-      base64: msg.base64
+      base64: msg.base64,
+      fileSize: fileSize
     };
   };
 
@@ -202,7 +245,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const handleWebSocketMessage = useCallback(async (data) => {
     try {
-
       const messageId = data.message?.id || data.notification?.message?.id;
 
       // If the message has already been processed, we ignore it
@@ -217,8 +259,23 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // We check if it's a notification to mark a channel as unread
       if (data.notification && data.notification.type === 'chat' && data.notification.message) {
-
         const notifMessage = data.notification.message;
+
+        // Si c'est un message de type fichier, on s'assure de préserver la taille
+        if (notifMessage.type === 'file') {
+          const fileSize = (() => {
+            if (notifMessage.fileSize && !isNaN(parseInt(notifMessage.fileSize, 10))) {
+              return parseInt(notifMessage.fileSize, 10);
+            }
+            if (notifMessage.base64) {
+              const base64Length = notifMessage.base64.length;
+              const paddingLength = notifMessage.base64.endsWith('==') ? 2 : notifMessage.base64.endsWith('=') ? 1 : 0;
+              return Math.floor(((base64Length - paddingLength) * 3) / 4);
+            }
+            return 0;
+          })();
+          notifMessage.fileSize = fileSize;
+        }
 
         // We check if the message is from the current user
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
@@ -569,7 +626,19 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         ...messageData,
         login: userCredentials.login,
         isOwnMessage: true,
-        sendTimestamp
+        sendTimestamp,
+        // On calcule et inclut la taille du fichier
+        fileSize: (() => {
+          if (messageData.fileSize && !isNaN(parseInt(messageData.fileSize, 10))) {
+            return parseInt(messageData.fileSize, 10);
+          }
+          if (messageData.base64) {
+            const base64Length = messageData.base64.length;
+            const paddingLength = messageData.base64.endsWith('==') ? 2 : messageData.base64.endsWith('=') ? 1 : 0;
+            return Math.floor(((base64Length - paddingLength) * 3) / 4);
+          }
+          return 0;
+        })()
       } : {
         type: 'text',
         message: typeof messageData === 'object' ? messageData.text : messageData,
@@ -840,3 +909,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+
+function getBase64FileSize(base64String) {
+  if (!base64String) return 0;
+  // Enlève le préfixe data:...;base64, s'il existe
+  const cleaned = base64String.split(',').pop();
+  // 1 caractère base64 = 0.75 octet
+  return Math.ceil(cleaned.length * 0.75);
+}

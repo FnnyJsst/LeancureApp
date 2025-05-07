@@ -160,6 +160,13 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
     }
   };
 
+  // Fonction utilitaire pour calculer la taille d'un fichier à partir du base64
+  function getBase64FileSize(base64String) {
+    if (!base64String) return 0;
+    const cleaned = base64String.split(',').pop();
+    return Math.ceil(cleaned.length * 0.75);
+  }
+
   try {
     // If the message is a file, we display the file preview
     if (message.type === 'file') {
@@ -170,17 +177,20 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                   message.fileType?.toLowerCase().includes('jpg') ||
                   message.fileType?.toLowerCase().includes('png');
 
-      // Estimate the file size
-      let fileSizeInBytes;
+      // Calcul de la taille du fichier
+      let fileSizeInBytes = 0;
 
-      // Option 1: Use the provided size if it is valid
+      // Si on a une taille stockée valide, on l'utilise
       if (message.fileSize && !isNaN(parseInt(message.fileSize, 10))) {
         fileSizeInBytes = parseInt(message.fileSize, 10);
       }
-      // Option 2: Estimate the size from the base64 (approximately 3/4 of the length)
+      // Sinon, si on a un base64, on calcule la taille
       else if (message.base64) {
-        // The approximate size in bytes is approximately 3/4 of the length of the base64 string
-        fileSizeInBytes = Math.ceil(message.base64.length * 0.75);
+        const base64Length = message.base64.length;
+        // On enlève les caractères de padding (=) à la fin
+        const paddingLength = message.base64.endsWith('==') ? 2 : message.base64.endsWith('=') ? 1 : 0;
+        // Calcul plus précis de la taille
+        fileSizeInBytes = Math.floor(((base64Length - paddingLength) * 3) / 4);
       }
 
       const messageContent = (

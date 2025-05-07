@@ -138,7 +138,6 @@ export const registerForPushNotificationsAsync = async () => {
     });
 
     const token = tokenData.data;
-    console.log('🔑 Token récupéré:', token);
 
     return token;
   } catch (error) {
