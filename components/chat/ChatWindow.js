@@ -209,14 +209,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     const messageText = msg.text || msg.message || '';
     const isOwnMessageByLogin = msg.login === credentials?.login;
 
-    // Calcul de la taille du fichier
+    // We calculate the file size
     let fileSize = 0;
     if (msg.type === 'file') {
-      // Si on a une taille stockée valide, on l'utilise
+      // If we have a valid stored size, we use it
       if (msg.fileSize && !isNaN(parseInt(msg.fileSize, 10))) {
         fileSize = parseInt(msg.fileSize, 10);
       }
-      // Sinon, si on a un base64, on calcule la taille
+      // Otherwise, if we have a base64, we calculate the size
       else if (msg.base64) {
         const base64Length = msg.base64.length;
         const paddingLength = msg.base64.endsWith('==') ? 2 : msg.base64.endsWith('=') ? 1 : 0;

@@ -34,7 +34,6 @@ export default function Login({ onNavigate }) {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
-    const [error, setError] = useState('');
     const [contractNumber, setContractNumber] = useState('');
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
@@ -49,14 +48,14 @@ export default function Login({ onNavigate }) {
      * @description Handle login-related errors
      */
     const handleLoginError = (error, source) => {
-        console.log(`[Login] Erreur dans ${source}:`, error);
-        const errorMessage = handleError(error, `login.${source}`, {
+        return handleError(error, source, {
             type: ErrorType.AUTH,
-            silent: false
+            showAlert: true,
+            setAlertMessage: (message) => {
+                setAlertMessage(message);
+                setShowAlert(true);
+            }
         });
-        setAlertMessage(errorMessage);
-        setShowAlert(true);
-        return errorMessage;
     };
 
     /**
@@ -80,47 +79,68 @@ export default function Login({ onNavigate }) {
      */
     const handleLogin = useCallback(async () => {
         try {
-
             setIsLoading(true);
 
             try {
-                console.log('🧹 [Login] Nettoyage des anciens credentials');
                 await SecureStore.deleteItemAsync('userCredentials');
             } catch (error) {
-                console.error('⚠️ [Login] Erreur lors du nettoyage des credentials:', error);
-                // If it's a decryption error, we clean the SecureStore
                 if (error.message && (
                     error.message.includes('decrypt') ||
                     error.message.includes('decipher') ||
                     error.message.includes('decryption')
                 )) {
-
                     await cleanSecureStore();
                 } else {
-                    console.error('❌ [Login] Erreur non liée au déchiffrement:', error);
-                    setAlertMessage(t('errors.errorCleaningSecureStore'));
-                    setShowAlert(true);
+                    handleError(error, 'login.cleanCredentials', {
+                        type: ErrorType.SYSTEM,
+                        showAlert: true,
+                        setAlertMessage: (message) => {
+                            setAlertMessage(t('errors.errorCleaningSecureStore'));
+                            setShowAlert(true);
+                        }
+                    });
                 }
             }
 
             const validationError = validateInputs();
             if (validationError) {
-                console.log('❌ [Login] Erreur de validation:', validationError);
-                setAlertMessage(validationError);
-                setShowAlert(true);
+                handleError(validationError, 'login.validation', {
+                    type: ErrorType.VALIDATION,
+                    showAlert: true,
+                    setAlertMessage: (message) => {
+                        setAlertMessage(message);
+                        setShowAlert(true);
+                    }
+                });
                 return;
             }
 
             // First login attempt
             const loginResponse = await loginApi(contractNumber, login, password, '');
 
+            if (!loginResponse.success) {
+                let errorMessage;
+                switch (loginResponse.error) {
+                    case 'LOGIN_FAILED':
+                        errorMessage = t('errors.invalidCredentials');
+                        break;
+                    default:
+                        errorMessage = t('errors.connectionError');
+                }
+
+                handleError(errorMessage, 'login.attempt', {
+                    type: ErrorType.AUTH,
+                    showAlert: true,
+                    setAlertMessage: (message) => {
+                        setAlertMessage(message);
+                        setShowAlert(true);
+                    }
+                });
+                return;
+            }
+
             // If the login is successful, we save the credentials
             if (loginResponse.success) {
-                console.log('✅ [Login] Login réussi, tokens reçus:', {
-                    accessToken: loginResponse.accessToken?.substring(0, 10) + '...',
-                    refreshToken: loginResponse.refreshToken?.substring(0, 10) + '...'
-                });
-
                 // Save the credentials with the tokens
                 const credentials = {
                     contractNumber,
@@ -131,9 +151,7 @@ export default function Login({ onNavigate }) {
                     accessToken: loginResponse.accessToken
                 };
 
-                console.log('💾 [Login] Sauvegarde des credentials dans SecureStore');
                 await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-                console.log('✅ [Login] Tokens sauvegardés avec succès');
 
                 // If the user has checked the "Remember me" checkbox, we save the login info
                 if (isChecked) {
@@ -151,48 +169,60 @@ export default function Login({ onNavigate }) {
 
                 // If the channels are loaded, we get the notification token
                 if (channelsResponse.status === 'ok') {
-                    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-                    let finalStatus = existingStatus;
+                    try {
+                        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+                        let finalStatus = existingStatus;
 
-                    // If the user has not granted the notification permission, we request it
-                    if (existingStatus !== 'granted') {
-                        const { status } = await Notifications.requestPermissionsAsync();
-                        finalStatus = status;
-                    }
-
-                    // If the user has granted the notification permission, we get the token and synchronize it with the API
-                    if (finalStatus === 'granted') {
-                        const tokenData = await Notifications.getExpoPushTokenAsync({
-                            projectId: ENV.EXPO_PROJECT_ID,
-                        });
-                        console.log('✅ [Login] Token obtenu:', tokenData.data);
-
-                        // Synchronize the token with the API
-                        const syncResult = await synchronizeTokenWithAPI(tokenData.data);
-                        if (!syncResult) {
-                            console.error('❌ [Login] Échec de la synchronisation du token');
-                            handleError(t('error.errorSynchronizingTokenWithAPI'), {
-                                type: ErrorType.SYSTEM,
-                                silent: false
-                            });
-                        } else {
-                            console.log('✅ [Login] Token synchronisé avec succès');
+                        if (existingStatus !== 'granted') {
+                            const { status } = await Notifications.requestPermissionsAsync();
+                            finalStatus = status;
                         }
-                    }
 
-                    // We navigate to the chat screen
-                    onNavigate(SCREENS.CHAT);
+                        if (finalStatus === 'granted') {
+                            try {
+                                const tokenData = await Notifications.getExpoPushTokenAsync({
+                                    projectId: ENV.EXPO_PROJECT_ID,
+                                });
+
+                                // Synchroniser le token avec l'API
+                                const syncResult = await synchronizeTokenWithAPI(tokenData.data);
+                                if (!syncResult) {
+                                    handleError(new Error(t('errors.errorSynchronizingTokenWithAPI')), 'login.tokenSync', {
+                                        type: ErrorType.SYSTEM,
+                                        showAlert: false // On ne bloque pas la navigation même si la synchro échoue
+                                    });
+                                }
+                            } catch (error) {
+                                handleError(error, 'login.tokenGeneration', {
+                                    type: ErrorType.SYSTEM,
+                                    showAlert: false
+                                });
+                            }
+                        }
+
+                        onNavigate(SCREENS.CHAT);
+                    } catch (error) {
+                        handleError(error, 'login.notification', {
+                            type: ErrorType.SYSTEM,
+                            showAlert: true,
+                            setAlertMessage: (message) => {
+                                setAlertMessage(message);
+                                setShowAlert(true);
+                            }
+                        });
+                    }
                 } else {
-                    console.error('❌ [Login] Échec de la récupération des canaux');
-                    handleError(t('errors.errorLoadingChannels'), {
+                    handleError(t('errors.errorLoadingChannels'), 'login.channels', {
                         type: ErrorType.SYSTEM,
-                        silent: false
+                        showAlert: true,
+                        setAlertMessage: (message) => {
+                            setAlertMessage(message);
+                            setShowAlert(true);
+                        }
                     });
                 }
             } else {
-                console.log('⚠️ [Login] Échec de la première tentative, vérification du refresh token...');
-
-                // Récupération des anciens credentials pour le refresh token
+                // We get the old credentials for the refresh token
                 const oldCredentials = await SecureStore.getItemAsync('userCredentials');
                 if (!oldCredentials) {
                     setAlertMessage(t('errors.invalidCredentials'));
@@ -201,7 +231,6 @@ export default function Login({ onNavigate }) {
                 }
 
                 const { refreshToken, accountApiKey } = JSON.parse(oldCredentials);
-                console.log('🔑 [Login] Ancien refresh token trouvé:', refreshToken?.substring(0, 10) + '...');
 
                 // Tentative de refresh du token
                 const refreshTokenResponse = await checkRefreshToken(
@@ -212,16 +241,12 @@ export default function Login({ onNavigate }) {
 
                 // If the refresh token is not successful, we set the error
                 if (!refreshTokenResponse.success) {
-                    console.log('❌ [Login] Refresh token invalide, connexion impossible');
                     setAlertMessage(t('errors.sessionExpired'));
                     setShowAlert(true);
                     return;
                 }
 
-                console.log('✅ [Login] Nouveau refresh token obtenu:', refreshTokenResponse.data.refresh_token?.substring(0, 10) + '...');
-
-                // Nouvelle tentative de login avec le nouveau refresh token
-                console.log('🔑 [Login] Nouvelle tentative avec le refresh token...');
+                // New login attempt with the new refresh token
                 const retryLoginResponse = await loginApi(
                     contractNumber,
                     login,
@@ -231,10 +256,6 @@ export default function Login({ onNavigate }) {
 
                 // If the login is successful, we save the credentials
                 if (retryLoginResponse.success) {
-                    console.log('✅ [Login] Login réussi avec refresh token, nouveaux tokens:', {
-                        accessToken: retryLoginResponse.accessToken?.substring(0, 10) + '...',
-                        refreshToken: refreshTokenResponse.data.refresh_token?.substring(0, 10) + '...'
-                    });
 
                     const credentials = {
                         contractNumber,
@@ -246,7 +267,6 @@ export default function Login({ onNavigate }) {
                     };
 
                     await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-                    console.log('✅ [Login] Nouveaux tokens sauvegardés avec succès');
 
                     const channelsResponse = await fetchUserChannels(
                         contractNumber,
@@ -260,21 +280,29 @@ export default function Login({ onNavigate }) {
                     if (channelsResponse.status === 'ok') {
                         onNavigate(SCREENS.CHAT);
                     } else {
-                        console.error('❌ [Login] Échec de la récupération des canaux');
-                        handleError(t('errors.errorLoadingChannels'), {
+                        handleError(t('errors.errorLoadingChannels'), 'login.channels', {
                             type: ErrorType.SYSTEM,
-                            silent: false
+                            showAlert: true,
+                            setAlertMessage: (message) => {
+                                setAlertMessage(message);
+                                setShowAlert(true);
+                            }
                         });
                     }
                 } else {
-                    console.log('❌ [Login] Échec de la connexion avec le refresh token');
                     setAlertMessage(t('errors.invalidCredentials'));
                     setShowAlert(true);
                 }
             }
         } catch (error) {
-            console.error('❌ [Login] Erreur lors du processus de connexion:', error);
-            handleLoginError(error, 'process');
+            handleError(t('errors.connectionError'), 'login.process', {
+                type: ErrorType.AUTH,
+                showAlert: true,
+                setAlertMessage: (message) => {
+                    setAlertMessage(message);
+                    setShowAlert(true);
+                }
+            });
         } finally {
             setIsLoading(false);
         }
@@ -295,7 +323,6 @@ export default function Login({ onNavigate }) {
         try {
             // We get the saved login info
             const { contractNumber, login, password } = savedLoginInfo;
-
             // We clean the SecureStore first
             try {
                 await SecureStore.deleteItemAsync('userCredentials');
@@ -305,7 +332,6 @@ export default function Login({ onNavigate }) {
 
             // We login with the saved credentials
             const loginResponse = await loginApi(contractNumber, login, password, '');
-
             // If the login is successful, we save the credentials and navigate to the chat screen
             if (loginResponse && loginResponse.success) {
                 try {
@@ -319,7 +345,6 @@ export default function Login({ onNavigate }) {
                     };
 
                     await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-
                     // We fetch the user channels
                     const channelsResponse = await fetchUserChannels(
                         contractNumber,
@@ -345,25 +370,24 @@ export default function Login({ onNavigate }) {
                                 projectId: ENV.EXPO_PROJECT_ID,
                             });
 
-                            // Synchroniser le token
-                            const syncResult = await synchronizeTokenWithAPI(tokenData.data);
-                            if (syncResult) {
-                                console.log('[Login] Token de notification synchronisé avec succès');
-                            } else {
-                                console.log('[Login] Échec de la synchronisation du token de notification');
-                            }
+                            // Synchronize the token
+                            await synchronizeTokenWithAPI(tokenData.data);
                         }
 
                         onNavigate(SCREENS.CHAT);
                     } else {
-                        handleError(t('errors.errorLoad ingChannels'), {
+                        handleError(t('errors.errorLoadingChannels'), 'login.channels', {
                             type: ErrorType.SYSTEM,
-                            silent: false
+                            showAlert: true,
+                            setAlertMessage: (message) => {
+                                setAlertMessage(message);
+                                setShowAlert(true);
+                            }
                         });
                         setIsSimplifiedLogin(false);
                     }
                 } catch (error) {
-                    handleLoginError(error, 'saveCredentials');
+                    handleLoginError(error, 'login.saveCredentials');
                     setIsSimplifiedLogin(false);
                 }
             } else {
@@ -374,9 +398,7 @@ export default function Login({ onNavigate }) {
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            setAlertMessage(t('errors.loginFailed'));
-            setShowAlert(true);
-            setIsSimplifiedLogin(false);
+            handleLoginError(error, 'login.simplified');
         } finally {
             setIsLoading(false);
         }
@@ -400,8 +422,14 @@ export default function Login({ onNavigate }) {
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            handleLoginError(error, 'saveLoginInfo');
-            throw error;
+            handleError(error, 'login.saveInfo', {
+                type: ErrorType.SYSTEM,
+                showAlert: true,
+                setAlertMessage: (message) => {
+                    setAlertMessage(message);
+                    setShowAlert(true);
+                }
+            });
         }
     }, [isChecked, contractNumber, login, password]);
 
@@ -421,7 +449,14 @@ export default function Login({ onNavigate }) {
                     setIsSimplifiedLogin(true);
                 }
             } catch (error) {
-                console.error('❌ [Login] Erreur lors de la vérification des informations sauvegardées:', error);
+                handleError(error, 'login.checkSavedLogin', {
+                    type: ErrorType.SYSTEM,
+                    showAlert: true,
+                    setAlertMessage: (message) => {
+                        setAlertMessage(message);
+                        setShowAlert(true);
+                    }
+                });
             } finally {
                 setIsInitialLoading(false);
             }
@@ -526,10 +561,6 @@ export default function Login({ onNavigate }) {
                                                 />
                                             </View>
                                         </View>
-
-                                        {error ? (
-                                            <Text style={styles.errorText}>{error}</Text>
-                                        ) : null}
 
                                         <View style={styles.checkboxContainer}>
                                             <CheckBox
@@ -658,12 +689,6 @@ const styles = StyleSheet.create({
     inputWrapper: {
         width: '100%',
         alignItems: 'center',
-    },
-    errorText: {
-        color: COLORS.red,
-        fontSize: SIZES.fonts.errorText,
-        textAlign: 'center',
-        marginTop: 10,
     },
     checkboxContainer: {
         marginLeft: 15,

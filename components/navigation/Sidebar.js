@@ -33,8 +33,6 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
   // Use the notification context to access the unread channels
   const { unreadChannels } = useNotification();
   const { credentials, isLoading: credentialsLoading } = useCredentials();
-
-  // Get the device type and the translations
   const { isSmartphone } = useDeviceType();
   const { t } = useTranslation();
 
@@ -273,7 +271,6 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
                   {/* List of channels if the group is selected */}
                   {selectedGroup?.id === group.id && group.channels && group.channels.map((channel) => {
                     const hasUnreadMessages = unreadChannels && unreadChannels[channel.id];
-                    console.log('🔍 Canal:', channel.id, 'Messages non lus:', hasUnreadMessages);
 
                     return (
                       <TouchableOpacity

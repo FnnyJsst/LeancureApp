@@ -34,7 +34,6 @@ export const ENV = {
                 // We check if the custom API URL is valid
                 try {
                     new URL(customUrl);
-                    console.log('✅ Utilisation de l\'URL personnalisée:', customUrl);
                     return customUrl;
                 // If the custom API URL is not valid, we delete it from the SecureStore
                 } catch (urlError) {
@@ -43,14 +42,8 @@ export const ENV = {
                 }
             }
             // If the custom API URL is not defined, we use the default API URL
-            console.log('✅ Utilisation de l\'URL par défaut:', DEFAULT_API_URL);
             return DEFAULT_API_URL;
         } catch (error) {
-            // console.error('🔴 Erreur détaillée:', {
-            //     name: error.name,
-            //     message: error.message,
-            //     stack: error.stack,
-            // });
             return DEFAULT_API_URL;
         }
     },
@@ -79,8 +72,6 @@ export const ENV = {
 
             // We save the new API URL
             await SecureStore.setItemAsync('custom_api_url', trimmedUrl);
-            console.log('✅ Nouvelle URL API sauvegardée:', trimmedUrl);
-
             // We generate and save the corresponding WebSocket URL
             // We always use the specific port 8000 for WebSockets
             const host = parsedUrl.hostname;
@@ -89,7 +80,6 @@ export const ENV = {
             const wsUrl = `${wsProtocol}//${host}:8000`;
 
             await SecureStore.setItemAsync('custom_ws_url', wsUrl);
-            console.log('✅ Nouvelle URL WebSocket sauvegardée:', wsUrl);
 
             return true;
         } catch (error) {
@@ -132,7 +122,6 @@ export const ENV = {
 
             // If no custom URL is found, use the default URL
             const defaultWsUrl = 'ws://192.168.1.67:8000';
-            console.log('✅ Utilisation de l\'URL WebSocket par défaut:', defaultWsUrl);
             return defaultWsUrl;
         } catch (error) {
             console.error('🔴 Erreur lors de la récupération de l\'URL WebSocket:', error);

@@ -119,14 +119,10 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     };
 
   } catch (error) {
-    handleApiError(error, 'auth.login', {
-      type: ErrorType.AUTH,
-      silent: false
-    });
     return {
-      status: error.response?.status || 500,
       success: false,
-      error: error.message || t('errors.connectionError'),
+      status: error.response?.status || 500,
+      error: 'LOGIN_FAILED'
     };
   }
 };
@@ -249,13 +245,9 @@ export const checkRefreshToken = async (contractNumber, accountApiKey, refreshTo
       data: response.data?.cmd?.[0]?.accounts?.token?.refresh?.data
     };
   } catch (error) {
-    handleApiError(error, 'auth.checkRefreshToken', {
-      type: ErrorType.AUTH,
-      silent: false
-    });
     return {
       success: false,
-      error: error.message
+      error: 'REFRESH_TOKEN_FAILED'
     };
   }
 };

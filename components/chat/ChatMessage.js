@@ -177,19 +177,17 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                   message.fileType?.toLowerCase().includes('jpg') ||
                   message.fileType?.toLowerCase().includes('png');
 
-      // Calcul de la taille du fichier
+      // We calculate the file size
       let fileSizeInBytes = 0;
 
-      // Si on a une taille stockée valide, on l'utilise
+      // If we have a valid stored size, we use it
       if (message.fileSize && !isNaN(parseInt(message.fileSize, 10))) {
         fileSizeInBytes = parseInt(message.fileSize, 10);
       }
-      // Sinon, si on a un base64, on calcule la taille
+      // Otherwise, if we have a base64, we calculate the size
       else if (message.base64) {
         const base64Length = message.base64.length;
-        // On enlève les caractères de padding (=) à la fin
         const paddingLength = message.base64.endsWith('==') ? 2 : message.base64.endsWith('=') ? 1 : 0;
-        // Calcul plus précis de la taille
         fileSizeInBytes = Math.floor(((base64Length - paddingLength) * 3) / 4);
       }
 

@@ -1,3 +1,5 @@
+import { Logger } from './logger';
+
 // Error types
 export const ErrorType = {
   API: 'api',
@@ -25,8 +27,8 @@ export const ErrorSeverity = {
 export const handleError = (error, source, options = {}) => {
   const {
     type = ErrorType.SYSTEM,
-    callback = null,
-    silent = false
+    showAlert = false,
+    setAlertMessage = null
   } = options;
 
   // Format the error
@@ -38,9 +40,12 @@ export const handleError = (error, source, options = {}) => {
     originalError: error
   };
 
-  // Call the callback if provided
-  if (callback) {
-    callback(formattedError);
+  // If there is an alert, we use the alert message
+  // If there is no alert, we use the error message
+  if (showAlert && setAlertMessage) {
+    setAlertMessage(formattedError.message);
+  } else {
+    Logger.error(source, formattedError.message, error);
   }
 
   return formattedError;
@@ -55,18 +60,14 @@ export const handleError = (error, source, options = {}) => {
  */
 export const handleApiError = (error, endpoint, options = {}) => {
   const apiError = {
-    ...error,
+    message: error.message || 'API Error',
     endpoint,
     status: error.response?.status,
     statusText: error.response?.statusText,
     data: error.response?.data
   };
 
-  return handleError(
-    apiError,
-    `api.${endpoint}`,
-    options
-  );
+  return handleError(apiError, `api.${endpoint}`, options);
 };
 
 /**
