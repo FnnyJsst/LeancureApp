@@ -304,7 +304,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                           pdf.getPage(1).then(function(page) {
                             const canvas = document.createElement('canvas');
                             const context = canvas.getContext('2d');
-                            const viewport = page.getViewport({scale: 0.62});
+                            const viewport = page.getViewport({scale: 0.55});
 
                             canvas.width = viewport.width;
                             canvas.height = viewport.height;

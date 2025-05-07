@@ -551,10 +551,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // We get the user credentials
       const userCredentials = credentials;
-
       // We create a timestamp for the message
       const sendTimestamp = Date.now();
-
       // We check if the message is an edit of an existing message
       const isEditing = messageData.isEditing === true && messageData.messageId;
 
@@ -909,11 +907,3 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
-
-function getBase64FileSize(base64String) {
-  if (!base64String) return 0;
-  // Enlève le préfixe data:...;base64, s'il existe
-  const cleaned = base64String.split(',').pop();
-  // 1 caractère base64 = 0.75 octet
-  return Math.ceil(cleaned.length * 0.75);
-}
