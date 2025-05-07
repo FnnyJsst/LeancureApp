@@ -17,7 +17,6 @@ import { formatFileSize } from '../../utils/fileUtils';
  */
 const  FilePreview = ({ file, onRemove }) => {
 
-  // Device type hook
   const { isSmartphone, isLowResTablet } = useDeviceType();
 
   return (

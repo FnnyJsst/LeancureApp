@@ -55,7 +55,7 @@ export default function SettingsWebviews({
   testID,
 }) {
   const { t } = useTranslation();
-  const { isSmartphone, isLandscape, isSmartphonePortrait } = useDeviceType();
+  const { isSmartphone, isLandscape, isSmartphonePortrait, isSmartphoneLandscape } = useDeviceType();
 
   // Tooltip actif
   const [activeTooltip, setActiveTooltip] = useState(null);
@@ -242,7 +242,7 @@ export default function SettingsWebviews({
   return (
     <View testID={testID}>
       <ScrollView showsVerticalScrollIndicator={true}>
-        <View style={styles.customHeaderContainer}>
+        <View style={[styles.customHeaderContainer, isSmartphoneLandscape && styles.customHeaderContainerSmartphoneLandscape]}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={handleBackPress}
@@ -521,6 +521,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 15,
+  },
+  customHeaderContainerSmartphoneLandscape: {
+    paddingVertical: 0,
   },
   backButton: {
     marginRight: 15,

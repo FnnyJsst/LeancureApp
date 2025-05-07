@@ -21,7 +21,6 @@ import { formatFileSize } from '../../../utils/fileUtils';
 /**
  * @component DocumentPreviewModal
  * @description A component that renders a document preview in the chat
- * @param {Object} props - The properties of the component
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {string} props.fileName - The name of the file
@@ -31,7 +30,6 @@ import { formatFileSize } from '../../../utils/fileUtils';
  */
 export default function DocumentPreviewModal({ visible, onClose, fileName, fileSize, fileType, base64: initialBase64, messageId, channelId }) {
 
-  // We get the device type and translation
   const { isSmartphone, isLandscape, isLowResTabletPortrait, isLowResTabletLandscape, isLowResTablet } = useDeviceType();
   const { t } = useTranslation();
 
@@ -155,10 +153,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
     }
   };
 
-  /**
-   * @function useEffect
-   * @description Load and parse the CSV when the modal opens
-   */
+  // We parse the CSV when the modal opens
   useEffect(() => {
     if (visible && fileType?.toLowerCase().includes('csv') && initialBase64) {
       const { headers, rows } = parseCSV(initialBase64);

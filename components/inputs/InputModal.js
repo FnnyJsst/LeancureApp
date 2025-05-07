@@ -23,10 +23,7 @@ export default function InputModal({
   icon,
 }) {
 
-  // We create a hook to determine the device type
   const { isSmartphone } = useDeviceType();
-
-  // We create a state to store if the input is focused
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
