@@ -338,6 +338,7 @@ export default {
     imageLoad: "Erreur lors de l'affichage de l'image",
     renderPreview: "Erreur lors de l'aperçu du document",
     parseCSV: "Erreur lors de la lecture du CSV",
+    unknownError: "Une erreur est survenue",
   },
 
   tooltips: {

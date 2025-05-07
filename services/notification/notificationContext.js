@@ -5,7 +5,6 @@ import i18n from '../../i18n';
 
 // We create a context for notification data, to share the data between the components
 export const NotificationContext = createContext();
-
 // Initialize a global variable to store the ID of the currently viewed channel
 let currentlyViewedChannelId = null;
 
@@ -92,14 +91,11 @@ export const NotificationProvider = ({ children }) => {
       const updatedUnreadChannels = { ...unreadChannels };
       delete updatedUnreadChannels[channelId];
       setUnreadChannels(updatedUnreadChannels);
-
-      // Save unread channels state
       saveUnreadChannels(updatedUnreadChannels);
     }
 
     // Store the channel name if available
     if (channelId && channelTitle) {
-      console.log('[NotificationContext] Mise à jour de viewedChannelName:', channelTitle);
       SecureStore.setItemAsync('viewedChannelName', channelTitle)
         .then(() => {
           console.log('[NotificationContext] viewedChannelName stocké avec succès:', channelTitle);

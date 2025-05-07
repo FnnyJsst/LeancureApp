@@ -30,7 +30,7 @@ const useHandledError = (setError, t) => (error, source, options = {}) => {
   // Determine the user message to display
   // We can pass a custom translation key via options.userMessageKey
   const userMessageKey = options.userMessageKey || `errors.${source.split('.').pop()}`;
-  setError(t(userMessageKey) || t('errors.errorLoadingFile'));
+  setError(t(userMessageKey) || t('errors.unknownError'));
 };
 
 /**

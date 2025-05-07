@@ -31,19 +31,6 @@ export const useDeviceType = () => {
       diagonalInches < maxDiagonalInches
     );
 
-    // console.log('[DeviceType] Vérification tablette basse résolution:', {
-    //   width,
-    //   height,
-    //   pixelDensity,
-    //   diagonalInches,
-    //   isLowResTablet: result,
-    //   conditions: {
-    //     minWidth: Math.min(width, height) >= minWidth,
-    //     minHeight: Math.max(width, height) >= minHeight,
-    //     pixelDensity: pixelDensity <= maxPixelDensity,
-    //     diagonal: diagonalInches >= minDiagonalInches && diagonalInches < maxDiagonalInches
-    //   }
-    // });
 
     return result;
   })();
@@ -62,20 +49,6 @@ export const useDeviceType = () => {
       Math.min(width, height) >= 500
     );
 
-    // console.log('[DeviceType] Vérification tablette normale:', {
-    //   width,
-    //   height,
-    //   pixelDensity,
-    //   diagonalInches,
-    //   aspectRatio,
-    //   isTablet: result,
-    //   conditions: {
-    //     notLowRes: !isLowResTablet,
-    //     diagonal: diagonalInches >= minimumTabletDiagonal,
-    //     aspectRatio: aspectRatio <= 2.0,
-    //     minWidth: Math.min(width, height) >= 500
-    //   }
-    // });
 
     return result;
   })();

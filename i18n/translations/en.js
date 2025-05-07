@@ -335,6 +335,7 @@ export default {
     imageLoad: "Error loading image",
     renderPreview: "Error rendering preview",
     parseCSV: "Error parsing CSV file",
+    unknownError: "An error occurred",
   },
 
   tooltips: {

@@ -24,7 +24,6 @@ export default function InputLogin({
 }) {
 
     const { isSmartphone } = useDeviceType();
-
     const [showPassword, setShowPassword] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
 

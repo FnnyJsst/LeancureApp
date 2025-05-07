@@ -20,9 +20,7 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
-  // Customized hook to determine the device type and orientation
-  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape, isLowResTablet } = useDeviceType();
-  // Translations
+  const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
   const { t } = useTranslation();
 
   /**
@@ -31,19 +29,18 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
    * @param {boolean} response - The response to the question
    */
   const handleResponse = (response) => {
-    // Appliquer le changement
+
     onToggleHideMessages(response);
 
-    if (!response) { // Seulement si on affiche les messages (response = false)
+    if (!response) {
       setAlertMessage(t('success.messagesShown'));
       setShowSuccessAlert(true);
     } else {
-      // Si on masque les messages, on ferme directement la modale
       onClose();
     }
   };
 
-  // Fonction pour gérer la fermeture de l'alerte
+  // Function to handle the alert confirmation
   const handleAlertConfirm = () => {
     setShowSuccessAlert(false);
     onClose();

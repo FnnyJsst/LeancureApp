@@ -11,7 +11,6 @@ import PasswordDefineModal from './components/modals/webviews/PasswordDefineModa
 import PasswordCheckModal from './components/modals/webviews/PasswordCheckModal';
 import AppMenu from './screens/common/AppMenu';
 import ChatScreen from './screens/messages/ChatScreen';
-import SettingsMessage from './components/modals/chat/SettingsMessage';
 import { SCREENS } from './constants/screens';
 import { COLORS } from './constants/style';
 import { useNavigation } from './hooks/useNavigation';
@@ -632,17 +631,6 @@ export default function App({ testID, initialScreen }) {
             handleChatLogout={handleChatLogout}
             globalMessages={globalMessages}
             testID="chat-container"
-          />
-        );
-
-      case SCREENS.SETTINGS_MESSAGE:
-        return (
-          <SettingsMessage
-            onNavigate={navigate}
-            isExpanded={isExpanded}
-            setIsExpanded={setIsExpanded}
-            handleChatLogout={handleChatLogout}
-            onSelectOption={handleTimeoutSelection}
           />
         );
 

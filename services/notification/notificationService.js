@@ -13,12 +13,6 @@ import * as SecureStore from 'expo-secure-store';
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
     try {
-      console.log('🔔 [NotificationService] Réception d\'une notification:', {
-        title: notification.request.content.title,
-        body: notification.request.content.body,
-        data: notification.request.content.data
-      });
-
       // We check if the user is connected
       const savedCredentials = await SecureStore.getItemAsync('userCredentials');
       // If the user is not connected, we don't display the notification
@@ -80,11 +74,7 @@ Notifications.setNotificationHandler({
                   if (typeof global !== 'undefined' && global.unreadMessageEmitter) {
                     global.unreadMessageEmitter.emit(channel.id);
                   }
-                } else {
-                  console.log('❌ [NotificationService] Canal non trouvé dans la liste des canaux');
                 }
-              } else {
-                console.log('❌ [NotificationService] Liste des canaux non disponible');
               }
             }
           }
@@ -129,7 +119,6 @@ export const registerForPushNotificationsAsync = async () => {
 
     // If the permission is not granted, we return null
     if (finalStatus !== 'granted') {
-      console.log(i18n.t('notification.permissionDenied'));
       return null;
     }
 
@@ -210,7 +199,6 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
         if (cleanNotifChannelId === cleanViewedChannelId) {
           return false;
         }
-
         // We emit the unread message event
         emitUnreadMessage(cleanNotifChannelId);
       }
@@ -320,13 +308,6 @@ export const synchronizeTokenWithAPI = async (token) => {
       }
     }, contractNumber, accessToken);
 
-    console.log('📤 [NotificationService] Envoi de la requête de synchronisation:', {
-      contractNumber,
-      accountApiKey,
-      token,
-      deviceId: await getDeviceId()
-    });
-
     // We send the request
     const response = await axios({
       method: 'POST',
@@ -338,8 +319,7 @@ export const synchronizeTokenWithAPI = async (token) => {
       timeout: 10000,
     });
 
-    const success = response.status === 200;
-    console.log(success ? '✅ [NotificationService] Synchronisation réussie' : '❌ [NotificationService] Synchronisation échouée');
+    const success = response.status === 200 && response.data?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok';
     return success;
   } catch (error) {
     console.error('❌ [NotificationService] Erreur lors de la synchronisation:', error);
@@ -378,7 +358,6 @@ export const removeNotificationToken = async () => {
     // We get the credentials
     const credentials = await SecureStore.getItemAsync('userCredentials');
     if (!credentials) {
-      console.log('❌ [NotificationService] Pas de credentials trouvés');
       return false;
     }
 
@@ -408,7 +387,7 @@ export const removeNotificationToken = async () => {
         projectId: ENV.EXPO_PROJECT_ID,
       });
       currentToken = tokenData.data;
-      console.log('✅ [NotificationService] Token récupéré:', currentToken);
+      console.log('Token récupéré pour suppression :', currentToken);
     } catch (error) {
       console.error('❌ [NotificationService] Erreur lors de la récupération du token:', error);
       return false;
@@ -443,22 +422,19 @@ export const removeNotificationToken = async () => {
       timeout: 10000,
     });
 
-    // Check the detailed response
-    const responseData = response.data;
-    // We delete the stored token if it exists
-    if (currentToken) {
-      const possibleTokenKeys = ['expoPushToken', 'pushToken', 'notificationToken'];
-      for (const key of possibleTokenKeys) {
-        try {
-          await SecureStore.deleteItemAsync(key);
-          console.log(`✅ [NotificationService] Token supprimé de la clé ${key}`);
-        } catch (error) {
-          console.log(`⚠️ [NotificationService] Pas de token trouvé pour la clé ${key}`);
-        }
+    // Local deletion
+    const possibleTokenKeys = ['expoPushToken', 'pushToken', 'notificationToken'];
+    for (const key of possibleTokenKeys) {
+      try {
+        await SecureStore.deleteItemAsync(key);
+        const stillThere = await SecureStore.getItemAsync(key);
+        console.log(`✅ [NotificationService] Token supprimé de la clé ${key}, encore présent ?`, !!stillThere);
+      } catch (error) {
+        console.log(`⚠️ [NotificationService] Pas de token trouvé pour la clé ${key}`);
       }
     }
 
-    const success = response.status === 200 && responseData?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok';
+    const success = response.status === 200 && response.data?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok';
     console.log(success ? '✅ [NotificationService] Suppression réussie' : '❌ [NotificationService] Suppression échouée');
     return success;
   } catch (error) {
@@ -476,12 +452,10 @@ const checkConnectionStatus = async () => {
   try {
     const credentials = await SecureStore.getItemAsync('userCredentials');
     if (!credentials) {
-      console.log('[checkConnectionStatus] Pas de credentials trouvés dans SecureStore');
       return false;
     }
     const { accessToken, contractNumber, accountApiKey } = JSON.parse(credentials);
     if (!accessToken || !contractNumber || !accountApiKey) {
-      console.log('[checkConnectionStatus] Credentials incomplets:', { accessToken, contractNumber, accountApiKey });
       return false;
     }
     // Ici, on ne contacte plus le serveur

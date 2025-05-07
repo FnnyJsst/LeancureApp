@@ -4,7 +4,6 @@ import { createApiRequest, createSignature } from './baseApi';
 import i18n from '../../i18n';
 import { handleError, ErrorType } from '../../utils/errorHandling';
 
-// Ajouter la fonction de traduction
 const t = (key) => i18n.t(key);
 
 /**
@@ -61,7 +60,6 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
     const data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data;
 
     if (!data?.private?.groups) {
-      // If the data is not valid, we throw an error
       return { status: 'error', message: t('errors.noGroupsFound') };
     }
 
@@ -113,8 +111,6 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
 
     // We check if the message content is a file
     const isFile = typeof messageContent === 'object' && messageContent.type === 'file';
-
-    // We get the message title
     const messageTitle = isFile ?
       messageContent.fileName :
       (typeof messageContent.message === 'string' ? messageContent.message.substring(0, 50) : 'Message');
@@ -158,7 +154,6 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       timeout: 30000,
     });
 
-    // Vérifier si l'opération a réussi
     const isSuccess = response.data?.cmd?.[0]?.amaiia_msg_srv?.message?.add?.status === 'ok';
 
     if (!isSuccess) {
@@ -166,7 +161,6 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       throw new Error(t('error.messageNotSaved'));
     }
 
-    // Utiliser le timestamp comme ID temporaire
     const messageData = {
       status: 'ok',
       id: timestamp.toString(),
@@ -191,27 +185,26 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       },
     };
 
-    console.log('Message data:', messageData);
     return messageData;
   } catch (error) {
-    // Si l'erreur est déjà un objet Error, on le renvoie
+    // If the error is already an Error object, we return it
     if (error instanceof Error) {
       throw error;
     }
 
-    // Si l'erreur est une chaîne, on crée un nouvel objet Error
+    // If the error is a string, we create a new Error object
     if (typeof error === 'string') {
       throw new Error(error);
     }
 
-    // Si l'erreur est un objet, on essaie d'extraire le message
+    // If the error is an object, we try to extract the message
     if (typeof error === 'object' && error !== null) {
       const errorMessage = error.message || error.error || JSON.stringify(error);
       throw new Error(errorMessage);
     }
 
-    // Si on ne peut pas déterminer le type d'erreur, on crée une erreur par défaut
-    throw new Error('Une erreur inattendue est survenue lors de l\'envoi du message');
+    // If we cannot determine the type of error, we create a default error
+    throw new Error(t('error.unexpectedError'));
   }
 };
 
@@ -288,11 +281,9 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
 
     // If the response is valid, we get the messages
     if (response.status === 200) {
-      // We get the data of the response
       const data = response.data?.cmd?.[0]?.amaiia_msg_srv?.client?.get_account_links?.data;
       let channelMessages = [];
       if (data?.private?.groups) {
-        // We loop through the groups
         for (const group of Object.values(data.private.groups)) {
           // We check if the group has channels and loop through them
           if (group.channels) {
@@ -305,7 +296,6 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
                     const isOwnMessage = msg.accountapikey === userCredentials.accountApiKey;
                     // We check if the message has a file
                     const hasFile = msg.filename && msg.filetype && msg.filetype !== 'none';
-
                     // We get the low quality version of the image
                     let base64 = null;
                     if (hasFile) {

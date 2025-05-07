@@ -14,7 +14,7 @@ import { useCredentials } from '../hooks/useCredentials';
  * @returns {Object} - Methods to interact with the WebSocket
  */
 export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
-    // We get the translation function
+
     const { t } = useTranslation();
 
     // Access to the notification context to handle unread channels
@@ -54,18 +54,15 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
      * @description Cleanup the WebSocket connection
      */
     const cleanup = useCallback(() => {
-        // Éviter les nettoyages multiples
+
         if (isClosingRef.current) {
-            console.log('⚠️ Nettoyage déjà en cours, ignoré');
             return;
         }
 
-        console.log('🧹 Nettoyage de la connexion WebSocket');
         isClosingRef.current = true;
 
         if (ws.current) {
             try {
-                console.log('🔌 Fermeture de la connexion WebSocket');
                 ws.current.close();
             } catch (error) {
                 console.error('❌ Erreur lors de la fermeture de la connexion:', error);
@@ -74,13 +71,11 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         }
 
         if (reconnectTimeout.current) {
-            console.log('⏱️ Nettoyage du timeout de reconnexion');
             clearTimeout(reconnectTimeout.current);
             reconnectTimeout.current = null;
         }
 
         if (connectionTimeout.current) {
-            console.log('⏱️ Nettoyage du timeout de connexion');
             clearTimeout(connectionTimeout.current);
             connectionTimeout.current = null;
         }
@@ -90,7 +85,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         setIsConnected(false);
         activeChannel.current = null;
         reconnectAttempts.current = 0;
-        console.log('✅ Nettoyage terminé');
     }, []);
 
     /**
@@ -157,7 +151,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
                 // If the message is not own and the channel id is not the active channel id, we mark the channel as unread
                 if (!isOwnMessage && channelId && channelId !== activeChannelId) {
-                    console.log('🔔 Marquage du canal comme non lu:', channelId);
                     markChannelAsUnread(channelId);
                 }
             }
@@ -178,7 +171,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 }
 
                 if (hasNewMessages && channelId && channelId !== activeChannelId) {
-                    console.log('🔔 Marquage du canal comme non lu (nouveaux messages):', channelId);
                     markChannelAsUnread(channelId);
                 }
             }
@@ -190,31 +182,22 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
     // Connect to the WebSocket server
     const connect = useCallback(async () => {
         if (isConnectingRef.current || isClosingRef.current || reconnectAttempts.current >= MAX_RECONNECT_ATTEMPTS) {
-            console.log('⚠️ Tentative de connexion ignorée:', {
-                isConnecting: isConnectingRef.current,
-                isClosing: isClosingRef.current,
-                reconnectAttempts: reconnectAttempts.current
-            });
             return;
         }
 
         if (ws.current) {
-            console.log('🔄 Nettoyage de la connexion existante avant nouvelle connexion');
             cleanup();
         }
 
         try {
             isConnectingRef.current = true;
             const wsUrl = await ENV.WS_URL();
-            console.log('🌐 Tentative de connexion à:', wsUrl);
 
             connectionTimeout.current = setTimeout(() => {
                 if (ws.current && ws.current.readyState !== WebSocket.OPEN) {
-                    console.log('⏰ Timeout de connexion WebSocket');
                     cleanup();
                     reconnectAttempts.current++;
                     if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
-                        console.log(`🔄 Tentative de reconnexion ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS}`);
                         reconnectTimeout.current = setTimeout(() => {
                             connect();
                         }, RECONNECT_DELAY);
@@ -226,7 +209,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
             ws.current.onopen = () => {
                 if (!ws.current) return;
-                console.log('🟢 WebSocket connecté avec succès. État:', ws.current.readyState);
                 if (connectionTimeout.current) {
                     clearTimeout(connectionTimeout.current);
                 }
@@ -238,17 +220,14 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
             ws.current.onclose = (event) => {
                 if (isClosingRef.current) {
-                    console.log('🔌 Fermeture intentionnelle de la connexion');
                     return;
                 }
-                console.log('🔌 WebSocket fermé. Code:', event.code, 'Raison:', event.reason);
                 cleanup();
                 clearInterval(pingInterval);
 
                 if (event.code !== 1000) {
                     reconnectAttempts.current++;
                     if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
-                        console.log(`🔄 Tentative de reconnexion ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS}`);
                         reconnectTimeout.current = setTimeout(() => {
                             connect();
                         }, RECONNECT_DELAY);
@@ -266,7 +245,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                     cleanup();
                     reconnectAttempts.current++;
                     if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
-                        console.log(`🔄 Tentative de reconnexion ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS}`);
                         reconnectTimeout.current = setTimeout(() => {
                             connect();
                         }, RECONNECT_DELAY);
@@ -291,11 +269,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                             handleNotificationMessage(data);
                         } else if (data.type === 'notification') {
                             handleNotificationMessage(data);
-                        } else {
-                            console.log('⚠️ Format de message non reconnu:', data);
                         }
-                    } else {
-                        console.log('⚠️ Message reçu non valide:', data);
                     }
                 } catch (error) {
                     console.error('❌ Erreur lors du traitement du message:', error);
@@ -324,7 +298,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             cleanup();
             reconnectAttempts.current++;
             if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
-                console.log(`🔄 Tentative de reconnexion ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS}`);
                 reconnectTimeout.current = setTimeout(() => {
                     connect();
                 }, RECONNECT_DELAY);
@@ -332,15 +305,13 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         }
     }, [onMessage, sendSubscription, cleanup]);
 
-    // Nettoyage lors du démontage du composant
+    // Cleanup when the component is unmounted
     useEffect(() => {
-        console.log('🔄 Initialisation du hook useWebSocket');
         let isMounted = true;
         let cleanupCalled = false;
 
         return () => {
             if (!isMounted || cleanupCalled) return;
-            console.log('🧹 Démontage du hook useWebSocket');
             isMounted = false;
             cleanupCalled = true;
 
@@ -367,12 +338,9 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         if (cleanCurrentChannel !== cleanActiveChannel) {
             activeChannel.current = currentChannel;
 
-            // Si nous avons une connexion active, on met juste à jour l'abonnement
             if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-                console.log('🔄 Mise à jour de l\'abonnement pour le canal:', cleanCurrentChannel);
                 sendSubscription();
             } else if (!isConnectingRef.current && !isClosingRef.current) {
-                // Sinon on établit une nouvelle connexion
                 if (reconnectTimeout.current) {
                     clearTimeout(reconnectTimeout.current);
                 }
@@ -385,7 +353,8 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
     }, [channels, connect, cleanup, sendSubscription]);
 
     /**
-     * @description Refresh the messages when the channel is changed
+     *@function refreshMessages
+     *@description Refresh the messages when the channel is changed
      */
     const refreshMessages = useCallback(async () => {
         if (!channels.length || !credentials) {
@@ -395,7 +364,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         try {
 
             const cleanChannelId = activeChannel.current?.replace('channel_', '');
-
             const messages = await fetchChannelMessages(cleanChannelId, credentials);
 
             if (onMessage && Array.isArray(messages)) {
@@ -478,22 +446,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             return false;
         }
     };
-
-    // Gestion des erreurs de connexion
-    const handleConnectionError = useCallback((error, source) => {
-        console.error(`❌ Erreur de connexion (${source}):`, error);
-        handleWSError(error, source);
-        cleanup();
-        reconnectAttempts.current++;
-        if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
-            console.log(`🔄 Tentative de reconnexion ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS}`);
-            reconnectTimeout.current = setTimeout(() => {
-                connect();
-            }, RECONNECT_DELAY);
-        } else {
-            console.error('❌ Nombre maximum de tentatives de reconnexion atteint');
-        }
-    }, [connect, cleanup]);
 
     return {
         sendMessage,

@@ -62,7 +62,7 @@ const  FilePreview = ({ file, onRemove }) => {
 const useHandledError = (setError, t) => (error, source, options = {}) => {
   handleError(error, source, options);
   const userMessageKey = options.userMessageKey || `errors.${source.split('.').pop()}`;
-  setError(t(userMessageKey) || t('errors.errorLoadingFile'));
+  setError(t(userMessageKey) || t('errors.unknownError'));
 };
 
 /**
