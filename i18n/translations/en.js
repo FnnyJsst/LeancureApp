@@ -329,7 +329,12 @@ export default {
     messageIdMissing: "Message ID is missing",
     dataTooLargeForSecureStore: "Data is too large for SecureStore, some information will be truncated",
     editFailed: "Failed to edit message",
-    noDeletePermission: "You don't have permission to delete this message"
+    noDeletePermission: "You don't have permission to delete this message",
+    loadHighQualityImage: "Error loading high quality image",
+    handleDownload: "Error downloading file",
+    imageLoad: "Error loading image",
+    renderPreview: "Error rendering preview",
+    parseCSV: "Error parsing CSV file",
   },
 
   tooltips: {

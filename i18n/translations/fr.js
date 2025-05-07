@@ -332,7 +332,12 @@ export default {
     dataTooLargeForSecureStore: "Les données sont trop grandes pour SecureStore, certaines informations seront tronquées",
     wrongUrlFormat: "Format d'URL invalide, cliquez sur le bouton d'aide pour plus d'informations",
     editFailed: "Échec de la modification du message",
-    noDeletePermission: "Vous n'avez pas la permission de supprimer ce message"
+    noDeletePermission: "Vous n'avez pas la permission de supprimer ce message",
+    loadHighQualityImage: "Erreur lors du chargement de l'image HD",
+    handleDownload: "Erreur lors du téléchargement",
+    imageLoad: "Erreur lors de l'affichage de l'image",
+    renderPreview: "Erreur lors de l'aperçu du document",
+    parseCSV: "Erreur lors de la lecture du CSV",
   },
 
   tooltips: {

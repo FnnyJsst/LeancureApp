@@ -17,6 +17,21 @@ import { useCredentials } from '../../../hooks/useCredentials';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { formatFileSize } from '../../../utils/fileUtils';
 
+/**
+ * @description A wrapper for handleError that also handles the user display
+ * @param {Function} setError - setter React for the local error state
+ * @param {Function} t - i18n translation function
+ * @returns {Function}
+ */
+const useHandledError = (setError, t) => (error, source, options = {}) => {
+  // Call the global handler (log, callback, etc.)
+  handleError(error, source, options);
+
+  // Determine the user message to display
+  // We can pass a custom translation key via options.userMessageKey
+  const userMessageKey = options.userMessageKey || `errors.${source.split('.').pop()}`;
+  setError(t(userMessageKey) || t('errors.errorLoadingFile'));
+};
 
 /**
  * @component DocumentPreviewModal
@@ -44,6 +59,8 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
   const [rowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [isRotating, setIsRotating] = useState(false);
+
+  const handleDocumentError = useHandledError(setError, t);
 
   useLayoutEffect(() => {
     setIsRotating(true);
@@ -76,11 +93,10 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
           setHighQualityBase64(highQualityData);
         }
       } catch (err) {
-        handleError(err, 'documentPreview.loadHighQualityImage', {
+        handleDocumentError(err, 'documentPreview.loadHighQualityImage', {
           type: ErrorType.SYSTEM,
           silent: false
         });
-        setError(t('errors.errorLoadingFile'));
       } finally {
         setIsLoading(false);
       }
@@ -179,11 +195,10 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       //We share the file
       await Sharing.shareAsync(fileUri);
     } catch (downloadFileError) {
-      handleError(downloadFileError, 'documentPreview.handleDownload', {
+      handleDocumentError(downloadFileError, 'documentPreview.handleDownload', {
         type: ErrorType.SYSTEM,
         silent: false
       });
-      setError(t('errors.errorLoadingFile'));
     }
   };
 
@@ -338,11 +353,10 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
               style={styles.image}
               resizeMode="contain"
               onError={(error) => {
-                handleError(error, 'documentPreview.imageLoad', {
+                handleDocumentError(error, 'documentPreview.imageLoad', {
                   type: ErrorType.SYSTEM,
                   silent: false
                 });
-                setError(t('errors.errorLoadingFile'));
               }}
             />
             {isLoading && (
@@ -357,11 +371,10 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         );
       }
     } catch (err) {
-      handleError(err, 'documentPreview.renderPreview', {
+      handleDocumentError(err, 'documentPreview.renderPreview', {
         type: ErrorType.SYSTEM,
         silent: false
       });
-      setError(t('errors.errorLoadingFile'));
       return null;
     }
   };

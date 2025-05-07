@@ -54,6 +54,18 @@ const  FilePreview = ({ file, onRemove }) => {
 };
 
 /**
+ * Wrapper pour handleError qui gère aussi l'affichage utilisateur
+ * @param {Function} setError - setter React pour l'état d'erreur locale
+ * @param {Function} t - fonction de traduction i18n
+ * @returns {Function}
+ */
+const useHandledError = (setError, t) => (error, source, options = {}) => {
+  handleError(error, source, options);
+  const userMessageKey = options.userMessageKey || `errors.${source.split('.').pop()}`;
+  setError(t(userMessageKey) || t('errors.errorLoadingFile'));
+};
+
+/**
  * @component InputChatWindow
  * @description A component that renders the input of the chat
  * @param {Object} props.onSendMessage - The function to call when the message is sent
@@ -67,8 +79,9 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
   const { isSmartphone } = useDeviceType();
   const [isFocused, setIsFocused] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-
   const { t } = useTranslation();
+  const [error, setError] = useState(null);
+  const handleInputError = useHandledError(setError, t);
 
   /**
    * @function pickDocument
@@ -101,7 +114,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
         ];
 
         if (!allowedTypes.includes(file.mimeType)) {
-          alert(t('errors.fileTypeNotAllowed'));
+          setError(t('errors.fileTypeNotAllowed'));
           return;
         }
 
@@ -128,7 +141,10 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
         });
       }
     } catch (pickDocumentError) {
-      alert(t('errors.filePickError'));
+      if (pickDocumentError?.code === 'DOCUMENT_PICKER_CANCELED') return;
+      handleInputError(pickDocumentError, 'inputChatWindow.pickDocument', {
+        userMessageKey: 'errors.filePickError'
+      });
     }
   };
 
@@ -294,6 +310,9 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
           />
         </TouchableOpacity>
       </View>
+      {error && (
+        <Text style={{ color: COLORS.red, marginBottom: 5, textAlign: 'center' }}>{error}</Text>
+      )}
     </>
   );
 }
