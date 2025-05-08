@@ -11,7 +11,7 @@ import HideMessagesModal from '../../components/modals/common/HideMessagesModal'
 import ChangeServerAddressModal from '../../components/modals/common/ChangeServerAddressModal';
 import TooltipModal from '../../components/modals/webviews/TooltipModal';
 import { useTranslation } from 'react-i18next';
-import { handleError } from '../../utils/errorHandling';
+import CustomAlert from '../../components/modals/webviews/CustomAlert';
 
 /**
  * @component CommonSettings
@@ -30,6 +30,8 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
     const [changeServerAddressModalVisible, setChangeServerAddressModalVisible] = useState(false);
     const [tooltipVisible, setTooltipVisible] = useState(false);
     const [activeTooltip, setActiveTooltip] = useState(null);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
     /**
      * @function handleToggleHideMessages
@@ -41,10 +43,8 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
             setHideMessagesModalVisible(false);
             await onHideMessages(value);
         } catch (error) {
-            handleError(error, t('error.errorChangingHideMessagesParameter'), {
-                type: ErrorType.SYSTEM,
-                silent: false
-            });
+            setAlertMessage(t('error.errorChangingHideMessagesParameter'));
+            setShowAlert(true);
         }
     };
 
@@ -155,6 +155,13 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
                 visible={tooltipVisible}
                 onClose={() => setTooltipVisible(false)}
                 message={activeTooltip ? t(`tooltips.${activeTooltip}.message`) : ''}
+            />
+            <CustomAlert
+                visible={showAlert}
+                message={alertMessage}
+                onClose={() => setShowAlert(false)}
+                onConfirm={() => setShowAlert(false)}
+                type="error"
             />
         </>
     );

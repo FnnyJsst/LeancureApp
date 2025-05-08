@@ -11,9 +11,10 @@ import { useWebSocket } from '../../hooks/useWebSocket';
 import DateBanner from './DateBanner';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
-import { handleError, ErrorType, ChatErrorCodes } from '../../utils/errorHandling';
 import { playNotificationSound } from '../../services/notification/notificationService';
 import { useNotification } from '../../services/notification/notificationContext';
+import CustomAlert from '../modals/webviews/CustomAlert';
+
 
 /**
  * @component ChatWindow
@@ -55,6 +56,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [isLoading, setIsLoading] = useState(true);
   const [editingMessage, setEditingMessage] = useState(null);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
 
   useEffect(() => {
@@ -113,7 +116,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     hasUpdates = true;
                   }
                 } catch (fileError) {
-                  handleChatError(fileError, 'message.file');
+                  console.error('[ChatWindow] Error while loading the file:', fileError);
                 }
               })
             );
@@ -159,32 +162,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       }
     }
   }, [channel?.id, channelMessages]);
-
-  /**
-   * @function handleChatError
-   * @description Handle chat-related errors
-   * @param {Error|string} error - The error to handle
-   * @param {string} source - The source of the error
-   */
-  const handleChatError = (error, source) => {
-    // Déterminer le code d'erreur approprié
-    let errorCode = ChatErrorCodes.SYSTEM;
-    if (error.message?.includes('channel')) {
-      errorCode = ChatErrorCodes.NO_CHANNEL;
-    } else if (error.message?.includes('credentials')) {
-      errorCode = ChatErrorCodes.NO_CREDENTIALS;
-    } else if (error.message?.includes('permission')) {
-      errorCode = ChatErrorCodes.PERMISSION_DENIED;
-    }
-
-    return handleError({
-      code: errorCode,
-      message: error.message || error
-    }, source, {
-      type: ErrorType.CHAT,
-      showAlert: true
-    });
-  };
 
   /**
    * @function formatMessage
@@ -303,7 +280,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         const currentChannelId = channel?.id?.toString();
 
         if (!currentChannelId) {
-          throw new Error(t('errors.noCurrentChannel'));
+          console.error('[ChatWindow] No current channel');
+          return;
         }
 
         // We clean the received and current channel IDs
@@ -311,14 +289,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         const cleanCurrentChannelId = currentChannelId?.toString()?.replace('channel_', '');
 
         if (cleanReceivedChannelId !== cleanCurrentChannelId) {
-          throw new Error(t('errors.channelMismatch'));
+          console.error('[ChatWindow] Channel mismatch');
+          return;
         }
 
         // We extract the message content
         const messageContent = data.message;
 
         if (!messageContent) {
-          throw new Error(t('errors.noMessageContent'));
+          setAlertMessage(t('errors.noMessageContent'));
+          setShowAlert(true);
+          return;
         }
 
         messageContent.channelId = cleanReceivedChannelId;
@@ -379,7 +360,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         const currentChannelId = channel ? channel.id.toString() : null;
 
         if (!currentChannelId || channelId !== currentChannelId) {
-          throw new Error(t('errors.channelMismatch'));
+          console.error('[ChatWindow] Channel mismatch');
+          return;
         }
 
         const messageContent = data.notification.message;
@@ -414,7 +396,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       }
 
     } catch (error) {
-      handleChatError(error, 'websocket.message');
+      setAlertMessage(t('errors.messageProcessingError'));
+      setShowAlert(true);
     }
   }, [channel, credentials, t, markChannelAsUnread]);
 
@@ -423,7 +406,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @description Handle the WebSocket error
    */
   const handleWebSocketError = useCallback((error) => {
-    handleChatError(error, 'websocket');
+    console.error('[WebSocket] Error:', error);
   }, []);
 
   useEffect(() => {
@@ -451,7 +434,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           setUserRights(rights);
         }
       } catch (error) {
-        handleChatError(error, 'userData.loading');
+        setAlertMessage(t('errors.userDataLoadingError'));
+        setShowAlert(true);
       } finally {
         setIsLoading(false);
       }
@@ -494,25 +478,15 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       recordSentMessage(currentTime);
 
       if (!channel) {
-        return handleError({
-          code: ChatErrorCodes.NO_CHANNEL,
-          message: t('errors.noChannel')
-        }, 'message.send', {
-          type: ErrorType.CHAT,
-          showAlert: true
-        });
+        console.error('[ChatWindow] Aucun canal sélectionné');
+        return;
       }
 
       if (!credentials) {
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         if (!credentialsStr) {
-          return handleError({
-            code: ChatErrorCodes.NO_CREDENTIALS,
-            message: t('errors.noCredentials')
-          }, 'message.send', {
-            type: ErrorType.CHAT,
-            showAlert: true
-          });
+          console.error('[ChatWindow] No credentials found');
+          return;
         }
         const userCredentials = JSON.parse(credentialsStr);
         setCredentials(userCredentials);
@@ -574,17 +548,37 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
               return updatedMessages;
             });
           } else {
-            throw new Error(response.message || t('errors.editFailed'));
+            setAlertMessage(t('errors.editFailed'));
+            setShowAlert(true);
+            return;
           }
 
           return;
         } catch (error) {
-          handleChatError(error, 'editMessage');
+          setAlertMessage(t('errors.editFailed'));
+          setShowAlert(true);
           return;
         }
       }
 
       // For a new message (non-modification), we continue with the existing code
+      // We check the type of message
+      if (messageData.type === 'file') {
+        if (!messageData.base64) {
+          setAlertMessage(t('errors.invalidFile'));
+          setShowAlert(true);
+          return;
+        }
+      } else {
+        const messageText = typeof messageData === 'object' ? messageData.text : messageData;
+        // If the message text is invalid, we throw an error
+        if (!messageText || messageText.trim() === '') {
+          setAlertMessage(t('errors.emptyMessage'));
+          setShowAlert(true);
+          return;
+        }
+      }
+
       // We send the message
       const messageToSend = messageData.type === 'file' ? {
         ...messageData,
@@ -635,22 +629,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           return [...prevMessages, completeMessage];
         });
       } else {
-        return handleError({
-          code: ChatErrorCodes.SEND_FAILED,
-          message: response?.message || t('errors.sendFailed')
-        }, 'message.send', {
-          type: ErrorType.CHAT,
-          showAlert: true
-        });
+        setAlertMessage(t('errors.sendFailed'));
+        setShowAlert(true);
+        return;
       }
     } catch (error) {
-      return handleError({
-        code: ChatErrorCodes.SEND_FAILED,
-        message: error.message || t('errors.sendFailed')
-      }, 'message.send', {
-        type: ErrorType.CHAT,
-        showAlert: true
-      });
+      setAlertMessage(t('errors.sendFailed'));
+      setShowAlert(true);
+      return;
     }
   }, [channel, credentials, t, recordSentMessage]);
 
@@ -666,37 +652,26 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       const isOwnMessage = messageToDelete?.isOwnMessage;
 
       if (!hasDeleteRights && !isOwnMessage) {
-        return handleError({
-          code: ChatErrorCodes.PERMISSION_DENIED,
-          message: t('errors.noDeletePermission')
-        }, 'message.delete', {
-          type: ErrorType.CHAT,
-          showAlert: true
-        });
+        setAlertMessage(t('errors.noDeletePermission'));
+        setShowAlert(true);
+        return;
       }
 
       const response = await deleteMessageApi(messageId, credentials);
 
-      if (response.status !== 'ok') {
-        return handleError({
-          code: ChatErrorCodes.DELETE_FAILED,
-          message: t('errors.messageNotDeleted')
-        }, 'message.delete', {
-          type: ErrorType.CHAT,
-          showAlert: true
-        });
+      if (response.status === 'ok') {
+        const updatedMessages = messages.filter(msg => msg.id !== messageId);
+        setMessages(updatedMessages);
+      } else {
+        setAlertMessage(t('errors.messageNotDeleted'));
+        setShowAlert(true);
       }
 
       const updatedMessages = messages.filter(msg => msg.id !== messageId);
       setMessages(updatedMessages);
     } catch (error) {
-      return handleError({
-        code: ChatErrorCodes.DELETE_FAILED,
-        message: error.message || t('errors.messageNotDeleted')
-      }, 'message.delete', {
-        type: ErrorType.CHAT,
-        showAlert: true
-      });
+      setAlertMessage(t('errors.deleteFailed'));
+      setShowAlert(true);
     }
   };
 
@@ -708,24 +683,15 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const handleEditMessage = async (messageToEdit) => {
     try {
       if (!messageToEdit || !messageToEdit.id) {
-        return handleError({
-          code: ChatErrorCodes.EDIT_FAILED,
-          message: t('errors.invalidMessageEdit')
-        }, 'message.edit', {
-          type: ErrorType.CHAT,
-          showAlert: true
-        });
+        setAlertMessage(t('errors.invalidMessageEdit'));
+        setShowAlert(true);
+        return;
       }
 
       setEditingMessage(messageToEdit);
     } catch (error) {
-      return handleError({
-        code: ChatErrorCodes.EDIT_FAILED,
-        message: error.message || t('errors.editFailed')
-      }, 'message.edit', {
-        type: ErrorType.CHAT,
-        showAlert: true
-      });
+      setAlertMessage(t('errors.editFailed'));
+      setShowAlert(true);
     }
   };
 
@@ -864,6 +830,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           </Text>
         </View>
       )}
+
+      <CustomAlert
+        visible={showAlert}
+        message={alertMessage}
+        onClose={() => setShowAlert(false)}
+        onConfirm={() => setShowAlert(false)}
+        type="error"
+      />
     </View>
   );
 }

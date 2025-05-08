@@ -5,8 +5,6 @@ import '../../config/firebase';
 import axios from 'axios';
 import { createApiRequest } from '../api/baseApi';
 import { getCurrentlyViewedChannel, emitUnreadMessage } from './notificationContext';
-import { handleError, ErrorType, NotificationErrorCodes } from '../../utils/errorHandling';
-import i18n from '../../i18n';
 import * as SecureStore from 'expo-secure-store';
 
 // Handler for notifications to be displayed
@@ -79,9 +77,7 @@ Notifications.setNotificationHandler({
             }
           }
         } catch (error) {
-          handleNotificationError(error, 'channel.check', {
-            code: NotificationErrorCodes.CHANNEL_ERROR
-          });
+          console.error('[Notification] Error checking channel:', error);
         }
       }
 
@@ -92,10 +88,7 @@ Notifications.setNotificationHandler({
         shouldSetBadge: true,
       };
     } catch (error) {
-      handleNotificationError(error, 'handler', {
-        code: NotificationErrorCodes.DISPLAY_ERROR
-      });
-      // In case of error, we display the default notification
+      console.error('[Notification] Error in notification handler:', error);
       return {
         shouldShowAlert: true,
         shouldPlaySound: true,
@@ -123,9 +116,8 @@ export const registerForPushNotificationsAsync = async () => {
 
     // If the permission is not granted, we return null
     if (finalStatus !== 'granted') {
-      return handleNotificationError(new Error(i18n.t('errors.notificationPermissionDenied')), 'permissions', {
-        code: NotificationErrorCodes.PERMISSION_DENIED
-      });
+      console.error('[Notification] Permission denied');
+      return null;
     }
 
     // We configure the Android channel
@@ -147,9 +139,8 @@ export const registerForPushNotificationsAsync = async () => {
 
     return token;
   } catch (error) {
-    return handleNotificationError(error, 'registration', {
-      code: NotificationErrorCodes.REGISTRATION_FAILED
-    });
+    console.error('[Notification] Registration failed:', error);
+    return null;
   }
 };
 
@@ -189,7 +180,6 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
         }
       }
 
-      // Vérification des doublons
       const timestamp = messageData.data?.timestamp || Date.now();
 
       const viewedChannelId = currentChannelId || getCurrentlyViewedChannel();
@@ -237,11 +227,7 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
 
     return true;
   } catch (error) {
-    console.error('❌ [NotificationService] Erreur lors de la vérification des conditions:', error);
-    handleError(error, i18n.t('error.errorCheckingNotificationConditions'), {
-      type: ErrorType.SYSTEM,
-      silent: false
-    });
+    console.error('[Notification] Error checking notification conditions:', error);
     return true;
   }
 };
@@ -271,10 +257,7 @@ export const playNotificationSound = async (messageData, currentChannelId = null
       });
     }
   } catch (error) {
-    handleError(error, i18n.t('error.errorPlayingNotificationSound'), {
-      type: ErrorType.SYSTEM,
-      silent: false
-    });
+    console.error('[Notification] Error playing notification sound:', error);
   }
 };
 
@@ -291,7 +274,7 @@ export const synchronizeTokenWithAPI = async (token) => {
     const credentials = await SecureStore.getItemAsync('userCredentials');
     // If the credentials are not found, we return false
     if (!credentials) {
-      console.log('❌ [NotificationService] Synchronisation échouée: pas de credentials');
+      console.error('[Notification] No credentials found for token synchronization');
       return false;
     }
 
@@ -325,7 +308,7 @@ export const synchronizeTokenWithAPI = async (token) => {
     const success = response.status === 200 && response.data?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok';
     return success;
   } catch (error) {
-    console.error('❌ [NotificationService] Erreur lors de la synchronisation:', error);
+    console.error('[Notification] Token synchronization failed:', error);
     return false;
   }
 };
@@ -345,9 +328,8 @@ const getDeviceId = async () => {
     }
     return deviceId;
   } catch (error) {
-    return handleNotificationError(error, 'deviceId', {
-      code: NotificationErrorCodes.DEVICE_ID_ERROR
-    });
+    console.error('[Notification] Error generating device ID:', error);
+    return `fallback_device_${Date.now()}`;
   }
 };
 
@@ -362,9 +344,8 @@ export const removeNotificationToken = async () => {
     // We get the credentials
     const credentials = await SecureStore.getItemAsync('userCredentials');
     if (!credentials) {
-      return handleNotificationError(new Error(i18n.t('errors.noCredentials')), 'token.remove', {
-        code: NotificationErrorCodes.CREDENTIALS_ERROR
-      });
+      console.error('[Notification] No credentials found for token removal');
+      return false;
     }
 
     // Parse credentials
@@ -372,16 +353,14 @@ export const removeNotificationToken = async () => {
     try {
       parsedCredentials = JSON.parse(credentials);
     } catch (error) {
-      return handleNotificationError(error, 'token.parse', {
-        code: NotificationErrorCodes.CREDENTIALS_ERROR
-      });
+      console.error('[Notification] Error parsing credentials:', error);
+      return false;
     }
 
     // Vérification des champs requis
     if (!parsedCredentials.accountApiKey || !parsedCredentials.contractNumber || !parsedCredentials.accessToken) {
-      return handleNotificationError(new Error(i18n.t('errors.invalidCredentials')), 'token.validate', {
-        code: NotificationErrorCodes.CREDENTIALS_ERROR
-      });
+      console.error('[Notification] Invalid credentials for token removal');
+      return false;
     }
 
     // We get the current token
@@ -391,19 +370,13 @@ export const removeNotificationToken = async () => {
         projectId: ENV.EXPO_PROJECT_ID,
       });
       currentToken = tokenData.data;
-      console.log('Token récupéré pour suppression :', currentToken);
     } catch (error) {
-      console.error('❌ [NotificationService] Erreur lors de la récupération du token:', error);
-      return handleNotificationError(error, 'token.get', {
-        code: NotificationErrorCodes.TOKEN_ERROR
-      });
+      console.error('[Notification] Error getting token:', error);
     }
 
     if (!currentToken) {
-      console.log('❌ [NotificationService] Aucun token trouvé');
-      return handleNotificationError(new Error(i18n.t('errors.noToken')), 'token.get', {
-        code: NotificationErrorCodes.TOKEN_ERROR
-      });
+      console.error('[Notification] No token found for removal');
+      return false;
     }
 
     // We build the request
@@ -435,27 +408,23 @@ export const removeNotificationToken = async () => {
     for (const key of possibleTokenKeys) {
       try {
         await SecureStore.deleteItemAsync(key);
-        const stillThere = await SecureStore.getItemAsync(key);
-        console.log(`✅ [NotificationService] Token supprimé de la clé ${key}, encore présent ?`, !!stillThere);
       } catch (error) {
-        console.log(`⚠️ [NotificationService] Pas de token trouvé pour la clé ${key}`);
+        console.error('[Notification] Error deleting token key:', { key, error });
       }
     }
 
     const success = response.status === 200 && response.data?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok';
-    console.log(success ? '✅ [NotificationService] Suppression réussie' : '❌ [NotificationService] Suppression échouée');
     return success;
   } catch (error) {
-    return handleNotificationError(error, 'token.remove', {
-      code: NotificationErrorCodes.TOKEN_ERROR
-    });
+    console.error('[Notification] Error removing notification token:', error);
+    return false;
   }
 };
 
 /**
  * @function checkConnectionStatus
- * @description Vérifie si l'utilisateur est toujours connecté
- * @returns {Promise<boolean>} true si l'utilisateur est connecté, false sinon
+ * @description Check if the user is still connected
+ * @returns {Promise<boolean>} true if the user is connected, false otherwise
  */
 const checkConnectionStatus = async () => {
   try {
@@ -470,7 +439,7 @@ const checkConnectionStatus = async () => {
     // Ici, on ne contacte plus le serveur
     return true;
   } catch (error) {
-    console.error('[checkConnectionStatus] Erreur lors de la vérification des credentials:', error);
+    console.error('[Notification] Error checking connection status:', error);
     return false;
   }
 };
@@ -487,7 +456,6 @@ export const setupConnectionMonitor = () => {
   const checkAndHandleDisconnection = async () => {
     const isConnected = await checkConnectionStatus();
     if (!isConnected) {
-      console.log('🔒 [NotificationService] Déconnexion détectée, suppression du token');
       await removeNotificationToken();
     }
   };

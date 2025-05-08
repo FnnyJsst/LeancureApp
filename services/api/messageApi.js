@@ -2,7 +2,6 @@ import axios from 'axios';
 import { ENV } from '../../config/env';
 import { createApiRequest, createSignature } from './baseApi';
 import i18n from '../../i18n';
-import { handleError, ErrorType } from '../../utils/errorHandling';
 
 const t = (key) => i18n.t(key);
 
@@ -86,9 +85,7 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
     };
 
   } catch (error) {
-    handleError(error, i18n.t('error.fetchingChannels'), {
-      type: ErrorType.SYSTEM
-    });
+    console.error('[MessageApi] Error while fetching the channels:', error);
     return {
       status: 'error',
       message: error.message

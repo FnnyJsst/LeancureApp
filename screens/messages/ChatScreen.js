@@ -6,9 +6,9 @@ import Header from '../../components/Header';
 import * as SecureStore from 'expo-secure-store';
 import { fetchChannelMessages } from '../../services/api/messageApi';
 import { useTranslation } from 'react-i18next';
-import { handleError, ErrorType } from '../../utils/errorHandling';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useNotification } from '../../services/notification/notificationContext';
+import CustomAlert from '../../components/modals/webviews/CustomAlert';
 
 /**
  * @component ChatScreen
@@ -31,6 +31,9 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const [channelMessages, setChannelMessages] = useState([]);
   const [unreadChannels, setUnreadChannels] = useState({});
   const [editingMessage, setEditingMessage] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+
 
   // Update the channel context when the selected channel changes
   useEffect(() => {
@@ -87,10 +90,8 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
       setChannelMessages(messages);
     } catch (error) {
-      handleError(error, t('error.errorRefreshingMessages'), {
-        type: ErrorType.SYSTEM,
-        silent: false
-      });
+      setAlertMessage(t('error.errorRefreshingMessages'));
+      setShowAlert(true);
     }
   }, [selectedChannel, t]);
 
@@ -123,10 +124,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       }
 
       if (!channel || !channel.id) {
-        handleError(new Error('Invalid channel'), t('error.errorChannelSelect'), {
-          type: ErrorType.SYSTEM,
-          silent: false
-        });
+        console.error('[ChatScreen] Invalid channel');
         return;
       }
 
@@ -138,10 +136,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         id: channel.id.toString()
       });
     } catch (error) {
-      handleError(error, t('error.errorChannelSelect'), {
-        type: ErrorType.SYSTEM,
-        silent: false
-      });
+      console.error('[ChatScreen] Error while selecting the channel:', error);
     }
   };
 
@@ -158,19 +153,14 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const handleEditMessage = (messageToEdit) => {
     try {
       if (!messageToEdit || !messageToEdit.id) {
-        handleError(new Error('Invalid message'), t('error.errorEditingMessage'), {
-          type: ErrorType.SYSTEM,
-          silent: false
-        });
+        console.error('[ChatScreen] Invalid message');
         return;
       }
 
       setEditingMessage(messageToEdit);
     } catch (error) {
-      handleError(error, t('error.errorEditingMessage'), {
-        type: ErrorType.SYSTEM,
-        silent: false
-      });
+      setAlertMessage(t('error.errorEditingMessage'));
+      setShowAlert(true);
     }
   };
 
@@ -206,6 +196,13 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
           editingMessage={editingMessage}
         />
       </View>
+      <CustomAlert
+        visible={showAlert}
+        message={alertMessage}
+        onClose={() => setShowAlert(false)}
+        onConfirm={() => setShowAlert(false)}
+        type="error"
+      />
     </View>
   );
 }

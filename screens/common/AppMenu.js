@@ -10,7 +10,7 @@ import { Text } from '../../components/text/CustomText';
 import * as SecureStore from 'expo-secure-store';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
 import { useTranslation } from 'react-i18next';
-import { handleError } from '../../utils/errorHandling';
+import CustomAlert from '../../components/modals/webviews/CustomAlert';
 
 /**
  * @function AppMenu Component
@@ -25,6 +25,8 @@ export default function AppMenu({ onNavigate, testID }) {
 
   const [isMessagesHidden, setIsMessagesHidden] = useState(false);
   const [hideMessagesModalVisible, setHideMessagesModalVisible] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   useEffect(() => {
     /**
@@ -38,10 +40,7 @@ export default function AppMenu({ onNavigate, testID }) {
             setIsMessagesHidden(JSON.parse(savedValue));
           }
         } catch (error) {
-          handleError(error, t('error.errorLoadingMessagesVisibility'), {
-            type: ErrorType.SYSTEM,
-            silent: false
-          });
+          console.error('[AppMenu] Error while loading the messages visibility:', error);
         }
       };
       loadMessagesVisibility();
@@ -57,10 +56,8 @@ export default function AppMenu({ onNavigate, testID }) {
         await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
         setIsMessagesHidden(shouldHide);
       } catch (error) {
-        handleError(error, t('error.errorSavingMessagesVisibility'), {
-          type: ErrorType.SYSTEM,
-          silent: false
-        });
+        setAlertMessage(t('error.errorSavingMessagesVisibility'));
+        setShowAlert(true);
       }
   }
 
@@ -131,6 +128,14 @@ export default function AppMenu({ onNavigate, testID }) {
             visible={hideMessagesModalVisible}
             onClose={() => setHideMessagesModalVisible(false)}
             onToggleHideMessages={handleHideMessages}
+          />
+
+          <CustomAlert
+            visible={showAlert}
+            message={alertMessage}
+            onClose={() => setShowAlert(false)}
+            onConfirm={() => setShowAlert(false)}
+            type="error"
           />
         </View>
       </GradientBackground>

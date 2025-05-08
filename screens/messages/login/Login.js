@@ -15,7 +15,6 @@ import GradientBackground from '../../../components/backgrounds/GradientBackgrou
 import { hashPassword } from '../../../utils/encryption';
 import { Text } from '../../../components/text/CustomText';
 import { useTranslation } from 'react-i18next';
-import { handleError, ErrorType } from '../../../utils/errorHandling';
 import * as Notifications from 'expo-notifications';
 import { ENV } from '../../../config/env';
 import { synchronizeTokenWithAPI } from '../../../services/notification/notificationService';
@@ -44,21 +43,6 @@ export default function Login({ onNavigate }) {
     const [alertMessage, setAlertMessage] = useState('');
 
     /**
-     * @function handleLoginError
-     * @description Handle login-related errors
-     */
-    const handleLoginError = (error, source) => {
-        return handleError(error, source, {
-            type: ErrorType.AUTH,
-            showAlert: true,
-            setAlertMessage: (message) => {
-                setAlertMessage(message);
-                setShowAlert(true);
-            }
-        });
-    };
-
-    /**
      * @function validateInputs
      * @description Validate the inputs of the login form
      * @returns {string} The error message if the inputs are not valid, otherwise null
@@ -84,6 +68,7 @@ export default function Login({ onNavigate }) {
             try {
                 await SecureStore.deleteItemAsync('userCredentials');
             } catch (error) {
+                console.error('[Login] Error while cleaning the credentials:', error);
                 if (error.message && (
                     error.message.includes('decrypt') ||
                     error.message.includes('decipher') ||
@@ -91,27 +76,16 @@ export default function Login({ onNavigate }) {
                 )) {
                     await cleanSecureStore();
                 } else {
-                    handleError(error, 'login.cleanCredentials', {
-                        type: ErrorType.SYSTEM,
-                        showAlert: true,
-                        setAlertMessage: (message) => {
-                            setAlertMessage(t('errors.errorCleaningSecureStore'));
-                            setShowAlert(true);
-                        }
-                    });
+                    setAlertMessage(t('errors.errorCleaningSecureStore'));
+                    setShowAlert(true);
+                    return;
                 }
             }
 
             const validationError = validateInputs();
             if (validationError) {
-                handleError(validationError, 'login.validation', {
-                    type: ErrorType.VALIDATION,
-                    // showAlert: true,
-                    setAlertMessage: (message) => {
-                        setAlertMessage(message);
-                        setShowAlert(true);
-                    }
-                });
+                setAlertMessage(validationError);
+                setShowAlert(true);
                 return;
             }
 
@@ -178,51 +152,27 @@ export default function Login({ onNavigate }) {
                             finalStatus = status;
                         }
 
-                        if (finalStatus === 'granted') {
-                            try {
-                                const tokenData = await Notifications.getExpoPushTokenAsync({
-                                    projectId: ENV.EXPO_PROJECT_ID,
-                                });
-
-                                // Synchroniser le token avec l'API
-                                const syncResult = await synchronizeTokenWithAPI(tokenData.data);
-                                if (!syncResult) {
-                                    handleError(new Error(t('errors.errorSynchronizingTokenWithAPI')), 'login.tokenSync', {
-                                        type: ErrorType.SYSTEM,
-                                        showAlert: false // On ne bloque pas la navigation même si la synchro échoue
-                                    });
-                                }
-                            } catch (error) {
-                                handleError(error, 'login.tokenGeneration', {
-                                    type: ErrorType.SYSTEM,
-                                    showAlert: false
-                                });
-                            }
-                        }
-
-                        onNavigate(SCREENS.CHAT);
-                    } catch (error) {
-                        handleError(error, 'login.notification', {
-                            type: ErrorType.SYSTEM,
-                            showAlert: true,
-                            setAlertMessage: (message) => {
-                                setAlertMessage(message);
-                                setShowAlert(true);
-                            }
+                    // If the user has granted the notification permission, we get the token and synchronize it with the API
+                    if (finalStatus === 'granted') {
+                        const tokenData = await Notifications.getExpoPushTokenAsync({
+                            projectId: ENV.EXPO_PROJECT_ID,
                         });
-                    }
-                } else {
-                    handleError(t('errors.errorLoadingChannels'), 'login.channels', {
-                        type: ErrorType.SYSTEM,
-                        showAlert: true,
-                        setAlertMessage: (message) => {
-                            setAlertMessage(message);
-                            setShowAlert(true);
+
+                        // Synchronize the token with the API
+                        const syncResult = await synchronizeTokenWithAPI(tokenData.data);
+                        if (!syncResult) {
+                            console.error('[Login] Failed to synchronize the token with the API');
                         }
-                    });
+                    }
+
+                    // We navigate to the chat screen
+                    onNavigate(SCREENS.CHAT);
+                } else {
+                    setAlertMessage(t('errors.errorLoadingChannels'));
+                    setShowAlert(true);
                 }
             } else {
-                // We get the old credentials for the refresh token
+                // Tentative avec refresh token
                 const oldCredentials = await SecureStore.getItemAsync('userCredentials');
                 if (!oldCredentials) {
                     setAlertMessage(t('errors.invalidCredentials'));
@@ -246,63 +196,43 @@ export default function Login({ onNavigate }) {
                     return;
                 }
 
-                // New login attempt with the new refresh token
-                const retryLoginResponse = await loginApi(
+                if (!retryLoginResponse.success) {
+                    setAlertMessage(t('errors.invalidCredentials'));
+                    setShowAlert(true);
+                    return;
+                }
+
+                const credentials = {
+                    contractNumber,
+                    login,
+                    password: hashPassword(password),
+                    accountApiKey: retryLoginResponse.accountApiKey,
+                    refreshToken: refreshTokenResponse.data.refresh_token,
+                    accessToken: retryLoginResponse.accessToken
+                };
+
+                await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+
+                const channelsResponse = await fetchUserChannels(
                     contractNumber,
                     login,
                     password,
-                    refreshTokenResponse.data.refresh_token
+                    retryLoginResponse.accessToken,
+                    retryLoginResponse.accountApiKey
                 );
 
-                // If the login is successful, we save the credentials
-                if (retryLoginResponse.success) {
-
-                    const credentials = {
-                        contractNumber,
-                        login,
-                        password: hashPassword(password),
-                        accountApiKey: retryLoginResponse.accountApiKey,
-                        refreshToken: refreshTokenResponse.data.refresh_token,
-                        accessToken: retryLoginResponse.accessToken
-                    };
-
-                    await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-
-                    const channelsResponse = await fetchUserChannels(
-                        contractNumber,
-                        login,
-                        password,
-                        retryLoginResponse.accessToken,
-                        retryLoginResponse.accountApiKey
-                    );
-
-                    // If the channels are loaded, we navigate to the chat screen
-                    if (channelsResponse.status === 'ok') {
-                        onNavigate(SCREENS.CHAT);
-                    } else {
-                        handleError(t('errors.errorLoadingChannels'), 'login.channels', {
-                            type: ErrorType.SYSTEM,
-                            showAlert: true,
-                            setAlertMessage: (message) => {
-                                setAlertMessage(message);
-                                setShowAlert(true);
-                            }
-                        });
-                    }
+                // If the channels are loaded, we navigate to the chat screen
+                if (channelsResponse.status === 'ok') {
+                    onNavigate(SCREENS.CHAT);
                 } else {
-                    setAlertMessage(t('errors.invalidCredentials'));
+                    setAlertMessage(t('errors.errorLoadingChannels'));
                     setShowAlert(true);
+                    setIsSimplifiedLogin(false);
                 }
             }
         } catch (error) {
-            handleError(t('errors.connectionError'), 'login.process', {
-                type: ErrorType.AUTH,
-                showAlert: true,
-                setAlertMessage: (message) => {
-                    setAlertMessage(message);
-                    setShowAlert(true);
-                }
-            });
+            setAlertMessage(t('errors.loginFailed'));
+            setShowAlert(true);
         } finally {
             setIsLoading(false);
         }
@@ -370,35 +300,27 @@ export default function Login({ onNavigate }) {
                                 projectId: ENV.EXPO_PROJECT_ID,
                             });
 
-                            // Synchronize the token
-                            await synchronizeTokenWithAPI(tokenData.data);
+                            // Synchroniser le token
+                            const syncResult = await synchronizeTokenWithAPI(tokenData.data);
+                            if (!syncResult) {
+                                console.error('[Login] Failed to synchronize the notification token');
+                            }
                         }
 
                         onNavigate(SCREENS.CHAT);
                     } else {
-                        handleError(t('errors.errorLoadingChannels'), 'login.channels', {
-                            type: ErrorType.SYSTEM,
-                            showAlert: true,
-                            setAlertMessage: (message) => {
-                                setAlertMessage(message);
-                                setShowAlert(true);
-                            }
-                        });
+                        setAlertMessage(t('errors.errorLoadingChannels'));
+                        setShowAlert(true);
                         setIsSimplifiedLogin(false);
                     }
                 } catch (error) {
-                    handleLoginError(error, 'login.saveCredentials');
+                    setAlertMessage(t('errors.technicalError'));
+                    setShowAlert(true);
                     setIsSimplifiedLogin(false);
                 }
             } else {
-                handleError(t('errors.invalidCredentials'), {
-                    type: ErrorType.SYSTEM,
-                    showAlert: true,
-                    setAlertMessage: (message) => {
-                        setAlertMessage(message);
-                        setShowAlert(true);
-                    }
-                });
+                setAlertMessage(t('errors.invalidCredentials'));
+                setShowAlert(true);
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
@@ -426,16 +348,10 @@ export default function Login({ onNavigate }) {
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            handleError(error, 'login.saveInfo', {
-                type: ErrorType.SYSTEM,
-                showAlert: true,
-                setAlertMessage: (message) => {
-                    setAlertMessage(message);
-                    setShowAlert(true);
-                }
-            });
+            setAlertMessage(t('errors.errorSavingLoginInfo'));
+            setShowAlert(true);
         }
-    }, [isChecked, contractNumber, login, password]);
+    }, [isChecked, contractNumber, login, password, t]);
 
     /**
      * @function checkSavedLogin
@@ -453,14 +369,7 @@ export default function Login({ onNavigate }) {
                     setIsSimplifiedLogin(true);
                 }
             } catch (error) {
-                handleError(error, 'login.checkSavedLogin', {
-                    type: ErrorType.SYSTEM,
-                    showAlert: true,
-                    setAlertMessage: (message) => {
-                        setAlertMessage(message);
-                        setShowAlert(true);
-                    }
-                });
+                console.error('[Login] Error while checking saved login info:', error);
             } finally {
                 setIsInitialLoading(false);
             }
@@ -470,7 +379,7 @@ export default function Login({ onNavigate }) {
     }, []);
 
     if (isInitialLoading) {
-        return null; // Ne rien afficher pendant le chargement initial
+        return null;
     }
 
     if (isSimplifiedLogin) {
