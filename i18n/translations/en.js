@@ -366,6 +366,7 @@ export default {
     renderPreview: "Error rendering preview",
     parseCSV: "Error parsing CSV file",
     unknownError: "An error occurred",
+    sendFailed: "Error sending message",
     firebase: {
       initialization: "Error initializing Firebase"
     },

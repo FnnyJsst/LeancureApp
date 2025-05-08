@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
 import MenuMessage from './MenuMessage';
-import { handleError, ErrorType } from '../../utils/errorHandling';
 import { useTranslation } from 'react-i18next';
 import { formatFileSize, formatTimestamp } from '../../utils/fileUtils';
 
@@ -29,21 +28,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   const messageTime = formatTimestamp(message.savedTimestamp);
 
   /**
-   * @function handleMessageError
-   * @description Handle message-related errors
-   * @param {Error} error - The error
-   * @param {string} source - The source
-   * @param {object} options - Additional options
-   */
-  const handleMessageError = (error, source, options = {}) => {
-    return handleError(error, `chatMessage.${source}`, {
-      type: ErrorType.SYSTEM,
-      silent: true,  // Silent errors by default to not overload the console
-      ...options
-    });
-  };
-
-  /**
    * @function handleLongPress
    * @description Handle the long press event to allow the user to delete/edit the message
    */
@@ -54,7 +38,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
         setMenuMessageVisible(true);
       }
     } catch (error) {
-      handleMessageError(error, 'longPress');
+      console.error('[ChatMessage] Error while handling the long press event:', error);
     }
   };
 
@@ -66,13 +50,13 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
     try {
       if (message.type === 'file') {
         if (!message.id) {
-          handleMessageError(t('error.messageIdMissing'), 'press.validation', { silent: false });
+          console.error('[ChatMessage] Error while handling the press event:', error);
           return;
         }
         onFileClick(message);
       }
     } catch (error) {
-      handleMessageError(error, 'press', { silent: false });
+      console.error('[ChatMessage] Error while handling the press event:', error);
     }
   };
 
@@ -93,7 +77,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
         />
         <MenuMessage
           onDelete={handleDelete}
-          onEdit={isOwnMessage ? handleEdit : null}
+          onEdit={isOwnMessage && message.type !== 'file' ? handleEdit : null}
           onClose={() => setMenuMessageVisible(false)}
           style={[
             styles.menuMessageContainer,
@@ -112,7 +96,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
     try {
 
       if (!message.id) {
-        handleMessageError(t('error.messageIdMissing'), 'delete.validation', { silent: false });
+        console.error('[ChatMessage] Error while handling the delete event:', error);
         return;
       }
 
@@ -121,7 +105,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
       }
       setMenuMessageVisible(false);
     } catch (error) {
-      handleMessageError(error, 'delete', { silent: false });
+      console.error('[ChatMessage] Error while handling the delete event:', error);
     }
   };
 
@@ -132,7 +116,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   const handleEdit = () => {
     try {
       if (!message.id) {
-        handleMessageError(t('error.messageIdMissing'), 'edit.validation', { silent: false });
+        console.error('[ChatMessage] Error while handling the edit event:', error);
         return;
       }
 
@@ -156,16 +140,9 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
       }
       setMenuMessageVisible(false);
     } catch (error) {
-      handleMessageError(error, 'edit', { silent: false });
+      console.error('[ChatMessage] Error while handling the edit event:', error);
     }
   };
-
-  // Fonction utilitaire pour calculer la taille d'un fichier à partir du base64
-  function getBase64FileSize(base64String) {
-    if (!base64String) return 0;
-    const cleaned = base64String.split(',').pop();
-    return Math.ceil(cleaned.length * 0.75);
-  }
 
   try {
     // If the message is a file, we display the file preview
@@ -177,17 +154,19 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                   message.fileType?.toLowerCase().includes('jpg') ||
                   message.fileType?.toLowerCase().includes('png');
 
-      // We calculate the file size
+      // Calcul de la taille du fichier
       let fileSizeInBytes = 0;
 
-      // If we have a valid stored size, we use it
+      // Si on a une taille stockée valide, on l'utilise
       if (message.fileSize && !isNaN(parseInt(message.fileSize, 10))) {
         fileSizeInBytes = parseInt(message.fileSize, 10);
       }
-      // Otherwise, if we have a base64, we calculate the size
+      // Sinon, si on a un base64, on calcule la taille
       else if (message.base64) {
         const base64Length = message.base64.length;
+        // On enlève les caractères de padding (=) à la fin
         const paddingLength = message.base64.endsWith('==') ? 2 : message.base64.endsWith('=') ? 1 : 0;
+        // Calcul plus précis de la taille
         fileSizeInBytes = Math.floor(((base64Length - paddingLength) * 3) / 4);
       }
 
@@ -344,7 +323,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
     );
   } catch (error) {
     // Global error handling for the component rendering
-    handleMessageError(error, 'render', { silent: false });
+    console.error('[ChatMessage] Error while rendering the component:', error);
   }
 }
 

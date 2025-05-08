@@ -3,7 +3,6 @@ import * as SecureStore from 'expo-secure-store';
 import { Alert } from 'react-native';
 import { SCREENS } from '../constants/screens';
 import { useTranslation } from 'react-i18next';
-import { handleError } from '../utils/errorHandling';
 
 /**
  * @function useWebviewsPassword
@@ -70,10 +69,7 @@ export const useWebviewsPassword = (navigate) => {
         await SecureStore.setItemAsync('isPasswordRequired', JSON.stringify(passwordData.isRequired));
       }
     } catch (error) {
-      handleError(error, t('error.errorSavingPassword'), {
-        type: ErrorType.SYSTEM,
-        silent: false
-      });
+      console.error('[useWebviewsPassword] Error while saving the password in the SecureStore:', error);
     }
   };
 
@@ -107,10 +103,7 @@ export const useWebviewsPassword = (navigate) => {
           setPassword(null);
           setIsPasswordRequired(false);
         } catch (cleanupError) {
-          handleError(cleanupError, t('error.errorCleaningPassword'), {
-            type: ErrorType.SYSTEM,
-            silent: false
-          });
+          console.error('[useWebviewsPassword] Error while cleaning the password:', cleanupError);
         }
       }
     }

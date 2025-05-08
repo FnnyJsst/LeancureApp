@@ -24,50 +24,11 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
 import { useTranslation } from 'react-i18next';
-import { handleError, ErrorType, AppErrorCodes } from './utils/errorHandling';
 import { registerForPushNotificationsAsync, shouldDisplayNotification, removeNotificationToken, setupConnectionMonitor } from './services/notification/notificationService';
 import * as Notifications from 'expo-notifications';
 import { cleanSecureStoreKeys } from './utils/secureStore';
 import './config/firebase';
 import { NotificationProvider } from './services/notification/notificationContext';
-
-/**
- * @function handleAppError
- * @description Handle application-related errors
- */
-const handleAppError = (error, source, options = {}) => {
-  const { t } = useTranslation();
-
-  // Determine the appropriate error code and message
-  let errorCode = AppErrorCodes.INITIALIZATION_FAILED;
-  let errorMessage = error.message || error;
-
-  // Translate common error messages
-  if (error.message?.includes('decrypt') ||
-      error.message?.includes('decipher') ||
-      error.message?.includes('decryption')) {
-    errorCode = AppErrorCodes.DECRYPTION_ERROR;
-    errorMessage = t('errors.decryptionFailed');
-  } else if (error.message?.includes('storage') || error.message?.includes('SecureStore')) {
-    errorCode = AppErrorCodes.STORAGE_ERROR;
-    errorMessage = t('errors.storageError');
-  } else if (error.message?.includes('notification')) {
-    errorCode = AppErrorCodes.NOTIFICATION_ERROR;
-    errorMessage = t('errors.notificationError');
-  } else if (error.message?.includes('navigation')) {
-    errorCode = AppErrorCodes.NAVIGATION_ERROR;
-    errorMessage = t('errors.navigationError');
-  }
-
-  return handleError({
-    code: errorCode,
-    message: errorMessage
-  }, `app.${source}`, {
-    type: ErrorType.APP,
-    showAlert: !options.silent,
-    ...options
-  });
-};
 
 /**
  * @component App
@@ -153,9 +114,12 @@ export default function App({ testID, initialScreen }) {
    */
   const hideMessages = useCallback(async (shouldHide) => {
     try {
+
+      // We save the messages hidden state
       await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
       setIsMessagesHidden(shouldHide);
 
+      // If the messages are hidden, we navigate to the webview or the no url screen
       if (shouldHide) {
         setIsLoading(true);
         setTimeout(() => {
@@ -164,13 +128,15 @@ export default function App({ testID, initialScreen }) {
         }, 3000);
       }
     } catch (error) {
+      // If the error is a decryption error, we clean the secure store
       if (error.message && (
         error.message.includes('decrypt') ||
-        error.message.includes('decipher') ||
         error.message.includes('decryption')
       )) {
+
         try {
           await cleanSecureStoreKeys();
+          // We try to save again after cleaning
           await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(shouldHide));
           setIsMessagesHidden(shouldHide);
 
@@ -182,14 +148,10 @@ export default function App({ testID, initialScreen }) {
             }, 3000);
           }
         } catch (cleanError) {
-          return handleAppError(cleanError, 'hideMessages.clean', {
-            code: AppErrorCodes.STORAGE_ERROR
-          });
+          console.error('[App] Error while cleaning the SecureStore:', cleanError);
         }
       } else {
-        return handleAppError(error, 'hideMessages', {
-          code: AppErrorCodes.STORAGE_ERROR
-        });
+        console.error('[App] Error while hiding the messages:', error);
       }
     }
   }, [navigate, selectedWebviews]);
@@ -199,64 +161,22 @@ export default function App({ testID, initialScreen }) {
    */
   useEffect(() => {
     const initializeApp = async () => {
+      // If the app is already initialized, we return
       if (appInitialized) {
         return;
       }
 
       try {
+        // We initialize the translations
         await initI18n();
         setIsI18nInitialized(true);
-
+        // We load the selected channels and timeout interval
         await Promise.all([
           loadSelectedChannels(),
           loadTimeoutInterval()
         ]);
 
-        try {
-          const storedMessagesHidden = await SecureStore.getItemAsync('isMessagesHidden');
-          const isHidden = storedMessagesHidden ? JSON.parse(storedMessagesHidden) : false;
-
-          if (storedMessagesHidden === null) {
-            await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(false));
-          }
-
-          setIsMessagesHidden(isHidden);
-        } catch (error) {
-          if (error.message?.includes('decrypt')) {
-            await cleanSecureStoreKeys();
-            setIsMessagesHidden(false);
-            handleAppError(error, 'initialization.messages', {
-              code: AppErrorCodes.DECRYPTION_ERROR,
-              message: t('errors.messagesStateDecryptionFailed')
-            });
-          } else {
-            handleAppError(error, 'initialization.messages', {
-              code: AppErrorCodes.STORAGE_ERROR,
-              message: t('errors.messagesStateLoadFailed')
-            });
-          }
-        }
-
-        setAppInitialized(true);
-      } catch (error) {
-        handleAppError(error, 'initialization', {
-          code: AppErrorCodes.INITIALIZATION_FAILED,
-          message: t('errors.appInitializationFailed')
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initializeApp();
-  }, [loadSelectedChannels, loadTimeoutInterval, t]);
-
-  // Ajout d'un useEffect pour la navigation initiale
-  useEffect(() => {
-    const handleInitialNavigation = async () => {
-      if (!appInitialized || isLoading) return;
-
-      try {
+        // List of screens where we don't want automatic redirection
         const intentionalScreens = [
           SCREENS.COMMON_SETTINGS,
           SCREENS.LOGIN,
@@ -265,34 +185,77 @@ export default function App({ testID, initialScreen }) {
           SCREENS.CHAT,
           SCREENS.WEBVIEWS_MANAGEMENT,
           SCREENS.WEBVIEWS_LIST,
-          SCREENS.SETTINGS
+          SCREENS.SETTINGS,
+          SCREENS.APP_MENU
         ];
 
         if (!intentionalScreens.includes(currentScreen)) {
-          const savedLoginInfo = await SecureStore.getItemAsync('savedLoginInfo');
+          try {
+            // We get the messages hidden state
+            const storedMessagesHidden = await SecureStore.getItemAsync('isMessagesHidden');
+            const isHidden = storedMessagesHidden ? JSON.parse(storedMessagesHidden) : false;
 
-          if (!savedLoginInfo) {
-            navigate(SCREENS.LOGIN);
-            return;
+            // If the messages hidden state is not set, we set it to false
+            if (storedMessagesHidden === null) {
+              await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(false));
+            }
+
+            setIsMessagesHidden(isHidden);
+            setIsLoading(false);
+
+            // Only navigate if we're not already on the correct screen
+            if (isHidden && currentScreen !== SCREENS.WEBVIEW && currentScreen !== SCREENS.NO_URL) {
+              navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
+            } else if (!isHidden && currentScreen !== SCREENS.APP_MENU) {
+              navigate(SCREENS.APP_MENU);
+            }
+          } catch (error) {
+            console.error('[App] Error while initializing the app:', error);
+            setIsMessagesHidden(false);
+            setIsLoading(false);
+            if (currentScreen !== SCREENS.APP_MENU) {
+              navigate(SCREENS.APP_MENU);
+            }
           }
+        } else {
+          setIsLoading(false);
+        }
 
-          if (isMessagesHidden) {
-            navigate(selectedWebviews?.length > 0 ? SCREENS.WEBVIEW : SCREENS.NO_URL);
-          } else {
+      } catch (error) {
+        if (error.message && (
+            error.message.includes('Could not decrypt') ||
+            error.message.includes('decrypt') ||
+            error.message.includes('decipher') ||
+            error.message.includes('decryption'))
+        ) {
+          console.error('[App] Error while decrypting the SecureStore:', error);
+          try {
+
+            await cleanSecureStoreKeys();
+          } catch (cleanError) {
+            console.error('[App] Error while cleaning the SecureStore:', cleanError);
+          }
+          // We reset the states after cleaning
+          setIsMessagesHidden(false);
+          setIsLoading(false);
+          if (currentScreen !== SCREENS.APP_MENU) {
+            navigate(SCREENS.APP_MENU);
+          }
+        } else {
+          // Other types of errors
+          console.error('[App] Error while initializing the app:', error);
+          setIsLoading(false);
+          if (currentScreen !== SCREENS.APP_MENU) {
             navigate(SCREENS.APP_MENU);
           }
         }
-      } catch (error) {
-        handleAppError(error, 'initialization.navigation', {
-          code: AppErrorCodes.NAVIGATION_ERROR,
-          message: t('errors.initialNavigationFailed')
-        });
-        navigate(SCREENS.LOGIN);
+      } finally {
+        setAppInitialized(true);
       }
     };
 
-    handleInitialNavigation();
-  }, [appInitialized, isLoading, currentScreen, isMessagesHidden, selectedWebviews, t]);
+    initializeApp();
+  }, [appInitialized]);
 
   /**
    * @description Handles the change of the messages hidden state
@@ -339,14 +302,10 @@ export default function App({ testID, initialScreen }) {
             await SecureStore.setItemAsync('isMessagesHidden', JSON.stringify(isMessagesHidden));
             isMessagesHiddenRef.current = isMessagesHidden;
           } catch (cleanError) {
-            return handleAppError(cleanError, 'updateMessagesHidden', {
-              code: AppErrorCodes.STORAGE_ERROR
-            });
+            console.error('[App] Error while cleaning the SecureStore:', cleanError);
           }
         } else {
-          return handleAppError(error, 'updateMessagesHidden', {
-            code: AppErrorCodes.STORAGE_ERROR
-          });
+          console.error('[App] Error while updating the messages hidden state:', error);
         }
       }
     };
@@ -360,13 +319,17 @@ export default function App({ testID, initialScreen }) {
    */
   const handleChatLogout = async () => {
     try {
+      // First, we delete the notification token
       const tokenRemoved = await removeNotificationToken();
+      console.log('✅ Token de notification supprimé:', tokenRemoved);
+
+      // Then, we delete the connection information
       await SecureStore.deleteItemAsync('savedLoginInfo');
+
+      // Finally, we redirect to the login screen
       navigate(SCREENS.LOGIN);
     } catch (error) {
-      handleAppError(error, 'logout', {
-        message: t('errors.logoutFailed')
-      });
+      console.error('[App] Error while logging out:', error);
       throw error;
     }
   };
@@ -392,9 +355,7 @@ export default function App({ testID, initialScreen }) {
             }
           }
         } catch (error) {
-          return handleAppError(error, 'appState.change', {
-            code: AppErrorCodes.STATE_ERROR
-          });
+          console.error('[App] Error while changing the app state:', error);
         }
       }
     };
@@ -409,28 +370,14 @@ export default function App({ testID, initialScreen }) {
 
   useEffect(() => {
     let subscription = null;
-
     // Configuration of notifications
     const setupNotifications = async () => {
       try {
         const token = await registerForPushNotificationsAsync();
-        if (!token) {
-          handleAppError(new Error(t('errors.notificationTokenFailed')), 'notifications.setup', {
-            code: AppErrorCodes.NOTIFICATION_ERROR
-          });
-        }
-
+        // Get the permissions status
         const { status } = await Notifications.getPermissionsAsync();
-        if (status !== 'granted') {
-          handleAppError(new Error(t('errors.notificationPermissionDenied')), 'notifications.permission', {
-            code: AppErrorCodes.NOTIFICATION_ERROR
-          });
-        }
       } catch (error) {
-        handleAppError(error, 'notifications.setup', {
-          code: AppErrorCodes.NOTIFICATION_ERROR,
-          message: t('errors.notificationSetupFailed')
-        });
+        console.error('[App] Error while setting up notifications:', error);
       }
     };
 
@@ -468,9 +415,7 @@ export default function App({ testID, initialScreen }) {
           }
         }
       } catch (error) {
-        return handleAppError(error, 'notifications.filter', {
-          code: AppErrorCodes.NOTIFICATION_ERROR
-        });
+        console.error('❌ Erreur lors du filtrage de la notification:', error);
       }
     });
 
@@ -480,7 +425,7 @@ export default function App({ testID, initialScreen }) {
         subscription.remove();
       }
     };
-  }, [t]);
+  }, []);
 
   // Nettoyage préventif du SecureStore au démarrage de l'application
   useEffect(() => {
@@ -500,9 +445,7 @@ export default function App({ testID, initialScreen }) {
           }
         }
       } catch (error) {
-        return handleAppError(error, 'preventDecryptionErrors', {
-          code: AppErrorCodes.STORAGE_ERROR
-        });
+        console.error('❌ [App] Erreur lors du nettoyage préventif:', error);
       }
     };
 
@@ -530,27 +473,22 @@ export default function App({ testID, initialScreen }) {
    * @param {Array|string} newWebviews - The selected channels or a single URL
    */
   const handleImportWebviews = (newWebviews) => {
-    try {
-      if (typeof newWebviews === 'string') {
-        // If it's a unique URL, create a webview object and add it directly
-        const newWebview = {
-          href: newWebviews,
-          title: newWebviews // We use the URL as the default title
-        };
-        handleSelectChannels([newWebview]);
-        // We stay on the webviews management screen
-        navigate(SCREENS.WEBVIEWS_MANAGEMENT);
-      } else if (Array.isArray(newWebviews) && newWebviews.length > 0) {
-        // If it's an array of webviews, add them to the selected webviews list
-        handleSelectChannels([...selectedWebviews, ...newWebviews]);
-        setChannels([]);
-        // We return to the webviews management screen
-        navigate(SCREENS.WEBVIEWS_MANAGEMENT);
-      }
-    } catch (error) {
-      return handleAppError(error, 'webviews.import', {
-        code: AppErrorCodes.IMPORT_ERROR
-      });
+
+    if (typeof newWebviews === 'string') {
+      // If it's a unique URL, create a webview object and add it directly
+      const newWebview = {
+        href: newWebviews,
+        title: newWebviews // We use the URL as the default title
+      };
+      handleSelectChannels([newWebview]);
+      // We stay on the webviews management screen
+      navigate(SCREENS.WEBVIEWS_MANAGEMENT);
+    } else if (Array.isArray(newWebviews) && newWebviews.length > 0) {
+      // If it's an array of webviews, add them to the selected webviews list
+      handleSelectChannels([...selectedWebviews, ...newWebviews]);
+      setChannels([]);
+      // We return to the webviews management screen
+      navigate(SCREENS.WEBVIEWS_MANAGEMENT);
     }
   };
 

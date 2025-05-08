@@ -795,6 +795,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     onEditMessage={handleEditMessage}
                     canDelete={userRights === "3"}
                     userRights={userRights}
+                    isFileMessage={message.type === 'file'}
                   />
                 );
 

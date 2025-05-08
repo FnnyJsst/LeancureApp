@@ -11,15 +11,16 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} props.onDelete - Fonction de suppression
  * @param {Function} props.onEdit - Fonction d'édition
  * @param {Object} props.style - Style
+ * @param {boolean} props.isFileMessage - Si le message contient un fichier
  */
-const MenuMessage = ({ onDelete, onEdit, style }) => {
+const MenuMessage = ({ onDelete, onEdit, style, isFileMessage }) => {
 
   const { isSmartphone } = useDeviceType();
   const { t } = useTranslation();
 
   return (
     <View style={[styles.container, style]}>
-      {onEdit && (
+      {onEdit && !isFileMessage && (
         <>
           <TouchableOpacity
             style={[styles.menuItem, isSmartphone && styles.menuItemSmartphone]}

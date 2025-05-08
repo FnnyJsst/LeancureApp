@@ -2,6 +2,7 @@ import axios from 'axios';
 import { ENV } from '../../config/env';
 import { createApiRequest } from './baseApi';
 import * as SecureStore from 'expo-secure-store';
+import { handleError, ErrorType, handleApiError } from '../../utils/errorHandling';
 import CryptoJS from 'crypto-js';
 import CustomAlert from '../../components/modals/webviews/CustomAlert';
 
@@ -119,15 +120,13 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     };
 
   } catch (error) {
-    console.error('[Auth] Login error:', error);
     CustomAlert.show({
-      title: 'Erreur de connexion',
-      message: error.message || t('errors.connectionError')
+      message: t('errors.connectionError')
     });
     return {
       status: error.response?.status || 500,
       success: false,
-      error: error.message || t('errors.connectionError'),
+      error: t('errors.connectionError'),
     };
   }
 };
@@ -146,7 +145,6 @@ export const saveCredentials = async (credentials) => {
   } catch (error) {
     console.error('[Auth] Error saving credentials:', error);
     CustomAlert.show({
-      title: 'Erreur',
       message: t('errors.errorSavingLoginInfo')
     });
     throw new Error(t('errors.errorSavingLoginInfo'));
@@ -163,12 +161,9 @@ export const getCredentials = async () => {
     const credentials = await SecureStore.getItemAsync('userCredentials');
     return credentials ? JSON.parse(credentials) : null;
   } catch (error) {
-    console.error('[Auth] Error retrieving credentials:', error);
     CustomAlert.show({
-      title: 'Erreur',
       message: t('errors.errorLoadingLoginInfo')
     });
-    throw new Error(t('errors.errorLoadingLoginInfo'));
   }
 };
 
@@ -197,7 +192,6 @@ export const getUserRights = async () => {
  */
 export const checkRefreshToken = async (contractNumber, accountApiKey, refreshToken) => {
   try {
-    console.log('[Auth] Vérification du refresh token');
     const timestamp = Date.now();
     const data = `accounts/token/refresh/${timestamp}/`;
     const hash = CryptoJS.HmacSHA256(data, contractNumber);
@@ -237,10 +231,6 @@ export const checkRefreshToken = async (contractNumber, accountApiKey, refreshTo
         return true;
       }
     });
-    console.log('[Auth] Réponse du refresh token:', {
-      status: response.status,
-      hasData: !!response.data?.cmd?.[0]?.accounts?.token?.refresh?.data
-    });
 
     return {
       success: response.data?.cmd?.[0]?.accounts?.token?.refresh?.data !== undefined,
@@ -248,13 +238,5 @@ export const checkRefreshToken = async (contractNumber, accountApiKey, refreshTo
     };
   } catch (error) {
     console.error('[Auth] Error checking refresh token:', error);
-    CustomAlert.show({
-      title: 'Erreur d\'authentification',
-      message: error.message
-    });
-    return {
-      success: false,
-      error: error.message
-    };
   }
 };

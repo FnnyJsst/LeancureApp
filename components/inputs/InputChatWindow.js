@@ -101,7 +101,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
         ];
 
         if (!allowedTypes.includes(file.mimeType)) {
-          console.error('[InputChatWindow] Type de fichier non autorisé:', file.mimeType);
           setAlertMessage(t('errors.fileTypeNotAllowed'));
           setShowAlert(true);
           return;
@@ -132,7 +131,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
     } catch (pickDocumentError) {
       if (pickDocumentError?.code === 'DOCUMENT_PICKER_CANCELED') return;
 
-      console.error('[InputChatWindow] Erreur lors de la sélection du fichier:', pickDocumentError);
       setAlertMessage(t('errors.errorSelectingFile'));
       setShowAlert(true);
     }
@@ -303,7 +301,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
 
       <CustomAlert
         visible={showAlert}
-        title={t('errors.title')}
         message={alertMessage}
         onClose={() => setShowAlert(false)}
         onConfirm={() => setShowAlert(false)}
