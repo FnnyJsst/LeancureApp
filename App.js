@@ -36,24 +36,32 @@ import { NotificationProvider } from './services/notification/notificationContex
  * @description Handle application-related errors
  */
 const handleAppError = (error, source, options = {}) => {
+  const { t } = useTranslation();
 
+  // Determine the appropriate error code and message
   let errorCode = AppErrorCodes.INITIALIZATION_FAILED;
+  let errorMessage = error.message || error;
 
+  // Translate common error messages
   if (error.message?.includes('decrypt') ||
       error.message?.includes('decipher') ||
       error.message?.includes('decryption')) {
     errorCode = AppErrorCodes.DECRYPTION_ERROR;
+    errorMessage = t('errors.decryptionFailed');
   } else if (error.message?.includes('storage') || error.message?.includes('SecureStore')) {
     errorCode = AppErrorCodes.STORAGE_ERROR;
+    errorMessage = t('errors.storageError');
   } else if (error.message?.includes('notification')) {
     errorCode = AppErrorCodes.NOTIFICATION_ERROR;
+    errorMessage = t('errors.notificationError');
   } else if (error.message?.includes('navigation')) {
     errorCode = AppErrorCodes.NAVIGATION_ERROR;
+    errorMessage = t('errors.navigationError');
   }
 
   return handleError({
     code: errorCode,
-    message: error.message || error
+    message: errorMessage
   }, `app.${source}`, {
     type: ErrorType.APP,
     showAlert: !options.silent,
@@ -196,17 +204,14 @@ export default function App({ testID, initialScreen }) {
       }
 
       try {
-        // Initialisation des traductions
         await initI18n();
         setIsI18nInitialized(true);
 
-        // Chargement des données
         await Promise.all([
           loadSelectedChannels(),
           loadTimeoutInterval()
         ]);
 
-        // Vérification de l'état des messages cachés
         try {
           const storedMessagesHidden = await SecureStore.getItemAsync('isMessagesHidden');
           const isHidden = storedMessagesHidden ? JSON.parse(storedMessagesHidden) : false;
@@ -220,9 +225,14 @@ export default function App({ testID, initialScreen }) {
           if (error.message?.includes('decrypt')) {
             await cleanSecureStoreKeys();
             setIsMessagesHidden(false);
+            handleAppError(error, 'initialization.messages', {
+              code: AppErrorCodes.DECRYPTION_ERROR,
+              message: t('errors.messagesStateDecryptionFailed')
+            });
           } else {
             handleAppError(error, 'initialization.messages', {
-              code: AppErrorCodes.STORAGE_ERROR
+              code: AppErrorCodes.STORAGE_ERROR,
+              message: t('errors.messagesStateLoadFailed')
             });
           }
         }
@@ -230,16 +240,16 @@ export default function App({ testID, initialScreen }) {
         setAppInitialized(true);
       } catch (error) {
         handleAppError(error, 'initialization', {
-          code: AppErrorCodes.INITIALIZATION_FAILED
+          code: AppErrorCodes.INITIALIZATION_FAILED,
+          message: t('errors.appInitializationFailed')
         });
       } finally {
-        // On s'assure que isLoading est mis à false dans tous les cas
         setIsLoading(false);
       }
     };
 
     initializeApp();
-  }, [loadSelectedChannels, loadTimeoutInterval]);
+  }, [loadSelectedChannels, loadTimeoutInterval, t]);
 
   // Ajout d'un useEffect pour la navigation initiale
   useEffect(() => {
@@ -274,14 +284,15 @@ export default function App({ testID, initialScreen }) {
         }
       } catch (error) {
         handleAppError(error, 'initialization.navigation', {
-          code: AppErrorCodes.NAVIGATION_ERROR
+          code: AppErrorCodes.NAVIGATION_ERROR,
+          message: t('errors.initialNavigationFailed')
         });
         navigate(SCREENS.LOGIN);
       }
     };
 
     handleInitialNavigation();
-  }, [appInitialized, isLoading, currentScreen, isMessagesHidden, selectedWebviews]);
+  }, [appInitialized, isLoading, currentScreen, isMessagesHidden, selectedWebviews, t]);
 
   /**
    * @description Handles the change of the messages hidden state
@@ -349,15 +360,13 @@ export default function App({ testID, initialScreen }) {
    */
   const handleChatLogout = async () => {
     try {
-      // First, we delete the notification token
       const tokenRemoved = await removeNotificationToken();
-      // Then, we delete the connection information
       await SecureStore.deleteItemAsync('savedLoginInfo');
-
-      // Finally, we redirect to the login screen
       navigate(SCREENS.LOGIN);
     } catch (error) {
-      handleAppError(error, 'logout');
+      handleAppError(error, 'logout', {
+        message: t('errors.logoutFailed')
+      });
       throw error;
     }
   };
@@ -405,15 +414,22 @@ export default function App({ testID, initialScreen }) {
     const setupNotifications = async () => {
       try {
         const token = await registerForPushNotificationsAsync();
-        if (token) {
-          console.log('✅ Token obtenu dans App.js :', token);
+        if (!token) {
+          handleAppError(new Error(t('errors.notificationTokenFailed')), 'notifications.setup', {
+            code: AppErrorCodes.NOTIFICATION_ERROR
+          });
         }
 
-        // Get the permissions status
         const { status } = await Notifications.getPermissionsAsync();
+        if (status !== 'granted') {
+          handleAppError(new Error(t('errors.notificationPermissionDenied')), 'notifications.permission', {
+            code: AppErrorCodes.NOTIFICATION_ERROR
+          });
+        }
       } catch (error) {
-        return handleAppError(error, 'notifications.setup', {
-          code: AppErrorCodes.NOTIFICATION_ERROR
+        handleAppError(error, 'notifications.setup', {
+          code: AppErrorCodes.NOTIFICATION_ERROR,
+          message: t('errors.notificationSetupFailed')
         });
       }
     };
@@ -464,7 +480,7 @@ export default function App({ testID, initialScreen }) {
         subscription.remove();
       }
     };
-  }, []);
+  }, [t]);
 
   // Nettoyage préventif du SecureStore au démarrage de l'application
   useEffect(() => {

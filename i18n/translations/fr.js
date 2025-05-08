@@ -221,6 +221,11 @@ export default {
   },
 
   errors: {
+    boundary: {
+      title: "Une erreur est survenue",
+      message: "L'application a rencontré un problème inattendu. Veuillez réessayer.",
+      retry: "Réessayer"
+    },
     required: "Ce champ est obligatoire",
     titleRequired: "Le titre est obligatoire",
     invalidUrl: "URL invalide",
