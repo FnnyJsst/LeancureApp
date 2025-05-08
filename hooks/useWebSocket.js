@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { ENV } from '../config/env';
 import { fetchChannelMessages } from '../services/api/messageApi';
 import { useTranslation } from 'react-i18next';
-import { handleError, ErrorType } from '../utils/errorHandling';
+import { handleError, ErrorType, ChatErrorCodes } from '../utils/errorHandling';
 import { useNotification } from '../services/notification/notificationContext';
 import { useCredentials } from '../hooks/useCredentials';
 
@@ -43,18 +43,28 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
      * @returns {object} Formatted error
      */
     const handleWSError = (error, source, options = {}) => {
-        return handleError(error, source, {
-            type: ErrorType.WEBSOCKET,
-            callback: onError,
-            ...options
-        });
+        return handleError(
+            {
+                message: error.message || error,
+                code: ChatErrorCodes.WEBSOCKET_ERROR
+            },
+            source,
+            {
+                type: ErrorType.CHAT,
+                ...options,
+                callback: (formattedError) => {
+                    if (onError) {
+                        onError(formattedError);
+                    }
+                }
+            }
+        );
     };
 
     /**
      * @description Cleanup the WebSocket connection
      */
     const cleanup = useCallback(() => {
-
         if (isClosingRef.current) {
             return;
         }
@@ -65,7 +75,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             try {
                 ws.current.close();
             } catch (error) {
-                console.error('❌ Erreur lors de la fermeture de la connexion:', error);
+                handleWSError(error, 'websocket.close');
             }
             ws.current = null;
         }
@@ -93,7 +103,11 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
     const sendSubscription = useCallback(async () => {
         try {
             if (!ws.current || !channels.length || ws.current.readyState !== WebSocket.OPEN) {
-                return;
+                return handleWSError(
+                    { message: t('errors.websocket.notConnected') },
+                    'websocket.subscription',
+                    { silent: true }
+                );
             }
 
             const cleanChannels = channels.map(channel =>
@@ -119,9 +133,13 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
             ws.current.send(JSON.stringify(subscriptionData));
         } catch (error) {
-            handleWSError(error, 'sendSubscription');
+            handleWSError(
+                { message: t('errors.websocket.subscription') },
+                'websocket.subscription',
+                { silent: true }
+            );
         }
-    }, [channels]);
+    }, [channels, t]);
 
     /**
      * @description Handle the notification message and mark channels as unread if needed
@@ -175,13 +193,19 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 }
             }
         } catch (error) {
-            console.error('❌ Erreur lors du traitement du message pour les canaux non lus:', error);
+            handleWSError(error, 'websocket.unreadChannels', { silent: true });
         }
     };
 
     // Connect to the WebSocket server
     const connect = useCallback(async () => {
         if (isConnectingRef.current || isClosingRef.current || reconnectAttempts.current >= MAX_RECONNECT_ATTEMPTS) {
+            if (reconnectAttempts.current >= MAX_RECONNECT_ATTEMPTS) {
+                return handleWSError(
+                    { message: t('errors.websocket.maxAttempts') },
+                    'websocket.maxAttempts'
+                );
+            }
             return;
         }
 
@@ -192,6 +216,13 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         try {
             isConnectingRef.current = true;
             const wsUrl = await ENV.WS_URL();
+
+            if (!wsUrl) {
+                return handleWSError(
+                    { message: t('errors.websocket.configuration') },
+                    'websocket.configuration'
+                );
+            }
 
             connectionTimeout.current = setTimeout(() => {
                 if (ws.current && ws.current.readyState !== WebSocket.OPEN) {
@@ -223,24 +254,28 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                     return;
                 }
                 cleanup();
-                clearInterval(pingInterval);
 
                 if (event.code !== 1000) {
+                    handleWSError(
+                        { message: t('errors.websocket.connectionError') },
+                        'websocket.connectionError',
+                        { silent: true }
+                    );
+
                     reconnectAttempts.current++;
                     if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
                         reconnectTimeout.current = setTimeout(() => {
                             connect();
                         }, RECONNECT_DELAY);
-                    } else {
-                        console.error('❌ Nombre maximum de tentatives de reconnexion atteint');
-                        handleWSError(new Error('Nombre maximum de tentatives de reconnexion atteint'), 'connection.max_attempts');
                     }
                 }
             };
 
             ws.current.onerror = (error) => {
-                console.error('❌ Erreur WebSocket:', error);
-                handleWSError(error, 'connection.error');
+                handleWSError(
+                    { message: t('errors.websocket.connectionError') },
+                    'websocket.connectionError'
+                );
                 if (!isClosingRef.current) {
                     cleanup();
                     reconnectAttempts.current++;
@@ -264,7 +299,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                     }
 
                     if (data && typeof data === 'object') {
-                        // We check the message format
                         if (data.message && data.message.type === 'messages') {
                             handleNotificationMessage(data);
                         } else if (data.type === 'notification') {
@@ -272,28 +306,36 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                         }
                     }
                 } catch (error) {
-                    console.error('❌ Erreur lors du traitement du message:', error);
                     handleWSError(
-                        { ...error, data: event.data },
-                        'message.parsing'
+                        { message: t('errors.websocket.messageParsing') },
+                        'websocket.messageParsing',
+                        { silent: true }
                     );
                 }
             };
 
-            // We add a ping to keep the connection active
+            // Add ping to keep connection alive
             const pingInterval = setInterval(() => {
                 if (ws.current && ws.current.readyState === WebSocket.OPEN) {
                     try {
                         ws.current.send(JSON.stringify({ type: 'ping' }));
                     } catch (error) {
-                        console.log('❌ Erreur lors de l\'envoi du ping:', error);
+                        handleWSError(
+                            { message: t('errors.websocket.ping') },
+                            'websocket.ping',
+                            { silent: true }
+                        );
                     }
                 }
-            }, 30000); // Ping every 30 seconds
+            }, 30000);
+
+            return () => clearInterval(pingInterval);
 
         } catch (error) {
-            console.error('❌ Erreur lors de la création de la connexion:', error);
-            handleWSError(error, 'connection.create');
+            handleWSError(
+                { message: t('errors.websocket.connectionError') },
+                'websocket.connectionError'
+            );
             isConnectingRef.current = false;
             cleanup();
             reconnectAttempts.current++;
@@ -303,7 +345,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 }, RECONNECT_DELAY);
             }
         }
-    }, [onMessage, sendSubscription, cleanup]);
+    }, [cleanup, sendSubscription, t]);
 
     // Cleanup when the component is unmounted
     useEffect(() => {
@@ -362,7 +404,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         }
 
         try {
-
             const cleanChannelId = activeChannel.current?.replace('channel_', '');
             const messages = await fetchChannelMessages(cleanChannelId, credentials);
 
@@ -385,7 +426,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                             login: msg.login || '',
                             isOwnMessage: msg.login === credentials.login,
                             isUnread: false,
-                            username: msg.login === credentials.login ? 'Me' : (msg.login || 'Unknown')
+                            username: msg.login === credentials.login ? t('messages.Me') : (msg.login || t('messages.unknownUser'))
                         }))
                     }
                 };
@@ -393,9 +434,9 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 onMessage(formattedData);
             }
         } catch (error) {
-            handleWSError(error, 'refreshMessages');
+            handleWSError(error, 'websocket.refreshMessages');
         }
-    }, [channels, onMessage, credentials]);
+    }, [channels, onMessage, credentials, t]);
 
     /**
      * @description Send a message to the WebSocket server
@@ -404,18 +445,19 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
      */
     const sendMessage = async (message) => {
         if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
-            const stateError = {
-                message: 'WebSocket non connecté',
-                wsExists: !!ws.current,
-                readyState: ws.current?.readyState
-            };
-            handleWSError(stateError, 'sendMessage.connection', { silent: false });
-            return false;
+            return handleWSError(
+                { message: t('errors.websocket.notConnected') },
+                'websocket.sendMessage',
+                { silent: false }
+            );
         }
 
         try {
             if (!credentials) {
-                throw new Error(t('errors.noCredentialsFound'));
+                return handleWSError(
+                    { message: t('errors.noCredentialsFound') },
+                    'websocket.sendMessage.credentials'
+                );
             }
 
             const cleanChannelId = activeChannel.current?.replace('channel_', '');
@@ -442,7 +484,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             ws.current.send(JSON.stringify(messageData));
             return true;
         } catch (error) {
-            handleWSError(error, 'sendMessage.process');
+            handleWSError(error, 'websocket.sendMessage');
             return false;
         }
     };

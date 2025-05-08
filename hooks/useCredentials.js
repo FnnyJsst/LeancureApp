@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
+import { handleError, ErrorType } from '../utils/errorHandling';
 
 export const useCredentials = () => {
     const [credentials, setCredentials] = useState(null);
@@ -20,7 +21,11 @@ export const useCredentials = () => {
                     setUserRights(rightsStr ? JSON.parse(rightsStr) : null);
                 }
             } catch (error) {
-                console.error('Erreur lors du chargement des données utilisateur:', error);
+                handleError(error, 'credentials.loadUserData', {
+                    type: ErrorType.SYSTEM,
+                    userMessageKey: 'errors.credentials.loadUserData',
+                    silent: true
+                });
             } finally {
                 setIsLoading(false);
             }

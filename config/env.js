@@ -7,13 +7,18 @@ import {
   FIREBASE_APP_ID,
   EXPO_PROJECT_ID
 } from '@env';
+import { handleError, ErrorType } from '../utils/errorHandling';
 
 // We get the API URL from the environment variables
 const DEFAULT_API_URL = process.env.API_URL;
 
 // We check if the API URL is defined
 if (!DEFAULT_API_URL) {
-    console.warn('API_URL not found in environment variables, using default value');
+    handleError(
+        new Error('API_URL not found in environment variables'),
+        'env.config',
+        { type: ErrorType.SYSTEM, silent: true }
+    );
 }
 
 export const ENV = {
@@ -23,25 +28,22 @@ export const ENV = {
      * @returns {Promise<string>} The API URL
      */
     API_URL: async () => {
-
-        // We try to get the custom API URL from the SecureStore
         try {
-            // We get the custom API URL from the SecureStore
             const customUrl = await SecureStore.getItemAsync('custom_api_url');
 
-            // We check if the custom API URL is defined
             if (customUrl) {
-                // We check if the custom API URL is valid
                 try {
                     new URL(customUrl);
                     return customUrl;
-                // If the custom API URL is not valid, we delete it from the SecureStore
                 } catch (urlError) {
                     await SecureStore.deleteItemAsync('custom_api_url');
-                    console.error('🔴 URL personnalisée invalide:', urlError);
+                    handleError(urlError, 'env.invalidCustomUrl', {
+                        type: ErrorType.SYSTEM,
+                        silent: false,
+                        userMessageKey: 'errors.env.invalidCustomUrl'
+                    });
                 }
             }
-            // If the custom API URL is not defined, we use the default API URL
             return DEFAULT_API_URL;
         } catch (error) {
             return DEFAULT_API_URL;
@@ -55,35 +57,37 @@ export const ENV = {
      * @returns {Promise<boolean>} True if the URL is set, false otherwise
      */
     setCustomApiUrl: async (url) => {
-        // We check if the URL is valid
         if (!url || typeof url !== 'string') {
-            console.error('❌ URL invalide:', url);
-            throw new Error('L\'URL doit être une chaîne de caractères valide');
+            handleError(
+                new Error('URL must be a valid string'),
+                'env.setCustomApiUrl',
+                { type: ErrorType.VALIDATION }
+            );
+            return false;
         }
 
         const trimmedUrl = url.trim();
         try {
-            // We check if the URL is valid
             const parsedUrl = new URL(trimmedUrl);
 
-            // We delete the old API and WebSocket URLs
             await SecureStore.deleteItemAsync('custom_api_url');
             await SecureStore.deleteItemAsync('custom_ws_url');
 
-            // We save the new API URL
             await SecureStore.setItemAsync('custom_api_url', trimmedUrl);
-            // We generate and save the corresponding WebSocket URL
-            // We always use the specific port 8000 for WebSockets
+
             const host = parsedUrl.hostname;
             const wsProtocol = parsedUrl.protocol === 'https:' ? 'wss:' : 'ws:';
-            // Fixed port 8000 for WebSockets
             const wsUrl = `${wsProtocol}//${host}:8000`;
 
             await SecureStore.setItemAsync('custom_ws_url', wsUrl);
 
             return true;
         } catch (error) {
-            throw error;
+            handleError(error, 'env.setCustomApiUrl', {
+                type: ErrorType.SYSTEM,
+                userMessageKey: 'errors.env.invalidUrl'
+            });
+            return false;
         }
     },
 
@@ -94,37 +98,35 @@ export const ENV = {
      */
     WS_URL: async () => {
         try {
-            // We check if a custom WebSocket URL exists
             const customWsUrl = await SecureStore.getItemAsync('custom_ws_url');
             if (customWsUrl) {
-                console.log('📱 URL WebSocket personnalisée trouvée:', customWsUrl);
                 return customWsUrl;
             }
 
-            // We check if a custom API URL exists and convert it to a WebSocket URL
             const customApiUrl = await SecureStore.getItemAsync('custom_api_url');
             if (customApiUrl) {
                 try {
-                    // We analyze the API URL
                     const apiUrl = new URL(customApiUrl);
-                    // We create a WebSocket URL based on the API URL
                     const host = apiUrl.hostname;
                     const wsProtocol = apiUrl.protocol === 'https:' ? 'wss:' : 'ws:';
-                    // Fixed port 8000 for WebSockets
                     const wsUrl = `${wsProtocol}//${host}:8000`;
 
-                    console.log('🔄 URL WebSocket générée à partir de l\'URL API:', wsUrl);
                     return wsUrl;
                 } catch (urlError) {
-                    console.error('🔴 Erreur lors de la conversion de l\'URL API en URL WebSocket:', urlError);
+                    handleError(urlError, 'env.wsUrlConversion', {
+                        type: ErrorType.SYSTEM,
+                        userMessageKey: 'errors.env.wsUrlConversion'
+                    });
                 }
             }
 
-            // If no custom URL is found, use the default URL
             const defaultWsUrl = 'ws://192.168.1.67:8000';
             return defaultWsUrl;
         } catch (error) {
-            console.error('🔴 Erreur lors de la récupération de l\'URL WebSocket:', error);
+            handleError(error, 'env.wsUrlRetrieval', {
+                type: ErrorType.SYSTEM,
+                userMessageKey: 'errors.env.wsUrlRetrieval'
+            });
             return 'ws://192.168.1.67:8000';
         }
     },

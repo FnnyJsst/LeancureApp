@@ -32,6 +32,7 @@ export default {
     Me: "Me",
     GroupWithoutName: "Group without name",
     ChannelWithoutName: "Channel without name",
+    unknownUser: "Unknown user",
   },
 
   dateTime: {
@@ -236,6 +237,12 @@ export default {
       imageLoad: "Error loading image",
       renderPreview: "Error rendering preview"
     },
+    env: {
+      invalidCustomUrl: "Invalid custom URL",
+      invalidUrl: "URL must be a valid string",
+      wsUrlConversion: "Error converting API URL to WebSocket URL",
+      wsUrlRetrieval: "Error retrieving WebSocket URL"
+    },
     changeServerAddressModal: {
       loadServerAddress: "Error loading server address",
       handleSave: "Error saving server address"
@@ -359,6 +366,29 @@ export default {
     renderPreview: "Error rendering preview",
     parseCSV: "Error parsing CSV file",
     unknownError: "An error occurred",
+    firebase: {
+      initialization: "Error initializing Firebase"
+    },
+    credentials: {
+      loadUserData: "Error loading user data"
+    },
+    timeout: {
+      delete: "Error deleting timeout",
+      save: "Error saving timeout",
+      load: "Error loading timeout"
+    },
+    websocket: {
+      notConnected: "WebSocket not connected",
+      maxAttempts: "Maximum reconnection attempts reached",
+      connectionError: "WebSocket connection error",
+      messageParsing: "Error parsing message",
+      ping: "Error sending ping",
+      refreshMessages: "Error refreshing messages",
+      sendMessage: "Error sending message",
+      unreadChannels: "Error processing unread channels",
+      configuration: "WebSocket configuration error",
+      subscription: "Error subscribing to channels"
+    },
   },
 
   tooltips: {

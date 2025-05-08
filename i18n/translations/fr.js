@@ -32,6 +32,7 @@ export default {
     Me: "Moi",
     GroupWithoutName: "Groupe sans nom",
     ChannelWithoutName: "Canal sans nom",
+    unknownUser: "Utilisateur inconnu",
   },
 
   dateTime: {
@@ -236,6 +237,12 @@ export default {
       imageLoad: "Erreur lors du chargement de l'image",
       renderPreview: "Erreur lors de l'affichage de l'aperçu"
     },
+    env: {
+      invalidCustomUrl: "URL personnalisée invalide",
+      invalidUrl: "L'URL doit être une chaîne de caractères valide",
+      wsUrlConversion: "Erreur lors de la conversion de l'URL API en URL WebSocket",
+      wsUrlRetrieval: "Erreur lors de la récupération de l'URL WebSocket"
+    },
     changeServerAddressModal: {
       loadServerAddress: "Erreur lors du chargement de l'adresse du serveur",
       handleSave: "Erreur lors de la sauvegarde de l'adresse du serveur"
@@ -362,6 +369,29 @@ export default {
     renderPreview: "Erreur lors de l'aperçu du document",
     parseCSV: "Erreur lors de la lecture du CSV",
     unknownError: "Une erreur est survenue",
+    firebase: {
+      initialization: "Erreur lors de l'initialisation de Firebase"
+    },
+    credentials: {
+      loadUserData: "Erreur lors du chargement des données utilisateur"
+    },
+    timeout: {
+      delete: "Erreur lors de la suppression du délai d'expiration",
+      save: "Erreur lors de la sauvegarde du délai d'expiration",
+      load: "Erreur lors du chargement du délai d'expiration"
+    },
+    websocket: {
+      notConnected: "WebSocket non connecté",
+      maxAttempts: "Nombre maximum de tentatives de reconnexion atteint",
+      connectionError: "Erreur de connexion WebSocket",
+      messageParsing: "Erreur lors du traitement du message",
+      ping: "Erreur lors de l'envoi du ping",
+      refreshMessages: "Erreur lors du rafraîchissement des messages",
+      sendMessage: "Erreur lors de l'envoi du message",
+      unreadChannels: "Erreur lors du traitement des canaux non lus",
+      configuration: "Erreur de configuration WebSocket",
+      subscription: "Erreur lors de la souscription aux canaux"
+    },
   },
 
   tooltips: {

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import * as SecureStore from 'expo-secure-store';
+import { handleError, ErrorType } from '../utils/errorHandling';
 
 export const useTimeout = () => {
     const [timeoutInterval, setTimeoutInterval] = useState(null);
@@ -35,14 +36,22 @@ export const useTimeout = () => {
             try {
                 SecureStore.deleteItemAsync('timeoutInterval');
             } catch (error) {
-                console.error('Error during the deletion of the timeout:', error);
+                handleError(error, 'timeout.delete', {
+                    type: ErrorType.SYSTEM,
+                    userMessageKey: 'errors.timeout.delete',
+                    silent: true
+                });
             }
         } else {
             setTimeoutInterval(timeoutInSeconds * 1000);
             try {
                 SecureStore.setItemAsync('timeoutInterval', String(timeoutInSeconds));
             } catch (error) {
-                console.error('Error during the saving of the timeout:', error);
+                handleError(error, 'timeout.save', {
+                    type: ErrorType.SYSTEM,
+                    userMessageKey: 'errors.timeout.save',
+                    silent: true
+                });
             }
         }
     };
@@ -54,7 +63,11 @@ export const useTimeout = () => {
                 setTimeoutInterval(Number(storedTimeout) * 1000);
             }
         } catch (error) {
-            console.error('Error during the loading of the timeout:', error);
+            handleError(error, 'timeout.load', {
+                type: ErrorType.SYSTEM,
+                userMessageKey: 'errors.timeout.load',
+                silent: true
+            });
         }
     }, []);
 
