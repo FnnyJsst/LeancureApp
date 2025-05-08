@@ -161,7 +161,10 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         rows
       };
     } catch (error) {
-      console.error('Error parsing CSV:', error);
+      handleDocumentError(error, 'documentPreview.parseCSV', {
+        type: ErrorType.SYSTEM,
+        silent: false
+      });
       return {
         headers: [],
         rows: []

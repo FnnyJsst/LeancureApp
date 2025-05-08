@@ -106,7 +106,7 @@ export default function Login({ onNavigate }) {
             if (validationError) {
                 handleError(validationError, 'login.validation', {
                     type: ErrorType.VALIDATION,
-                    showAlert: true,
+                    // showAlert: true,
                     setAlertMessage: (message) => {
                         setAlertMessage(message);
                         setShowAlert(true);
@@ -393,7 +393,11 @@ export default function Login({ onNavigate }) {
             } else {
                 handleError(t('errors.invalidCredentials'), {
                     type: ErrorType.SYSTEM,
-                    silent: false
+                    showAlert: true,
+                    setAlertMessage: (message) => {
+                        setAlertMessage(message);
+                        setShowAlert(true);
+                    }
                 });
                 setIsSimplifiedLogin(false);
             }

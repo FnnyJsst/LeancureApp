@@ -226,6 +226,24 @@ export default {
       message: "L'application a rencontré un problème inattendu. Veuillez réessayer.",
       retry: "Réessayer"
     },
+    dateFormat: {
+      error: "Erreur lors du formatage de la date"
+    },
+    documentPreview: {
+      parseCSV: "Erreur lors de l'analyse du fichier CSV",
+      loadHighQualityImage: "Erreur lors du chargement de l'image haute qualité",
+      handleDownload: "Erreur lors du téléchargement du fichier",
+      imageLoad: "Erreur lors du chargement de l'image",
+      renderPreview: "Erreur lors de l'affichage de l'aperçu"
+    },
+    changeServerAddressModal: {
+      loadServerAddress: "Erreur lors du chargement de l'adresse du serveur",
+      handleSave: "Erreur lors de la sauvegarde de l'adresse du serveur"
+    },
+    importFullUrlModal: {
+      validation: "Veuillez entrer une URL valide",
+      import: "Erreur lors de l'importation de l'URL"
+    },
     required: "Ce champ est obligatoire",
     titleRequired: "Le titre est obligatoire",
     invalidUrl: "URL invalide",

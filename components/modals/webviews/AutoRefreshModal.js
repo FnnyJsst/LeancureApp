@@ -21,7 +21,7 @@ const createOptions = (t) => [
   { label: t('modals.webview.refresh.every6h'), value: 'every 6 hours' },
 ];
 
-// Mémoiser l'item de la liste
+// Memoized radio item
 const RadioItem = memo(({ item, selectedOption, onSelect, isSmartphone }) => (
   <TouchableOpacity
     style={[
@@ -65,19 +65,16 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
 
   useEffect(() => {
     if (currentOption) {
-      console.log('[AutoRefreshModal] Option actuelle reçue:', currentOption);
       setSelectedOption(currentOption);
     }
   }, [currentOption]);
 
-  // Mémoiser les callbacks
+  // Memoized callbacks
   const handleSelect = useCallback((value) => {
-    console.log('[AutoRefreshModal] Nouvelle option sélectionnée:', value);
     setSelectedOption(value);
   }, []);
 
   const handleSave = useCallback(() => {
-    console.log('[AutoRefreshModal] Sauvegarde de l\'option:', selectedOption);
     onSelectOption(selectedOption);
     setShowAlert(true);
   }, [selectedOption, onSelectOption]);

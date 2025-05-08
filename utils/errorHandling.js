@@ -69,24 +69,23 @@ export const handleError = (error, source, options = {}) => {
   const {
     type = ErrorType.SYSTEM,
     showAlert = true,
-    setAlertMessage = null
+    setAlertMessage = null,
+    silent = false
   } = options;
 
   // Determine the error code
   let errorCode = error.code || ChatErrorCodes.SYSTEM;
   let errorMessage = error.message || error;
 
-  // Log the error for debugging
-  if (process.env.NODE_ENV === 'development') {
-    console.error(`[${type}][${source}] ${errorCode}: ${errorMessage}`);
-  }
-
-  // If there is an alert, we use the alert message
-  // If there is no alert, we use the error message
+  // If there is an alert, we use the alert message and don't log
   if (showAlert && setAlertMessage) {
     setAlertMessage(errorMessage);
-    // Do not log in the console if a UI alert is displayed
     return;
+  }
+
+  // Log the error for debugging only if not silent and no alert is shown
+  if (!silent && process.env.NODE_ENV === 'development') {
+    console.error(`[${type}][${source}] ${errorCode}: ${errorMessage}`);
   }
 
   // Return the formatted error

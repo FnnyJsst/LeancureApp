@@ -226,6 +226,24 @@ export default {
       message: "The application encountered an unexpected problem. Please try again.",
       retry: "Try again"
     },
+    dateFormat: {
+      error: "Error formatting date"
+    },
+    documentPreview: {
+      parseCSV: "Error parsing CSV file",
+      loadHighQualityImage: "Error loading high quality image",
+      handleDownload: "Error downloading file",
+      imageLoad: "Error loading image",
+      renderPreview: "Error rendering preview"
+    },
+    changeServerAddressModal: {
+      loadServerAddress: "Error loading server address",
+      handleSave: "Error saving server address"
+    },
+    importFullUrlModal: {
+      validation: "Please enter a valid URL",
+      import: "Error importing URL"
+    },
     required: "This field is required",
     titleRequired: "Title is required",
     invalidUrl: "Invalid URL",

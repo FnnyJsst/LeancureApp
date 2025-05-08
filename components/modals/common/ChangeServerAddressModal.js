@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { ENV } from '../../../config/env';
 import { useTranslation } from 'react-i18next';
 import CustomAlert from '../webviews/CustomAlert';
+import { handleError, ErrorType } from '../../../utils/errorHandling';
 
 /**
  * Wrapper for handleError that also handles the user display
@@ -50,7 +51,10 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
         const baseUrl = currentUrl.replace('/ic.php', '');
         setServerAddress(baseUrl);
       } catch (error) {
-        console.error('Erreur lors du chargement de l\'adresse du serveur:', error);
+        handleModalError(error, 'changeServerAddressModal.loadServerAddress', {
+          type: ErrorType.SYSTEM,
+          silent: false
+        });
       }
     };
 

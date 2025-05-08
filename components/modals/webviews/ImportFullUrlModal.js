@@ -8,6 +8,18 @@ import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../text/CustomText';
 import { useTranslation } from 'react-i18next';
+import { handleError, ErrorType } from '../../../utils/errorHandling';
+
+/**
+ * Wrapper for handleError that also handles the user display
+ * @param {Function} setError - setter React for the local error state
+ * @param {Function} t - i18n translation function
+ */
+const useHandledError = (setError, t) => (error, source, options = {}) => {
+  handleError(error, source, options);
+  const userMessageKey = options.userMessageKey || `errors.${source.split('.').pop()}`;
+  setError(t(userMessageKey) || t('errors.unknownError'));
+};
 
 /**
  * @component ImportFullUrlModal
@@ -23,6 +35,8 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
   const [error, setError] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+
+  const handleModalError = useHandledError(setError, t);
 
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
@@ -57,17 +71,19 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
    * @description A function to handle the import of the URL
    */
   const handleImport = async () => {
-    console.log('[ImportFullUrlModal] Début de l\'importation avec URL:', url);
-
     if (!url) {
-      console.log('[ImportFullUrlModal] Erreur: URL vide');
-      setError(t('errors.enterUrl'));
+      handleModalError(new Error('URL is required'), 'importFullUrlModal.validation', {
+        type: ErrorType.VALIDATION,
+        showAlert: false
+      });
       return;
     }
 
     if (!validateUrl(url)) {
-      console.log('[ImportFullUrlModal] Erreur: URL invalide');
-      setError(t('errors.invalidUrl'));
+      handleModalError(new Error('Invalid URL format'), 'importFullUrlModal.validation', {
+        type: ErrorType.VALIDATION,
+        showAlert: false
+      });
       return;
     }
 
@@ -75,14 +91,13 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
     setError('');
 
     try {
-      console.log('[ImportFullUrlModal] Tentative d\'importation...');
       await onImport(url);
-      console.log('[ImportFullUrlModal] Import réussi');
       handleClose();
     } catch (error) {
-      console.error('[ImportFullUrlModal] Erreur détaillée:', error);
-      console.error('[ImportFullUrlModal] Stack trace:', error.stack);
-      setError(t('errors.errorDuringImport'));
+      handleModalError(error, 'importFullUrlModal.import', {
+        type: ErrorType.SYSTEM,
+        showAlert: false
+      });
     } finally {
       setIsImporting(false);
     }
