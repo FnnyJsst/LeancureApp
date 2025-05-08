@@ -15,14 +15,13 @@ export const useNavigation = (setCurrentScreen) => {
         throw new Error(`Screen "${screen}" doesn't exist`);
       }
 
-      // Si on navigue vers un webview, on ne vérifie pas la hiérarchie
+
       if (screen === SCREENS.WEBVIEWS_MANAGEMENT || screen === SCREENS.WEBVIEWS_LIST) {
         setCurrentScreen(SCREENS[screen]);
         setError(null);
         return;
       }
 
-      // Pour les autres écrans, on utilise la navigation normale
       setCurrentScreen(SCREENS[screen]);
       setError(null);
     } catch (err) {

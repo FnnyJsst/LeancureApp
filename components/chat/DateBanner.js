@@ -56,7 +56,6 @@ export default function DateBanner({ date }) {
 
 
       if (isNaN(dateObj.getTime())) {
-        console.warn('❌ Date invalide:', date);
         return null;
       }
       formattedDate = format(dateObj, 'EEEE, d MMMM yyyy', { locale });

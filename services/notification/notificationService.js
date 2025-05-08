@@ -5,7 +5,7 @@ import '../../config/firebase';
 import axios from 'axios';
 import { createApiRequest } from '../api/baseApi';
 import { getCurrentlyViewedChannel, emitUnreadMessage } from './notificationContext';
-import { handleError, ErrorType } from '../../utils/errorHandling';
+import { handleError, ErrorType, NotificationErrorCodes } from '../../utils/errorHandling';
 import i18n from '../../i18n';
 import * as SecureStore from 'expo-secure-store';
 
@@ -79,7 +79,9 @@ Notifications.setNotificationHandler({
             }
           }
         } catch (error) {
-          console.error('❌ [NotificationService] Erreur lors de la vérification du canal:', error);
+          handleNotificationError(error, 'channel.check', {
+            code: NotificationErrorCodes.CHANNEL_ERROR
+          });
         }
       }
 
@@ -90,7 +92,9 @@ Notifications.setNotificationHandler({
         shouldSetBadge: true,
       };
     } catch (error) {
-      console.error('❌ [NotificationService] Erreur dans le gestionnaire global de notification:', error);
+      handleNotificationError(error, 'handler', {
+        code: NotificationErrorCodes.DISPLAY_ERROR
+      });
       // In case of error, we display the default notification
       return {
         shouldShowAlert: true,
@@ -119,7 +123,9 @@ export const registerForPushNotificationsAsync = async () => {
 
     // If the permission is not granted, we return null
     if (finalStatus !== 'granted') {
-      return null;
+      return handleNotificationError(new Error(i18n.t('errors.notificationPermissionDenied')), 'permissions', {
+        code: NotificationErrorCodes.PERMISSION_DENIED
+      });
     }
 
     // We configure the Android channel
@@ -141,11 +147,9 @@ export const registerForPushNotificationsAsync = async () => {
 
     return token;
   } catch (error) {
-    handleError(error, i18n.t('error.errorRegisteringPushNotifications'), {
-      type: ErrorType.SYSTEM,
-      silent: false
+    return handleNotificationError(error, 'registration', {
+      code: NotificationErrorCodes.REGISTRATION_FAILED
     });
-    return null;
   }
 };
 
@@ -341,8 +345,9 @@ const getDeviceId = async () => {
     }
     return deviceId;
   } catch (error) {
-    console.error('❌ [Notification] Erreur lors de la génération de l\'ID appareil:', error);
-    return `device_${Date.now()}`;
+    return handleNotificationError(error, 'deviceId', {
+      code: NotificationErrorCodes.DEVICE_ID_ERROR
+    });
   }
 };
 
@@ -357,7 +362,9 @@ export const removeNotificationToken = async () => {
     // We get the credentials
     const credentials = await SecureStore.getItemAsync('userCredentials');
     if (!credentials) {
-      return false;
+      return handleNotificationError(new Error(i18n.t('errors.noCredentials')), 'token.remove', {
+        code: NotificationErrorCodes.CREDENTIALS_ERROR
+      });
     }
 
     // Parse credentials
@@ -365,18 +372,16 @@ export const removeNotificationToken = async () => {
     try {
       parsedCredentials = JSON.parse(credentials);
     } catch (error) {
-      console.error('❌ [NotificationService] Erreur lors du parsing des credentials:', error);
-      return false;
+      return handleNotificationError(error, 'token.parse', {
+        code: NotificationErrorCodes.CREDENTIALS_ERROR
+      });
     }
 
     // Vérification des champs requis
     if (!parsedCredentials.accountApiKey || !parsedCredentials.contractNumber || !parsedCredentials.accessToken) {
-      console.error('❌ [NotificationService] Credentials incomplets:', {
-        hasAccountApiKey: !!parsedCredentials.accountApiKey,
-        hasContractNumber: !!parsedCredentials.contractNumber,
-        hasAccessToken: !!parsedCredentials.accessToken
+      return handleNotificationError(new Error(i18n.t('errors.invalidCredentials')), 'token.validate', {
+        code: NotificationErrorCodes.CREDENTIALS_ERROR
       });
-      return false;
     }
 
     // We get the current token
@@ -389,12 +394,16 @@ export const removeNotificationToken = async () => {
       console.log('Token récupéré pour suppression :', currentToken);
     } catch (error) {
       console.error('❌ [NotificationService] Erreur lors de la récupération du token:', error);
-      return false;
+      return handleNotificationError(error, 'token.get', {
+        code: NotificationErrorCodes.TOKEN_ERROR
+      });
     }
 
     if (!currentToken) {
       console.log('❌ [NotificationService] Aucun token trouvé');
-      return false;
+      return handleNotificationError(new Error(i18n.t('errors.noToken')), 'token.get', {
+        code: NotificationErrorCodes.TOKEN_ERROR
+      });
     }
 
     // We build the request
@@ -437,8 +446,9 @@ export const removeNotificationToken = async () => {
     console.log(success ? '✅ [NotificationService] Suppression réussie' : '❌ [NotificationService] Suppression échouée');
     return success;
   } catch (error) {
-    console.error('❌ [NotificationService] Erreur lors de la suppression du token:', error);
-    return false;
+    return handleNotificationError(error, 'token.remove', {
+      code: NotificationErrorCodes.TOKEN_ERROR
+    });
   }
 };
 
@@ -502,4 +512,38 @@ export const setupConnectionMonitor = () => {
     }
     subscription.remove();
   };
+};
+
+/**
+ * @function handleNotificationError
+ * @description Handle notification-related errors
+ */
+const handleNotificationError = (error, source, options = {}) => {
+  // Déterminer le code d'erreur approprié
+  let errorCode = NotificationErrorCodes.DISPLAY_ERROR;
+
+  if (error.message?.includes('permission')) {
+    errorCode = NotificationErrorCodes.PERMISSION_DENIED;
+  } else if (error.message?.includes('token')) {
+    errorCode = NotificationErrorCodes.TOKEN_ERROR;
+  } else if (error.message?.includes('sync')) {
+    errorCode = NotificationErrorCodes.SYNC_FAILED;
+  } else if (error.message?.includes('channel')) {
+    errorCode = NotificationErrorCodes.CHANNEL_ERROR;
+  } else if (error.message?.includes('sound')) {
+    errorCode = NotificationErrorCodes.SOUND_ERROR;
+  } else if (error.message?.includes('credentials')) {
+    errorCode = NotificationErrorCodes.CREDENTIALS_ERROR;
+  } else if (error.message?.includes('device')) {
+    errorCode = NotificationErrorCodes.DEVICE_ID_ERROR;
+  }
+
+  return handleError({
+    code: errorCode,
+    message: error.message || error
+  }, `notification.${source}`, {
+    type: ErrorType.NOTIFICATION,
+    showAlert: !options.silent,
+    ...options
+  });
 };

@@ -195,7 +195,6 @@ export const getUserRights = async () => {
  */
 export const checkRefreshToken = async (contractNumber, accountApiKey, refreshToken) => {
   try {
-    console.log('[Auth] Vérification du refresh token');
     const timestamp = Date.now();
     const data = `accounts/token/refresh/${timestamp}/`;
     const hash = CryptoJS.HmacSHA256(data, contractNumber);
@@ -234,10 +233,6 @@ export const checkRefreshToken = async (contractNumber, accountApiKey, refreshTo
       validateStatus: function (status) {
         return true;
       }
-    });
-    console.log('[Auth] Réponse du refresh token:', {
-      status: response.status,
-      hasData: !!response.data?.cmd?.[0]?.accounts?.token?.refresh?.data
     });
 
     return {
