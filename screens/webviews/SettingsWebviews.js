@@ -91,10 +91,7 @@ export default function SettingsWebviews({
 
         setHasSeenTooltips(tooltipValues);
       } catch (error) {
-        handleError(error, i18n.t('errors.errorLoadingTooltips'), {
-          type: ErrorType.SYSTEM,
-          silent: false
-        });
+        console.error('[SettingsWebviews] Error while loading the tooltips:', error);
         // Default to show all tooltips if an error occurs
         setHasSeenTooltips({
           autoRefresh: true,
@@ -190,10 +187,7 @@ export default function SettingsWebviews({
       // Open the corresponding modal after closing the tooltip
       updateModalState(tooltipKey, true);
     } catch (error) {
-      handleError(error, i18n.t('errors.errorMarkingTooltipAsSeen'), {
-        type: ErrorType.SYSTEM,
-        silent: false
-      });
+      console.error('[SettingsWebviews] Error while marking the tooltip as seen:', error);
     }
   }, [updateModalState]);
 

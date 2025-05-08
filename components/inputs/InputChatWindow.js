@@ -8,6 +8,7 @@ import * as FileSystem from 'expo-file-system';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
 import { formatFileSize } from '../../utils/fileUtils';
+import CustomAlert from '../modals/webviews/CustomAlert';
 
 /**
  * @component FilePreview
@@ -54,18 +55,6 @@ const  FilePreview = ({ file, onRemove }) => {
 };
 
 /**
- * Wrapper pour handleError qui gère aussi l'affichage utilisateur
- * @param {Function} setError - setter React pour l'état d'erreur locale
- * @param {Function} t - fonction de traduction i18n
- * @returns {Function}
- */
-const useHandledError = (setError, t) => (error, source, options = {}) => {
-  handleError(error, source, options);
-  const userMessageKey = options.userMessageKey || `errors.${source.split('.').pop()}`;
-  setError(t(userMessageKey) || t('errors.unknownError'));
-};
-
-/**
  * @component InputChatWindow
  * @description A component that renders the input of the chat
  * @param {Object} props.onSendMessage - The function to call when the message is sent
@@ -80,8 +69,8 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
   const [isFocused, setIsFocused] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const { t } = useTranslation();
-  const [error, setError] = useState(null);
-  const handleInputError = useHandledError(setError, t);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   /**
    * @function pickDocument
@@ -90,7 +79,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        // We allow only the following file types
         type: [
           'application/pdf',
           'text/csv',
@@ -104,7 +92,6 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
       if (result.assets && result.assets.length > 0) {
         const file = result.assets[0];
 
-        // Additional file type verification
         const allowedTypes = [
           'application/pdf',
           'text/csv',
@@ -114,7 +101,9 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
         ];
 
         if (!allowedTypes.includes(file.mimeType)) {
-          setError(t('errors.fileTypeNotAllowed'));
+          console.error('[InputChatWindow] Type de fichier non autorisé:', file.mimeType);
+          setAlertMessage(t('errors.fileTypeNotAllowed'));
+          setShowAlert(true);
           return;
         }
 
@@ -142,9 +131,10 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
       }
     } catch (pickDocumentError) {
       if (pickDocumentError?.code === 'DOCUMENT_PICKER_CANCELED') return;
-      handleInputError(pickDocumentError, 'inputChatWindow.pickDocument', {
-        userMessageKey: 'errors.filePickError'
-      });
+
+      console.error('[InputChatWindow] Erreur lors de la sélection du fichier:', pickDocumentError);
+      setAlertMessage(t('errors.errorSelectingFile'));
+      setShowAlert(true);
     }
   };
 
@@ -310,9 +300,15 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
           />
         </TouchableOpacity>
       </View>
-      {error && (
-        <Text style={{ color: COLORS.red, marginBottom: 5, textAlign: 'center' }}>{error}</Text>
-      )}
+
+      <CustomAlert
+        visible={showAlert}
+        title={t('errors.title')}
+        message={alertMessage}
+        onClose={() => setShowAlert(false)}
+        onConfirm={() => setShowAlert(false)}
+        type="error"
+      />
     </>
   );
 }

@@ -5,8 +5,6 @@ import '../../config/firebase';
 import axios from 'axios';
 import { createApiRequest } from '../api/baseApi';
 import { getCurrentlyViewedChannel, emitUnreadMessage } from './notificationContext';
-import { handleError, ErrorType } from '../../utils/errorHandling';
-import i18n from '../../i18n';
 import * as SecureStore from 'expo-secure-store';
 
 // Handler for notifications to be displayed
@@ -79,7 +77,7 @@ Notifications.setNotificationHandler({
             }
           }
         } catch (error) {
-          console.error('❌ [NotificationService] Erreur lors de la vérification du canal:', error);
+          console.error('[Notification] Error checking channel:', error);
         }
       }
 
@@ -90,8 +88,7 @@ Notifications.setNotificationHandler({
         shouldSetBadge: true,
       };
     } catch (error) {
-      console.error('❌ [NotificationService] Erreur dans le gestionnaire global de notification:', error);
-      // In case of error, we display the default notification
+      console.error('[Notification] Error in notification handler:', error);
       return {
         shouldShowAlert: true,
         shouldPlaySound: true,
@@ -119,6 +116,7 @@ export const registerForPushNotificationsAsync = async () => {
 
     // If the permission is not granted, we return null
     if (finalStatus !== 'granted') {
+      console.error('[Notification] Permission denied');
       return null;
     }
 
@@ -141,10 +139,7 @@ export const registerForPushNotificationsAsync = async () => {
 
     return token;
   } catch (error) {
-    handleError(error, i18n.t('error.errorRegisteringPushNotifications'), {
-      type: ErrorType.SYSTEM,
-      silent: false
-    });
+    console.error('[Notification] Registration failed:', error);
     return null;
   }
 };
@@ -185,7 +180,6 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
         }
       }
 
-      // Vérification des doublons
       const timestamp = messageData.data?.timestamp || Date.now();
 
       const viewedChannelId = currentChannelId || getCurrentlyViewedChannel();
@@ -233,11 +227,7 @@ export const shouldDisplayNotification = async (messageData, currentChannelId = 
 
     return true;
   } catch (error) {
-    console.error('❌ [NotificationService] Erreur lors de la vérification des conditions:', error);
-    handleError(error, i18n.t('error.errorCheckingNotificationConditions'), {
-      type: ErrorType.SYSTEM,
-      silent: false
-    });
+    console.error('[Notification] Error checking notification conditions:', error);
     return true;
   }
 };
@@ -267,10 +257,7 @@ export const playNotificationSound = async (messageData, currentChannelId = null
       });
     }
   } catch (error) {
-    handleError(error, i18n.t('error.errorPlayingNotificationSound'), {
-      type: ErrorType.SYSTEM,
-      silent: false
-    });
+    console.error('[Notification] Error playing notification sound:', error);
   }
 };
 
@@ -287,7 +274,7 @@ export const synchronizeTokenWithAPI = async (token) => {
     const credentials = await SecureStore.getItemAsync('userCredentials');
     // If the credentials are not found, we return false
     if (!credentials) {
-      console.log('❌ [NotificationService] Synchronisation échouée: pas de credentials');
+      console.error('[Notification] No credentials found for token synchronization');
       return false;
     }
 
@@ -321,7 +308,7 @@ export const synchronizeTokenWithAPI = async (token) => {
     const success = response.status === 200 && response.data?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok';
     return success;
   } catch (error) {
-    console.error('❌ [NotificationService] Erreur lors de la synchronisation:', error);
+    console.error('[Notification] Token synchronization failed:', error);
     return false;
   }
 };
@@ -341,8 +328,8 @@ const getDeviceId = async () => {
     }
     return deviceId;
   } catch (error) {
-    console.error('❌ [Notification] Erreur lors de la génération de l\'ID appareil:', error);
-    return `device_${Date.now()}`;
+    console.error('[Notification] Error generating device ID:', error);
+    return `fallback_device_${Date.now()}`;
   }
 };
 
@@ -357,6 +344,7 @@ export const removeNotificationToken = async () => {
     // We get the credentials
     const credentials = await SecureStore.getItemAsync('userCredentials');
     if (!credentials) {
+      console.error('[Notification] No credentials found for token removal');
       return false;
     }
 
@@ -365,17 +353,13 @@ export const removeNotificationToken = async () => {
     try {
       parsedCredentials = JSON.parse(credentials);
     } catch (error) {
-      console.error('❌ [NotificationService] Erreur lors du parsing des credentials:', error);
+      console.error('[Notification] Error parsing credentials:', error);
       return false;
     }
 
     // Vérification des champs requis
     if (!parsedCredentials.accountApiKey || !parsedCredentials.contractNumber || !parsedCredentials.accessToken) {
-      console.error('❌ [NotificationService] Credentials incomplets:', {
-        hasAccountApiKey: !!parsedCredentials.accountApiKey,
-        hasContractNumber: !!parsedCredentials.contractNumber,
-        hasAccessToken: !!parsedCredentials.accessToken
-      });
+      console.error('[Notification] Invalid credentials for token removal');
       return false;
     }
 
@@ -386,14 +370,12 @@ export const removeNotificationToken = async () => {
         projectId: ENV.EXPO_PROJECT_ID,
       });
       currentToken = tokenData.data;
-      console.log('Token récupéré pour suppression :', currentToken);
     } catch (error) {
-      console.error('❌ [NotificationService] Erreur lors de la récupération du token:', error);
-      return false;
+      console.error('[Notification] Error getting token:', error);
     }
 
     if (!currentToken) {
-      console.log('❌ [NotificationService] Aucun token trouvé');
+      console.error('[Notification] No token found for removal');
       return false;
     }
 
@@ -426,26 +408,23 @@ export const removeNotificationToken = async () => {
     for (const key of possibleTokenKeys) {
       try {
         await SecureStore.deleteItemAsync(key);
-        const stillThere = await SecureStore.getItemAsync(key);
-        console.log(`✅ [NotificationService] Token supprimé de la clé ${key}, encore présent ?`, !!stillThere);
       } catch (error) {
-        console.log(`⚠️ [NotificationService] Pas de token trouvé pour la clé ${key}`);
+        console.error('[Notification] Error deleting token key:', { key, error });
       }
     }
 
     const success = response.status === 200 && response.data?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok';
-    console.log(success ? '✅ [NotificationService] Suppression réussie' : '❌ [NotificationService] Suppression échouée');
     return success;
   } catch (error) {
-    console.error('❌ [NotificationService] Erreur lors de la suppression du token:', error);
+    console.error('[Notification] Error removing notification token:', error);
     return false;
   }
 };
 
 /**
  * @function checkConnectionStatus
- * @description Vérifie si l'utilisateur est toujours connecté
- * @returns {Promise<boolean>} true si l'utilisateur est connecté, false sinon
+ * @description Check if the user is still connected
+ * @returns {Promise<boolean>} true if the user is connected, false otherwise
  */
 const checkConnectionStatus = async () => {
   try {
@@ -460,7 +439,7 @@ const checkConnectionStatus = async () => {
     // Ici, on ne contacte plus le serveur
     return true;
   } catch (error) {
-    console.error('[checkConnectionStatus] Erreur lors de la vérification des credentials:', error);
+    console.error('[Notification] Error checking connection status:', error);
     return false;
   }
 };
@@ -477,7 +456,6 @@ export const setupConnectionMonitor = () => {
   const checkAndHandleDisconnection = async () => {
     const isConnected = await checkConnectionStatus();
     if (!isConnected) {
-      console.log('🔒 [NotificationService] Déconnexion détectée, suppression du token');
       await removeNotificationToken();
     }
   };

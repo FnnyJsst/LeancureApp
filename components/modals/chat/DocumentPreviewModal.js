@@ -10,28 +10,11 @@ import * as Sharing from 'expo-sharing';
 import { Text } from '../../text/CustomText';
 import { fetchMessageFile } from '../../../services/api/messageApi';
 import { ActivityIndicator } from 'react-native';
-import { handleError, ErrorType } from '../../../utils/errorHandling';
 import { useTranslation } from 'react-i18next';
 import { Buffer } from 'buffer';
 import { useCredentials } from '../../../hooks/useCredentials';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { formatFileSize } from '../../../utils/fileUtils';
-
-/**
- * @description A wrapper for handleError that also handles the user display
- * @param {Function} setError - setter React for the local error state
- * @param {Function} t - i18n translation function
- * @returns {Function}
- */
-const useHandledError = (setError, t) => (error, source, options = {}) => {
-  // Call the global handler (log, callback, etc.)
-  handleError(error, source, options);
-
-  // Determine the user message to display
-  // We can pass a custom translation key via options.userMessageKey
-  const userMessageKey = options.userMessageKey || `errors.${source.split('.').pop()}`;
-  setError(t(userMessageKey) || t('errors.unknownError'));
-};
 
 /**
  * @component DocumentPreviewModal
@@ -59,8 +42,6 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
   const [rowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [isRotating, setIsRotating] = useState(false);
-
-  const handleDocumentError = useHandledError(setError, t);
 
   useLayoutEffect(() => {
     setIsRotating(true);
@@ -93,10 +74,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
           setHighQualityBase64(highQualityData);
         }
       } catch (err) {
-        handleDocumentError(err, 'documentPreview.loadHighQualityImage', {
-          type: ErrorType.SYSTEM,
-          silent: false
-        });
+        console.error('[DocumentPreview] Error while loading the high quality image:', err);
       } finally {
         setIsLoading(false);
       }
@@ -195,10 +173,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
       //We share the file
       await Sharing.shareAsync(fileUri);
     } catch (downloadFileError) {
-      handleDocumentError(downloadFileError, 'documentPreview.handleDownload', {
-        type: ErrorType.SYSTEM,
-        silent: false
-      });
+      setError(t('errors.errorDownloadingFile'));
     }
   };
 
@@ -385,10 +360,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
               style={styles.image}
               resizeMode="contain"
               onError={(error) => {
-                handleDocumentError(error, 'documentPreview.imageLoad', {
-                  type: ErrorType.SYSTEM,
-                  silent: false
-                });
+                setError(t('errors.errorLoadingImage'));
               }}
             />
             {isLoading && (
@@ -403,10 +375,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
         );
       }
     } catch (err) {
-      handleDocumentError(err, 'documentPreview.renderPreview', {
-        type: ErrorType.SYSTEM,
-        silent: false
-      });
+      setError(t('errors.errorRenderingPreview'));
       return null;
     }
   };

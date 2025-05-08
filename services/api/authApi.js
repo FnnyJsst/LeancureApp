@@ -4,6 +4,7 @@ import { createApiRequest } from './baseApi';
 import * as SecureStore from 'expo-secure-store';
 import { handleError, ErrorType, handleApiError } from '../../utils/errorHandling';
 import CryptoJS from 'crypto-js';
+import CustomAlert from '../../components/modals/webviews/CustomAlert';
 
 /**
  * @function loginApi
@@ -119,9 +120,10 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     };
 
   } catch (error) {
-    handleApiError(error, 'auth.login', {
-      type: ErrorType.AUTH,
-      silent: false
+    console.error('[Auth] Login error:', error);
+    CustomAlert.show({
+      title: 'Erreur de connexion',
+      message: error.message || t('errors.connectionError')
     });
     return {
       status: error.response?.status || 500,
@@ -139,14 +141,14 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
 export const saveCredentials = async (credentials) => {
   try {
     await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
-    // Save the rights separately for more security
     if (credentials.rights) {
       await SecureStore.setItemAsync('userRights', credentials.rights);
     }
   } catch (error) {
-    handleError(error, 'auth.saveCredentials', {
-      type: ErrorType.SYSTEM,
-      silent: false
+    console.error('[Auth] Error saving credentials:', error);
+    CustomAlert.show({
+      title: 'Erreur',
+      message: t('errors.errorSavingLoginInfo')
     });
     throw new Error(t('errors.errorSavingLoginInfo'));
   }
@@ -159,13 +161,13 @@ export const saveCredentials = async (credentials) => {
  */
 export const getCredentials = async () => {
   try {
-    // We get the credentials from the secure storage and parse it
     const credentials = await SecureStore.getItemAsync('userCredentials');
     return credentials ? JSON.parse(credentials) : null;
   } catch (error) {
-    handleError(error, 'auth.getCredentials', {
-      type: ErrorType.SYSTEM,
-      silent: false
+    console.error('[Auth] Error retrieving credentials:', error);
+    CustomAlert.show({
+      title: 'Erreur',
+      message: t('errors.errorLoadingLoginInfo')
     });
     throw new Error(t('errors.errorLoadingLoginInfo'));
   }
@@ -181,10 +183,7 @@ export const getUserRights = async () => {
     const credentials = await getCredentials();
     return credentials?.rights || null;
   } catch (error) {
-    handleError(error, 'auth.getUserRights', {
-      type: ErrorType.SYSTEM,
-      silent: false
-    });
+    console.error('[Auth] Error retrieving user rights:', error);
     return null;
   }
 };
@@ -249,9 +248,10 @@ export const checkRefreshToken = async (contractNumber, accountApiKey, refreshTo
       data: response.data?.cmd?.[0]?.accounts?.token?.refresh?.data
     };
   } catch (error) {
-    handleApiError(error, 'auth.checkRefreshToken', {
-      type: ErrorType.AUTH,
-      silent: false
+    console.error('[Auth] Error checking refresh token:', error);
+    CustomAlert.show({
+      title: 'Erreur d\'authentification',
+      message: error.message
     });
     return {
       success: false,

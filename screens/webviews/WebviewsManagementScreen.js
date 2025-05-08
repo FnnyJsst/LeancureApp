@@ -7,13 +7,12 @@ import DeleteWebviewModal from '../../components/modals/webviews/DeleteWebviewMo
 import AntDesign from '@expo/vector-icons/AntDesign';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import * as SecureStore from 'expo-secure-store';
 import { Text } from '../../components/text/CustomText';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { SIZES, COLORS } from '../../constants/style';
 import { SCREENS } from '../../constants/screens';
 import { useTranslation } from 'react-i18next';
-import { handleError, ErrorType } from '../../utils/errorHandling';
+import CustomAlert from '../../components/modals/webviews/CustomAlert';
 
 /**
  * @component WebviewsManagementScreen
@@ -246,6 +245,14 @@ export default function WebviewsManagementScreen({
     downIndex: null
   });
 
+  // Group all alert states in a single object
+  const [alertState, setAlertState] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    type: 'error'
+  });
+
   // Function to update the modal state
   const updateModalState = useCallback((key, value) => {
     setModalState(prev => ({ ...prev, [key]: value }));
@@ -284,33 +291,41 @@ export default function WebviewsManagementScreen({
   const handleDeleteWebview = useCallback(async (webviewToDelete) => {
     if (webviewToDelete) {
       try {
-        // Filtrer les webviews pour ne garder que celles qui ne sont pas à supprimer
+        // Filter the webviews to keep only the ones that are not to be deleted
         const updatedWebviews = selectedWebviews.filter(
           webview => webview.href !== webviewToDelete.href
         );
 
-        // Mettre à jour l'état local
         setSelectedWebviews(updatedWebviews);
 
-        // Sauvegarder uniquement les données essentielles avec une taille limitée
+        // Save only the essential data with a limited size
         const simplifiedWebviews = updatedWebviews.map(webview => ({
           href: (webview.href || '').substring(0, 100),
           title: (webview.title || '').substring(0, 50)
         }));
 
-        // Sauvegarder les webviews simplifiées
+        // Save the simplified webviews
         await saveSelectedWebviews(simplifiedWebviews);
 
-        // Fermer la modal
+        // Close the modal
         handleCloseModal('delete');
       } catch (error) {
-        handleError(error, t('errors.errorDeletingWebview'), {
-          type: ErrorType.SYSTEM,
-          silent: false
+        console.error('[WebviewsManagement] Erreur lors de la suppression:', error);
+
+        setAlertState({
+          visible: true,
+          title: t('errors.title'),
+          message: t('errors.errorDeletingWebview'),
+          type: 'error'
         });
       }
     }
   }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, handleCloseModal, t]);
+
+  // Fonction pour fermer l'alerte
+  const handleCloseAlert = useCallback(() => {
+    setAlertState(prev => ({ ...prev, visible: false }));
+  }, []);
 
   // Memoized item rendering
   const renderItem = useCallback(({ item, index }) => (
@@ -394,12 +409,15 @@ export default function WebviewsManagementScreen({
         }
       }
     } catch (err) {
-      handleError(err, i18n.t('errors.errorDuringImport'), {
-        type: ErrorType.SYSTEM,
-        silent: false
+      console.error('[WebviewsManagement] Error while importing the webviews:', err);
+
+      setAlertState({
+        visible: true,
+        message: t('errors.errorImportingWebviews'),
+        type: 'error'
       });
     }
-  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, isDuplicate]);
+  }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, isDuplicate, t]);
 
   /**
    * @function handleEditWebviewModal
@@ -421,10 +439,15 @@ export default function WebviewsManagementScreen({
       // Set and save the updated channels
       setSelectedWebviews(updatedWebviews);
       await saveSelectedWebviews(updatedWebviews);
-    } catch (err) {
-      handleError(err, i18n.t('errors.errorEditingWebview'), {
-        type: ErrorType.SYSTEM,
-        silent: false
+      // Fermer le modal d'édition
+      handleCloseModal('edit');
+    } catch (error) {
+      console.error('[WebviewsManagement] Error while editing the webview:', error);
+
+      setAlertState({
+        visible: true,
+        message: t('errors.errorEditingWebview'),
+        type: 'error'
       });
     }
   };
@@ -451,13 +474,9 @@ export default function WebviewsManagementScreen({
           title: (webview.title || '').substring(0, 50)
         }));
 
-        // Utiliser uniquement saveSelectedWebviews qui gère déjà SecureStore
         await saveSelectedWebviews(simplifiedWebviews);
       } catch (error) {
-        handleError(error, t('errors.errorMovingWebview'), {
-          type: ErrorType.SYSTEM,
-          silent: false
-        });
+        console.error('[WebviewsManagement] Error while moving the webview:', error);
       }
     }
   }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, t]);
@@ -484,13 +503,9 @@ export default function WebviewsManagementScreen({
           title: (webview.title || '').substring(0, 50)
         }));
 
-        // Utiliser uniquement saveSelectedWebviews qui gère déjà SecureStore
         await saveSelectedWebviews(simplifiedWebviews);
       } catch (error) {
-        handleError(error, t('errors.errorMovingWebview'), {
-          type: ErrorType.SYSTEM,
-          silent: false
-        });
+        console.error('[WebviewsManagement] Error while moving the webview:', error);
       }
     }
   }, [selectedWebviews, setSelectedWebviews, saveSelectedWebviews, t]);
@@ -572,6 +587,16 @@ export default function WebviewsManagementScreen({
         visible={modalState.delete}
         onClose={() => handleCloseModal('delete')}
         handleDelete={() => handleDeleteWebview(modalState.webviewToDelete)}
+      />
+
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertState.visible}
+        title={alertState.title}
+        message={alertState.message}
+        type={alertState.type}
+        onClose={handleCloseAlert}
+        onConfirm={handleCloseAlert}
       />
 
       {/* List of channels */}

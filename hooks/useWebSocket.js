@@ -2,7 +2,6 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { ENV } from '../config/env';
 import { fetchChannelMessages } from '../services/api/messageApi';
 import { useTranslation } from 'react-i18next';
-import { handleError, ErrorType } from '../utils/errorHandling';
 import { useNotification } from '../services/notification/notificationContext';
 import { useCredentials } from '../hooks/useCredentials';
 
@@ -36,21 +35,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
     const connectionTimeout = useRef(null);
 
     /**
-     * @description Handle WebSocket errors
-     * @param {Error} error - The error
-     * @param {string} source - The source
-     * @param {object} options - Additional options
-     * @returns {object} Formatted error
-     */
-    const handleWSError = (error, source, options = {}) => {
-        return handleError(error, source, {
-            type: ErrorType.WEBSOCKET,
-            callback: onError,
-            ...options
-        });
-    };
-
-    /**
      * @description Cleanup the WebSocket connection
      */
     const cleanup = useCallback(() => {
@@ -65,7 +49,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             try {
                 ws.current.close();
             } catch (error) {
-                console.error('❌ Erreur lors de la fermeture de la connexion:', error);
+                console.error('[WebSocket] Error while closing the connection:', error);
             }
             ws.current = null;
         }
@@ -119,7 +103,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
             ws.current.send(JSON.stringify(subscriptionData));
         } catch (error) {
-            handleWSError(error, 'sendSubscription');
+            console.error('[WebSocket] Error while sending the subscription:', error);
         }
     }, [channels]);
 
@@ -175,7 +159,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 }
             }
         } catch (error) {
-            console.error('❌ Erreur lors du traitement du message pour les canaux non lus:', error);
+            console.error('[WebSocket] Error while processing the message for unread channels:', error);
         }
     };
 
@@ -232,15 +216,13 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                             connect();
                         }, RECONNECT_DELAY);
                     } else {
-                        console.error('❌ Nombre maximum de tentatives de reconnexion atteint');
-                        handleWSError(new Error('Nombre maximum de tentatives de reconnexion atteint'), 'connection.max_attempts');
+                        console.error('[WebSocket] Maximum number of reconnection attempts reached');
                     }
                 }
             };
 
             ws.current.onerror = (error) => {
-                console.error('❌ Erreur WebSocket:', error);
-                handleWSError(error, 'connection.error');
+                console.error('[WebSocket] WebSocket error:', error);
                 if (!isClosingRef.current) {
                     cleanup();
                     reconnectAttempts.current++;
@@ -272,11 +254,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                         }
                     }
                 } catch (error) {
-                    console.error('❌ Erreur lors du traitement du message:', error);
-                    handleWSError(
-                        { ...error, data: event.data },
-                        'message.parsing'
-                    );
+                    console.error('[WebSocket] Error while processing the message:', error);
                 }
             };
 
@@ -286,14 +264,13 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                     try {
                         ws.current.send(JSON.stringify({ type: 'ping' }));
                     } catch (error) {
-                        console.log('❌ Erreur lors de l\'envoi du ping:', error);
+                        console.error('[WebSocket] Error while sending the ping:', error);
                     }
                 }
             }, 30000); // Ping every 30 seconds
 
         } catch (error) {
-            console.error('❌ Erreur lors de la création de la connexion:', error);
-            handleWSError(error, 'connection.create');
+            console.error('[WebSocket] Error while creating the connection:', error);
             isConnectingRef.current = false;
             cleanup();
             reconnectAttempts.current++;
@@ -393,7 +370,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 onMessage(formattedData);
             }
         } catch (error) {
-            handleWSError(error, 'refreshMessages');
+            console.error('[WebSocket] Error while refreshing the messages:', error);
         }
     }, [channels, onMessage, credentials]);
 
@@ -409,13 +386,14 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 wsExists: !!ws.current,
                 readyState: ws.current?.readyState
             };
-            handleWSError(stateError, 'sendMessage.connection', { silent: false });
+            console.error('[WebSocket] Error while sending the message:', stateError);
             return false;
         }
 
         try {
             if (!credentials) {
-                throw new Error(t('errors.noCredentialsFound'));
+                console.error('[WebSocket] No credentials found');
+                return false;
             }
 
             const cleanChannelId = activeChannel.current?.replace('channel_', '');
@@ -442,7 +420,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
             ws.current.send(JSON.stringify(messageData));
             return true;
         } catch (error) {
-            handleWSError(error, 'sendMessage.process');
+            console.error('[WebSocket] Error while sending the message:', error);
             return false;
         }
     };

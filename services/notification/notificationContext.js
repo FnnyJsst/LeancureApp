@@ -1,7 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { handleError, ErrorType } from '../../utils/errorHandling';
-import i18n from '../../i18n';
 
 // We create a context for notification data, to share the data between the components
 export const NotificationContext = createContext();
@@ -81,7 +79,7 @@ export const NotificationProvider = ({ children }) => {
    * @param {string} channelId - The ID of the channel
    * @param {string} channelTitle - The title of the channel
    */
-  const updateActiveChannel = (channelId, channelTitle) => {
+  const updateActiveChannel = async (channelId, channelTitle) => {
 
     setActiveChannelId(channelId);
     setCurrentlyViewedChannel(channelId);
@@ -96,28 +94,18 @@ export const NotificationProvider = ({ children }) => {
 
     // Store the channel name if available
     if (channelId && channelTitle) {
-      SecureStore.setItemAsync('viewedChannelName', channelTitle)
-        .then(() => {
-          console.log('[NotificationContext] viewedChannelName stocké avec succès:', channelTitle);
-        })
-        .catch(err => {
-          console.error('[NotificationContext] Erreur lors du stockage de viewedChannelName:', err);
-          handleError(err, i18n.t('error.setChannelName'), {
-            type: ErrorType.SYSTEM
-          });
-        });
+      try {
+        await SecureStore.setItemAsync('viewedChannelName', channelTitle);
+
+      } catch (err) {
+        console.error('[NotificationContext] Error while saving the channel name:', err);
+      }
     } else {
-      console.log('[NotificationContext] Suppression de viewedChannelName');
-      SecureStore.deleteItemAsync('viewedChannelName')
-        .then(() => {
-          console.log('[NotificationContext] viewedChannelName supprimé avec succès');
-        })
-        .catch(err => {
-          console.error('❌ [NotificationContext] Erreur lors de la suppression du nom du canal:', err);
-          handleError(err, i18n.t('error.deleteChannelName'), {
-            type: ErrorType.SYSTEM
-          });
-        });
+      try {
+        await SecureStore.deleteItemAsync('viewedChannelName');
+      } catch (err) {
+        console.error('[NotificationContext] Error while deleting the channel name:', err);
+      }
     }
   };
 
@@ -179,10 +167,7 @@ export const NotificationProvider = ({ children }) => {
     try {
       await SecureStore.setItemAsync('unreadChannels', JSON.stringify(unreadState));
     } catch (err) {
-      console.error('❌ [NotificationContext] Erreur lors de la sauvegarde des canaux non lus:', err);
-      handleError(err, i18n.t('error.saveUnreadChannels'), {
-        type: ErrorType.SYSTEM
-      });
+      console.error('[NotificationContext] Error while saving the unread channels:', err);
     }
   };
 
@@ -198,10 +183,7 @@ export const NotificationProvider = ({ children }) => {
           setUnreadChannels(parsedData);
         }
       } catch (err) {
-        console.error('❌ [NotificationContext] Erreur lors du chargement des canaux non lus:', err);
-        handleError(err, i18n.t('error.loadUnreadChannels'), {
-          type: ErrorType.SYSTEM
-        });
+        console.error('[NotificationContext] Error while loading the unread channels:', err);
       }
     };
 
@@ -214,9 +196,7 @@ export const NotificationProvider = ({ children }) => {
       setCurrentlyViewedChannel(null);
       SecureStore.deleteItemAsync('viewedChannelName')
         .catch(err => {
-          handleError(err, i18n.t('error.notificationCleanup'), {
-            type: ErrorType.SYSTEM
-          });
+          console.error('[NotificationContext] Error while cleaning up the notification:', err);
         });
     };
   }, []);
@@ -241,9 +221,7 @@ export const NotificationProvider = ({ children }) => {
 export const useNotification = () => {
   const context = useContext(NotificationContext);
   if (context === undefined) {
-    handleError(err, i18n.t('error.notificationProvider'), {
-      type: ErrorType.SYSTEM
-    });
+    console.error('[NotificationContext] Error while using the notification context:', err);
   }
   return context;
 };
