@@ -1,6 +1,5 @@
 import { initializeApp } from 'firebase/app';
 import { ENV } from './env';
-import { handleError, ErrorType } from '../utils/errorHandling';
 
 const firebaseConfig = {
   apiKey: ENV.FIREBASE_API_KEY,
@@ -15,11 +14,7 @@ let app;
 try {
   app = initializeApp(firebaseConfig);
 } catch (error) {
-  handleError(error, 'firebase.initialization', {
-    type: ErrorType.SYSTEM,
-    userMessageKey: 'errors.firebase.initialization',
-    silent: false
-  });
+  console.error('[Firebase] Error while initializing Firebase:', error);
 }
 
 export default app;

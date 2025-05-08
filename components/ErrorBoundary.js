@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from './text/CustomText';
-import { handleError, ErrorType, AppErrorCodes } from '../utils/errorHandling';
 import { useTranslation } from 'react-i18next';
 import { COLORS, SIZES } from '../constants/style';
 
@@ -58,18 +57,7 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     // We use our centralized error management system
-    handleError({
-      code: AppErrorCodes.INITIALIZATION_FAILED,
-      message: error.message || 'Unexpected error in component',
-      details: {
-        componentStack: errorInfo?.componentStack,
-        error: error
-      }
-    }, 'errorBoundary', {
-      type: ErrorType.APP,
-      showAlert: false, // We don't display an alert because we already have the fallback UI
-      severity: 'critical'
-    });
+    console.error('[ErrorBoundary] Error:', error);
 
     this.setState({
       errorInfo: errorInfo

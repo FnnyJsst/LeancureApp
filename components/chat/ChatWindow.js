@@ -478,7 +478,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       recordSentMessage(currentTime);
 
       if (!channel) {
-        console.error('[ChatWindow] Aucun canal sélectionné');
+        console.error('[ChatWindow] No channel selected');
         return;
       }
 
@@ -492,28 +492,20 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         setCredentials(userCredentials);
       }
 
-      // Pour les messages de type fichier
+      // For file messages
       if (messageData.type === 'file' && !messageData.base64) {
-        return handleError({
-          code: ChatErrorCodes.FILE_ERROR,
-          message: t('errors.invalidFile')
-        }, 'message.send', {
-          type: ErrorType.CHAT,
-          showAlert: true
-        });
+        setAlertMessage(t('errors.invalidFile'));
+        setShowAlert(true);
+        return;
       }
 
       // Pour les messages texte
       if (messageData.type !== 'file') {
         const messageText = typeof messageData === 'object' ? messageData.text : messageData;
         if (!messageText || messageText.trim() === '') {
-          return handleError({
-            code: ChatErrorCodes.INVALID_MESSAGE,
-            message: t('errors.emptyMessage')
-          }, 'message.send', {
-            type: ErrorType.CHAT,
-            showAlert: true
-          });
+          setAlertMessage(t('errors.emptyMessage'));
+          setShowAlert(true);
+          return;
         }
       }
 

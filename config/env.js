@@ -7,19 +7,9 @@ import {
   FIREBASE_APP_ID,
   EXPO_PROJECT_ID
 } from '@env';
-import { handleError, ErrorType } from '../utils/errorHandling';
 
 // We get the API URL from the environment variables
 const DEFAULT_API_URL = process.env.API_URL;
-
-// We check if the API URL is defined
-if (!DEFAULT_API_URL) {
-    handleError(
-        new Error('API_URL not found in environment variables'),
-        'env.config',
-        { type: ErrorType.SYSTEM, silent: true }
-    );
-}
 
 export const ENV = {
     /**
@@ -37,11 +27,7 @@ export const ENV = {
                     return customUrl;
                 } catch (urlError) {
                     await SecureStore.deleteItemAsync('custom_api_url');
-                    handleError(urlError, 'env.invalidCustomUrl', {
-                        type: ErrorType.SYSTEM,
-                        silent: false,
-                        userMessageKey: 'errors.env.invalidCustomUrl'
-                    });
+                    console.error('[ENV] Error while getting the API URL:', urlError);
                 }
             }
             return DEFAULT_API_URL;
@@ -58,11 +44,7 @@ export const ENV = {
      */
     setCustomApiUrl: async (url) => {
         if (!url || typeof url !== 'string') {
-            handleError(
-                new Error('URL must be a valid string'),
-                'env.setCustomApiUrl',
-                { type: ErrorType.VALIDATION }
-            );
+            console.error('[ENV] Error while setting the custom API URL:', error);
             return false;
         }
 
@@ -83,10 +65,7 @@ export const ENV = {
 
             return true;
         } catch (error) {
-            handleError(error, 'env.setCustomApiUrl', {
-                type: ErrorType.SYSTEM,
-                userMessageKey: 'errors.env.invalidUrl'
-            });
+            console.error('[ENV] Error while setting the custom API URL:', error);
             return false;
         }
     },
@@ -113,20 +92,14 @@ export const ENV = {
 
                     return wsUrl;
                 } catch (urlError) {
-                    handleError(urlError, 'env.wsUrlConversion', {
-                        type: ErrorType.SYSTEM,
-                        userMessageKey: 'errors.env.wsUrlConversion'
-                    });
+                    console.error('[ENV] Error while converting the API URL to a WebSocket URL:', urlError);
                 }
             }
 
             const defaultWsUrl = 'ws://192.168.1.67:8000';
             return defaultWsUrl;
         } catch (error) {
-            handleError(error, 'env.wsUrlRetrieval', {
-                type: ErrorType.SYSTEM,
-                userMessageKey: 'errors.env.wsUrlRetrieval'
-            });
+            console.error('[ENV] Error while retrieving the WebSocket URL:', error);
             return 'ws://192.168.1.67:8000';
         }
     },

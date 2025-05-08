@@ -8,18 +8,6 @@ import { SIZES, COLORS, MODAL_STYLES } from '../../../constants/style';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../text/CustomText';
 import { useTranslation } from 'react-i18next';
-import { handleError, ErrorType } from '../../../utils/errorHandling';
-
-/**
- * Wrapper for handleError that also handles the user display
- * @param {Function} setError - setter React for the local error state
- * @param {Function} t - i18n translation function
- */
-const useHandledError = (setError, t) => (error, source, options = {}) => {
-  handleError(error, source, options);
-  const userMessageKey = options.userMessageKey || `errors.${source.split('.').pop()}`;
-  setError(t(userMessageKey) || t('errors.unknownError'));
-};
 
 /**
  * @component ImportFullUrlModal
