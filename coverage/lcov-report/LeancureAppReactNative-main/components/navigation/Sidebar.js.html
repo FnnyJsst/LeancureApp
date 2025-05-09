@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/71</span>
+                <span class='fraction'>0/69</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/67</span>
+                <span class='fraction'>0/65</span>
             </div>
         
             
@@ -575,11 +575,7 @@
 <a name='L510'></a><a href='#L510'>510</a>
 <a name='L511'></a><a href='#L511'>511</a>
 <a name='L512'></a><a href='#L512'>512</a>
-<a name='L513'></a><a href='#L513'>513</a>
-<a name='L514'></a><a href='#L514'>514</a>
-<a name='L515'></a><a href='#L515'>515</a>
-<a name='L516'></a><a href='#L516'>516</a>
-<a name='L517'></a><a href='#L517'>517</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L513'></a><a href='#L513'>513</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -614,8 +610,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -705,7 +699,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -854,7 +847,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -1130,8 +1122,6 @@ export default function <span class="fstat-no" title="function not covered" >Sid
   // Use the notification context to access the unread channels
   const { unreadChannels } = <span class="cstat-no" title="statement not covered" >useNotification();</span>
   const { credentials, isLoading: credentialsLoading } = <span class="cstat-no" title="statement not covered" >useCredentials();</span>
-&nbsp;
-  // Get the device type and the translations
   const { isSmartphone } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
   const { t } = <span class="cstat-no" title="statement not covered" >useTranslation();</span>
 &nbsp;
@@ -1222,7 +1212,6 @@ export default function <span class="fstat-no" title="function not covered" >Sid
                 ...response.privateGroups.flatMap(<span class="fstat-no" title="function not covered" >gr</span>oup =&gt; <span class="cstat-no" title="statement not covered" >group.channels || [])</span>
               ];
 <span class="cstat-no" title="statement not covered" >              global.channels = allChannels;</span>
-<span class="cstat-no" title="statement not covered" >              console.log('✅ Canaux stockés globalement:', allChannels.length);</span>
             }
           } else {
 <span class="cstat-no" title="statement not covered" >            throw new Error(t('errors.errorLoadingChannels'));</span>
@@ -1371,7 +1360,6 @@ export default function <span class="fstat-no" title="function not covered" >Sid
                   {/* List of channels if the group is selected */}
                   {selectedGroup?.id === group.id &amp;&amp; group.channels &amp;&amp; group.channels.map(<span class="fstat-no" title="function not covered" >(c</span>hannel) =&gt; {
                     const hasUnreadMessages = <span class="cstat-no" title="statement not covered" >unreadChannels &amp;&amp; unreadChannels[channel.id];</span>
-<span class="cstat-no" title="statement not covered" >                    console.log('🔍 Canal:', channel.id, 'Messages non lus:', hasUnreadMessages);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >                    return (</span>
                       &lt;TouchableOpacity
@@ -1618,7 +1606,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-03T12:41:14.403Z
+                at 2025-05-09T10:24:58.164Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

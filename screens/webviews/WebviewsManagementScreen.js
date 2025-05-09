@@ -314,7 +314,6 @@ export default function WebviewsManagementScreen({
 
         setAlertState({
           visible: true,
-          title: t('errors.title'),
           message: t('errors.errorDeletingWebview'),
           type: 'error'
         });

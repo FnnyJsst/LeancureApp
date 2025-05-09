@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { handleError, ErrorType } from '../utils/errorHandling';
 
 export const useTimeout = () => {
     const [timeoutInterval, setTimeoutInterval] = useState(null);
@@ -28,30 +27,22 @@ export const useTimeout = () => {
    * @param {string} value - The value to handle
    * @returns {void}
    */
-    const handleTimeoutSelection = (value) => {
+    const handleTimeoutSelection = async (value) => {
         const timeoutInSeconds = getTimeoutInSeconds(value);
 
         if (value === 'never') {
             setTimeoutInterval(null);
             try {
-                SecureStore.deleteItemAsync('timeoutInterval');
+                await SecureStore.deleteItemAsync('timeoutInterval');
             } catch (error) {
-                handleError(error, 'timeout.delete', {
-                    type: ErrorType.SYSTEM,
-                    userMessageKey: 'errors.timeout.delete',
-                    silent: true
-                });
+                console.error('[Timeout] Error while deleting the timeout interval:', error);
             }
         } else {
             setTimeoutInterval(timeoutInSeconds * 1000);
             try {
-                SecureStore.setItemAsync('timeoutInterval', String(timeoutInSeconds));
+                await SecureStore.setItemAsync('timeoutInterval', String(timeoutInSeconds));
             } catch (error) {
-                handleError(error, 'timeout.save', {
-                    type: ErrorType.SYSTEM,
-                    userMessageKey: 'errors.timeout.save',
-                    silent: true
-                });
+                console.error('[Timeout] Error while saving the timeout interval:', error);
             }
         }
     };
@@ -63,11 +54,7 @@ export const useTimeout = () => {
                 setTimeoutInterval(Number(storedTimeout) * 1000);
             }
         } catch (error) {
-            handleError(error, 'timeout.load', {
-                type: ErrorType.SYSTEM,
-                userMessageKey: 'errors.timeout.load',
-                silent: true
-            });
+            console.error('[Timeout] Error while loading the timeout interval:', error);
         }
     }, []);
 

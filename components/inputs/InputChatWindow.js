@@ -61,7 +61,7 @@ const  FilePreview = ({ file, onRemove }) => {
  * @param {Function} props.onFocusChange - The function to call when the input is focused
  * @param {Object} props.editingMessage - The message to edit
  */
-export default function InputChatWindow({ onSendMessage, onFocusChange, editingMessage = null }) {
+export default function InputChatWindow({ onSendMessage, onFocusChange, editingMessage = null, testID }) {
 
   const [message, setMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
@@ -263,6 +263,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
               onSubmitEditing={handleSend}
               returnKeyType="send"
               returnKeyLabel="send"
+              testID={testID}
             />
             {isEditing && (
               <TouchableOpacity

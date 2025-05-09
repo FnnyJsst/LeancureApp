@@ -41,7 +41,6 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
     // If the password is empty, we show an error message
     if (!password) {
       setAlertConfig({
-        title: t('errors.error'),
         message: t('errors.enterPassword'),
         type: 'error',
       });

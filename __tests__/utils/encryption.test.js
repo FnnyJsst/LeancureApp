@@ -9,23 +9,27 @@ jest.mock('expo-secure-store', () => ({
   deleteItemAsync: jest.fn(),
 }));
 
-// Mock de console.error pour éviter les logs pendant les tests
-jest.spyOn(console, 'error').mockImplementation(() => {});
+// Mock de console.error pour capturer les logs
+const mockConsoleError = jest.fn();
+console.error = mockConsoleError;
 
 // Configuration pour les tests
 global.__DEV__ = true;
 
 describe('Fonctions de cryptage', () => {
+  beforeEach(() => {
+    // Réinitialiser les mocks avant chaque test
+    jest.clearAllMocks();
+  });
+
   describe('hashPassword', () => {
     it('devrait générer un hash correct pour un mot de passe', () => {
       const password = 'motDePasse123';
       const hash = hashPassword(password);
 
-      // Vérifier que le hash est non nul et une chaîne
       expect(hash).toBeTruthy();
       expect(typeof hash).toBe('string');
 
-      // Vérifier que le hash correspond à ce que CryptoJS.SHA256 aurait produit
       const expectedHash = CryptoJS.SHA256(password).toString();
       expect(hash).toBe(expectedHash);
     });
@@ -56,9 +60,13 @@ describe('Fonctions de cryptage', () => {
         throw new Error('Erreur de hachage');
       });
 
-      expect(() => {
-        hashPassword('test');
-      }).toThrow('Failed to hash the password');
+      const result = hashPassword('test');
+
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        '[Encryption] Error while hashing the password:',
+        expect.any(Error)
+      );
+      expect(result).toBeUndefined();
 
       // Restaurer l'implémentation originale
       CryptoJS.SHA256 = originalSHA256;
@@ -92,9 +100,13 @@ describe('Fonctions de cryptage', () => {
         throw new Error('Erreur de hachage');
       });
 
-      expect(() => {
-        verifyPassword('test', 'hashedPassword');
-      }).toThrow('Failed to verify the password');
+      const result = verifyPassword('test', 'hashedPassword');
+
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        '[Encryption] Error while verifying the password:',
+        expect.any(Error)
+      );
+      expect(result).toBeUndefined();
 
       // Restaurer l'implémentation originale
       CryptoJS.SHA256 = originalSHA256;
@@ -102,11 +114,6 @@ describe('Fonctions de cryptage', () => {
   });
 
   describe('secureStore', () => {
-    beforeEach(() => {
-      // Réinitialiser les mocks avant chaque test
-      jest.clearAllMocks();
-    });
-
     describe('saveCredentials', () => {
       it("devrait sauvegarder les informations d'identification", async () => {
         const credentials = {
@@ -116,10 +123,25 @@ describe('Fonctions de cryptage', () => {
 
         await secureStore.saveCredentials(credentials);
 
-        // Vérifier que setItemAsync a été appelé avec les bons paramètres
         expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
           'userCredentials',
           JSON.stringify(credentials)
+        );
+      });
+
+      it("devrait gérer les erreurs lors de la sauvegarde", async () => {
+        SecureStore.setItemAsync.mockRejectedValue(new Error('Erreur de sauvegarde'));
+
+        const credentials = {
+          username: 'utilisateur',
+          password: 'hashedPassword123'
+        };
+
+        await expect(secureStore.saveCredentials(credentials)).rejects.toThrow('Failed to save credentials');
+
+        expect(mockConsoleError).toHaveBeenCalledWith(
+          '[Encryption] Error while saving the login info:',
+          expect.any(Error)
         );
       });
     });
@@ -131,20 +153,15 @@ describe('Fonctions de cryptage', () => {
           password: 'hashedPassword123'
         };
 
-        // Configurer le mock pour renvoyer des informations d'identification
         SecureStore.getItemAsync.mockResolvedValue(JSON.stringify(credentials));
 
         const result = await secureStore.getCredentials();
 
-        // Vérifier que getItemAsync a été appelé
         expect(SecureStore.getItemAsync).toHaveBeenCalledWith('userCredentials');
-
-        // Vérifier que les informations d'identification sont correctement analysées
         expect(result).toEqual(credentials);
       });
 
       it("devrait renvoyer null si aucune information n'est trouvée", async () => {
-        // Configurer le mock pour renvoyer null
         SecureStore.getItemAsync.mockResolvedValue(null);
 
         const result = await secureStore.getCredentials();
@@ -153,16 +170,15 @@ describe('Fonctions de cryptage', () => {
       });
 
       it('devrait gérer les erreurs lors de la récupération', async () => {
-        // Configurer le mock pour lancer une erreur
         SecureStore.getItemAsync.mockRejectedValue(new Error('Erreur de récupération'));
 
         const result = await secureStore.getCredentials();
 
-        // Vérifier que null est renvoyé en cas d'erreur
         expect(result).toBeNull();
-
-        // Vérifier que l'erreur est enregistrée
-        expect(console.error).toHaveBeenCalled();
+        expect(mockConsoleError).toHaveBeenCalledWith(
+          '[Encryption] Error while getting the credentials:',
+          expect.any(Error)
+        );
       });
     });
 
@@ -170,18 +186,18 @@ describe('Fonctions de cryptage', () => {
       it("devrait supprimer les informations d'identification", async () => {
         await secureStore.deleteCredentials();
 
-        // Vérifier que deleteItemAsync a été appelé
         expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('userCredentials');
       });
 
       it('devrait gérer les erreurs lors de la suppression', async () => {
-        // Configurer le mock pour lancer une erreur
         SecureStore.deleteItemAsync.mockRejectedValue(new Error('Erreur de suppression'));
 
         await secureStore.deleteCredentials();
 
-        // Vérifier que l'erreur est enregistrée
-        expect(console.error).toHaveBeenCalled();
+        expect(mockConsoleError).toHaveBeenCalledWith(
+          '[Encryption] Error while deleting the credentials:',
+          expect.any(Error)
+        );
       });
     });
   });

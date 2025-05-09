@@ -481,37 +481,3 @@ export const setupConnectionMonitor = () => {
     subscription.remove();
   };
 };
-
-/**
- * @function handleNotificationError
- * @description Handle notification-related errors
- */
-const handleNotificationError = (error, source, options = {}) => {
-  // Déterminer le code d'erreur approprié
-  let errorCode = NotificationErrorCodes.DISPLAY_ERROR;
-
-  if (error.message?.includes('permission')) {
-    errorCode = NotificationErrorCodes.PERMISSION_DENIED;
-  } else if (error.message?.includes('token')) {
-    errorCode = NotificationErrorCodes.TOKEN_ERROR;
-  } else if (error.message?.includes('sync')) {
-    errorCode = NotificationErrorCodes.SYNC_FAILED;
-  } else if (error.message?.includes('channel')) {
-    errorCode = NotificationErrorCodes.CHANNEL_ERROR;
-  } else if (error.message?.includes('sound')) {
-    errorCode = NotificationErrorCodes.SOUND_ERROR;
-  } else if (error.message?.includes('credentials')) {
-    errorCode = NotificationErrorCodes.CREDENTIALS_ERROR;
-  } else if (error.message?.includes('device')) {
-    errorCode = NotificationErrorCodes.DEVICE_ID_ERROR;
-  }
-
-  return handleError({
-    code: errorCode,
-    message: error.message || error
-  }, `notification.${source}`, {
-    type: ErrorType.NOTIFICATION,
-    showAlert: !options.silent,
-    ...options
-  });
-};

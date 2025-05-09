@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { format, parse } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import * as Localization from 'expo-localization';
-import { handleError, ErrorType, AppErrorCodes } from '../../utils/errorHandling';
 
 /**
  * @component DateBanner
@@ -62,14 +61,7 @@ export default function DateBanner({ date }) {
       formattedDate = format(dateObj, 'EEEE, d MMMM yyyy', { locale });
     }
   } catch (error) {
-    handleError({
-      code: AppErrorCodes.STATE_ERROR,
-      message: `${t('errors.dateFormat.error')}: ${error.message}`,
-      details: { date, error }
-    }, 'DateBanner', {
-      type: ErrorType.APP,
-      showAlert: false
-    });
+    console.error('[DateBanner] Error while formatting the date:', error);
     return null;
   }
 

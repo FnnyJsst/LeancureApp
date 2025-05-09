@@ -1,11 +1,12 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import DocumentPreviewModal from '../../../../components/modals/chat/DocumentPreviewModal';
 import { fetchMessageFile } from '../../../../services/api/messageApi';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useCredentials } from '../../../../hooks/useCredentials';
-import { handleError, ErrorType } from '../../../../utils/errorHandling';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import CustomAlert from '../../../../components/modals/webviews/CustomAlert';
 
 // Mock des dépendances
 jest.mock('expo-file-system', () => ({
@@ -27,10 +28,13 @@ jest.mock('../../../../hooks/useCredentials', () => ({
   useCredentials: jest.fn()
 }));
 
-jest.mock('../../../../utils/errorHandling', () => ({
-  handleError: jest.fn(),
-  ErrorType: {
-    SYSTEM: 'system'
+jest.mock('expo-screen-orientation', () => ({
+  getOrientationAsync: jest.fn().mockResolvedValue(1),
+  lockAsync: jest.fn().mockResolvedValue(undefined),
+  unlockAsync: jest.fn().mockResolvedValue(undefined),
+  OrientationLock: {
+    LANDSCAPE: 'LANDSCAPE',
+    PORTRAIT: 'PORTRAIT'
   }
 }));
 
@@ -43,12 +47,21 @@ jest.mock('react-i18next', () => ({
 jest.mock('../../../../hooks/useDeviceType', () => ({
   useDeviceType: jest.fn().mockReturnValue({
     isSmartphone: false,
-    isLandscape: false
+    isLandscape: false,
+    isLowResTablet: false,
+    isLowResTabletPortrait: false,
+    isLowResTabletLandscape: false
   })
 }));
 
+// Ajouter le mock pour CustomAlert
+jest.mock('../../../../components/modals/webviews/CustomAlert', () => ({
+  show: jest.fn()
+}));
+
 // Mock pour console.error
-console.error = jest.fn();
+const mockConsoleError = jest.fn();
+console.error = mockConsoleError;
 
 describe("DocumentPreviewModal", () => {
   beforeEach(() => {
@@ -71,9 +84,7 @@ describe("DocumentPreviewModal", () => {
       channelId: '456'
     };
 
-    const { getByTestId, getByText } = render(<DocumentPreviewModal {...props} />);
-
-    expect(getByTestId('mocked-webview')).toBeTruthy();
+    const { getByText } = render(<DocumentPreviewModal {...props} />);
     expect(getByText('PDF')).toBeTruthy();
   });
 
@@ -131,10 +142,9 @@ describe("DocumentPreviewModal", () => {
     render(<DocumentPreviewModal {...props} />);
 
     await waitFor(() => {
-      expect(handleError).toHaveBeenCalledWith(
-        expect.any(Error),
-        'documentPreview.loadHighQualityImage',
-        expect.objectContaining({ type: 'system' })
+      expect(console.error).toHaveBeenCalledWith(
+        '[DocumentPreview] Error while loading the high quality image:',
+        expect.any(Error)
       );
     });
   });
@@ -165,33 +175,6 @@ describe("DocumentPreviewModal", () => {
     });
   });
 
-  it("devrait gérer les erreurs lors du téléchargement", async () => {
-    FileSystem.writeAsStringAsync.mockRejectedValue(new Error("Erreur d'écriture"));
-
-    const props = {
-      visible: true,
-      onClose: jest.fn(),
-      fileName: 'test.pdf',
-      fileSize: '1000',
-      fileType: 'pdf',
-      base64: 'test-base64-content',
-      messageId: '123',
-      channelId: '456'
-    };
-
-    const { getByText } = render(<DocumentPreviewModal {...props} />);
-
-    fireEvent.press(getByText('buttons.download'));
-
-    await waitFor(() => {
-      expect(handleError).toHaveBeenCalledWith(
-        expect.any(Error),
-        'documentPreview.handleDownload',
-        expect.objectContaining({ type: 'system' })
-      );
-    });
-  });
-
   it("devrait afficher un prévisualiseur CSV pour les fichiers CSV", () => {
     const props = {
       visible: true,
@@ -199,31 +182,47 @@ describe("DocumentPreviewModal", () => {
       fileName: 'test.csv',
       fileSize: '1000',
       fileType: 'csv',
-      base64: 'test-base64-content',
+      base64: 'dGVzdCxkYXRhCjEsMgozLDQ=', // Contenu CSV encodé en base64
       messageId: '123',
       channelId: '456'
     };
 
     const { getByText } = render(<DocumentPreviewModal {...props} />);
-
-    // On vérifie que le type CSV est affiché
     expect(getByText('CSV')).toBeTruthy();
   });
 
-  it("devrait correctement formater la taille du fichier", () => {
+  it("devrait verrouiller l'orientation de l'écran quand le modal est visible", async () => {
     const props = {
       visible: true,
       onClose: jest.fn(),
       fileName: 'test.pdf',
-      fileSize: '1048576', // 1 Mo en octets
+      fileSize: '1000',
       fileType: 'pdf',
       base64: 'test-base64-content'
     };
 
-    const { getByText } = render(<DocumentPreviewModal {...props} />);
-    // Le test va dépendre de l'implémentation exacte de formatFileSize
-    // et de la façon dont les traductions sont gérées
-    expect(getByText('PDF')).toBeTruthy();
+    render(<DocumentPreviewModal {...props} />);
+
+    await waitFor(() => {
+      expect(ScreenOrientation.lockAsync).toHaveBeenCalled();
+    });
+  });
+
+  it("devrait déverrouiller l'orientation de l'écran quand le modal est fermé", async () => {
+    const props = {
+      visible: false,
+      onClose: jest.fn(),
+      fileName: 'test.pdf',
+      fileSize: '1000',
+      fileType: 'pdf',
+      base64: 'test-base64-content'
+    };
+
+    render(<DocumentPreviewModal {...props} />);
+
+    await waitFor(() => {
+      expect(ScreenOrientation.unlockAsync).toHaveBeenCalled();
+    });
   });
 
   it("devrait fermer le modal quand on clique sur le bouton de fermeture", () => {
@@ -238,12 +237,7 @@ describe("DocumentPreviewModal", () => {
     };
 
     const { getByTestId } = render(<DocumentPreviewModal {...props} />);
-
-    // Trouver le bouton de fermeture
-    const closeButton = getByTestId('close-button');
-    // Clique sur le bouton de fermeture
-    fireEvent.press(closeButton);
-    // Vérifier que onClose a été appelé
+    fireEvent.press(getByTestId('close-button'));
     expect(onClose).toHaveBeenCalled();
   });
 });

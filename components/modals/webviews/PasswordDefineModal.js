@@ -59,7 +59,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
 
     //Check if passwords match
     if (password === confirmPassword) {
-      showAlert(t('errors.success'), t('errors.passwordSuccess'), 'success');
+      showAlert(t('errors.passwordSuccess'), 'success');
     } else {
       showAlert(t('errors.passwordMismatch'), '');
     }

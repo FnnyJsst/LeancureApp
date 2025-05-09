@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import InputChatWindow from '../inputs/InputChatWindow';
 import ChatMessage from './ChatMessage';
@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { playNotificationSound } from '../../services/notification/notificationService';
 import { useNotification } from '../../services/notification/notificationContext';
 import CustomAlert from '../modals/webviews/CustomAlert';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
 /**
@@ -23,7 +24,7 @@ import CustomAlert from '../modals/webviews/CustomAlert';
  * @param {Object} props.messages - The messages to display
  * @param {Function} props.onInputFocusChange - The function to call when the input focus changes
  */
-export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange }) {
+export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange, testID }) {
 
   const { t } = useTranslation();
   const { isSmartphone } = useDeviceType();
@@ -752,6 +753,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           <ScrollView
             ref={scrollViewRef}
             style={styles.messagesContainer}
+            testID="messages-container"
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
           >
             {(() => {
@@ -788,6 +790,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                     canDelete={userRights === "3"}
                     userRights={userRights}
                     isFileMessage={message.type === 'file'}
+                    testID={`message-${message.id}`}
                   />
                 );
 
@@ -796,10 +799,23 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             })()}
           </ScrollView>
 
+          <View style={styles.inputContainer}>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="send"
+              testID="send-button"
+              onPress={sendMessage}
+              style={styles.sendButton}
+            >
+              <Ionicons name="send" size={24} color={COLORS.primary} />
+            </TouchableOpacity>
+          </View>
+
           <InputChatWindow
             onSendMessage={sendMessage}
             onFocusChange={onInputFocusChange}
             editingMessage={editingMessage}
+            testID="chat-input"
           />
 
           <DocumentPreviewModal
@@ -855,5 +871,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     marginBottom: 10,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+  },
+  sendButton: {
+    padding: 10,
   },
 });

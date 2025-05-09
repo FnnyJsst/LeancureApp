@@ -270,6 +270,7 @@ export default {
     errorImportingWebviews: "Erreur lors de l'importation des chaînes",
     errorEditingWebview: "Erreur lors de la modification de la chaîne",
     errorRefreshingMessages: "Erreur lors de l'actualisation des messages",
+    saveServerAddressError: "Erreur lors de la sauvegarde de l'adresse du serveur",
     websocket: {
       notConnected: "Non connecté au WebSocket",
       maxAttempts: "Nombre maximum de tentatives de connexion atteint",

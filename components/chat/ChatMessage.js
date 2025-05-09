@@ -17,7 +17,7 @@ import { formatFileSize, formatTimestamp } from '../../utils/fileUtils';
  * @param {Function} props.onDeleteMessage - The function to call when the message is deleted
  * @param {string} props.userRights - The user rights for the message to determine if the user can delete someone else's message
  */
-export default function ChatMessage({ message, isOwnMessage, onFileClick, onDeleteMessage, onEditMessage, userRights }) {
+export default function ChatMessage({ message, isOwnMessage, onFileClick, onDeleteMessage, onEditMessage, userRights, testID }) {
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [menuMessageVisible, setMenuMessageVisible] = useState(false);
 
@@ -79,6 +79,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
           onDelete={handleDelete}
           onEdit={isOwnMessage && message.type !== 'file' ? handleEdit : null}
           onClose={() => setMenuMessageVisible(false)}
+          testID={testID}
           style={[
             styles.menuMessageContainer,
             isOwnMessage ? styles.menuRight : styles.menuLeft
@@ -313,6 +314,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
               styles.messageContainer,
               isOwnMessage ? styles.ownMessage : styles.otherMessage,
             ]}
+            testID={testID}
           >
             <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
               {message.text}

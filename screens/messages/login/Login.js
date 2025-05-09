@@ -361,7 +361,7 @@ export default function Login({ onNavigate }) {
                                                         onChangeText={setContractNumber}
                                                         iconName="document-text-outline"
                                                         iconLibrary="Ionicons"
-                                                        testID="contract-number-input"
+                                                        testID="contract-input"
                                                     />
                                                 </View>
                                             </View>
@@ -446,6 +446,7 @@ export default function Login({ onNavigate }) {
                 onClose={() => setShowAlert(false)}
                 onConfirm={() => setShowAlert(false)}
                 type="error"
+                testID="custom-alert"
             />
         </>
     );

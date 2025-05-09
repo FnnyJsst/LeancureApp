@@ -1,7 +1,7 @@
 import { loginApi } from '../../services/api/authApi';
 import { fetchUserChannels } from '../../services/api/messageApi';
 import { hashPassword } from '../../utils/encryption';
-import { synchronizeTokenWithAPI } from '../../services/notificationService';
+import { synchronizeTokenWithAPI } from '../../services/notification/notificationService';
 import * as SecureStore from 'expo-secure-store';
 import * as Notifications from 'expo-notifications';
 
@@ -37,7 +37,7 @@ jest.mock('expo-notifications', () => ({
   getExpoPushTokenAsync: jest.fn().mockResolvedValue({ data: 'expo-push-token-123' })
 }));
 
-jest.mock('../../services/notificationService', () => ({
+jest.mock('../../services/notification/notificationService', () => ({
   synchronizeTokenWithAPI: jest.fn().mockResolvedValue(true)
 }));
 

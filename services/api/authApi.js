@@ -2,7 +2,6 @@ import axios from 'axios';
 import { ENV } from '../../config/env';
 import { createApiRequest } from './baseApi';
 import * as SecureStore from 'expo-secure-store';
-import { handleError, ErrorType, handleApiError } from '../../utils/errorHandling';
 import CryptoJS from 'crypto-js';
 import CustomAlert from '../../components/modals/webviews/CustomAlert';
 
@@ -238,5 +237,9 @@ export const checkRefreshToken = async (contractNumber, accountApiKey, refreshTo
     };
   } catch (error) {
     console.error('[Auth] Error checking refresh token:', error);
+    return {
+      success: false,
+      error: error.message || 'Error checking refresh token'
+    };
   }
 };

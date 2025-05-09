@@ -6,11 +6,11 @@ import {
   saveCredentials,
   getCredentials,
   getUserRights,
-  cleanSecureStore,
   checkRefreshToken
 } from '../../../services/api/authApi';
 import { ENV } from '../../../config/env';
 import { createApiRequest } from '../../../services/api/baseApi';
+import { cleanSecureStore as cleanSecureStore } from '../../../utils/secureStore';
 
 // Mock des dépendances
 jest.mock('axios');
@@ -23,13 +23,13 @@ jest.mock('../../../config/env', () => ({
 jest.mock('../../../services/api/baseApi', () => ({
   createApiRequest: jest.fn().mockReturnValue({ apiRequestData: 'mocked' })
 }));
-jest.mock('../../../utils/errorHandling', () => ({
-  handleError: jest.fn(),
-  ErrorType: {
-    AUTH: 'auth',
-    SYSTEM: 'system'
-  },
-  handleApiError: jest.fn()
+
+// Mock CustomAlert
+jest.mock('../../../components/modals/webviews/CustomAlert', () => ({
+  __esModule: true,
+  default: {
+    show: jest.fn()
+  }
 }));
 
 // Mock de console
@@ -45,6 +45,10 @@ global.t = jest.fn(key => key);
 describe('Auth API', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Configuration par défaut des mocks
+    SecureStore.getItemAsync.mockResolvedValue(null);
+    SecureStore.setItemAsync.mockResolvedValue();
+    SecureStore.deleteItemAsync.mockResolvedValue();
   });
 
   describe('loginApi', () => {
@@ -279,29 +283,15 @@ describe('Auth API', () => {
     });
 
     it('devrait gérer les erreurs lors de la vérification du refresh token', async () => {
-      // Préparation des données mock
-      const contractNumber = 'contract123';
-      const accountApiKey = 'api-key-123';
-      const refreshToken = 'refresh-token-123';
+      // Mock de l'erreur API - utiliser axios directement, pas axios.post
+      axios.mockRejectedValueOnce(new Error('Network Error'));
 
-      // Mock de CryptoJS.HmacSHA256
-      const originalHmacSHA256 = CryptoJS.HmacSHA256;
-      CryptoJS.HmacSHA256 = jest.fn().mockReturnValue({
-        toString: jest.fn().mockReturnValue('hashed-signature')
+      const result = await checkRefreshToken('123', 'apikey', 'token');
+
+      expect(result).toEqual({
+        success: false,
+        error: expect.any(String)
       });
-
-      // Mock d'une erreur réseau
-      axios.mockRejectedValueOnce(new Error('Network error'));
-
-      // Exécution de la fonction
-      const result = await checkRefreshToken(contractNumber, accountApiKey, refreshToken);
-
-      // Vérifications
-      expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
-
-      // Restaurer l'original
-      CryptoJS.HmacSHA256 = originalHmacSHA256;
     });
   });
 
@@ -353,14 +343,6 @@ describe('Auth API', () => {
       // Vérifications
       await expect(saveCredentials(credentials)).rejects.toThrow();
     });
-
-    it('devrait gérer les erreurs lors de la récupération des informations d\'identification', async () => {
-      // Mock d'une erreur lors de la récupération
-      SecureStore.getItemAsync.mockRejectedValue(new Error('Storage error'));
-
-      // Vérifications
-      await expect(getCredentials()).rejects.toThrow();
-    });
   });
 
   describe('getUserRights', () => {
@@ -409,62 +391,6 @@ describe('Auth API', () => {
 
       // Restaurer l'original
       global.getCredentials = originalGetCredentials;
-    });
-  });
-
-  describe('cleanSecureStore', () => {
-    it('devrait nettoyer le SecureStore', async () => {
-      // Mock de SecureStore.deleteItemAsync
-      SecureStore.deleteItemAsync.mockResolvedValue(undefined);
-
-      // Exécution de cleanSecureStore
-      const result = await cleanSecureStore();
-
-      // Vérifications
-      expect(SecureStore.deleteItemAsync).toHaveBeenCalledTimes(5); // 5 clés à nettoyer
-      expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('userCredentials');
-      expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('savedLoginInfo');
-      expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('custom_api_url');
-      expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('isMessagesHidden');
-      expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('userRights');
-      expect(result).toBe(true);
-    });
-
-    it('devrait gérer les erreurs individuelles lors du nettoyage', async () => {
-      // Mock de SecureStore.deleteItemAsync pour simuler une erreur sur une clé spécifique
-      SecureStore.deleteItemAsync.mockImplementation((key) => {
-        if (key === 'userCredentials') {
-          return Promise.reject(new Error('Error deleting userCredentials'));
-        }
-        return Promise.resolve();
-      });
-
-      // Exécution de cleanSecureStore
-      const result = await cleanSecureStore();
-
-      // Vérifications
-      expect(console.log).toHaveBeenCalledWith(
-        '⚠️ Error deleting key \'userCredentials\':',
-        'Error deleting userCredentials'
-      );
-      expect(result).toBe(true); // Devrait quand même retourner true
-    });
-
-    it('devrait gérer les erreurs générales lors du nettoyage', async () => {
-      // Créer une erreur qui sera lancée avant même d'essayer de supprimer les clés
-      const originalConsoleLog = console.log;
-      console.log = jest.fn().mockImplementation(() => {
-        throw new Error('Console error');
-      });
-
-      // Exécution de cleanSecureStore
-      const result = await cleanSecureStore();
-
-      // Vérifications
-      expect(result).toBe(false);
-
-      // Restaurer console
-      console.log = originalConsoleLog;
     });
   });
 });

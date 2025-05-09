@@ -270,6 +270,7 @@ export default {
     errorImportingWebviews: "Error importing channels",
     errorEditingWebview: "Error editing channel",
     errorRefreshingMessages: "Error refreshing messages",
+    saveServerAddressError: "Error saving server address",
     websocket: {
       notConnected: "Not connected to WebSocket",
       maxAttempts: "Maximum connection attempts reached",

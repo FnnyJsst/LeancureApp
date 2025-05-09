@@ -1,107 +1,92 @@
-import { renderHook, act } from '@testing-library/react-native';
+import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { useTimeout } from '../../hooks/useTimeout';
 import * as SecureStore from 'expo-secure-store';
 
-// We create a mock for the SecureStore used in the useTimeout hook
+// Mock pour SecureStore
 jest.mock('expo-secure-store', () => ({
-  setItemAsync: jest.fn(),
-  deleteItemAsync: jest.fn(),
-  getItemAsync: jest.fn(),
+    setItemAsync: jest.fn(),
+    deleteItemAsync: jest.fn(),
+    getItemAsync: jest.fn(),
 }));
 
-// Supprime les logs d'erreur pendant les tests
-const originalError = console.error;
-beforeAll(() => {
-  console.error = jest.fn();
-});
+// Mock pour console.error
+const mockConsoleError = jest.fn();
+console.error = mockConsoleError;
 
-afterAll(() => {
-  console.error = originalError;
-});
-
-// We create a test suite for the useTimeout hook
 describe('useTimeout', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    SecureStore.getItemAsync.mockResolvedValue(null);
-  });
-
-  // Test #1: Initialize with null timeout interval
-  it('should initialize with null timeout interval', () => {
-    const { result } = renderHook(() => useTimeout());
-    expect(result.current.timeoutInterval).toBeNull();
-  });
-
-  // Test #2: Handle timeout selection correctly
-  it('should handle timeout selection correctly', () => {
-    const { result } = renderHook(() => useTimeout());
-
-    // We select the timeout interval to be 2 hours
-    act(() => {
-      result.current.handleTimeoutSelection('after 2 hours');
+    beforeEach(() => {
+        jest.clearAllMocks();
+        SecureStore.getItemAsync.mockResolvedValue(null);
     });
 
-    // We expect the result to be 2 hours in milliseconds
-    expect(result.current.timeoutInterval).toBe(7200 * 1000); // 2 hours in milliseconds
-    expect(SecureStore.setItemAsync).toHaveBeenCalledWith('timeoutInterval', '7200');
-  });
-
-  // Test #3: Handle "never" timeout selection
-  it('should handle "never" timeout selection', () => {
-    const { result } = renderHook(() => useTimeout());
-
-    act(() => {
-      result.current.handleTimeoutSelection('never');
+    it('devrait initialiser avec un intervalle de timeout nul', () => {
+        const { result } = renderHook(() => useTimeout());
+        expect(result.current.timeoutInterval).toBeNull();
     });
 
-    expect(result.current.timeoutInterval).toBeNull();
-    expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('timeoutInterval');
-  });
+    it('devrait gérer la sélection du timeout correctement', () => {
+        const { result } = renderHook(() => useTimeout());
 
-  // Test #4: Load stored timeout interval on init
-  it('should load stored timeout interval on init', async () => {
-    // We mock the SecureStore to return 2 hours
-    SecureStore.getItemAsync.mockResolvedValue('7200'); // 2 hours stored
+        act(() => {
+            result.current.handleTimeoutSelection('after 2 hours');
+        });
 
-    // We render the hook
-    const { result } = renderHook(() => useTimeout());
-
-    // We wait for the loadTimeoutInterval to be executed
-    await act(async () => {
-      await result.current.loadTimeoutInterval();
+        expect(result.current.timeoutInterval).toBe(7200 * 1000);
+        expect(SecureStore.setItemAsync).toHaveBeenCalledWith('timeoutInterval', '7200');
     });
 
-    // We expect the result to be 2 hours in milliseconds
-    expect(result.current.timeoutInterval).toBe(7200 * 1000);
-  });
+    it('devrait gérer la sélection "never"', () => {
+        const { result } = renderHook(() => useTimeout());
 
-  // Test #5: Handle errors when saving timeout
-  it('should handle errors when saving timeout', async () => {
-    SecureStore.setItemAsync.mockImplementation(() => {
-      throw new Error('Storage error');
+        act(() => {
+            result.current.handleTimeoutSelection('never');
+        });
+
+        expect(result.current.timeoutInterval).toBeNull();
+        expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('timeoutInterval');
     });
 
-    const { result } = renderHook(() => useTimeout());
+    it('devrait charger l\'intervalle de timeout stocké à l\'initialisation', async () => {
+        SecureStore.getItemAsync.mockResolvedValue('7200');
 
-    await act(async () => {
-      await result.current.handleTimeoutSelection('after 2 hours');
+        const { result } = renderHook(() => useTimeout());
+
+        await act(async () => {
+            await result.current.loadTimeoutInterval();
+        });
+
+        expect(result.current.timeoutInterval).toBe(7200 * 1000);
     });
 
-    expect(console.error).toHaveBeenCalled();
-  });
+    it('devrait gérer les erreurs lors de la sauvegarde du timeout', async () => {
+        const error = new Error('Storage error');
+        SecureStore.setItemAsync.mockRejectedValue(error);
 
-  // Test #6: Handle errors when loading timeout
-  it('should handle errors when loading timeout', async () => {
-    SecureStore.getItemAsync.mockImplementation(() => {
-      throw new Error('Loading error');
+        const { result } = renderHook(() => useTimeout());
+
+        await act(async () => {
+            await result.current.handleTimeoutSelection('after 2 hours');
+        });
+
+        expect(mockConsoleError).toHaveBeenCalledWith(
+            '[Timeout] Error while saving the timeout interval:',
+            error
+        );
     });
 
-    const { result } = renderHook(() => useTimeout());
+    it('devrait gérer les erreurs lors du chargement du timeout', () => {
+        const error = new Error('Loading error');
+        SecureStore.getItemAsync.mockRejectedValue(error);
 
-    await act(async () => {
-      await result.current.loadTimeoutInterval();
+        const { result } = renderHook(() => useTimeout());
+
+        result.current.loadTimeoutInterval();
+
+        return waitFor(() => {
+            expect(mockConsoleError).toHaveBeenCalledWith(
+                '[Timeout] Error while loading the timeout interval:',
+                error
+            );
+        });
     });
-
-    expect(console.error).toHaveBeenCalled();
-  });
 });

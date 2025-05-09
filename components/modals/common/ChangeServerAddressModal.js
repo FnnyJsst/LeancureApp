@@ -9,18 +9,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { ENV } from '../../../config/env';
 import { useTranslation } from 'react-i18next';
 import CustomAlert from '../webviews/CustomAlert';
-import { handleError, ErrorType } from '../../../utils/errorHandling';
-
-/**
- * Wrapper for handleError that also handles the user display
- * @param {Function} setError - setter React for the local error state
- * @param {Function} t - i18n translation function
- */
-const useHandledError = (setError, t) => (error, source, options = {}) => {
-  handleError(error, source, options);
-  const userMessageKey = options.userMessageKey || `errors.${source.split('.').pop()}`;
-  setError(t(userMessageKey) || t('errors.unknownError'));
-};
 
 /**
  * @function ChangeServerAddressModal
@@ -36,7 +24,6 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
 
   const { isSmartphone, isSmartphonePortrait, isSmartphoneLandscape, isTabletLandscape, isLowResTabletPortrait, isLowResTabletLandscape, isLowResTablet } = useDeviceType();
   const { t } = useTranslation();
-  const handleModalError = useHandledError(setError, t);
 
   /**
    * @function loadCurrentServerAddress
@@ -51,16 +38,12 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
         const baseUrl = currentUrl.replace('/ic.php', '');
         setServerAddress(baseUrl);
       } catch (error) {
-        handleModalError(error, 'changeServerAddressModal.loadServerAddress', {
-          type: ErrorType.SYSTEM,
-          silent: false
-        });
+        console.error('Error loading current server address:', error);
       }
     };
 
     if (visible) {
       loadCurrentServerAddress();
-      // Réinitialisation des messages
       setError('');
     }
   }, [visible]);
@@ -98,14 +81,10 @@ export default function ChangeServerAddressModal({ visible, onClose }) {
         setShowSuccessAlert(true);
 
       } catch (storageError) {
-        handleModalError(storageError, 'changeServerAddressModal.handleSave', {
-          userMessageKey: 'errors.saveServerAddressError'
-        });
+        setError(t('errors.saveServerAddressError'));
       }
     } catch (saveServerAddressError) {
-      handleModalError(saveServerAddressError, 'changeServerAddressModal.handleSave', {
-        userMessageKey: 'errors.saveServerAddressError'
-      });
+      setError(t('errors.saveServerAddressError'));
     }
   };
 

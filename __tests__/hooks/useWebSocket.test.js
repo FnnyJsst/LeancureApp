@@ -29,7 +29,7 @@ jest.mock('react-i18next', () => ({
 }));
 
 // Mock pour useNotification
-jest.mock('../../services/notificationContext', () => ({
+jest.mock('../../services/notification/notificationContext', () => ({
   useNotification: () => ({
     markChannelAsUnread: jest.fn(),
     activeChannelId: 'channel_1'

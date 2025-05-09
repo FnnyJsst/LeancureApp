@@ -7,6 +7,8 @@ import { SIZES,COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
 import { useTranslation } from 'react-i18next';
 
+let showAlert = null;
+
 /**
  * @component CustomAlert
  * @description A component that renders a custom alert
@@ -70,6 +72,16 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
     </Modal>
   );
 }
+
+CustomAlert.show = ({ message, type = 'error', title = 'Error' }) => {
+  if (showAlert) {
+    showAlert({ message, type, title });
+  }
+};
+
+CustomAlert.setShowAlert = (show) => {
+  showAlert = show;
+};
 
 const styles = StyleSheet.create({
   modalContainer: {

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>5/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -207,7 +207,10 @@
 <a name='L142'></a><a href='#L142'>142</a>
 <a name='L143'></a><a href='#L143'>143</a>
 <a name='L144'></a><a href='#L144'>144</a>
-<a name='L145'></a><a href='#L145'>145</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -230,10 +233,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -290,7 +293,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -368,26 +374,26 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} handleLogin - A function to handle the login process
  * @param {boolean} isLoading - A boolean to indicate if the login process is loading
  */
-export default function <span class="fstat-no" title="function not covered" >SimplifiedLogin(</span>{
+export default function SimplifiedLogin({
     contractNumber,
     onSwitchAccount,
     handleLogin,
     isLoading,
 }) {
-    const { isSmartphone, isLandscape } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
-    const { t } = <span class="cstat-no" title="statement not covered" >useTranslation();</span>
+    const { isSmartphone, isLandscape } = useDeviceType();
+    const { t } = useTranslation();
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return (</span>
-        &lt;View&gt;
-            &lt;View style={[
-        styles.loginContainer,
-        isSmartphone &amp;&amp; styles.loginContainerSmartphone,
-        isLandscape &amp;&amp; styles.loginContainerLandscape,
-      ]}&gt;
+    return (
+        &lt;View style={styles.container}&gt;
+          &lt;View style={[
+            styles.loginContainer,
+            isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.loginContainerSmartphone,</span>
+            isLandscape &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.loginContainerLandscape,</span>
+          ]}&gt;
         &lt;View&gt;
           &lt;Text style={[
             styles.welcomeText,
-            isSmartphone &amp;&amp; styles.welcomeTextSmartphone]}&gt;
+            isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.welcomeTextSmartphone]</span>}&gt;
             {t('titles.welcomeBack')}
           &lt;/Text&gt;
         &lt;/View&gt;
@@ -396,7 +402,7 @@ export default function <span class="fstat-no" title="function not covered" >Sim
 &nbsp;
           &lt;Text style={[
             styles.inputTitle,
-            isSmartphone &amp;&amp; styles.inputTitleSmartphone,
+            isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.inputTitleSmartphone,</span>
           ]}&gt;
             {t('titles.contractNumber')}
           &lt;/Text&gt;
@@ -426,7 +432,7 @@ export default function <span class="fstat-no" title="function not covered" >Sim
         style={styles.switchAccountLink}
         onPress={onSwitchAccount}
       &gt;
-        &lt;Text style={[styles.switchAccountText, isSmartphone &amp;&amp; styles.switchAccountTextSmartphone]}&gt;
+        &lt;Text style={[styles.switchAccountText, isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.switchAccountTextSmartphone]</span>}&gt;
           {t('buttons.switchAccount')}
         &lt;/Text&gt;
       &lt;/TouchableOpacity&gt;
@@ -434,7 +440,10 @@ export default function <span class="fstat-no" title="function not covered" >Sim
   );
 }
 &nbsp;
-const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
   welcomeText: {
     color: COLORS.white,
     fontSize: SIZES.fonts.headerTablet,
@@ -502,7 +511,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-03T12:41:14.403Z
+                at 2025-05-09T10:24:58.164Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

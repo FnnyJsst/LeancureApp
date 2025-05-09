@@ -21,6 +21,7 @@ export default function InputLogin({
     secureTextEntry,
     iconName,
     iconLibrary = 'Ionicons',
+    testID,
 }) {
 
     const { isSmartphone } = useDeviceType();
@@ -73,6 +74,7 @@ export default function InputLogin({
                 placeholderTextColor={COLORS.gray600}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
+                testID={testID}
             />
             {secureTextEntry && (
                 <TouchableOpacity

@@ -1,6 +1,6 @@
 import { loginApi } from '../../services/api/authApi';
 import { fetchUserChannels } from '../../services/api/messageApi';
-import { registerForPushNotificationsAsync } from '../../services/notificationService';
+import { registerForPushNotificationsAsync } from '../../services/notification/notificationService';
 import * as SecureStore from 'expo-secure-store';
 import * as Notifications from 'expo-notifications';
 import { useWebviews } from '../../hooks/useWebviews';
@@ -14,7 +14,7 @@ jest.mock('../../services/api/messageApi', () => ({
   fetchUserChannels: jest.fn()
 }));
 
-jest.mock('../../services/notificationService', () => ({
+jest.mock('../../services/notification/notificationService', () => ({
   registerForPushNotificationsAsync: jest.fn(),
   handleNotification: jest.fn()
 }));

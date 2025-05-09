@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
  * @param {Object} props.style - Style
  * @param {boolean} props.isFileMessage - Si le message contient un fichier
  */
-const MenuMessage = ({ onDelete, onEdit, style, isFileMessage }) => {
+const MenuMessage = ({ onDelete, onEdit, style, isFileMessage, testID }) => {
 
   const { isSmartphone } = useDeviceType();
   const { t } = useTranslation();
@@ -37,6 +37,7 @@ const MenuMessage = ({ onDelete, onEdit, style, isFileMessage }) => {
       <TouchableOpacity
         style={[styles.menuItem, isSmartphone && styles.menuItemSmartphone]}
         onPress={onDelete}
+        testID={testID}
       >
         <Ionicons name="trash-outline" size={isSmartphone ? 20 : 22} color={COLORS.red} />
         <Text style={[styles.deleteText, isSmartphone && styles.deleteTextSmartphone]}>

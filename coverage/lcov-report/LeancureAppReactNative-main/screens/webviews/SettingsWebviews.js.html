@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/88</span>
+                <span class='fraction'>0/90</span>
             </div>
         
             
@@ -614,10 +614,7 @@
 <a name='L549'></a><a href='#L549'>549</a>
 <a name='L550'></a><a href='#L550'>550</a>
 <a name='L551'></a><a href='#L551'>551</a>
-<a name='L552'></a><a href='#L552'>552</a>
-<a name='L553'></a><a href='#L553'>553</a>
-<a name='L554'></a><a href='#L554'>554</a>
-<a name='L555'></a><a href='#L555'>555</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L552'></a><a href='#L552'>552</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -712,9 +709,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -810,7 +804,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -820,8 +813,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1088,6 +1079,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1228,7 +1222,7 @@ export default function <span class="fstat-no" title="function not covered" >Set
   testID,
 }) {
   const { t } = <span class="cstat-no" title="statement not covered" >useTranslation();</span>
-  const { isSmartphone, isLandscape, isSmartphonePortrait } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
+  const { isSmartphone, isLandscape, isSmartphonePortrait, isSmartphoneLandscape } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
 &nbsp;
   // Tooltip actif
   const [activeTooltip, setActiveTooltip] = <span class="cstat-no" title="statement not covered" >useState(null);</span>
@@ -1264,10 +1258,7 @@ export default function <span class="fstat-no" title="function not covered" >Set
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        setHasSeenTooltips(tooltipValues);</span>
       } catch (error) {
-<span class="cstat-no" title="statement not covered" >        handleError(error, i18n.t('errors.errorLoadingTooltips'), {</span>
-          type: ErrorType.SYSTEM,
-          silent: false
-        });
+<span class="cstat-no" title="statement not covered" >        console.error('[SettingsWebviews] Error while loading the tooltips:', error);</span>
         // Default to show all tooltips if an error occurs
 <span class="cstat-no" title="statement not covered" >        setHasSeenTooltips({</span>
           autoRefresh: true,
@@ -1363,10 +1354,7 @@ export default function <span class="fstat-no" title="function not covered" >Set
       // Open the corresponding modal after closing the tooltip
 <span class="cstat-no" title="statement not covered" >      updateModalState(tooltipKey, true);</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      handleError(error, i18n.t('errors.errorMarkingTooltipAsSeen'), {</span>
-        type: ErrorType.SYSTEM,
-        silent: false
-      });
+<span class="cstat-no" title="statement not covered" >      console.error('[SettingsWebviews] Error while marking the tooltip as seen:', error);</span>
     }
   }, [updateModalState]);
 &nbsp;
@@ -1415,7 +1403,7 @@ export default function <span class="fstat-no" title="function not covered" >Set
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;View testID={testID}&gt;
       &lt;ScrollView showsVerticalScrollIndicator={true}&gt;
-        &lt;View style={styles.customHeaderContainer}&gt;
+        &lt;View style={[styles.customHeaderContainer, isSmartphoneLandscape &amp;&amp; styles.customHeaderContainerSmartphoneLandscape]}&gt;
           &lt;TouchableOpacity
             style={styles.backButton}
             onPress={handleBackPress}
@@ -1559,7 +1547,7 @@ export default function <span class="fstat-no" title="function not covered" >Set
               &lt;/Text&gt;
               &lt;TouchableOpacity
                 onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; {
-<span class="cstat-no" title="statement not covered" >                  setActiveTooltip('messages');</span>
+<span class="cstat-no" title="statement not covered" >                  setActiveTooltip('hideMessages');</span>
 <span class="cstat-no" title="statement not covered" >                  updateModalState('tooltip', true);</span>
                 }}
                 style={styles.infoIcon}
@@ -1695,6 +1683,9 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
     paddingVertical: 15,
     paddingHorizontal: 15,
   },
+  customHeaderContainerSmartphoneLandscape: {
+    paddingVertical: 0,
+  },
   backButton: {
     marginRight: 15,
     marginTop: 10,
@@ -1732,7 +1723,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-03T12:41:14.403Z
+                at 2025-05-09T10:24:58.164Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
