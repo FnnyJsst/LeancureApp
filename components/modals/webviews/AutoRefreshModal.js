@@ -130,6 +130,7 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
               <TouchableOpacity
                 onPress={() => setShowTooltip(true)}
                 style={styles.tooltipButton}
+                testID="tooltip-button"
               >
                 <Ionicons
                   name="information-circle-outline"
@@ -181,8 +182,9 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
       />
       <TooltipModal
         visible={showTooltip}
-        onClose={() => setShowTooltip(false)}
         message={t('tooltips.autoRefresh.message')}
+        onClose={() => setShowTooltip(false)}
+        testID="tooltip-modal"
       />
     </>
   );

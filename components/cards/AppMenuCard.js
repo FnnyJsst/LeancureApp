@@ -18,6 +18,7 @@ const AppMenuCard = ({ title, icon, onPress }) => {
 
   return (
     <TouchableOpacity
+      testID="app-menu-card"
       style={[styles.card, isSmartphone && styles.cardSmartphone]}
       onPress={onPress}
     >

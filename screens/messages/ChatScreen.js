@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Sidebar from '../../components/navigation/Sidebar';
 import ChatWindow from '../../components/chat/ChatWindow';
@@ -34,35 +34,29 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
+  // Référence pour éviter les mises à jour inutiles
+  const previousChannelId = useRef(null);
 
   // Update the channel context when the selected channel changes
   useEffect(() => {
-    if (selectedChannel && selectedChannel.id) {
-      updateActiveChannel(selectedChannel.id.toString(), selectedChannel.title);
-    } else {
-      updateActiveChannel(null);
+    if (selectedChannel?.id !== previousChannelId.current) {
+      previousChannelId.current = selectedChannel?.id;
+      if (selectedChannel && selectedChannel.id) {
+        updateActiveChannel(selectedChannel.id.toString(), selectedChannel.title);
+      } else {
+        updateActiveChannel(null);
+      }
     }
   }, [selectedChannel, updateActiveChannel]);
 
-  // Handle WebSocket messages
+  // Handle WebSocket messages with memoization
   const handleWebSocketMessage = useCallback((data) => {
-
-    if (data.message && data.message.type === 'messages') {
+    if (data.message?.type === 'messages') {
       const newMessages = data.message.messages;
-
       setChannelMessages(prevMessages => {
-        // Create a Set of existing message IDs to avoid duplicates
         const existingMessageIds = new Set(prevMessages.map(msg => msg.id));
-
-        // Filter new messages to keep only those that do not already exist
         const uniqueNewMessages = newMessages.filter(msg => !existingMessageIds.has(msg.id));
-
-        if (uniqueNewMessages.length === 0) {
-          return prevMessages;
-        }
-
-        // Add the new messages to the list
-        return [...prevMessages, ...uniqueNewMessages];
+        return uniqueNewMessages.length > 0 ? [...prevMessages, ...uniqueNewMessages] : prevMessages;
       });
     }
   }, []);
@@ -73,37 +67,40 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     channels: selectedChannel ? [`channel_${selectedChannel.id}`] : []
   });
 
-  /**
-   * @function refreshMessages
-   * @description Refreshes the initial messages
-   */
+  // Memoize the refreshMessages function
   const refreshMessages = useCallback(async () => {
-    try {
-      if (!selectedChannel || !selectedChannel.id) {
-        setChannelMessages([]);
-        return;
-      }
+    if (!selectedChannel?.id) {
+      setChannelMessages([]);
+      return;
+    }
 
+    try {
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
+      if (!credentialsStr) return;
+
       const credentials = JSON.parse(credentialsStr);
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
-
       setChannelMessages(messages);
     } catch (error) {
+      console.error('[ChatScreen] Error refreshing messages:', error);
       setAlertMessage(t('error.errorRefreshingMessages'));
       setShowAlert(true);
     }
-  }, [selectedChannel, t]);
+  }, [selectedChannel?.id, t]);
 
   // Effect to load the initial messages
   useEffect(() => {
-    refreshMessages();
-  }, [selectedChannel, refreshMessages]);
+    if (selectedChannel?.id !== previousChannelId.current) {
+      refreshMessages();
+    }
+  }, [selectedChannel?.id, refreshMessages]);
 
   // Effect to clean the WebSocket connection
   useEffect(() => {
     return () => {
-      closeConnection();
+      if (closeConnection) {
+        closeConnection();
+      }
     };
   }, [closeConnection]);
 

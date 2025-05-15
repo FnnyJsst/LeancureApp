@@ -41,6 +41,7 @@ export default function Header({
         <TouchableOpacity
           style={styles.iconButton}
           onPress={onBackPress}
+          testID="back-button"
         >
           <Ionicons
             name="close-outline"
@@ -53,6 +54,7 @@ export default function Header({
         <TouchableOpacity
           style={[styles.iconButton, !showBackButton && styles.menuButtonLeft]}
           onPress={toggleMenu}
+          testID="menu-button"
         >
           <Ionicons
             name="menu-outline"
@@ -73,6 +75,7 @@ export default function Header({
           <TouchableOpacity
             style={styles.iconButton}
             onPress={onRightIconPress}
+            testID="right-icon-button"
           >
             <Entypo
               name={rightIcon}
@@ -87,12 +90,15 @@ export default function Header({
 
   return (
     <View style={transparent && styles.transparentContainer}>
-      <View style={[
-        styles.headerContainer,
-        isSmartphone && styles.headerContainerSmartphone,
-        transparent && styles.transparent,
-        currentSection !== 'chat' && styles.noBorder,
-      ]}>
+      <View 
+        style={[
+          styles.headerContainer,
+          isSmartphone && styles.headerContainerSmartphone,
+          transparent && styles.transparent,
+          currentSection !== 'chat' && styles.noBorder,
+        ]}
+        testID="header-container"
+      >
         {renderLeftSection()}
 
         {title && (

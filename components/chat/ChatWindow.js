@@ -815,7 +815,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             onSendMessage={sendMessage}
             onFocusChange={onInputFocusChange}
             editingMessage={editingMessage}
-            testID="chat-input"
+            testID={testID}
           />
 
           <DocumentPreviewModal

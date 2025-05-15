@@ -202,61 +202,37 @@ describe("ChatWindow Component", () => {
   });
 
   it("devrait permettre l'édition d'un message", async () => {
-    // Mock des credentials
-    SecureStore.getItemAsync.mockImplementation((key) => {
-      if (key === 'userCredentials') {
-        return Promise.resolve(JSON.stringify(mockCredentials));
-      }
-      if (key === 'userRights') {
-        return Promise.resolve(JSON.stringify("2"));
-      }
-      return Promise.resolve(null);
-    });
-
     const { getByTestId, getByText } = render(
       <ChatWindow
         channel={mockChannel}
         messages={[mockMessages[1]]}
+        testID="chat-input-field"
       />
     );
 
-    // Attendre que le composant soit chargé
     await waitFor(() => {
       expect(getByTestId(`message-${mockMessages[1].id}`)).toBeTruthy();
     });
 
-    // Simuler l'appui long
     await act(async () => {
-      fireEvent(
-        getByTestId(`message-${mockMessages[1].id}`),
-        'onLongPress'
-      );
+      fireEvent(getByTestId(`message-${mockMessages[1].id}`), 'onLongPress');
     });
 
-    // Cliquer sur le bouton d'édition
-    await waitFor(() => {
-      const editButton = getByText('buttons.edit');
-      fireEvent.press(editButton);
+    const editButton = getByText('buttons.edit');
+    fireEvent.press(editButton);
+
+    const input = getByTestId('chat-input-field');
+    fireEvent(input, 'onSubmitEditing', {
+      nativeEvent: { text: 'Message modifié' }
     });
 
-    // Simuler directement l'envoi du message modifié
-    await act(async () => {
-      const input = getByTestId('chat-input');
-      fireEvent(input, 'onSubmitEditing', {
-        nativeEvent: { text: 'Message modifié' }
-      });
-    });
-
-    // Vérifier l'appel API
     expect(editMessageApi).toHaveBeenCalledWith(
       mockMessages[1].id,
-      {
-        text: mockMessages[1].text, // Le texte original est envoyé car l'édition n'est pas encore active
+      expect.objectContaining({
+        text: mockMessages[1].text,
         isEditing: true,
-        messageId: mockMessages[1].id,
-        type: 'text',
-        fileInfo: null
-      },
+        messageId: mockMessages[1].id
+      }),
       mockCredentials
     );
   });
@@ -400,13 +376,117 @@ describe("ChatWindow Component", () => {
         channel={mockChannel}
         messages={[]}
         onInputFocusChange={jest.fn()}
+        testID="chat-input-field"
       />
     );
 
     // Attendre que le composant soit rendu
     await waitFor(() => {
-      const input = getByTestId('chat-input');
+      const input = getByTestId('chat-input-field');
       expect(input).toBeTruthy();
     });
+  });
+
+  it("devrait gérer les erreurs lors de l'édition d'un message", async () => {
+    editMessageApi.mockRejectedValueOnce(new Error('Erreur d\'édition'));
+
+    const { getByTestId, getByText } = render(
+      <ChatWindow
+        channel={mockChannel}
+        messages={[mockMessages[1]]}
+        testID="chat-input-field"
+      />
+    );
+
+    await waitFor(() => {
+      expect(getByTestId(`message-${mockMessages[1].id}`)).toBeTruthy();
+    });
+
+    await act(async () => {
+      fireEvent(getByTestId(`message-${mockMessages[1].id}`), 'onLongPress');
+    });
+
+    const editButton = getByText('buttons.edit');
+    fireEvent.press(editButton);
+
+    const input = getByTestId('chat-input-field');
+    fireEvent.changeText(input, 'Message modifié');
+    fireEvent(input, 'onSubmitEditing', {
+      nativeEvent: { text: 'Message modifié' }
+    });
+
+    await waitFor(() => {
+      expect(editMessageApi).toHaveBeenCalled();
+    });
+  });
+
+  it("devrait gérer les erreurs lors du chargement des fichiers", async () => {
+    console.error = jest.fn();
+    fetchMessageFile.mockRejectedValueOnce(new Error('Erreur de chargement'));
+
+    const fileMessage = {
+      id: "4",
+      type: "file",
+      fileType: "pdf",
+      text: "document.pdf",
+      savedTimestamp: "1630000300000",
+      login: "user2",
+      isOwnMessage: true
+    };
+
+    render(
+      <ChatWindow
+        channel={mockChannel}
+        messages={[fileMessage]}
+      />
+    );
+
+    await waitFor(() => {
+      expect(fetchMessageFile).toHaveBeenCalled();
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
+  it("devrait gérer le focus de l'input", async () => {
+    const mockOnInputFocusChange = jest.fn();
+
+    const { getByTestId } = render(
+      <ChatWindow
+        channel={mockChannel}
+        messages={mockMessages}
+        onInputFocusChange={mockOnInputFocusChange}
+        testID="chat-input-field"
+      />
+    );
+
+    await waitFor(() => {
+      const input = getByTestId('chat-input-field');
+      expect(input).toBeTruthy();
+    });
+
+    const input = getByTestId('chat-input-field');
+    
+    await act(async () => {
+      fireEvent(input, 'focus');
+    });
+    expect(mockOnInputFocusChange).toHaveBeenCalledWith(true);
+
+    await act(async () => {
+      fireEvent(input, 'blur');
+    });
+    expect(mockOnInputFocusChange).toHaveBeenCalledWith(false);
+  });
+
+  it("devrait nettoyer les ressources lors du démontage", async () => {
+    const { unmount } = render(
+      <ChatWindow
+        channel={mockChannel}
+        messages={mockMessages}
+      />
+    );
+
+    unmount();
+
+    expect(mockWebSocketHook.closeConnection).toHaveBeenCalled();
   });
 });

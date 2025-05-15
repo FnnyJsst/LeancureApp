@@ -24,8 +24,6 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
 
-  const handleModalError = useHandledError(setError, t);
-
   const { isSmartphone, isSmartphoneLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 
   /**
@@ -60,18 +58,12 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
    */
   const handleImport = async () => {
     if (!url) {
-      handleModalError(new Error('URL is required'), 'importFullUrlModal.validation', {
-        type: ErrorType.VALIDATION,
-        showAlert: false
-      });
+      setError(t('errors.fieldsRequired'));
       return;
     }
 
     if (!validateUrl(url)) {
-      handleModalError(new Error('Invalid URL format'), 'importFullUrlModal.validation', {
-        type: ErrorType.VALIDATION,
-        showAlert: false
-      });
+      setError(t('errors.invalidUrlFormat'));
       return;
     }
 
@@ -82,10 +74,7 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
       await onImport(url);
       handleClose();
     } catch (error) {
-      handleModalError(error, 'importFullUrlModal.import', {
-        type: ErrorType.SYSTEM,
-        showAlert: false
-      });
+      setError(error.message || t('errors.errorImportingWebviews'));
     } finally {
       setIsImporting(false);
     }
@@ -134,7 +123,7 @@ const ImportFullUrlModal = ({ visible, onClose, onImport, testID }) => {
             }
           />
           {error ? (
-            <View style={styles.errorContainer}>
+            <View style={styles.errorContainer} testID="error-container">
               <Text style={[
                 styles.errorText,
                 isSmartphone && styles.smallTextSmartphone,

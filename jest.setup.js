@@ -112,3 +112,68 @@ jest.mock('expo-font', () => ({
   isLoading: jest.fn(() => false),
 }));
 
+// Configuration de l'environnement de test sécurisé
+global.testSecurityEnvironment = {
+  mockSecureStore: {},
+  mockEncryption: {
+    encrypt: jest.fn(data => `encrypted_${data}`),
+    decrypt: jest.fn(data => data.replace('encrypted_', '')),
+  },
+  mockCredentials: {
+    contractNumber: 'TEST_CONTRACT',
+    login: 'TEST_LOGIN',
+    password: 'TEST_PASSWORD',
+    accessToken: 'TEST_ACCESS_TOKEN',
+    refreshToken: 'TEST_REFRESH_TOKEN',
+  },
+  mockUserRights: '2',
+};
+
+// Mock amélioré pour expo-secure-store avec encryption
+jest.mock('expo-secure-store', () => ({
+  getItemAsync: jest.fn(async (key) => {
+    const store = global.testSecurityEnvironment.mockSecureStore;
+    return store[key] ? global.testSecurityEnvironment.mockEncryption.decrypt(store[key]) : null;
+  }),
+  setItemAsync: jest.fn(async (key, value) => {
+    global.testSecurityEnvironment.mockSecureStore[key] = global.testSecurityEnvironment.mockEncryption.encrypt(value);
+    return Promise.resolve();
+  }),
+  deleteItemAsync: jest.fn(async (key) => {
+    delete global.testSecurityEnvironment.mockSecureStore[key];
+    return Promise.resolve();
+  }),
+}));
+
+// Mock pour la gestion des tokens
+jest.mock('./services/api/authApi', () => ({
+  loginApi: jest.fn(async () => ({
+    success: true,
+    accessToken: global.testSecurityEnvironment.mockCredentials.accessToken,
+    refreshToken: global.testSecurityEnvironment.mockCredentials.refreshToken,
+  })),
+  checkRefreshToken: jest.fn(async () => ({
+    success: true,
+    accessToken: 'NEW_' + global.testSecurityEnvironment.mockCredentials.accessToken,
+  })),
+}));
+
+// Helpers pour les tests de sécurité
+global.securityTestHelpers = {
+  // Simuler une connexion réussie
+  mockSuccessfulLogin: async () => {
+    await require('expo-secure-store').setItemAsync(
+      'userCredentials',
+      JSON.stringify(global.testSecurityEnvironment.mockCredentials)
+    );
+    await require('expo-secure-store').setItemAsync(
+      'userRights',
+      global.testSecurityEnvironment.mockUserRights
+    );
+  },
+  // Nettoyer l'environnement de test
+  cleanSecurityTestEnvironment: () => {
+    global.testSecurityEnvironment.mockSecureStore = {};
+  },
+};
+

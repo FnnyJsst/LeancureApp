@@ -23,7 +23,7 @@ export default function SettingsCard({ icon, title, description, onPress, iconBa
       role="button"
       accessible={true}
       accessibilityLabel={title}
-      testID={testID}
+      testID="settings-card"
     >
       <View style={styles.content}>
         <View style={[

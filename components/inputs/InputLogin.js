@@ -56,11 +56,14 @@ export default function InputLogin({
     };
 
     return (
-        <View style={[
-            styles.inputContainer,
-            isSmartphone && styles.inputContainerSmartphone,
-            isFocused && styles.inputContainerFocused,
-        ]}>
+        <View
+            style={[
+                styles.inputContainer,
+                isSmartphone && styles.inputContainerSmartphone,
+                isFocused && styles.inputContainerFocused,
+            ]}
+            testID="input-container"
+        >
             {renderIcon()}
             <TextInput
                 style={[
@@ -80,6 +83,7 @@ export default function InputLogin({
                 <TouchableOpacity
                     onPress={() => setShowPassword(!showPassword)}
                     style={styles.eyeIcon}
+                    testID="eye-button"
                 >
                     <Ionicons
                         name={showPassword ? 'eye-outline' : 'eye-off-outline'}

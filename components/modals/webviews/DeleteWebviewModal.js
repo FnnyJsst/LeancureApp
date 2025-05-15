@@ -79,7 +79,7 @@ export default function DeleteWebviewModal({ visible, onClose, handleDelete, tes
               onPress={handleDeleteWithLoading}
               disabled={isDeleting}
               icon={isDeleting ?
-                <ActivityIndicator size="small" color={COLORS.white} /> :
+                <ActivityIndicator size="small" color={COLORS.white} testID="activity-indicator" /> :
                 null
               }
             />

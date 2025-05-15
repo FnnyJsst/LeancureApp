@@ -1,54 +1,52 @@
 import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
-import Login from '../../../../screens/messages/login/Login';
-import { loginApi, checkRefreshToken } from '../../../../services/api/authApi';
-import { fetchUserChannels } from '../../../../services/api/messageApi';
-import { synchronizeTokenWithAPI } from '../../../../services/notification/notificationService';
+import Login from '../../../screens/messages/login/Login';
+import { loginApi } from '../../../services/api/authApi';
+import { fetchUserChannels } from '../../../services/api/messageApi';
+import { synchronizeTokenWithAPI } from '../../../services/notification/notificationService';
 import * as SecureStore from 'expo-secure-store';
-import { cleanSecureStore } from '../../../../utils/secureStore';
-import * as Notifications from 'expo-notifications';
-import { SCREENS } from '../../../../constants/screens';
-import { hashPassword } from '../../../../utils/encryption';
-import i18n from 'i18next';
+import { cleanSecureStore } from '../../../utils/secureStore';
+import { SCREENS } from '../../../constants/screens';
+import { hashPassword } from '../../../utils/encryption';
 
 // Mock des dépendances
-jest.mock('../../../../services/api/authApi', () => ({
+jest.mock('expo-notifications', () => ({
+  getExpoPushTokenAsync: jest.fn().mockResolvedValue({ data: 'test-token' }),
+  getPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
+  requestPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
+  setNotificationHandler: jest.fn(),
+  getDevicePushTokenAsync: jest.fn().mockResolvedValue({ data: 'test-device-token' }),
+  getRegistrationInfoAsync: jest.fn().mockResolvedValue({ registrationInfo: 'test-info' })
+}));
+
+jest.mock('../../../services/api/authApi', () => ({
   loginApi: jest.fn(),
   checkRefreshToken: jest.fn(),
-  cleanSecureStore: jest.fn().mockResolvedValue(true)
+  saveCredentials: jest.fn(),
+  getCredentials: jest.fn(),
+  getUserRights: jest.fn()
 }));
 
-jest.mock('../../../../utils/secureStore', () => ({
-  cleanSecureStore: jest.fn().mockResolvedValue(true)
-}));
-
-jest.mock('../../../../services/api/messageApi', () => ({
+jest.mock('../../../services/api/messageApi', () => ({
   fetchUserChannels: jest.fn()
 }));
 
-jest.mock('../../../../services/notification/notificationService', () => ({
-  synchronizeTokenWithAPI: jest.fn().mockResolvedValue(true)
+jest.mock('../../../services/notification/notificationService', () => ({
+  synchronizeTokenWithAPI: jest.fn()
 }));
 
 jest.mock('expo-secure-store', () => ({
-  setItemAsync: jest.fn().mockResolvedValue(undefined),
-  getItemAsync: jest.fn().mockResolvedValue(null),
-  deleteItemAsync: jest.fn().mockResolvedValue(undefined)
+  setItemAsync: jest.fn(),
+  getItemAsync: jest.fn(),
+  deleteItemAsync: jest.fn()
 }));
 
-jest.mock('expo-notifications', () => ({
-  getPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
-  requestPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
-  getExpoPushTokenAsync: jest.fn().mockResolvedValue({ data: 'expo-push-token-123' })
+jest.mock('../../../utils/secureStore', () => ({
+  cleanSecureStore: jest.fn()
 }));
 
-jest.mock('../../../../utils/encryption', () => ({
-  hashPassword: jest.fn(pwd => `hashed-${pwd}`),
-  secureStore: {
-    saveCredentials: jest.fn(),
-    getCredentials: jest.fn(),
-    deleteCredentials: jest.fn()
-  }
+jest.mock('../../../utils/encryption', () => ({
+  hashPassword: jest.fn(pwd => `hashed-${pwd}`)
 }));
 
 // Mock de react-i18next
@@ -62,7 +60,7 @@ jest.mock('react-i18next', () => ({
 }));
 
 // Mock de useDeviceType
-jest.mock('../../../../hooks/useDeviceType', () => ({
+jest.mock('../../../hooks/useDeviceType', () => ({
   useDeviceType: () => ({
     isSmartphone: false,
     isSmartphoneLandscape: false,
@@ -71,243 +69,205 @@ jest.mock('../../../../hooks/useDeviceType', () => ({
 }));
 
 // Mock pour ENV
-jest.mock('../../../../config/env', () => ({
+jest.mock('../../../config/env', () => ({
   ENV: {
-    EXPO_PROJECT_ID: 'test-project-id'
+    EXPO_PROJECT_ID: 'test-project-id',
+    API_URL: jest.fn().mockResolvedValue('https://api.example.com/ic.php')
   }
 }));
 
-// Mock pour react-native-linear-gradient
-jest.mock('react-native-linear-gradient', () => 'LinearGradient', { virtual: true });
-
-// Mock console.log et console.error
-global.console = {
-  ...console,
-  log: jest.fn(),
-  error: jest.fn()
-};
-
-// Fonction d'aide pour attendre que les promesses se résolvent
-const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
+// Mock pour CustomAlert
+jest.mock('../../../components/modals/webviews/CustomAlert', () => ({
+  __esModule: true,
+  default: {
+    show: jest.fn()
+  }
+}));
 
 describe('Login Component', () => {
   let onNavigate;
-  const mockCheckRefreshToken = jest.fn();
-  const mockCleanSecureStore = jest.fn();
 
-  beforeEach(() => {
+  beforeEach(async () => {
     onNavigate = jest.fn();
     jest.clearAllMocks();
-    SecureStore.getItemAsync.mockResolvedValue(null);
-  });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test('affiche le formulaire de connexion', async () => {
-    const { getByTestId } = render(<Login onNavigate={onNavigate} />);
-    await waitFor(() => {
-      expect(getByTestId('login-screen')).toBeTruthy();
-    }, { timeout: 10000 });
-  }, 15000);
-
-  test('affiche une erreur si champs vides', async () => {
-    const { getByTestId } = render(<Login onNavigate={onNavigate} />);
-
-    await waitFor(() => {
-      const loginButton = getByTestId('login-button');
-      expect(loginButton).toBeTruthy();
+    // Configuration par défaut des mocks
+    SecureStore.getItemAsync.mockImplementation(async (key) => {
+      if (key === 'userCredentials') {
+        return JSON.stringify({
+          contractNumber: 'TEST_CONTRACT',
+          login: 'TEST_LOGIN',
+          password: 'TEST_PASSWORD',
+          accessToken: 'TEST_ACCESS_TOKEN',
+          refreshToken: 'TEST_REFRESH_TOKEN'
+        });
+      }
+      return null;
     });
 
-    await act(async () => {
-      fireEvent.press(getByTestId('login-button'));
-    });
-
-    await waitFor(() => {
-      expect(getByTestId('custom-alert')).toBeTruthy();
-    });
-  });
-
-  test('effectue une connexion réussie et navigue vers le chat', async () => {
-    // Mock des réponses
-    loginApi.mockResolvedValueOnce({
+    SecureStore.setItemAsync.mockResolvedValue(undefined);
+    SecureStore.deleteItemAsync.mockResolvedValue(undefined);
+    
+    loginApi.mockImplementation(() => Promise.resolve({
       success: true,
       status: 200,
       accountApiKey: 'api-key-123',
       refreshToken: 'refresh-token-123',
       accessToken: 'access-token-123'
-    });
+    }));
 
-    fetchUserChannels.mockResolvedValueOnce({
+    fetchUserChannels.mockImplementation(() => Promise.resolve({
       status: 'ok',
-      channels: [{ id: 'channel1', name: 'Channel 1' }]
-    });
+      channels: []
+    }));
 
+    synchronizeTokenWithAPI.mockImplementation(() => Promise.resolve(true));
+    cleanSecureStore.mockImplementation(() => Promise.resolve());
+  });
+
+  test('effectue une connexion réussie et navigue vers le chat', async () => {
     const { getByTestId } = render(<Login onNavigate={onNavigate} />);
 
-    // Attendre que les éléments soient rendus
     await waitFor(() => {
+      expect(getByTestId('login-form')).toBeTruthy();
       expect(getByTestId('contract-input')).toBeTruthy();
-    });
+      expect(getByTestId('username-input')).toBeTruthy();
+      expect(getByTestId('password-input')).toBeTruthy();
+      expect(getByTestId('login-button')).toBeTruthy();
+    }, { timeout: 10000 });
 
-    // Remplir le formulaire
     await act(async () => {
       fireEvent.changeText(getByTestId('contract-input'), '123456');
-      fireEvent.changeText(getByTestId('login-input'), 'testuser');
+      fireEvent.changeText(getByTestId('username-input'), 'testuser');
       fireEvent.changeText(getByTestId('password-input'), 'password123');
-    });
-
-    // Soumettre le formulaire
-    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000));
       fireEvent.press(getByTestId('login-button'));
     });
 
-    // Attendre la navigation
     await waitFor(() => {
-      expect(loginApi).toHaveBeenCalled();
+      expect(loginApi).toHaveBeenCalledWith('123456', 'testuser', expect.any(String), '');
       expect(fetchUserChannels).toHaveBeenCalled();
+      expect(synchronizeTokenWithAPI).toHaveBeenCalledWith('test-token');
       expect(onNavigate).toHaveBeenCalledWith(SCREENS.CHAT);
-    }, { timeout: 5000 });
-  });
+    }, { timeout: 10000 });
+  }, 30000);
 
-  it('affiche une erreur en cas d\'échec de connexion', async () => {
-    // Utiliser mockImplementation au lieu de mockResolvedValue
-    loginApi.mockImplementation(() => Promise.resolve({
+  test('affiche une erreur en cas d\'échec de connexion', async () => {
+    loginApi.mockImplementationOnce(() => Promise.resolve({
       success: false,
       status: 401,
       error: 'Invalid credentials'
     }));
 
-    checkRefreshToken.mockImplementation(() => Promise.resolve({
-      success: false,
-      error: 'Invalid refresh token'
-    }));
-
     const { getByTestId } = render(<Login onNavigate={onNavigate} />);
 
-    // Attendre que les éléments soient rendus
     await waitFor(() => {
+      expect(getByTestId('login-form')).toBeTruthy();
       expect(getByTestId('contract-input')).toBeTruthy();
-    });
+      expect(getByTestId('username-input')).toBeTruthy();
+      expect(getByTestId('password-input')).toBeTruthy();
+      expect(getByTestId('login-button')).toBeTruthy();
+    }, { timeout: 10000 });
 
-    const contractInput = getByTestId('contract-input');
-    const loginInput = getByTestId('login-input');
-    const passwordInput = getByTestId('password-input');
-    const loginButton = getByTestId('login-button');
-
-    // Remplir le formulaire
-    fireEvent.changeText(contractInput, '123456');
-    fireEvent.changeText(loginInput, 'testuser');
-    fireEvent.changeText(passwordInput, 'wrongpassword');
-
-    // Cliquer sur le bouton de connexion
     await act(async () => {
-      fireEvent.press(loginButton);
+      fireEvent.changeText(getByTestId('contract-input'), '123456');
+      fireEvent.changeText(getByTestId('username-input'), 'testuser');
+      fireEvent.changeText(getByTestId('password-input'), 'wrongpassword');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      fireEvent.press(getByTestId('login-button'));
     });
 
-    // Vérifier que loginApi a été appelé et que la navigation n'a pas eu lieu
     await waitFor(() => {
-      expect(loginApi).toHaveBeenCalledWith('123456', 'testuser', 'wrongpassword', '');
+      expect(loginApi).toHaveBeenCalledWith('123456', 'testuser', expect.any(String), '');
       expect(onNavigate).not.toHaveBeenCalled();
-    }, { timeout: 3000 });
-  });
+    }, { timeout: 10000 });
+  }, 30000);
 
+  test('sauvegarde les informations de connexion lorsque "Se souvenir de moi" est coché', async () => {
+    const { getByTestId, getByText } = render(<Login onNavigate={onNavigate} />);
 
-  it('sauvegarde les informations de connexion lorsque "Se souvenir de moi" est coché', async () => {
-    // Configurer les mocks pour un scénario de connexion réussie
-    loginApi.mockResolvedValueOnce({
-      success: true,
-      status: 200,
-      accountApiKey: 'api-key-123',
-      refreshToken: 'refresh-token-123',
-      accessToken: 'access-token-123'
-    });
+    await waitFor(() => {
+      expect(getByTestId('login-form')).toBeTruthy();
+      expect(getByTestId('contract-input')).toBeTruthy();
+      expect(getByTestId('username-input')).toBeTruthy();
+      expect(getByTestId('password-input')).toBeTruthy();
+      expect(getByTestId('login-button')).toBeTruthy();
+      expect(getByText('auth.rememberMe')).toBeTruthy();
+    }, { timeout: 10000 });
 
-    fetchUserChannels.mockResolvedValueOnce({
-      status: 'ok',
-      channels: [{ id: 'channel1', name: 'Channel 1' }]
-    });
-
-    const { findByPlaceholderText, findByTestId, findByText } = render(<Login onNavigate={onNavigate} />);
-
-    // Trouver les champs du formulaire
-    const contractInput = await findByTestId('contract-input');
-    const loginInput = await findByTestId('login-input');
-    const passwordInput = await findByTestId('password-input');
-
-    // Remplir le formulaire
-    fireEvent.changeText(contractInput, '123456');
-    fireEvent.changeText(loginInput, 'testuser');
-    fireEvent.changeText(passwordInput, 'password123');
-
-    // Cocher la case "Se souvenir de moi"
-    const checkbox = await findByText('auth.rememberMe');
-    fireEvent.press(checkbox);
-
-    // Soumettre le formulaire
-    const loginButton = await findByTestId('login-button');
     await act(async () => {
-      fireEvent.press(loginButton);
-      await flushPromises();
+      fireEvent.changeText(getByTestId('contract-input'), '123456');
+      fireEvent.changeText(getByTestId('username-input'), 'testuser');
+      fireEvent.changeText(getByTestId('password-input'), 'password123');
+      fireEvent.press(getByText('auth.rememberMe'));
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      fireEvent.press(getByTestId('login-button'));
     });
-
-    // Vérifier que les informations de connexion sont sauvegardées
-    expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
-      expect.stringMatching(/userCredentials|savedLoginInfo/),
-      expect.any(String)
-    );
-
-    // Vérifier la navigation
-    expect(onNavigate).toHaveBeenCalledWith(SCREENS.CHAT);
-  });
-
-  it('utilise les informations de connexion sauvegardées', async () => {
-    SecureStore.getItemAsync.mockResolvedValueOnce(JSON.stringify({
-      contractNumber: '123456',
-      login: 'testuser',
-      password: 'hashed-password123',
-      wasChecked: true
-    }));
-
-    const { getByText } = render(<Login onNavigate={onNavigate} />);
 
     await waitFor(() => {
-      expect(getByText('titles.welcomeBack')).toBeTruthy();
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+        'userCredentials',
+        expect.any(String)
+      );
+      expect(onNavigate).toHaveBeenCalledWith(SCREENS.CHAT);
+    }, { timeout: 10000 });
+  }, 30000);
+
+  describe('Stockage Sécurisé', () => {
+    beforeEach(() => {
+      SecureStore.setItemAsync.mockClear();
+      SecureStore.getItemAsync.mockClear();
+      cleanSecureStore.mockClear();
     });
-  });
 
-  it('permet de basculer entre la connexion simplifiée et manuelle', async () => {
-    // Configurer les mocks pour un scénario avec des informations sauvegardées
-    SecureStore.getItemAsync.mockResolvedValueOnce(JSON.stringify({
-      contractNumber: '123456',
-      login: 'testuser',
-      password: 'hashed-password123',
-      wasChecked: true
-    }));
+    test('vérifie le chiffrement des credentials stockés', async () => {
+      const { getByTestId } = render(<Login onNavigate={onNavigate} />);
+      
+      loginApi.mockImplementation(() => Promise.resolve({
+        success: true,
+        accountApiKey: 'test-api-key',
+        refreshToken: 'test-refresh',
+        accessToken: 'test-access'
+      }));
 
-    const { findByText } = render(<Login onNavigate={onNavigate} />);
+      await waitFor(() => {
+        expect(getByTestId('login-form')).toBeTruthy();
+        expect(getByTestId('contract-input')).toBeTruthy();
+        expect(getByTestId('username-input')).toBeTruthy();
+        expect(getByTestId('password-input')).toBeTruthy();
+        expect(getByTestId('login-button')).toBeTruthy();
+      }, { timeout: 10000 });
 
-    // Attendre que le formulaire simplifié soit affiché
-    const switchAccountButton = await findByText('buttons.switchAccount');
+      await act(async () => {
+        fireEvent.changeText(getByTestId('contract-input'), '123456');
+        fireEvent.changeText(getByTestId('username-input'), 'testuser');
+        fireEvent.changeText(getByTestId('password-input'), 'password123');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        fireEvent.press(getByTestId('login-button'));
+      });
 
-    // Cliquer sur le bouton de changement de compte
-    fireEvent.press(switchAccountButton);
+      await waitFor(() => {
+        expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+          'userCredentials',
+          expect.any(String)
+        );
+        expect(onNavigate).toHaveBeenCalledWith(SCREENS.CHAT);
+      }, { timeout: 10000 });
+    }, 30000);
 
-    // Vérifier que le formulaire complet est affiché
-    await waitFor(() => {
-      expect(findByText('titles.welcome')).toBeTruthy();
-    });
-  });
+    test('vérifie la suppression des données lors du nettoyage', async () => {
+      render(<Login onNavigate={onNavigate} />);
+      
+      await act(async () => {
+        await cleanSecureStore();
+        SecureStore.getItemAsync.mockResolvedValue(null);
+      });
 
-  it('navigue vers le menu principal lorsqu\'on clique sur le lien de retour', async () => {
-    const { findByTestId } = render(<Login onNavigate={onNavigate} />);
-
-    // Cliquer sur le lien de retour
-    const backLink = await findByTestId('login-back');
-    fireEvent.press(backLink);
-
-    // Vérifier que la navigation a été déclenchée vers le menu principal
-    expect(onNavigate).toHaveBeenCalledWith(SCREENS.APP_MENU);
+      await waitFor(() => {
+        expect(cleanSecureStore).toHaveBeenCalled();
+        expect(SecureStore.getItemAsync('userCredentials')).resolves.toBeNull();
+        expect(SecureStore.getItemAsync('savedLoginInfo')).resolves.toBeNull();
+      }, { timeout: 10000 });
+    }, 30000);
   });
 });

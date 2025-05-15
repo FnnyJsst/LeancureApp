@@ -19,6 +19,8 @@ import * as Notifications from 'expo-notifications';
 import { ENV } from '../../../config/env';
 import { synchronizeTokenWithAPI } from '../../../services/notification/notificationService';
 import CustomAlert from '../../../components/modals/webviews/CustomAlert';
+import { handleError } from '../../../utils/errorHandling';
+import { ErrorType } from '../../../constants/errorType';
 
 /**
  * @component Login
@@ -101,68 +103,140 @@ export default function Login({ onNavigate }) {
                     default:
                         errorMessage = t('errors.connectionError');
                 }
-
                 setAlertMessage(errorMessage);
                 setShowAlert(true);
                 return;
             }
 
-            // Save the credentials with the tokens
-            const credentials = {
-                contractNumber,
-                login,
-                password: hashPassword(password),
-                accountApiKey: loginResponse.accountApiKey,
-                refreshToken: loginResponse.refreshToken,
-                accessToken: loginResponse.accessToken
-            };
+            // If the login is successful, we save the credentials
+            if (loginResponse.success) {
+                // Save the credentials with the tokens
+                const credentials = {
+                    contractNumber,
+                    login,
+                    password: hashPassword(password),
+                    accountApiKey: loginResponse.accountApiKey,
+                    refreshToken: loginResponse.refreshToken,
+                    accessToken: loginResponse.accessToken
+                };
 
-            await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+                await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
 
-            // If the user has checked the "Remember me" checkbox, we save the login info
-            if (isChecked) {
-                await saveLoginInfo();
-            }
-
-            // We fetch the user channels
-            const channelsResponse = await fetchUserChannels(
-                contractNumber,
-                login,
-                password,
-                loginResponse.accessToken,
-                loginResponse.accountApiKey
-            );
-
-            // If the channels are loaded, we get the notification token
-            if (channelsResponse.status === 'ok') {
-                try {
-                    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-                    let finalStatus = existingStatus;
-
-                    if (existingStatus !== 'granted') {
-                        const { status } = await Notifications.requestPermissionsAsync();
-                        finalStatus = status;
-                    }
-
-                    if (finalStatus === 'granted') {
-                        const tokenData = await Notifications.getExpoPushTokenAsync({
-                            projectId: ENV.EXPO_PROJECT_ID,
-                        });
-
-                        const syncResult = await synchronizeTokenWithAPI(tokenData.data);
-                        if (!syncResult) {
-                            console.error('[Login] Failed to synchronize the token with the API');
-                        }
-                    }
-                } catch (error) {
-                    console.error('[Login] Error handling notifications:', error);
+                // If the user has checked the "Remember me" checkbox, we save the login info
+                if (isChecked) {
+                    await saveLoginInfo();
                 }
 
-                // Navigation après la gestion des notifications
-                onNavigate(SCREENS.CHAT);
+                // We fetch the user channels
+                const channelsResponse = await fetchUserChannels(
+                    contractNumber,
+                    login,
+                    password,
+                    loginResponse.accessToken,
+                    loginResponse.accountApiKey
+                );
+
+                // If the channels are loaded, we get the notification token
+                if (channelsResponse.status === 'ok') {
+                    try {
+                        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+                        let finalStatus = existingStatus;
+
+                        if (existingStatus !== 'granted') {
+                            const { status } = await Notifications.requestPermissionsAsync();
+                            finalStatus = status;
+                        }
+
+                        if (finalStatus === 'granted') {
+                            try {
+                                const tokenData = await Notifications.getExpoPushTokenAsync({
+                                    projectId: ENV.EXPO_PROJECT_ID,
+                                });
+
+                                // Synchroniser le token avec l'API
+                                const syncResult = await synchronizeTokenWithAPI(tokenData.data);
+                                if (!syncResult) {
+                                    console.error('[Login] Failed to synchronize the notification token');
+                                }
+                            } catch (error) {
+                                console.error('[Login] Error generating notification token:', error);
+                            }
+                        }
+
+                        onNavigate(SCREENS.CHAT);
+                    } catch (error) {
+                        setAlertMessage(t('errors.technicalError'));
+                        setShowAlert(true);
+                    }
+                } else {
+                    setAlertMessage(t('errors.errorLoadingChannels'));
+                    setShowAlert(true);
+                }
             } else {
-                setAlertMessage(t('errors.errorLoadingChannels'));
-                setShowAlert(true);
+                // We get the old credentials for the refresh token
+                const oldCredentials = await SecureStore.getItemAsync('userCredentials');
+                if (!oldCredentials) {
+                    setAlertMessage(t('errors.invalidCredentials'));
+                    setShowAlert(true);
+                    return;
+                }
+
+                const { refreshToken, accountApiKey } = JSON.parse(oldCredentials);
+
+                // Tentative de refresh du token
+                const refreshTokenResponse = await checkRefreshToken(
+                    contractNumber,
+                    accountApiKey,
+                    refreshToken
+                );
+
+                // If the refresh token is not successful, we set the error
+                if (!refreshTokenResponse.success) {
+                    setAlertMessage(t('errors.sessionExpired'));
+                    setShowAlert(true);
+                    return;
+                }
+
+                // New login attempt with the new refresh token
+                const retryLoginResponse = await loginApi(
+                    contractNumber,
+                    login,
+                    password,
+                    refreshTokenResponse.data.refresh_token
+                );
+
+                // If the login is successful, we save the credentials
+                if (retryLoginResponse.success) {
+                    const credentials = {
+                        contractNumber,
+                        login,
+                        password: hashPassword(password),
+                        accountApiKey: retryLoginResponse.accountApiKey,
+                        refreshToken: refreshTokenResponse.data.refresh_token,
+                        accessToken: retryLoginResponse.accessToken
+                    };
+
+                    await SecureStore.setItemAsync('userCredentials', JSON.stringify(credentials));
+
+                    const channelsResponse = await fetchUserChannels(
+                        contractNumber,
+                        login,
+                        password,
+                        retryLoginResponse.accessToken,
+                        retryLoginResponse.accountApiKey
+                    );
+
+                    // If the channels are loaded, we navigate to the chat screen
+                    if (channelsResponse.status === 'ok') {
+                        onNavigate(SCREENS.CHAT);
+                    } else {
+                        setAlertMessage(t('errors.errorLoadingChannels'));
+                        setShowAlert(true);
+                    }
+                } else {
+                    setAlertMessage(t('errors.invalidCredentials'));
+                    setShowAlert(true);
+                }
             }
         } catch (error) {
             setAlertMessage(t('errors.loginFailed'));
@@ -172,6 +246,31 @@ export default function Login({ onNavigate }) {
         }
     }, [contractNumber, login, password, isChecked, onNavigate, t]);
 
+    // Helper function to handle notifications
+    const handleNotifications = async () => {
+        try {
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+
+            if (finalStatus === 'granted') {
+                const tokenData = await Notifications.getExpoPushTokenAsync({
+                    projectId: ENV.EXPO_PROJECT_ID,
+                });
+
+                const syncResult = await synchronizeTokenWithAPI(tokenData.data);
+                if (!syncResult) {
+                    console.error('[Login] Failed to synchronize the token with the API');
+                }
+            }
+        } catch (error) {
+            console.error('[Login] Error handling notifications:', error);
+        }
+    };
 
     /**
      * @function handleSimplifiedLogin
@@ -356,12 +455,11 @@ export default function Login({ onNavigate }) {
                                                 ]}>{t('titles.contractNumber')}</Text>
                                                 <View style={styles.inputWrapper}>
                                                     <InputLogin
-                                                        placeholder={t('auth.contractNumber')}
+                                                        placeholder={t('placeholders.contractNumber')}
                                                         value={contractNumber}
                                                         onChangeText={setContractNumber}
-                                                        iconName="document-text-outline"
-                                                        iconLibrary="Ionicons"
-                                                        testID="contract-input"
+                                                        iconName="business-outline"
+                                                        testID="contract-number-input"
                                                     />
                                                 </View>
                                             </View>
@@ -376,11 +474,11 @@ export default function Login({ onNavigate }) {
                                                 </Text>
                                                 <View style={styles.inputWrapper}>
                                                     <InputLogin
-                                                        placeholder={t('auth.login')}
+                                                        placeholder={t('placeholders.username')}
                                                         value={login}
                                                         onChangeText={setLogin}
                                                         iconName="person-outline"
-                                                        testID="login-input"
+                                                        testID="username-input"
                                                     />
                                                 </View>
                                             </View>
@@ -394,7 +492,7 @@ export default function Login({ onNavigate }) {
                                                 </Text>
                                                 <View style={styles.inputWrapper}>
                                                     <InputLogin
-                                                        placeholder={t('auth.password')}
+                                                        placeholder={t('placeholders.password')}
                                                         value={password}
                                                         onChangeText={setPassword}
                                                         secureTextEntry
@@ -409,6 +507,7 @@ export default function Login({ onNavigate }) {
                                                     checked={isChecked}
                                                     onPress={() => setIsChecked(!isChecked)}
                                                     label={t('auth.rememberMe')}
+                                                    testID="remember-me-checkbox"
                                                 />
                                             </View>
 
@@ -419,7 +518,7 @@ export default function Login({ onNavigate }) {
                                                     isLoading={isLoading}
                                                     onPress={handleLogin}
                                                     width="100%"
-                                                    testID="login-button"
+                                                    testID="submit-button"
                                                 />
                                             </View>
                                         </View>
@@ -430,10 +529,11 @@ export default function Login({ onNavigate }) {
                         <TouchableOpacity
                             style={styles.backLink}
                             onPress={() => onNavigate(SCREENS.APP_MENU)}
+                            testID="login-back-button"
                         >
                             <Text
                                 style={[styles.backLinkText, isSmartphone && styles.backLinkTextSmartphone]}
-                                testID="login-back">
+                            >
                                 {t('buttons.returnToTitle')}
                             </Text>
                         </TouchableOpacity>

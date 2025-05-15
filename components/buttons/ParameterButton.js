@@ -41,6 +41,7 @@ export default function ParameterButton({ onPress, testID }) {
             name="settings-outline"
             color={iconColor}
             size={isSmartphone ? 24 : 30}
+            testID="parameter-button-icon"
           />
         </View>
       </TouchableOpacity>
