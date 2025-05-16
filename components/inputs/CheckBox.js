@@ -21,6 +21,7 @@ export default function CheckBox({
   label,
   disabled = false,
   style,
+  testID,
 }) {
 
   // Hooks to define the device type
@@ -31,6 +32,7 @@ export default function CheckBox({
       onPress={onPress}
       disabled={disabled}
       style={[styles.container, style]}
+      testID={testID}
     >
       <View style={[
         styles.checkbox,

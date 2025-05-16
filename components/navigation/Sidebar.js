@@ -315,6 +315,7 @@ export default function Sidebar({ onChannelSelect, selectedGroup, onGroupSelect,
           <TouchableOpacity
             onPress={onLogout}
             style={styles.logoutButton}
+            testID="logout-button"
           >
             <Ionicons name="power-outline" size={20} color={COLORS.gray300} />
           </TouchableOpacity>

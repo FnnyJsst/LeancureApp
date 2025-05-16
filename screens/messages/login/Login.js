@@ -19,8 +19,7 @@ import * as Notifications from 'expo-notifications';
 import { ENV } from '../../../config/env';
 import { synchronizeTokenWithAPI } from '../../../services/notification/notificationService';
 import CustomAlert from '../../../components/modals/webviews/CustomAlert';
-import { handleError } from '../../../utils/errorHandling';
-import { ErrorType } from '../../../constants/errorType';
+import CryptoJS from 'crypto-js';
 
 /**
  * @component Login
@@ -57,6 +56,22 @@ export default function Login({ onNavigate }) {
 
         return null;
     }, [contractNumber, login, password, t]);
+
+    /**
+     * @function hashPassword
+     * @description Hash a password using SHA-256
+     * @param {string} password - The password to hash
+     * @returns {string} - The SHA-256 hash of the password
+     */
+    const hashPassword = (password) => {
+        try {
+            // Create the SHA-256 hash
+            const hashedPassword = CryptoJS.SHA256(password).toString();
+            return hashedPassword;
+        } catch (error) {
+            console.error('[Encryption] Error while hashing the password:', error);
+        }
+    };
 
 
     /**

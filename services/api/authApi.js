@@ -3,7 +3,8 @@ import { ENV } from '../../config/env';
 import { createApiRequest } from './baseApi';
 import * as SecureStore from 'expo-secure-store';
 import CryptoJS from 'crypto-js';
-import CustomAlert from '../../components/modals/webviews/CustomAlert';
+import { CustomAlert } from '../../components/modals/webviews/CustomAlert';
+import { t } from '../../i18n/index';
 
 /**
  * @function loginApi
