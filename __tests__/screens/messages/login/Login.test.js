@@ -1,13 +1,12 @@
 import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
-import Login from '../../../../screens/messages/login/Login';
-import * as authApi from '../../../../services/api/authApi';
-import { fetchUserChannels } from '../../../../services/api/messageApi';
-import { synchronizeTokenWithAPI } from '../../../../services/notification/notificationService';
+import Login from '../../../screens/messages/login/Login';
+import * as authApi from '../../../services/api/authApi';
+import { fetchUserChannels } from '../../../services/api/messageApi';
+import { synchronizeTokenWithAPI } from '../../../services/notification/notificationService';
 import * as SecureStore from 'expo-secure-store';
-import { cleanSecureStore } from '../../../../utils/secureStore';
-import { SCREENS } from '../../../../constants/screens';
-import { hashPassword } from '../../../../utils/encryption';
+import { cleanSecureStore } from '../../../utils/secureStore';
+import { SCREENS } from '../../../constants/screens';
 
 // Mock des dépendances
 jest.mock('expo-notifications', () => ({
@@ -19,16 +18,16 @@ jest.mock('expo-notifications', () => ({
   getRegistrationInfoAsync: jest.fn().mockResolvedValue({ registrationInfo: 'test-info' })
 }));
 
-jest.mock('../../../../services/api/authApi', () => ({
+jest.mock('../../../services/api/authApi', () => ({
   loginApi: jest.fn(),
   checkRefreshToken: jest.fn()
 }));
 
-jest.mock('../../../../services/api/messageApi', () => ({
+jest.mock('../../../services/api/messageApi', () => ({
   fetchUserChannels: jest.fn()
 }));
 
-jest.mock('../../../../services/notification/notificationService', () => ({
+jest.mock('../../../services/notification/notificationService', () => ({
   synchronizeTokenWithAPI: jest.fn()
 }));
 
@@ -38,12 +37,8 @@ jest.mock('expo-secure-store', () => ({
   deleteItemAsync: jest.fn()
 }));
 
-jest.mock('../../../../utils/secureStore', () => ({
+jest.mock('../../../utils/secureStore', () => ({
   cleanSecureStore: jest.fn()
-}));
-
-jest.mock('../../../../utils/encryption', () => ({
-  hashPassword: jest.fn(pwd => `hashed-${pwd}`)
 }));
 
 // Mock de react-i18next

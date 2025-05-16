@@ -94,3 +94,8 @@ Common problems ans solutions
 
 ## Future upgrades 
 1. Automatic alerts to inform the operators of various envent hapening in the factory (machine breakind down, low efficiency rate...)
+
+## Documentation 📚
+
+### Déploiement
+Pour les instructions détaillées de déploiement Android, consultez [la procédure de déploiement](docs/DEPLOYMENT.md).

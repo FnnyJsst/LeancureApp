@@ -41,7 +41,6 @@ module.exports = {
     'UseDeviceType.js',
     'UseWebview.js',
     'useWebSocket.js',
-    'secureStore.js',
     'WebviewScreen.js',
     'LeancureApp/screens/common',
   ],

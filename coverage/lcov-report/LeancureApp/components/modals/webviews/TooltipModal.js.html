@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>4/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -185,12 +185,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-yes">24x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">24x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -219,7 +217,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -289,11 +289,11 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
  * @param {string} title - The title of the tooltip
  * @param {string} message - The message to display in the tooltip
  */
-export default function <span class="fstat-no" title="function not covered" >TooltipModal(</span>{ visible, onClose, title, message }) {
-  const { t } = <span class="cstat-no" title="statement not covered" >useTranslation();</span>
-  const { isSmartphone } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
+export default function TooltipModal({ visible, onClose, title, message }) {
+  const { t } = useTranslation();
+  const { isSmartphone } = useDeviceType();
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;Modal
       animationType="fade"
       transparent={true}
@@ -301,10 +301,10 @@ export default function <span class="fstat-no" title="function not covered" >Too
       onRequestClose={onClose}
     &gt;
       &lt;View style={styles.centeredView}&gt;
-        &lt;View style={[styles.modalView, isSmartphone &amp;&amp; styles.modalViewSmartphone]}&gt;
+        &lt;View style={[styles.modalView, isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalViewSmartphone]</span>}&gt;
           &lt;View style={styles.contentContainer}&gt;
-            &lt;Text style={[styles.message, isSmartphone &amp;&amp; styles.messageSmartphone]}&gt;
-              {message || t('tooltips.defaultMessage')}
+            &lt;Text style={[styles.message, isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.messageSmartphone]</span>}&gt;
+              {message || <span class="branch-1 cbranch-no" title="branch not covered" >t('tooltips.defaultMessage')}</span>
             &lt;/Text&gt;
           &lt;/View&gt;
 &nbsp;
@@ -313,7 +313,7 @@ export default function <span class="fstat-no" title="function not covered" >Too
               style={styles.button}
               onPress={onClose}
             &gt;
-              &lt;Text style={[styles.buttonText, isSmartphone &amp;&amp; styles.buttonTextSmartphone]}&gt;
+              &lt;Text style={[styles.buttonText, isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.buttonTextSmartphone]</span>}&gt;
                 {t('buttons.gotIt')}
               &lt;/Text&gt;
             &lt;/TouchableOpacity&gt;
@@ -324,7 +324,7 @@ export default function <span class="fstat-no" title="function not covered" >Too
   );
 }
 &nbsp;
-const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
+const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
@@ -385,7 +385,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-16T08:26:23.038Z
+                at 2025-05-16T09:02:55.297Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

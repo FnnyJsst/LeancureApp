@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>15/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">88.88% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/9</span>
+                <span class='fraction'>8/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>15/18</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -119,45 +119,45 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useCallback, useState } from 'react';
 import { SCREENS } from '../constants/screens';
@@ -167,31 +167,31 @@ import { SCREENS } from '../constants/screens';
  * @param {Function} setCurrentScreen - A function to set the current screen
  * @returns {Object} - An object containing the navigate, goBack, and error functions
  */
-export const useNavigation = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>etCurrentScreen) =&gt; {</span>
-  const [error, setError] = <span class="cstat-no" title="statement not covered" >useState(null);</span>
+export const useNavigation = (setCurrentScreen) =&gt; {
+  const [error, setError] = useState(null);
 &nbsp;
-  const navigate = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >(s</span>creen) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    try {</span>
-<span class="cstat-no" title="statement not covered" >      if (!SCREENS[screen]) {</span>
-<span class="cstat-no" title="statement not covered" >        throw new Error(`Screen "${screen}" doesn't exist`);</span>
+  const navigate = useCallback((screen) =&gt; {
+    try {
+      if (!SCREENS[screen]) {
+        throw new Error(`Screen "${screen}" doesn't exist`);
       }
 &nbsp;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      if (screen === SCREENS.WEBVIEWS_MANAGEMENT || screen === SCREENS.WEBVIEWS_LIST) {</span>
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (screen === SCREENS.WEBVIEWS_MANAGEMENT || screen === SCREENS.WEBVIEWS_LIST) {
 <span class="cstat-no" title="statement not covered" >        setCurrentScreen(SCREENS[screen]);</span>
 <span class="cstat-no" title="statement not covered" >        setError(null);</span>
 <span class="cstat-no" title="statement not covered" >        return;</span>
       }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      setCurrentScreen(SCREENS[screen]);</span>
-<span class="cstat-no" title="statement not covered" >      setError(null);</span>
+      setCurrentScreen(SCREENS[screen]);
+      setError(null);
     } catch (err) {
-<span class="cstat-no" title="statement not covered" >      setError(err.message);</span>
+      setError(err.message);
     }
   }, [setCurrentScreen]);
 &nbsp;
-  const goBack = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >(d</span>efaultScreen = <span class="branch-0 cbranch-no" title="branch not covered" >SCREENS.APP_MENU)</span> =&gt; {</span>
-    const screenHierarchy = <span class="cstat-no" title="statement not covered" >{</span>
+  const goBack = useCallback((defaultScreen = SCREENS.APP_MENU) =&gt; {
+    const screenHierarchy = {
       [SCREENS.WEBVIEWS_MANAGEMENT]: SCREENS.SETTINGS,
       [SCREENS.WEBVIEWS_LIST]: SCREENS.NO_URL,
       [SCREENS.ACCOUNT]: SCREENS.CHAT,
@@ -200,12 +200,12 @@ export const useNavigation = <span class="cstat-no" title="statement not covered
       [SCREENS.SETTINGS]: SCREENS.APP_MENU,
     };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >(c</span>urrentScreen) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      setCurrentScreen(screenHierarchy[currentScreen] || defaultScreen);</span>
+    return (currentScreen) =&gt; {
+      setCurrentScreen(screenHierarchy[currentScreen] || defaultScreen);
     };
   }, [setCurrentScreen]);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return { navigate, goBack, error };</span>
+  return { navigate, goBack, error };
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -214,7 +214,7 @@ export const useNavigation = <span class="cstat-no" title="statement not covered
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-16T08:26:23.038Z
+                at 2025-05-16T09:02:55.297Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">81.81% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>9/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">53.84% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/26</span>
+                <span class='fraction'>14/26</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">81.81% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>9/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -203,24 +203,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -277,7 +277,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -322,19 +322,19 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} props.onClose - The function to call when the modal is closed
  * @param {Function} props.handleDelete - The function to call when the webview is deleted
  */
-export default function <span class="fstat-no" title="function not covered" >DeleteWebviewModal(</span>{ visible, onClose, handleDelete, testID }) {
+export default function DeleteWebviewModal({ visible, onClose, handleDelete, testID }) {
 &nbsp;
   // Hook to determine the device type and orientation
-  const { isSmartphonePortrait, isSmartphoneLandscape, isSmartphone, isTabletPortrait, isLowResTablet, isLowResTabletPortrait, isLowResTabletLandscape } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
+  const { isSmartphonePortrait, isSmartphoneLandscape, isSmartphone, isTabletPortrait, isLowResTablet, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
 &nbsp;
-  const [isDeleting, setIsDeleting] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
+  const [isDeleting, setIsDeleting] = useState(false);
 &nbsp;
-  const { t } = <span class="cstat-no" title="statement not covered" >useTranslation();</span>
+  const { t } = useTranslation();
 &nbsp;
-  const handleDeleteWithLoading = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    setIsDeleting(true);</span>
-<span class="cstat-no" title="statement not covered" >    try {</span>
-<span class="cstat-no" title="statement not covered" >      await handleDelete();</span>
+  const handleDeleteWithLoading = async () =&gt; {
+    setIsDeleting(true);
+    try {
+      await handleDelete();
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      throw new Error('Erreur lors de la suppression:', error);</span>
     } finally {
@@ -342,7 +342,7 @@ export default function <span class="fstat-no" title="function not covered" >Del
     }
   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;Modal
       animationType="fade"
       transparent={true}
@@ -354,22 +354,22 @@ export default function <span class="fstat-no" title="function not covered" >Del
       &lt;View style={MODAL_STYLES.modalContainer}&gt;
         &lt;View style={[
           MODAL_STYLES.content,
-          isSmartphone &amp;&amp; styles.modalContentSmartphone,
-          isLowResTablet &amp;&amp; styles.modalContentLowResTablet,
-          isSmartphonePortrait &amp;&amp; styles.modalContentSmartphonePortrait,
-          isSmartphoneLandscape &amp;&amp; styles.modalContentSmartphoneLandscape,
-          isTabletPortrait &amp;&amp; styles.modalContentTabletPortrait,
-          isLowResTabletPortrait &amp;&amp; styles.modalContentLowResTabletPortrait,
-          isLowResTabletLandscape &amp;&amp; styles.modalContentLowResTabletLandscape,
+          isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentSmartphone,</span>
+          isLowResTablet &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentLowResTablet,</span>
+          isSmartphonePortrait &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentSmartphonePortrait,</span>
+          isSmartphoneLandscape &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentSmartphoneLandscape,</span>
+          isTabletPortrait &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentTabletPortrait,</span>
+          isLowResTabletPortrait &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentLowResTabletPortrait,</span>
+          isLowResTabletLandscape &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentLowResTabletLandscape,</span>
         ]}&gt;
           &lt;View style={[
             styles.titleContainer,
-            isSmartphone &amp;&amp; styles.titleContainerSmartphone,
-            isTabletPortrait &amp;&amp; styles.titleContainerTabletPortrait,
+            isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.titleContainerSmartphone,</span>
+            isTabletPortrait &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.titleContainerTabletPortrait,</span>
           ]}&gt;
             &lt;Text style={[
               styles.title,
-              isSmartphone &amp;&amp; styles.titleSmartphone,
+              isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.titleSmartphone,</span>
             ]}&gt;{t('settings.webview.deleteChannel')}&lt;/Text&gt;
           &lt;/View&gt;
           &lt;View style={MODAL_STYLES.buttonContainer}&gt;
@@ -377,14 +377,14 @@ export default function <span class="fstat-no" title="function not covered" >Del
               title={t('buttons.cancel')}
               backgroundColor={COLORS.gray650}
               color={COLORS.white}
-              width={isSmartphone ? '27%' : '30%'}
+              width={isSmartphone ? <span class="branch-0 cbranch-no" title="branch not covered" >'27%' </span>: '30%'}
               onPress={onClose}
             /&gt;
             &lt;Button
               title={t('buttons.delete')}
               backgroundColor={COLORS.orange}
               color={COLORS.white}
-              width={isSmartphone ? '27%' : '30%'}
+              width={isSmartphone ? <span class="branch-0 cbranch-no" title="branch not covered" >'27%' </span>: '30%'}
               onPress={handleDeleteWithLoading}
               disabled={isDeleting}
               icon={isDeleting ?
@@ -399,7 +399,7 @@ export default function <span class="fstat-no" title="function not covered" >Del
   );
 }
 &nbsp;
-const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
+const styles = StyleSheet.create({
   modalContentSmartphonePortrait: {
     width: '95%',
   },
@@ -436,7 +436,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-16T08:26:23.038Z
+                at 2025-05-16T09:02:55.297Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
