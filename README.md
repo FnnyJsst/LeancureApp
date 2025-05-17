@@ -97,5 +97,8 @@ Common problems ans solutions
 
 ## Documentation 📚
 
+### Architecture
+Pour comprendre l'organisation du code et la structure du projet, consultez [l'architecture détaillée](docs/ARCHITECTURE.md).
+
 ### Déploiement
 Pour les instructions détaillées de déploiement Android, consultez [la procédure de déploiement](docs/DEPLOYMENT.md).
