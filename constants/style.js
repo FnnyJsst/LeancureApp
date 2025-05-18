@@ -1,12 +1,6 @@
 export const FONTS = {
-  thin: 'Raleway-Thin',        // 100
-  light: 'Raleway-Light',      // 300
   regular: 'Raleway-Regular',  // 400
   medium: 'Raleway-Medium',    // 500
-  semiBold: 'Raleway-SemiBold',// 600
-  bold: 'Raleway-Bold',        // 700
-  extraBold: 'Raleway-ExtraBold',// 800
-  black: 'Raleway-Black',       // 900
 };
 
 export const SIZES = {
@@ -17,7 +11,6 @@ export const SIZES = {
     textTablet: 18,
     biggerTextSmartphone: 16,
     biggerTextTablet: 18,
-    sideBarTextSmartphone: 17,
     inputTitleSmartphone: 16,
     inputTitleTablet: 20,
     subtitleSmartphone: 18,
@@ -28,14 +21,10 @@ export const SIZES = {
     headerTablet: 30,
   },
   fontWeight: {
-    thin: '100',
     light: '300',
     regular: '400',
     medium: '500',
     semiBold: '600',
-    bold: '700',
-    extraBold: '800',
-    black: '900',
   },
   borderRadius: {
     small: 6,
@@ -58,8 +47,6 @@ export const COLORS = {
   gray950: '#111111',
   gray900: '#1a1a1a',
   gray850: '#1e1e1e',
-  gray800: '#232424',
-  gray750: '#27272a',
   gray700: '#282828',
   gray650: '#313135',
 
@@ -69,12 +56,9 @@ export const COLORS = {
   // Light grays
   gray300: '#b2b2b2',
 
-  // Base colors
   white: '#ffffff',
-  overlay: 'rgba(0,0,0,0.8)',
-  overlayLight: 'rgba(0, 0, 0, 0.1)',
 
-  // Border colors
+  // Border colors for cards and modals
   borderColor: '#403430',
 
   burgundy: '#502e2e',

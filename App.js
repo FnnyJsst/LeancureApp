@@ -38,13 +38,8 @@ export default function App({ testID, initialScreen }) {
 
   // Fonts
   const [fontsLoaded] = useFonts({
-    'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),
-    'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),
     'Raleway-Regular': require('./assets/fonts/raleway.regular.ttf'),
     'Raleway-Medium': require('./assets/fonts/raleway.medium.ttf'),
-    'Raleway-SemiBold': require('./assets/fonts/raleway.semibold.ttf'),
-    'Raleway-Bold': require('./assets/fonts/raleway.bold.ttf'),
-    'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),
   });
 
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
@@ -59,7 +54,6 @@ export default function App({ testID, initialScreen }) {
 
   // Hooks
   const { navigate } = useNavigation(setCurrentScreen);
-  const { t } = useTranslation();
   const { timeoutInterval, handleTimeoutSelection, loadTimeoutInterval } = useTimeout();
 
   const {
@@ -330,7 +324,7 @@ export default function App({ testID, initialScreen }) {
       navigate(SCREENS.LOGIN);
     } catch (error) {
       console.error('[App] Error while logging out:', error);
-      throw error;
+      return;
     }
   };
 
@@ -373,9 +367,9 @@ export default function App({ testID, initialScreen }) {
     // Configuration of notifications
     const setupNotifications = async () => {
       try {
-        const token = await registerForPushNotificationsAsync();
+        await registerForPushNotificationsAsync();
         // Get the permissions status
-        const { status } = await Notifications.getPermissionsAsync();
+        await Notifications.getPermissionsAsync();
       } catch (error) {
         console.error('[App] Error while setting up notifications:', error);
       }
