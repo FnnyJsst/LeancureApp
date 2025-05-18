@@ -475,8 +475,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = useCallback(async (messageData) => {
     try {
-      const currentTime = Date.now();
-      recordSentMessage(currentTime);
+      const timestamp = Date.now();
+      recordSentMessage(timestamp);
 
       if (!channel) {
         console.error('[ChatWindow] No channel selected');
@@ -493,27 +493,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         setCredentials(userCredentials);
       }
 
-      // For file messages
-      if (messageData.type === 'file' && !messageData.base64) {
-        setAlertMessage(t('errors.invalidFile'));
-        setShowAlert(true);
-        return;
-      }
-
-      // Pour les messages texte
-      if (messageData.type !== 'file') {
-        const messageText = typeof messageData === 'object' ? messageData.text : messageData;
-        if (!messageText || messageText.trim() === '') {
-          setAlertMessage(t('errors.emptyMessage'));
-          setShowAlert(true);
-          return;
-        }
-      }
-
       // We get the user credentials
       const userCredentials = credentials;
-      // We create a timestamp for the message
-      const sendTimestamp = Date.now();
       // We check if the message is an edit of an existing message
       const isEditing = messageData.isEditing === true && messageData.messageId;
 
@@ -577,8 +558,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         ...messageData,
         login: userCredentials.login,
         isOwnMessage: true,
-        sendTimestamp,
-        // On calcule et inclut la taille du fichier
+        sendTimestamp: timestamp,
+        // We calculate and include the file size
         fileSize: (() => {
           if (messageData.fileSize && !isNaN(parseInt(messageData.fileSize, 10))) {
             return parseInt(messageData.fileSize, 10);
@@ -595,7 +576,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         message: typeof messageData === 'object' ? messageData.text : messageData,
         login: userCredentials.login,
         isOwnMessage: true,
-        sendTimestamp
+        sendTimestamp: timestamp
       };
 
       // We format the message and try to send it

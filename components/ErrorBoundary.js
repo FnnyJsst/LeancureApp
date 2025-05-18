@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: SIZES.fonts.titleTablet,
-    color: COLORS.red500,
+    color: COLORS.red,
     marginBottom: 20,
     textAlign: 'center'
   },

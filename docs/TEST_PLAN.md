@@ -30,7 +30,6 @@ Tests prioritaires :
 
 ### 3. Documents
 - `DocumentPreviewModal.js`
-- `FileHandler.js`
 
 Tests prioritaires :
 - Protection des fichiers
@@ -43,7 +42,6 @@ Tests prioritaires :
 L'environnement de test est configuré dans :
 - `jest.config.js`
 - `jest.setup.js`
-- `__tests__/utils/securityTestUtils.js`
 
 ### Outils
 - Jest
@@ -56,7 +54,6 @@ L'environnement de test est configuré dans :
 ### Types de Tests
 1. Tests Unitaires
 2. Tests d'Intégration
-3. Tests de Sécurité
 
 ### Priorités
 1. CRITIQUE : Authentification, Stockage sécurisé
@@ -66,7 +63,7 @@ L'environnement de test est configuré dans :
 ## Exécution des Tests
 
 ### Commandes
-\`\`\`bash
+
 # Exécuter tous les tests
 npm test
 
@@ -75,7 +72,6 @@ npm test security
 
 # Vérifier la couverture
 npm test -- --coverage
-\`\`\`
 
 ### Maintenance
 - Mettre à jour les mocks si nécessaire

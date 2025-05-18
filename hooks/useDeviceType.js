@@ -43,7 +43,7 @@ export const useDeviceType = () => {
     const aspectRatio = Math.max(width, height) / Math.min(width, height);
 
     const result = (
-      !isLowResTablet && // Exclure les tablettes basse résolution
+      !isLowResTablet && 
       diagonalInches >= minimumTabletDiagonal &&
       aspectRatio <= 2.0 &&
       Math.min(width, height) >= 500
