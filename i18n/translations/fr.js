@@ -128,7 +128,7 @@ export default {
         refreshSettingsSaved: "Paramètres d'actualisation automatique enregistrés",
       },
       readOnly: {
-        readOnly: "Voulez-vous définir la gestion des canaux en lecture seule ?",
+        readOnly: "Voulez-vous définir la gestion des chaînes en lecture seule ?",
         settingsSaved: 'Paramètres d\'accès en lecture seule enregistrés avec succès',
       }
     },
@@ -189,15 +189,15 @@ export default {
     webview: {
       quit: "Quitter l'application",
       quitDescription: "Retourner à l'écran d'accueil",
-      management: "Gestion des canaux",
-      managementDescription: "Accès aux canaux importés",
+      management: "Gestion des chaînes",
+      managementDescription: "Accès aux chaînes importées",
       autoRefresh: "Actualisation automatique",
-      autoRefreshDescription: "Définir l'intervalle de rafraîchissement",
+      autoRefreshDescription: "Définir l'intervalle de rafraîchissement des chaînes",
       readOnly: "Accès en lecture seule",
-      readOnlyDescription: "Accès aux canaux sans possibilité de modification",
+      readOnlyDescription: "Accès aux chaînes sans possibilité de modification",
       password: "Mot de passe",
       passwordDescription: "Pour accéder aux paramètres",
-      deleteChannel: "Êtes-vous sûr de vouloir supprimer ce canal ?",
+      deleteChannel: "Êtes-vous sûr de vouloir supprimer cette chaîne ?",
       refreshSettingsSaved: "Paramètres d'actualisation automatique enregistrés",
     },
     common: {
@@ -287,11 +287,11 @@ export default {
     defaultMessage: 'Voici une information utile pour vous aider à utiliser cette fonctionnalité.',
     autoRefresh: {
       title: 'Actualisation automatique',
-      message: 'Cette fonctionnalité permet de rafraîchir automatiquement les canaux à intervalles réguliers.'
+      message: 'Cette fonctionnalité permet de rafraîchir automatiquement les chaînes à intervalles réguliers.'
     },
     readOnly: {
       title: 'Accès en lecture seule',
-      message: 'L\'accès en lecture seule empêche les utilisateurs de modifier les messages dans les canaux. Seuls les administrateurs peuvent désactiver cette option.',
+      message: 'L\'accès en lecture seule empêche les utilisateurs de modifier les messages dans les canaux.',
     },
     password: {
       title: 'Mot de passe',
@@ -302,8 +302,8 @@ export default {
       message: 'Cette option permet de masquer les messages de l\'application.'
     },
     channels: {
-      title: 'Gestion des canaux',
-      message: 'Cette section vous permet de gérer les canaux et leurs paramètres d\'actualisation automatique. Configurez la fréquence de rafraîchissement selon vos besoins.'
+      title: 'Gestion des chaînes',
+      message: 'Cette section vous permet de gérer les chaînes et leurs paramètres d\'actualisation automatique. Configurez la fréquence de rafraîchissement selon vos besoins.'
     },
     security: {
       title: 'Sécurité des canaux',

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Modal, View, StyleSheet } from 'react-native';
 import Button from '../../../components/buttons/Button';
-import TitleModal from '../../../components/text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES,COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
@@ -19,7 +18,7 @@ let showAlert = null;
  * @param {Function} props.onConfirm - The function to call when the alert is confirmed
  * @param {string} props.type - The type of the alert
  */
-export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = 'error', testID }) {
+export default function CustomAlert({ visible, message, onClose, onConfirm, type = 'error', testID }) {
 
   // We get the device type
   const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
@@ -44,7 +43,6 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
           isLowResTabletPortrait && styles.modalContentLowResTabletPortrait,
           isLowResTabletLandscape && styles.modalContentLowResTabletLandscape,
         ]}>
-          <TitleModal title={title} />
           <Text style={[styles.message, isSmartphone && styles.messageSmartphone]}>{message}</Text>
           <View style={styles.buttonContainer}>
             {type === 'success' ? (
@@ -105,7 +103,7 @@ const styles = StyleSheet.create({
     width: '40%',
   },
   modalContentLowResTabletPortrait: {
-    width: '80%',
+    width: '70%',
   },
   modalContentLowResTabletLandscape: {
     width: '45%',

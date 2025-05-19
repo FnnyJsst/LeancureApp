@@ -28,7 +28,6 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
   const [confirmPassword, setConfirmPassword] = useState('');
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
-    title: '',
     message: '',
     type: 'error',
   });
@@ -37,12 +36,11 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
   /**
    * @function showAlert
    * @description A function to show the custom alert
-   * @param {string} title - The title of the alert
    * @param {string} message - The message of the alert
    * @param {string} type - The type of the alert
    */
-  const showAlert = (title, message, type = 'error') => {
-    setAlertConfig({ title, message, type });
+  const showAlert = (message, type = 'error') => {
+    setAlertConfig({ message, type });
     setAlertVisible(true);
   };
 
@@ -183,7 +181,6 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
       </Modal>
       <CustomAlert
         visible={alertVisible}
-        title={alertConfig.title}
         message={alertConfig.message}
         type={alertConfig.type}
         onClose={() => setAlertVisible(false)}
