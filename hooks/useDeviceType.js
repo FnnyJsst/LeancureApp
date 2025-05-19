@@ -1,58 +1,51 @@
 import { useWindowDimensions, PixelRatio } from 'react-native';
 
 /**
- * @function useDeviceType hook to determine the device type and orientation
+ * Custom hook to determine the device type and orientation
  * @returns {Object} - An object containing the device type and orientation
+ *
+ * @example
+ * const { isTablet, isSmartphone, isLandscape, isSmartphoneLandscape, isSmartphonePortrait } = useDeviceType();
  */
 export const useDeviceType = () => {
   const { width, height } = useWindowDimensions();
   const pixelDensity = PixelRatio.get();
 
-  // Calculate the dimensions in inches
+  // Calcul des dimensions en pouces
   const widthInches = width / (PixelRatio.get() * 160);
   const heightInches = height / (PixelRatio.get() * 160);
   const diagonalInches = Math.sqrt(Math.pow(widthInches, 2) + Math.pow(heightInches, 2));
 
-  /**
-   * @description Check if the device is a low resolution tablet
-   */
   const isLowResTablet = (() => {
-    const minWidth = 500;
-    const minHeight = 600;
-    const maxPixelDensity = 2.0;
-    const minDiagonalInches = 5.0;
-    const maxDiagonalInches = 7.0;
+    const minWidth = 550;
+    const minHeight = 700;
+    const maxDensity = 2;
 
     const result = (
       Math.min(width, height) >= minWidth &&
       Math.max(width, height) >= minHeight &&
-      pixelDensity <= maxPixelDensity &&
-      diagonalInches >= minDiagonalInches &&
-      diagonalInches < maxDiagonalInches
+      pixelDensity > 1.5
     );
 
     return result;
   })();
 
-  /**
-   * @description Check if the device is a tablet
-   */
   const isTablet = (() => {
-    const minimumTabletDiagonal = 7.0;
+    const minimumTabletDiagonal = 6.0;
     const aspectRatio = Math.max(width, height) / Math.min(width, height);
 
     const result = (
-      !isLowResTablet &&
-      diagonalInches >= minimumTabletDiagonal &&
+      isLowResTablet ||
+      (diagonalInches >= minimumTabletDiagonal &&
       aspectRatio <= 2.0 &&
-      Math.min(width, height) >= 500
+      Math.min(width, height) >= 500)
     );
 
     return result;
   })();
 
   // If a device is not a tablet, it's a smartphone
-  const isSmartphone = !isTablet && !isLowResTablet;
+  const isSmartphone = !isTablet;
 
   // We determine the orientation of the device
   const isPortrait = height > width;
@@ -63,8 +56,6 @@ export const useDeviceType = () => {
   const isTabletPortrait = isTablet && isPortrait;
   const isSmartphoneLandscape = isSmartphone && isLandscape;
   const isTabletLandscape = isTablet && isLandscape;
-  const isLowResTabletPortrait = isLowResTablet && isPortrait;
-  const isLowResTabletLandscape = isLowResTablet && isLandscape;
 
   return {
     // Base properties
@@ -79,7 +70,5 @@ export const useDeviceType = () => {
     isTabletPortrait,
     isSmartphoneLandscape,
     isTabletLandscape,
-    isLowResTabletPortrait,
-    isLowResTabletLandscape,
   };
 };

@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
   },
   modalContent: {
-    width: '55%',
+    // // width: '55%',
     padding: 20,
     backgroundColor: COLORS.gray850,
     borderRadius: SIZES.borderRadius.xxLarge,
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     width: '90%',
   },
   modalContentTabletLandscape: {
-    width: '40%',
+    width: '35%',
   },
   modalContentSmartphoneLandscape: {
     width: '45%',
