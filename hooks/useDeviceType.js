@@ -1,7 +1,7 @@
 import { useWindowDimensions, PixelRatio } from 'react-native';
 
 /**
- * Custom hook to determine the device type and orientation
+ * @function useDeviceType hook to determine the device type and orientation
  * @returns {Object} - An object containing the device type and orientation
  */
 export const useDeviceType = () => {
@@ -31,7 +31,6 @@ export const useDeviceType = () => {
       diagonalInches < maxDiagonalInches
     );
 
-
     return result;
   })();
 
@@ -43,12 +42,11 @@ export const useDeviceType = () => {
     const aspectRatio = Math.max(width, height) / Math.min(width, height);
 
     const result = (
-      !isLowResTablet && 
+      !isLowResTablet &&
       diagonalInches >= minimumTabletDiagonal &&
       aspectRatio <= 2.0 &&
       Math.min(width, height) >= 500
     );
-
 
     return result;
   })();

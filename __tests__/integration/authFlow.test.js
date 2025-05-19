@@ -1,29 +1,25 @@
-import { loginApi } from '../../services/api/authApi';
+import { loginApi, hashPassword } from '../../services/api/authApi';
 import { fetchUserChannels } from '../../services/api/messageApi';
-import { hashPassword } from '../../utils/encryption';
 import { synchronizeTokenWithAPI } from '../../services/notification/notificationService';
 import * as SecureStore from 'expo-secure-store';
 import * as Notifications from 'expo-notifications';
 
 // Mocks des dépendances
-jest.mock('../../services/api/authApi', () => ({
-  loginApi: jest.fn(),
-  checkRefreshToken: jest.fn(),
-  cleanSecureStore: jest.fn().mockResolvedValue(true)
-}));
+jest.mock('../../services/api/authApi', () => {
+  const actualAuthApi = jest.requireActual('../../services/api/authApi');
+  return {
+    ...actualAuthApi,
+    loginApi: jest.fn(),
+    checkRefreshToken: jest.fn(),
+    cleanSecureStore: jest.fn().mockResolvedValue(true),
+    hashPassword: jest.fn(pwd => `hashed-${pwd}`)
+  };
+});
 
 jest.mock('../../services/api/messageApi', () => ({
   fetchUserChannels: jest.fn()
 }));
 
-jest.mock('../../utils/encryption', () => ({
-  hashPassword: jest.fn(pwd => `hashed-${pwd}`),
-  secureStore: {
-    saveCredentials: jest.fn(),
-    getCredentials: jest.fn(),
-    deleteCredentials: jest.fn()
-  }
-}));
 
 jest.mock('expo-secure-store', () => ({
   setItemAsync: jest.fn().mockResolvedValue(undefined),

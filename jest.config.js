@@ -43,5 +43,8 @@ module.exports = {
     'useWebSocket.js',
     'WebviewScreen.js',
     'LeancureApp/screens/common',
+    'Login.js',
+    'ChatWindow.js',
+    'Login.js',
   ],
 };

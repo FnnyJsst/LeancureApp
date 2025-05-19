@@ -7,6 +7,16 @@ import { CustomAlert } from '../../components/modals/webviews/CustomAlert';
 import { t } from '../../i18n/index';
 
 /**
+ * @function hashPassword
+ * @description Hashes a password using SHA-256
+ * @param {string} password - The password to hash
+ * @returns {string} The hashed password
+ */
+export const hashPassword = (password) => {
+  return CryptoJS.SHA256(password).toString();
+};
+
+/**
  * @function loginApi
  * @description Logs in to the API
  * @param {string} contractNumber - The contract number

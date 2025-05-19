@@ -206,7 +206,7 @@ describe("ChatWindow Component", () => {
       <ChatWindow
         channel={mockChannel}
         messages={[mockMessages[1]]}
-        testID="chat-input-field"
+        testID="chat-input"
       />
     );
 
@@ -221,7 +221,7 @@ describe("ChatWindow Component", () => {
     const editButton = getByText('buttons.edit');
     fireEvent.press(editButton);
 
-    const input = getByTestId('chat-input-field');
+    const input = getByTestId('chat-input');
     fireEvent(input, 'onSubmitEditing', {
       nativeEvent: { text: 'Message modifié' }
     });
@@ -376,13 +376,13 @@ describe("ChatWindow Component", () => {
         channel={mockChannel}
         messages={[]}
         onInputFocusChange={jest.fn()}
-        testID="chat-input-field"
+        testID="chat-input"
       />
     );
 
     // Attendre que le composant soit rendu
     await waitFor(() => {
-      const input = getByTestId('chat-input-field');
+      const input = getByTestId('chat-input');
       expect(input).toBeTruthy();
     });
   });
@@ -394,7 +394,7 @@ describe("ChatWindow Component", () => {
       <ChatWindow
         channel={mockChannel}
         messages={[mockMessages[1]]}
-        testID="chat-input-field"
+        testID="chat-input"
       />
     );
 
@@ -409,7 +409,7 @@ describe("ChatWindow Component", () => {
     const editButton = getByText('buttons.edit');
     fireEvent.press(editButton);
 
-    const input = getByTestId('chat-input-field');
+    const input = getByTestId('chat-input');
     fireEvent.changeText(input, 'Message modifié');
     fireEvent(input, 'onSubmitEditing', {
       nativeEvent: { text: 'Message modifié' }
@@ -455,17 +455,17 @@ describe("ChatWindow Component", () => {
         channel={mockChannel}
         messages={mockMessages}
         onInputFocusChange={mockOnInputFocusChange}
-        testID="chat-input-field"
+        testID="chat-input"
       />
     );
 
     await waitFor(() => {
-      const input = getByTestId('chat-input-field');
+      const input = getByTestId('chat-input');
       expect(input).toBeTruthy();
     });
 
-    const input = getByTestId('chat-input-field');
-    
+    const input = getByTestId('chat-input');
+
     await act(async () => {
       fireEvent(input, 'focus');
     });

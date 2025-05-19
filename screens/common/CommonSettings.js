@@ -168,63 +168,63 @@ const CommonSettings = ({ onBackPress, onHideMessages, isMessagesHidden }) => {
 };
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    marginHorizontal: 35,
-    marginTop: 12,
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  title: {
-    color: COLORS.gray300,
-    fontFamily: FONTS.medium,
-    fontSize: SIZES.fonts.smallTextTabletTablet,
-  },
-  titleSmartphone: {
-    fontSize: SIZES.fonts.smallTextSmartphone,
-  },
-  configContainer: {
-    backgroundColor: COLORS.gray850,
-    borderRadius: SIZES.borderRadius.xLarge,
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    marginHorizontal: 15,
-    alignSelf: 'center',
-    marginVertical: 12,
-    width: '95%',
-  },
-  configContainerSmartphone: {
-    marginVertical: 8,
-  },
-  configContainerLandscape: {
-    marginHorizontal: 50,
-  },
-  rowContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  leftContent: {
-    flex: 1,
-  },
-  text: {
-    color: COLORS.gray600,
-    fontSize: SIZES.fonts.textTablet,
-    fontWeight: SIZES.fontWeight.regular,
-  },
-  textSmartphone: {
-    fontSize: SIZES.fonts.textSmartphone,
-  },
-  baseToggle: {
-    backgroundColor: COLORS.gray650,
-    borderRadius: SIZES.borderRadius.small,
-    padding: 8,
-    minWidth: 40,
-    alignItems: 'center',
-  },
-  infoIcon: {
-    padding: 4,
-  },
-});
+    titleContainer: {
+        marginHorizontal: 35,
+        marginTop: 12,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    title: {
+        color: COLORS.gray300,
+        fontFamily: FONTS.medium,
+        fontSize: SIZES.fonts.smallTextTabletTablet,
+    },
+    titleSmartphone: {
+        fontSize: SIZES.fonts.smallTextSmartphone,
+    },
+    configContainer: {
+        backgroundColor: COLORS.gray850,
+        borderRadius: SIZES.borderRadius.xLarge,
+        paddingVertical: 12,
+        paddingHorizontal: 15,
+        marginHorizontal: 15,
+        alignSelf: 'center',
+        marginVertical: 12,
+        width: '95%',
+    },
+    configContainerSmartphone: {
+        marginVertical: 8,
+    },
+    configContainerLandscape: {
+        marginHorizontal: 50,
+    },
+    rowContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    leftContent: {
+        flex: 1,
+    },
+    text: {
+        color: COLORS.gray600,
+        fontSize: SIZES.fonts.textTablet,
+        fontWeight: SIZES.fontWeight.regular,
+    },
+    textSmartphone: {
+        fontSize: SIZES.fonts.textSmartphone,
+    },
+    baseToggle: {
+        backgroundColor: COLORS.gray650,
+        borderRadius: SIZES.borderRadius.small,
+        padding: 8,
+        minWidth: 40,
+        alignItems: 'center',
+    },
+    infoIcon: {
+        padding: 4,
+    },
+    });
 
 export default CommonSettings;

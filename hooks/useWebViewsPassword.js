@@ -33,7 +33,6 @@ export const useWebviewsPassword = (navigate) => {
    */
   const closePasswordDefineModal = () => setPasswordDefineModalVisible(false);
 
-
   /**
    * @function handlePasswordSubmit
    * @description Handles the submission of the password in the modals used to set the password
