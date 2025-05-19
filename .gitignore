@@ -11,6 +11,9 @@ google-services.json
 leancure-app-firebase-adminsdk.json.json
 *.json.json
 
+# Tests
+coverage/
+
 # Env files
 .env
 .env.*

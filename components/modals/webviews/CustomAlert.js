@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   modalContentLowResTabletLandscape: {
-    width: '50%',
+    width: '45%',
   },
   modalContentSmartphonePortrait: {
     width: '80%',

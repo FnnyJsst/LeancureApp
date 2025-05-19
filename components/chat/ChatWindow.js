@@ -101,7 +101,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                   const index = updatedMessages.findIndex(m => m.id === msg.id);
                   // If the message is found and the base64 is set, we update the message
                   if (index !== -1 && base64) {
-                    // On calcule la taille du fichier à partir du base64
+                    // We calculate the file size
                     const fileSize = (() => {
                       const base64Length = base64.length;
                       const paddingLength = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0;
@@ -140,10 +140,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     if (channel && channelMessages) {
       // We update the messages only if there are new messages
       if (channelMessages.length > 0) {
-        // On traite chaque message pour s'assurer que la taille des fichiers est correcte
+        // We process each message to ensure the file size is correct
         const processedMessages = channelMessages.map(msg => {
           if (msg.type === 'file') {
-            // On calcule la taille du fichier si nécessaire
+            // We calculate the file size if necessary
             const fileSize = (() => {
               if (msg.fileSize && !isNaN(parseInt(msg.fileSize, 10))) {
                 return parseInt(msg.fileSize, 10);
@@ -226,7 +226,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       if (data.notification && data.notification.type === 'chat' && data.notification.message) {
         const notifMessage = data.notification.message;
 
-        // Si c'est un message de type fichier, on s'assure de préserver la taille
+        // If it's a file message, we ensure the size is preserved
         if (notifMessage.type === 'file') {
           const fileSize = (() => {
             if (notifMessage.fileSize && !isNaN(parseInt(notifMessage.fileSize, 10))) {
@@ -475,8 +475,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = useCallback(async (messageData) => {
     try {
-      const timestamp = Date.now();
-      recordSentMessage(timestamp);
+      const currentTime = Date.now();
+      recordSentMessage(currentTime);
 
       if (!channel) {
         console.error('[ChatWindow] No channel selected');
@@ -495,6 +495,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // We get the user credentials
       const userCredentials = credentials;
+      // We create a timestamp for the message
+      const sendTimestamp = Date.now();
       // We check if the message is an edit of an existing message
       const isEditing = messageData.isEditing === true && messageData.messageId;
 
@@ -558,7 +560,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         ...messageData,
         login: userCredentials.login,
         isOwnMessage: true,
-        sendTimestamp: timestamp,
+        sendTimestamp,
         // We calculate and include the file size
         fileSize: (() => {
           if (messageData.fileSize && !isNaN(parseInt(messageData.fileSize, 10))) {
@@ -576,7 +578,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         message: typeof messageData === 'object' ? messageData.text : messageData,
         login: userCredentials.login,
         isOwnMessage: true,
-        sendTimestamp: timestamp
+        sendTimestamp
       };
 
       // We format the message and try to send it
@@ -788,7 +790,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
               onPress={sendMessage}
               style={styles.sendButton}
             >
-              <Ionicons name="send" size={24} color={COLORS.primary} />
+              {/* <Ionicons name="send" size={24} color={COLORS.primary} /> */}
             </TouchableOpacity>
           </View>
 
@@ -796,7 +798,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             onSendMessage={sendMessage}
             onFocusChange={onInputFocusChange}
             editingMessage={editingMessage}
-            testID={testID}
+            testID="chat-input"
           />
 
           <DocumentPreviewModal

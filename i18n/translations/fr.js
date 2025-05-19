@@ -169,7 +169,7 @@ export default {
     contractNumber: "Numéro de contrat",
     app: "Application",
     login: "Identifiant",
-    password: "Définir un mot de passe",
+    password: "Mot de passe",
     stayConnected: "Rester connecté",
     messages: "Messages",
     channels: "Canaux",

@@ -68,7 +68,6 @@
     "ios": "expo run:ios",
     "check-version": "node scripts/check-version.js",
     "prebuild": "npm run check-version",
-    "eas-build-pre-install": "echo $GOOGLE_SERVICES_BASE64 | base64 -d > google-services.json",
     "lint": "echo 'Linting skipped - no linter configured'",
     "test": "jest"
   },

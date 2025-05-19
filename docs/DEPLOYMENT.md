@@ -24,7 +24,7 @@ git checkout V1
 git checkout main
 
 
-## 1. Prérequis 
+## 1. Prérequis
 
 # Versions requises
 node -v  # >= 12.5.1 (selon eas.json)
@@ -35,19 +35,18 @@ eas -v   # >= 12.5.1
 - Accès au projet Firebase "Leancure App"(pour les notifications)
 - Fichier `.secrets/google-services.json`
 
-## 2. Environnements de Build 
+## 2. Environnements de Build
 
 Les builds sont gérés via EAS (Expo Application Services) avec trois environnements :
 - Development : Pour le développement local
 - Preview : Pour les tests internes
 - Production : Pour le déploiement Play Store
 
-## 3. Étapes de Déploiement 
+## 3. Étapes de Déploiement
 
 ### 3.1 Préparation
 
 0. **Vérifier la version à déployer**
-```bash
 # Vérifier la branche actuelle
 git branch
 
@@ -58,7 +57,6 @@ git branch
 # Si V2 (application complète)
 - Vérifier que le package dans app.json est "com.leancure.app.v2"
 - Suivre toutes les étapes de configuration Firebase
-```
 
 1. **Vérifier les variables d'environnement**
 # Vérifier la présence des fichiers secrets
@@ -101,7 +99,7 @@ eas build --profile production --platform android
 - Créer une nouvelle version
 - Soumettre la version pour test/publication
 
-## 4. Vérifications Post-déploiement 
+## 4. Vérifications Post-déploiement
 
 Après chaque déploiement, vérifier :
 
@@ -121,7 +119,7 @@ Après chaque déploiement, vérifier :
 - [ ] Système de messagerie
 - [ ] Envoi de fichiers
 
-## 5. Procédure de Rollback 
+## 5. Procédure de Rollback
 
 En cas de problème :
 
@@ -133,7 +131,7 @@ En cas de problème :
 
 - Télécharger le build précédent sur le site de EAS
 
-## 6. Notes Importantes 
+## 6. Notes Importantes
 
 1. **Sécurité**
    - Ne jamais commiter les fichiers `.secrets`
@@ -148,4 +146,4 @@ En cas de problème :
 3. **Build Android**
    - Type de build : APK
    - NDK Path configuré : `/opt/android/ndk/25c`
-   - Credentials source : remote pour la production 
+   - Credentials source : remote pour la production

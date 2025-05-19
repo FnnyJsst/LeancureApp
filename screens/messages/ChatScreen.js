@@ -39,23 +39,23 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
   // Update the channel context when the selected channel changes
   useEffect(() => {
-    if (selectedChannel?.id !== previousChannelId.current) {
-      previousChannelId.current = selectedChannel?.id;
-      if (selectedChannel && selectedChannel.id) {
-        updateActiveChannel(selectedChannel.id.toString(), selectedChannel.title);
-      } else {
-        updateActiveChannel(null);
-      }
+    console.log('[ChatScreen] Effect: updateActiveChannel - selectedChannel:', selectedChannel?.id);
+    if (selectedChannel?.id) {
+      updateActiveChannel(selectedChannel.id.toString(), selectedChannel.title);
+    } else {
+      updateActiveChannel(null);
     }
   }, [selectedChannel, updateActiveChannel]);
 
   // Handle WebSocket messages with memoization
   const handleWebSocketMessage = useCallback((data) => {
+    console.log('[ChatScreen] WebSocket message received:', data.message?.type);
     if (data.message?.type === 'messages') {
       const newMessages = data.message.messages;
       setChannelMessages(prevMessages => {
         const existingMessageIds = new Set(prevMessages.map(msg => msg.id));
         const uniqueNewMessages = newMessages.filter(msg => !existingMessageIds.has(msg.id));
+        console.log('[ChatScreen] New messages to add:', uniqueNewMessages.length);
         return uniqueNewMessages.length > 0 ? [...prevMessages, ...uniqueNewMessages] : prevMessages;
       });
     }
@@ -69,17 +69,24 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
   // Memoize the refreshMessages function
   const refreshMessages = useCallback(async () => {
+    console.log('[ChatScreen] refreshMessages called for channel:', selectedChannel?.id);
     if (!selectedChannel?.id) {
+      console.log('[ChatScreen] No channel selected, clearing messages');
       setChannelMessages([]);
       return;
     }
 
     try {
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
-      if (!credentialsStr) return;
+      if (!credentialsStr) {
+        console.log('[ChatScreen] No credentials found');
+        return;
+      }
 
       const credentials = JSON.parse(credentialsStr);
+      console.log('[ChatScreen] Fetching messages for channel:', selectedChannel.id);
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
+      console.log('[ChatScreen] Messages fetched:', messages.length);
       setChannelMessages(messages);
     } catch (error) {
       console.error('[ChatScreen] Error refreshing messages:', error);
@@ -90,9 +97,8 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
   // Effect to load the initial messages
   useEffect(() => {
-    if (selectedChannel?.id !== previousChannelId.current) {
-      refreshMessages();
-    }
+    console.log('[ChatScreen] Effect: refreshMessages triggered - channel:', selectedChannel?.id);
+    refreshMessages();
   }, [selectedChannel?.id, refreshMessages]);
 
   // Effect to clean the WebSocket connection
@@ -116,6 +122,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    */
   const handleChannelSelect = (channel) => {
     try {
+      console.log('[ChatScreen] Channel selected:', channel?.id);
       if (isExpanded) {
         toggleMenu();
       }
@@ -125,8 +132,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         return;
       }
 
-      // We reset the messages before changing the channel
-      setChannelMessages([]);
       // We update the selected channel
       setSelectedChannel({
         ...channel,
@@ -139,6 +144,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
   // Handle the input focus change to mark all the messages as read as soon as we use the chat input
   const handleInputFocusChange = async (isFocused) => {
+    console.log('[ChatScreen] Input focus changed:', isFocused);
     setIsInputFocused(isFocused);
   };
 

@@ -12,7 +12,6 @@ import { cleanSecureStore } from '../../../utils/secureStore';
 import { fetchUserChannels } from '../../../services/api/messageApi';
 import ButtonWithSpinner from '../../../components/buttons/ButtonWithSpinner';
 import GradientBackground from '../../../components/backgrounds/GradientBackground';
-import { hashPassword } from '../../../utils/encryption';
 import { Text } from '../../../components/text/CustomText';
 import { useTranslation } from 'react-i18next';
 import * as Notifications from 'expo-notifications';
@@ -470,7 +469,7 @@ export default function Login({ onNavigate }) {
                                                 ]}>{t('titles.contractNumber')}</Text>
                                                 <View style={styles.inputWrapper}>
                                                     <InputLogin
-                                                        placeholder={t('placeholders.contractNumber')}
+                                                        placeholder={t('auth.contractNumber')}
                                                         value={contractNumber}
                                                         onChangeText={setContractNumber}
                                                         iconName="business-outline"
@@ -489,7 +488,7 @@ export default function Login({ onNavigate }) {
                                                 </Text>
                                                 <View style={styles.inputWrapper}>
                                                     <InputLogin
-                                                        placeholder={t('placeholders.username')}
+                                                        placeholder={t('auth.login')}
                                                         value={login}
                                                         onChangeText={setLogin}
                                                         iconName="person-outline"
@@ -507,7 +506,7 @@ export default function Login({ onNavigate }) {
                                                 </Text>
                                                 <View style={styles.inputWrapper}>
                                                     <InputLogin
-                                                        placeholder={t('placeholders.password')}
+                                                        placeholder={t('auth.password')}
                                                         value={password}
                                                         onChangeText={setPassword}
                                                         secureTextEntry

@@ -167,7 +167,7 @@ export default {
     welcome: "Welcome",
     contractNumber: "Contract number",
     login: "Login",
-    password: "Define a password",
+    password: "Password",
     stayConnected: "Stay connected",
     messages: "Messages",
     channels: "Channels",

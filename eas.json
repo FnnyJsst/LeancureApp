@@ -29,7 +29,7 @@
       },
       "env": {
         "GOOGLE_SERVICES_JSON": ".secrets/google-services.json",
-        "FIREBASE_API_KEY": "AIzaSyBed_Zd-irYhqd8xF10e_LfygdTuAD_Zz0",
+        "FIREBASE_API_KEY": "AIzaSyA4L8FEaTqq39mQDz1FXueWgdpa7bXYxxQ",
         "FIREBASE_PROJECT_ID": "leancure-app",
         "FIREBASE_STORAGE_BUCKET": "leancure-app.firebasestorage.app",
         "FIREBASE_MESSAGING_SENDER_ID": "1:627566161284:android:d1bdce9014a28a70efc1d1",
@@ -47,7 +47,7 @@
       },
       "env": {
         "GOOGLE_SERVICES_JSON": ".secrets/google-services.json",
-        "FIREBASE_API_KEY": "AIzaSyBed_Zd-irYhqd8xF10e_LfygdTuAD_Zz0",
+        "FIREBASE_API_KEY": "AIzaSyA4L8FEaTqq39mQDz1FXueWgdpa7bXYxxQ",
         "FIREBASE_PROJECT_ID": "leancure-app",
         "FIREBASE_STORAGE_BUCKET": "leancure-app.firebasestorage.app",
         "FIREBASE_MESSAGING_SENDER_ID": "1:627566161284:android:d1bdce9014a28a70efc1d1",
