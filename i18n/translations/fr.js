@@ -3,14 +3,6 @@ export default {
   screens: {
     enterSettings: "Veuillez entrer dans les paramètres pour importer des chaînes",
     useButton: "Utilisez le bouton en haut à droite pour importer des chaînes",
-    selectChannel: "Sélectionnez un canal pour commencer à discuter",
-  },
-
-  sidebar: {
-    search: "Rechercher un canal",
-    groups: "Groupes",
-    settings: "Paramètres",
-    loading: "Chargement..."
   },
 
   alerts: {
@@ -24,14 +16,6 @@ export default {
     login: "Entrez votre identifiant",
     password: "Entrez votre mot de passe",
     rememberMe: "Se souvenir de moi",
-  },
-
-  messages: {
-    typeMessage: "Tapez votre message ici...",
-    SelectAChannel: "Sélectionnez un canal pour commencer à discuter",
-    Me: "Moi",
-    GroupWithoutName: "Groupe sans nom",
-    ChannelWithoutName: "Canal sans nom",
   },
 
   dateTime: {
@@ -126,7 +110,7 @@ export default {
         everyDay: "Tous les jours",
       },
       readOnly: {
-        readOnly: "Voulez-vous définir la gestion des canaux en lecture seule ?",
+        readOnly: "Voulez-vous définir la gestion des chaînes en lecture seule ?",
         settingsSaved: "Les paramètres ont été enregistrés avec succès",
       }
     },
@@ -162,23 +146,6 @@ export default {
     gotIt: "J'ai compris",
   },
 
-  titles: {
-    welcome: "Bienvenue",
-    contractNumber: "Numéro de contrat",
-    app: "Application",
-    login: "Identifiant",
-    password: "Définir un mot de passe",
-    stayConnected: "Rester connecté",
-    messages: "Messages",
-    channels: "Canaux",
-    security: "Sécurité",
-    signIn: "Connectez-vous à votre compte",
-    welcomeBack: "Bienvenue",
-    noNameGroup: "Groupe sans nom",
-    noNameChannel: "Canal sans nom",
-    server: "Serveur",
-  },
-
   settings: {
     messages: {
       Timeout: "Délai de session",
@@ -187,36 +154,17 @@ export default {
     webview: {
       quit: "Quitter l'application",
       quitDescription: "Retourner à l'écran d'accueil",
-      management: "Gestion des canaux",
-      managementDescription: "Accès aux canaux importés",
+      management: "Gestion des chaînes",
+      managementDescription: "Accès aux chaînes importées",
       autoRefresh: "Actualisation automatique",
       autoRefreshDescription: "Définir l'intervalle de rafraîchissement",
       readOnly: "Accès en lecture seule",
-      readOnlyDescription: "Accès aux canaux sans possibilité de modification",
+      readOnlyDescription: "Accès aux chaînes sans possibilité de modification",
       password: "Mot de passe",
       passwordDescription: "Pour accéder aux paramètres",
-      deleteChannel: "Êtes-vous sûr de vouloir supprimer ce canal ?",
+      deleteChannel: "Êtes-vous sûr de vouloir supprimer cette chaîne ?",
 
-    },
-    common: {
-      showHide: "Afficher/masquer",
-      showHideMessages: "Afficher/masquer les messages de l'application",
-      showHideDescription: "Afficher ou masquer la section messages de l'application",
-      changeServer: "Changer l'adresse du serveur",
-      changeServerDescription: "Modifier l'adresse du serveur de l'application",
     }
-  },
-
-  info: {
-    websocketAddressWillBeUpdated: "L'adresse de connexion WebSocket est bien mise à jour",
-  },
-
-  success: {
-    messageDeleted: "Message supprimé avec succès",
-    serverAddressChanged: "Adresse du serveur mise à jour avec succès !",
-    title: "Succès",
-    messagesHidden: "Les messages ont été masqués avec succès",
-    messagesShown: "Les messages ont été affichés avec succès"
   },
 
   errors: {
@@ -341,15 +289,11 @@ export default {
     },
     readOnly: {
       title: 'Accès en lecture seule',
-      message: 'L\'accès en lecture seule empêche les utilisateurs de modifier les messages dans les canaux. Seuls les administrateurs peuvent désactiver cette option.'
+      message: 'L\'accès en lecture seule empêche les utilisateurs de modifier les chaînes.'
     },
     password: {
       title: 'Mot de passe',
-      message: 'Le mot de passe protège l\'accès aux canaux. Les utilisateurs devront le saisir pour accéder aux messages.'
-    },
-    hideMessages: {
-      title: 'Afficher/Masquer les messages',
-      message: 'Cette option permet de masquer les messages de l\'application.'
+      message: 'Le mot de passe protège l\'accès aux paramètres. Les utilisateurs devront le saisir pour pouvoir accéder aux chaînes importées et paramétrer l\'application.'
     },
     channels: {
       title: 'Gestion des canaux',

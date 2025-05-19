@@ -338,15 +338,11 @@ export default {
     },
     readOnly: {
       title: 'Read-Only Access',
-      message: 'Read-only access prevents users from modifying messages in channels. Only administrators can disable this option.'
+      message: 'Read-only access prevents users from modifying messages in channels.'
     },
     password: {
       title: 'Password',
-      message: 'The password protects access to channels. Users will need to enter it to access messages.'
-    },
-    hideMessages: {
-      title: 'Show/Hide Messages',
-      message: 'This option allows you to temporarily hide messages in channels. Useful for focusing on a specific task.'
+      message: 'The password protects access to channels. Users will need to enter it to access the settings and the channels.'
     },
     channels: {
       title: 'Channel Management',
@@ -356,9 +352,5 @@ export default {
       title: 'Channel Security',
       message: 'In this section, you can configure channel security by enabling read-only access and setting a password to protect access.'
     },
-    server: {
-      title: 'Server Configuration',
-      message: 'This section allows you to modify the application server address.'
-    }
   },
 }
