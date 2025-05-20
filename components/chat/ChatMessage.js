@@ -289,43 +289,45 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
           </View>
         </View>
       );
+    } else {
+      // For text messages
+      const messageText = message.details || message.text || message.message || '';
+
+      return (
+        <View style={styles.messageWrapper(isOwnMessage)}>
+          {renderMenu()}
+          <View style={[
+            styles.messageHeader,
+            isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft,
+          ]}>
+            <Text style={[
+              styles.username,
+              isSmartphone && styles.usernameSmartphone,
+            ]}>{message.username}</Text>
+            <Text style={styles.timestamp}>{messageTime}</Text>
+          </View>
+
+          <View style={styles.messageContentWrapper}>
+            <TouchableOpacity
+              onLongPress={handleLongPress}
+              delayLongPress={500}
+              style={[
+                styles.messageContainer,
+                isOwnMessage ? styles.ownMessage : styles.otherMessage,
+              ]}
+              testID={testID}
+            >
+              <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
+                {messageText}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
     }
-
-    return (
-      <View style={styles.messageWrapper(isOwnMessage)}>
-        {renderMenu()}
-        <View style={[
-          styles.messageHeader,
-          isOwnMessage ? styles.messageHeaderRight : styles.messageHeaderLeft,
-        ]}>
-          <Text style={[
-            styles.username,
-            isSmartphone && styles.usernameSmartphone,
-          ]}>{message.username}</Text>
-          <Text style={styles.timestamp}>{messageTime}</Text>
-        </View>
-
-        <View style={styles.messageContentWrapper}>
-          <TouchableOpacity
-            onLongPress={handleLongPress}
-            onPress={handlePress}
-            delayLongPress={500}
-            style={[
-              styles.messageContainer,
-              isOwnMessage ? styles.ownMessage : styles.otherMessage,
-            ]}
-            testID={testID}
-          >
-            <Text style={[styles.messageText, isSmartphone && styles.messageTextSmartphone]}>
-              {message.text}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
   } catch (error) {
-    // Global error handling for the component rendering
-    console.error('[ChatMessage] Error while rendering the component:', error);
+    console.error('[ChatMessage] Error rendering message:', error);
+    return null;
   }
 }
 

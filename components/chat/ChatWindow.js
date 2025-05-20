@@ -171,7 +171,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    * @param {Object} credentials - The user credentials
    */
   const formatMessage = (msg, credentials) => {
-    const messageText = msg.text || msg.message || '';
+    const messageText = msg.text || msg.message || msg.details || '';
     const isOwnMessageByLogin = msg.login === credentials?.login;
 
     // We calculate the file size
@@ -193,6 +193,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       id: msg.id?.toString() || Date.now().toString(),
       type: msg.type || 'text',
       text: messageText,
+      details: msg.details || messageText,
       savedTimestamp: msg.savedTimestamp || Date.now().toString(),
       fileType: msg.fileType || 'none',
       login: msg.login || 'unknown',
