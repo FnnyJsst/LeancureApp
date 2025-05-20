@@ -13,12 +13,6 @@ export default {
     loading: "Loading..."
   },
 
-  messages: {
-    loadingMessages: "Loading messages...",
-    noMessages: "There are no messages in this channel yet",
-    selectChannel: "Select a channel to start chatting",
-  },
-
   alerts: {
     information: "Information",
     allChannelsAlreadyImported: "All channels already imported",
@@ -39,6 +33,9 @@ export default {
     GroupWithoutName: "Group without name",
     ChannelWithoutName: "Channel without name",
     unknownUser: "Unknown user",
+    loadingMessages: "Loading messages...",
+    noMessages: "There are no messages in this channel yet",
+    selectChannel: "Select a channel to start chatting",
   },
 
   dateTime: {

@@ -41,7 +41,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     },
     onError: (error) => {
       console.error('[ChatWindow] WebSocket error:', error);
-      setAlertMessage(t('errors.websocketError'));
+      setAlertMessage(t('messages.errors.websocketError'));
       setShowAlert(true);
     },
     channels: channel ? [`channel_${channel.id}`] : []
@@ -166,14 +166,16 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       }
       console.log('[ChatWindow] Canal sélectionné:', channel.id);
 
-      if (!credentials) {
+      // Récupération des credentials si nécessaire
+      let userCredentials = credentials;
+      if (!userCredentials) {
         console.log('[ChatWindow] Tentative de récupération des credentials');
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         if (!credentialsStr) {
           console.error('[ChatWindow] Pas de credentials trouvés');
           return;
         }
-        const userCredentials = JSON.parse(credentialsStr);
+        userCredentials = JSON.parse(credentialsStr);
         console.log('[ChatWindow] Credentials récupérés:', {
           login: userCredentials.login,
           contractNumber: userCredentials.contractNumber,
@@ -183,15 +185,56 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         setCredentials(userCredentials);
       }
 
-      const userCredentials = credentials;
       const sendTimestamp = Date.now();
       const isEditing = messageData.isEditing === true && messageData.messageId;
+
+      // Si c'est une édition de message
+      if (isEditing) {
+        try {
+          console.log('[ChatWindow] Édition du message:', {
+            messageId: messageData.messageId,
+            text: messageData.text,
+            credentials: {
+              login: userCredentials.login,
+              hasAccessToken: !!userCredentials.accessToken,
+              hasAccountApiKey: !!userCredentials.accountApiKey
+            }
+          });
+
+          const response = await editMessageApi(messageData.messageId, {
+            channelid: parseInt(channel.id, 10),
+            text: messageData.text,
+            type: messageData.type,
+            fileInfo: messageData.fileInfo
+          }, userCredentials);
+
+          if (response.status === "ok") {
+            // Mise à jour du message dans la liste
+            setMessages(prevMessages =>
+              prevMessages.map(msg =>
+                msg.id === messageData.messageId
+                  ? { ...msg, text: messageData.text, details: messageData.text }
+                  : msg
+              )
+            );
+            // Réinitialisation de l'état d'édition
+            setEditingMessage(null);
+          } else {
+            throw new Error('Échec de l\'édition du message');
+          }
+        } catch (editError) {
+          console.error('[ChatWindow] Erreur lors de l\'édition du message:', editError);
+          setAlertMessage(t('messages.errors.editFailed'));
+          setShowAlert(true);
+        }
+        return;
+      }
 
       // Validation du message
       if (messageData.type === 'file') {
         if (!messageData.base64) {
           console.error('[ChatWindow] Fichier invalide: pas de base64');
-          setAlertMessage(t('errors.invalidFile'));
+          setAlertMessage(t('messages.errors.invalidFile'));
           setShowAlert(true);
           return;
         }
@@ -200,7 +243,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         console.log('[ChatWindow] Validation message texte:', { messageText });
         if (!messageText || messageText.trim() === '') {
           console.error('[ChatWindow] Message vide');
-          setAlertMessage(t('errors.emptyMessage'));
+          setAlertMessage(t('messages.errors.emptyMessage'));
           setShowAlert(true);
           return;
         }
@@ -252,12 +295,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         setMessages(prevMessages => [...prevMessages, formattedMessage]);
       } else {
         console.error('[ChatWindow] Échec envoi message:', response);
-        setAlertMessage(t('errors.sendFailed'));
+        setAlertMessage(t('messages.errors.sendFailed'));
         setShowAlert(true);
       }
     } catch (error) {
       console.error('[ChatWindow] Erreur lors de l\'envoi du message:', error);
-      setAlertMessage(t('errors.sendFailed'));
+      setAlertMessage(t('messages.errors.sendFailed'));
       setShowAlert(true);
     } finally {
       setSendingMessage(null);
@@ -276,7 +319,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       const isOwnMessage = messageToDelete?.isOwnMessage;
 
       if (!hasDeleteRights && !isOwnMessage) {
-        setAlertMessage(t('errors.noDeletePermission'));
+        setAlertMessage(t('messages.errors.noDeletePermission'));
         setShowAlert(true);
         return;
       }
@@ -287,14 +330,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         const updatedMessages = messages.filter(msg => msg.id !== messageId);
         setMessages(updatedMessages);
       } else {
-        setAlertMessage(t('errors.messageNotDeleted'));
+        setAlertMessage(t('messages.errors.messageNotDeleted'));
         setShowAlert(true);
       }
 
       const updatedMessages = messages.filter(msg => msg.id !== messageId);
       setMessages(updatedMessages);
     } catch (error) {
-      setAlertMessage(t('errors.deleteFailed'));
+      setAlertMessage(t('messages.errors.deleteFailed'));
       setShowAlert(true);
     }
   };
@@ -306,15 +349,46 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const handleEditMessage = async (messageToEdit) => {
     try {
+      console.log('[ChatWindow] Message à éditer reçu:', {
+        id: messageToEdit?.id,
+        text: messageToEdit?.text,
+        message: messageToEdit?.message,
+        details: messageToEdit?.details,
+        type: messageToEdit?.type,
+        allProps: messageToEdit
+      });
+
       if (!messageToEdit || !messageToEdit.id) {
-        setAlertMessage(t('errors.invalidMessageEdit'));
+        console.error('[ChatWindow] Message invalide pour édition:', messageToEdit);
+        setAlertMessage(t('messages.errors.invalidMessageEdit'));
         setShowAlert(true);
         return;
       }
 
-      setEditingMessage(messageToEdit);
+      // On s'assure de passer toutes les propriétés nécessaires
+      const messageToEditWithDetails = {
+        ...messageToEdit,
+        text: messageToEdit.text || messageToEdit.message || messageToEdit.details || '',
+        type: messageToEdit.type || 'text',
+        fileInfo: messageToEdit.type === 'file' ? {
+          fileName: messageToEdit.fileName,
+          fileType: messageToEdit.fileType,
+          fileSize: messageToEdit.fileSize,
+          base64: messageToEdit.base64
+        } : null
+      };
+
+      console.log('[ChatWindow] Message préparé pour édition:', {
+        id: messageToEditWithDetails.id,
+        text: messageToEditWithDetails.text,
+        type: messageToEditWithDetails.type,
+        allProps: messageToEditWithDetails
+      });
+
+      setEditingMessage(messageToEditWithDetails);
     } catch (error) {
-      setAlertMessage(t('errors.editFailed'));
+      console.error('[ChatWindow] Erreur lors de la préparation du message à éditer:', error);
+      setAlertMessage(t('messages.errors.editFailed'));
       setShowAlert(true);
     }
   };
@@ -407,7 +481,20 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   });
 
   if (isLoading) {
-    return null;
+    return (
+      <View style={styles.loadingContainer}>
+        <Ionicons name="sync-outline" size={24} color={COLORS.gray300} style={styles.loadingIcon} />
+        <Text style={styles.loadingText}>{t('messages.loadingMessages')}</Text>
+      </View>
+    );
+  }
+
+  if (validMessages.length === 0) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>{t('messages.noMessages')}</Text>
+      </View>
+    );
   }
 
   return (
@@ -418,28 +505,17 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         contentContainerStyle={styles.scrollViewContent}
         onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
       >
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <Ionicons name="sync-outline" size={24} color={COLORS.gray300} style={styles.loadingIcon} />
-            <Text style={styles.loadingText}>{t('messages.loadingMessages')}</Text>
-          </View>
-        ) : validMessages.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>{t('messages.noMessages')}</Text>
-          </View>
-        ) : (
-          validMessages.map((message) => (
-            <ChatMessage
-              key={message.id}
-              message={message}
-              isOwnMessage={message.isOwnMessage}
-              onFileClick={openDocumentPreviewModal}
-              onDeleteMessage={handleDeleteMessage}
-              onEditMessage={handleEditMessage}
-              userRights={userRights}
-            />
-          ))
-        )}
+        {validMessages.map((message) => (
+          <ChatMessage
+            key={message.id}
+            message={message}
+            isOwnMessage={message.isOwnMessage}
+            onFileClick={openDocumentPreviewModal}
+            onDeleteMessage={handleDeleteMessage}
+            onEditMessage={handleEditMessage}
+            userRights={userRights}
+          />
+        ))}
       </ScrollView>
       <InputChatWindow
         onSendMessage={sendMessage}

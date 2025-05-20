@@ -122,16 +122,17 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
       }
 
       if (onEditMessage) {
-        onEditMessage({
+        console.log('[ChatMessage] Message à éditer:', {
           id: message.id,
-          text: message.text || '',
+          text: message.text,
+          message: message.message,
+          details: message.details,
           type: message.type,
-          fileInfo: message.type === 'file' ? {
-            fileName: message.fileName,
-            fileType: message.fileType,
-            fileSize: message.fileSize
-          } : null
+          allProps: message
         });
+
+        // On passe le message complet
+        onEditMessage(message);
       } else {
         handleMessageError(
           'Edit handler not defined',

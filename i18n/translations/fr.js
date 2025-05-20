@@ -17,6 +17,22 @@ export default {
     loadingMessages: "Chargement des messages...",
     noMessages: "Il n'y a pas encore de messages dans ce canal",
     selectChannel: "Sélectionnez un canal pour commencer à discuter",
+    typeMessage: "Tapez votre message ici...",
+    me: "Moi",
+    groupWithoutName: "Groupe sans nom",
+    channelWithoutName: "Canal sans nom",
+    unknownUser: "Utilisateur inconnu",
+    errors: {
+      emptyMessage: "Le message ne peut pas être vide",
+      invalidFile: "Le fichier est invalide",
+      sendFailed: "L'envoi du message a échoué",
+      editFailed: "La modification du message a échoué",
+      deleteFailed: "La suppression du message a échoué",
+      noDeletePermission: "Vous n'avez pas la permission de supprimer ce message",
+      messageNotDeleted: "Le message n'a pas été supprimé",
+      invalidMessageEdit: "Le message à modifier est invalide",
+      websocketError: "Erreur de connexion au serveur"
+    }
   },
 
   alerts: {
@@ -30,15 +46,6 @@ export default {
     login: "Entrez votre identifiant",
     password: "Entrez votre mot de passe",
     rememberMe: "Se souvenir de moi",
-  },
-
-  messages: {
-    typeMessage: "Tapez votre message ici...",
-    SelectAChannel: "Sélectionnez un canal pour commencer à discuter",
-    Me: "Moi",
-    GroupWithoutName: "Groupe sans nom",
-    ChannelWithoutName: "Canal sans nom",
-    unknownUser: "Utilisateur inconnu",
   },
 
   dateTime: {
