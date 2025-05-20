@@ -59,6 +59,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [selectedMessageId, setSelectedMessageId] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(null);
 
 
   useEffect(() => {
@@ -397,6 +398,31 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         return;
       }
 
+      // When updating messages from WebSocket, check for temporary messages
+      if (data.type === 'message' || data.notification) {
+        const messageContent = data.message || data.notification?.message;
+        if (messageContent) {
+          setMessages(prevMessages => {
+            // Remove any temporary message from the same user
+            const filteredMessages = prevMessages.filter(msg =>
+              !(msg.id.startsWith('temp_') && msg.login === messageContent.login)
+            );
+
+            // Check if the message already exists
+            const messageExists = filteredMessages.some(msg => msg.id === messageContent.id);
+            if (messageExists) {
+              return filteredMessages;
+            }
+
+            // Add the new message
+            const newMessage = formatMessage(messageContent, credentials);
+            return [...filteredMessages, newMessage].sort((a, b) =>
+              parseInt(a.savedTimestamp) - parseInt(b.savedTimestamp)
+            );
+          });
+        }
+      }
+
     } catch (error) {
       setAlertMessage(t('errors.messageProcessingError'));
       setShowAlert(true);
@@ -494,11 +520,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         setCredentials(userCredentials);
       }
 
-      // We get the user credentials
       const userCredentials = credentials;
-      // We create a timestamp for the message
       const sendTimestamp = Date.now();
-      // We check if the message is an edit of an existing message
       const isEditing = messageData.isEditing === true && messageData.messageId;
 
       if (isEditing) {
@@ -517,7 +540,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                   return {
                     ...msg,
                     message: updatedText,
-                    text: updatedText
+                    text: updatedText,
+                    details: updatedText
                   };
                 }
                 return msg;
@@ -538,8 +562,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }
       }
 
-      // For a new message (non-modification), we continue with the existing code
-      // We check the type of message
+      // Validation du message
       if (messageData.type === 'file') {
         if (!messageData.base64) {
           setAlertMessage(t('errors.invalidFile'));
@@ -548,7 +571,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }
       } else {
         const messageText = typeof messageData === 'object' ? messageData.text : messageData;
-        // If the message text is invalid, we throw an error
         if (!messageText || messageText.trim() === '') {
           setAlertMessage(t('errors.emptyMessage'));
           setShowAlert(true);
@@ -556,13 +578,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }
       }
 
-      // We send the message
+      // Préparation du message à envoyer
       const messageToSend = messageData.type === 'file' ? {
         ...messageData,
         login: userCredentials.login,
         isOwnMessage: true,
         sendTimestamp,
-        // We calculate and include the file size
         fileSize: (() => {
           if (messageData.fileSize && !isNaN(parseInt(messageData.fileSize, 10))) {
             return parseInt(messageData.fileSize, 10);
@@ -582,38 +603,34 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         sendTimestamp
       };
 
-      // We format the message and try to send it
-      const message = formatMessage(messageToSend, userCredentials);
+      // On indique qu'un message est en cours d'envoi
+      setSendingMessage({
+        ...messageToSend,
+        sendTimestamp: sendTimestamp.toString()
+      });
+
+      // Envoi du message au serveur
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
 
       if (response.status === 'ok' && response.id) {
-        // We add the message to the existing messages
-        setMessages((prevMessages) => {
-          // We check if the message already exists
-          const messageExists = prevMessages.some((msg) => msg.id === response.id);
+        // On ajoute le message une fois la réponse reçue
+        const formattedMessage = formatMessage({
+          ...messageToSend,
+          id: response.id,
+          savedTimestamp: Date.now().toString()
+        }, userCredentials);
 
-          if (messageExists) {
-            return prevMessages;
-          }
-
-          // We create a complete message from the response
-          const completeMessage = {
-            ...message,
-            id: response.id,
-            savedTimestamp: Date.now().toString(),
-          };
-
-          return [...prevMessages, completeMessage];
-        });
+        setMessages(prevMessages => [...prevMessages, formattedMessage]);
       } else {
         setAlertMessage(t('errors.sendFailed'));
         setShowAlert(true);
-        return;
       }
     } catch (error) {
       setAlertMessage(t('errors.sendFailed'));
       setShowAlert(true);
-      return;
+    } finally {
+      // On réinitialise l'état d'envoi
+      setSendingMessage(null);
     }
   }, [channel, credentials, t, recordSentMessage]);
 
@@ -712,13 +729,22 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     });
   };
 
-  if (isLoading) {
-    return null;
+  // Vérification de sécurité pour le channel
+  if (!channel) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.noChannelContainer}>
+          <Text style={[styles.noChannelText, isSmartphone && styles.noChannelTextSmartphone]}>
+            {t('messages.selectChannel')}
+          </Text>
+        </View>
+      </View>
+    );
   }
 
-  // We filter the messages
+  // Vérification de sécurité pour les messages
   const validMessages = messages.filter(message => {
-    if (!message) {
+    if (!message || !message.id) {
       return false;
     }
 
@@ -729,6 +755,10 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
     return isValid;
   });
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
@@ -743,12 +773,12 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             <Ionicons name="sync-outline" size={24} color={COLORS.gray300} style={styles.loadingIcon} />
             <Text style={styles.loadingText}>{t('messages.loadingMessages')}</Text>
           </View>
-        ) : messages.length === 0 ? (
+        ) : validMessages.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>{t('messages.noMessages')}</Text>
           </View>
         ) : (
-          validMessages.map((message, index) => (
+          validMessages.map((message) => (
             <ChatMessage
               key={message.id}
               message={message}
@@ -767,16 +797,18 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         editingMessage={editingMessage}
         testID={testID}
       />
-      <DocumentPreviewModal
-        visible={isDocumentPreviewModalVisible}
-        onClose={closeDocumentPreviewModal}
-        fileName={selectedFileName}
-        fileSize={selectedFileSize}
-        fileType={selectedFileType}
-        base64={selectedBase64}
-        messageId={selectedMessageId}
-        channelId={channel.id}
-      />
+      {channel && (
+        <DocumentPreviewModal
+          visible={isDocumentPreviewModalVisible}
+          onClose={closeDocumentPreviewModal}
+          fileName={selectedFileName}
+          fileSize={selectedFileSize}
+          fileType={selectedFileType}
+          base64={selectedBase64}
+          messageId={selectedMessageId}
+          channelId={channel.id}
+        />
+      )}
       <CustomAlert
         visible={showAlert}
         message={alertMessage}
@@ -847,5 +879,26 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     padding: 10,
+  },
+  sendingMessageContainer: {
+    marginVertical: 3,
+    maxWidth: '70%',
+    alignSelf: 'flex-end',
+  },
+  sendingMessage: {
+    opacity: 0.7,
+  },
+  sendingMessageText: {
+    marginRight: 24, // Espace pour le spinner
+  },
+  sendingSpinner: {
+    position: 'absolute',
+    right: 8,
+    bottom: 8,
+  },
+  spinningIcon: {
+    opacity: 0.7,
+    transform: [{ rotate: '0deg' }],
+    animation: 'spin 1s linear infinite',
   },
 });
