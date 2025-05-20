@@ -36,12 +36,8 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const hasInitialLoad = useRef({});
 
-  // Référence pour éviter les mises à jour inutiles
-  const previousChannelId = useRef(null);
-
   // Update the channel context when the selected channel changes
   useEffect(() => {
-    console.log('[ChatScreen] Effect: updateActiveChannel - selectedChannel:', selectedChannel?.id);
     if (selectedChannel?.id) {
       updateActiveChannel(selectedChannel.id.toString(), selectedChannel.title);
     } else {
@@ -49,7 +45,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     }
   }, [selectedChannel, updateActiveChannel]);
 
-  // Utilisation du hook useWebSocket centralisé
+  // Use the centralized useWebSocket hook
   const { handleWebSocketMessage } = useWebSocket({
     channels: selectedChannel ? [`channel_${selectedChannel.id}`] : [],
     onMessage: (data) => {
@@ -86,18 +82,14 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       setIsLoadingMessages(true);
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       if (!credentialsStr) {
-        console.log('[ChatScreen] No credentials found');
         setAlertMessage(t('error.noCredentials'));
         setShowAlert(true);
         return;
       }
 
       const credentials = JSON.parse(credentialsStr);
-      console.log('[ChatScreen] Initial load of messages for channel:', selectedChannel.id);
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
-      console.log('[ChatScreen] Initial messages loaded:', messages.length);
 
-      // Les messages sont déjà formatés par le hook useWebSocket
       setChannelMessages(messages);
       hasInitialLoad.current[selectedChannel.id] = true;
     } catch (error) {
@@ -115,7 +107,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     const channelId = selectedChannel?.id;
     if (!channelId) return;
 
-    console.log('[ChatScreen] Checking if initial load needed for channel:', channelId);
     loadInitialMessages();
   }, [selectedChannel?.id, loadInitialMessages]);
 
@@ -131,7 +122,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
    */
   const handleChannelSelect = (channel) => {
     try {
-      console.log('[ChatScreen] Channel selected:', channel?.id);
       if (isExpanded) {
         toggleMenu();
       }
@@ -156,7 +146,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
   // Handle the input focus change to mark all the messages as read as soon as we use the chat input
   const handleInputFocusChange = async (isFocused) => {
-    console.log('[ChatScreen] Input focus changed:', isFocused);
     setIsInputFocused(isFocused);
   };
 

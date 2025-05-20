@@ -15,10 +15,8 @@ import { useCredentials } from '../hooks/useCredentials';
 export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
     const { t } = useTranslation();
-
     // Access to the notification context to handle unread channels
     const { markChannelAsUnread, activeChannelId } = useNotification();
-
     // Use the useCredentials hook
     const { credentials, isLoading: credentialsLoading } = useCredentials();
 
@@ -37,6 +35,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
     const processedMessageIds = useRef(new Set());
 
     /**
+     * @function cleanup
      * @description Cleanup the WebSocket connection
      */
     const cleanup = useCallback(() => {
@@ -45,7 +44,6 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         }
 
         isClosingRef.current = true;
-
         if (ws.current) {
             try {
                 ws.current.close();
@@ -73,6 +71,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
     }, []);
 
     /**
+     * @function sendSubscription
      * @description Send the subscription to the WebSocket server
      */
     const sendSubscription = useCallback(async () => {
@@ -138,12 +137,12 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
 
             if (!messageContent) return;
 
-            // Vérification du canal
+            // Check the channel
             const channelId = data.filters?.values?.channel || data.notification?.filters?.values?.channel;
             const cleanChannelId = channelId?.toString()?.replace('channel_', '');
             const cleanActiveChannel = activeChannel.current?.toString()?.replace('channel_', '');
 
-            // Gestion des messages pour d'autres canaux
+            // Handle messages for other channels
             if (cleanChannelId !== cleanActiveChannel) {
                 if (!messageContent.isOwnMessage && cleanChannelId !== activeChannelId) {
                     markChannelAsUnread(cleanChannelId);
@@ -151,7 +150,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 return;
             }
 
-            // Enrichissement du message
+            // Enrich the message
             const enrichedMessage = {
                 ...messageContent,
                 channelId: cleanChannelId,
@@ -167,12 +166,12 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 uri: messageContent.uri
             };
 
-            // Gestion des notifications sonores
+            // Handle sound notifications
             if (!enrichedMessage.isOwnMessage) {
                 await playNotificationSound(enrichedMessage, null, credentials);
             }
 
-            // Formatage des messages
+            // Format the messages
             const formatMessages = (messages) => {
                 if (Array.isArray(messages)) {
                     return messages
@@ -185,7 +184,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 return [formatMessage(enrichedMessage, credentials, t)];
             };
 
-            // Préparation des données formatées
+            // Preparation of the formatted data
             const formattedData = {
                 type: data.type || 'message',
                 channelId: cleanChannelId,
@@ -194,7 +193,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 )
             };
 
-            // Appel du callback avec les données formatées
+            // Call the callback with the formatted data
             if (onMessage) {
                 onMessage(formattedData);
             }
