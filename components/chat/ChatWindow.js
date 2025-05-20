@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import InputChatWindow from '../inputs/InputChatWindow';
 import ChatMessage from './ChatMessage';
@@ -8,7 +8,6 @@ import { useDeviceType } from '../../hooks/useDeviceType';
 import * as SecureStore from 'expo-secure-store';
 import { sendMessageApi, fetchMessageFile, deleteMessageApi, editMessageApi } from '../../services/api/messageApi';
 import { useWebSocket } from '../../hooks/useWebSocket';
-import DateBanner from './DateBanner';
 import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../services/notification/notificationContext';
@@ -483,8 +482,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <Ionicons name="sync-outline" size={24} color={COLORS.gray300} style={styles.loadingIcon} />
-        <Text style={styles.loadingText}>{t('messages.loadingMessages')}</Text>
+        <ActivityIndicator size="large" color={COLORS.orange} />
       </View>
     );
   }
