@@ -5,6 +5,7 @@ import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES,COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
 import { useTranslation } from 'react-i18next';
+import { MODAL_STYLES } from '../../../constants/style';
 
 let showAlert = null;
 
@@ -34,7 +35,7 @@ export default function CustomAlert({ visible, message, onClose, onConfirm, type
       statusBarTranslucent={true}
       testID="custom-alert"
     >
-      <View style={styles.modalContainer}>
+      <View style={MODAL_STYLES.modalContainer}>
         <View style={[
           styles.modalContent,
           isSmartphonePortrait && styles.modalContentSmartphonePortrait,
@@ -82,17 +83,11 @@ CustomAlert.setShowAlert = (show) => {
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 1)',
-  },
   modalContent: {
     width: '60%',
     padding: 20,
     backgroundColor: COLORS.gray850,
-    borderRadius: SIZES.borderRadius.xLarge,
+    borderRadius: SIZES.borderRadius.xxLarge,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
   },
