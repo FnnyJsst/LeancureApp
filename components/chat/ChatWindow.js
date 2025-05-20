@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { COLORS, SIZES } from '../../constants/style';
 import InputChatWindow from '../inputs/InputChatWindow';
 import ChatMessage from './ChatMessage';
@@ -12,7 +12,6 @@ import { Text } from '../text/CustomText';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../services/notification/notificationContext';
 import CustomAlert from '../modals/webviews/CustomAlert';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
 /**
@@ -163,42 +162,25 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         console.error('[ChatWindow] Pas de canal sélectionné');
         return;
       }
-      console.log('[ChatWindow] Canal sélectionné:', channel.id);
 
       // Récupération des credentials si nécessaire
       let userCredentials = credentials;
       if (!userCredentials) {
-        console.log('[ChatWindow] Tentative de récupération des credentials');
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         if (!credentialsStr) {
           console.error('[ChatWindow] Pas de credentials trouvés');
           return;
         }
         userCredentials = JSON.parse(credentialsStr);
-        console.log('[ChatWindow] Credentials récupérés:', {
-          login: userCredentials.login,
-          contractNumber: userCredentials.contractNumber,
-          hasAccessToken: !!userCredentials.accessToken,
-          hasAccountApiKey: !!userCredentials.accountApiKey
-        });
         setCredentials(userCredentials);
       }
 
       const sendTimestamp = Date.now();
       const isEditing = messageData.isEditing === true && messageData.messageId;
 
-      // Si c'est une édition de message
+      // If the message is being edited
       if (isEditing) {
         try {
-          console.log('[ChatWindow] Édition du message:', {
-            messageId: messageData.messageId,
-            text: messageData.text,
-            credentials: {
-              login: userCredentials.login,
-              hasAccessToken: !!userCredentials.accessToken,
-              hasAccountApiKey: !!userCredentials.accountApiKey
-            }
-          });
 
           const response = await editMessageApi(messageData.messageId, {
             channelid: parseInt(channel.id, 10),
@@ -208,7 +190,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           }, userCredentials);
 
           if (response.status === "ok") {
-            // Mise à jour du message dans la liste
+            // Update the message in the list
             setMessages(prevMessages =>
               prevMessages.map(msg =>
                 msg.id === messageData.messageId
@@ -216,10 +198,11 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
                   : msg
               )
             );
-            // Réinitialisation de l'état d'édition
+            // Reset the editing state
             setEditingMessage(null);
           } else {
-            throw new Error('Échec de l\'édition du message');
+            setAlertMessage(t('messages.errors.editFailed'));
+            setShowAlert(true);
           }
         } catch (editError) {
           console.error('[ChatWindow] Erreur lors de l\'édition du message:', editError);
@@ -248,7 +231,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }
       }
 
-      // Préparation du message à envoyer
+      // Preparation of the message to send
       const messageToSend = {
         ...messageData,
         type: messageData.type || 'text',
@@ -260,31 +243,14 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         details: typeof messageData === 'object' ? messageData.text : messageData,
       };
 
-      console.log('[ChatWindow] Message préparé pour envoi:', {
-        type: messageToSend.type,
-        text: messageToSend.text?.substring(0, 50) + '...',
-        channelId: channel.id,
-        timestamp: sendTimestamp
-      });
-
-      // On indique qu'un message est en cours d'envoi
       setSendingMessage({
         ...messageToSend,
         sendTimestamp: sendTimestamp.toString()
       });
-
-      console.log('[ChatWindow] Appel API sendMessageApi');
-      // Envoi du message au serveur
+      // Send the message to the server
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
-      console.log('[ChatWindow] Réponse API:', {
-        status: response.status,
-        hasId: !!response.id,
-        responseData: response
-      });
-
       if (response.status === 'ok' && response.id) {
-        console.log('[ChatWindow] Message envoyé avec succès, ID:', response.id);
-        // On ajoute le message une fois la réponse reçue
+        // Add the message once the response is received
         const formattedMessage = {
           ...messageToSend,
           id: response.id,
@@ -348,14 +314,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const handleEditMessage = async (messageToEdit) => {
     try {
-      console.log('[ChatWindow] Message à éditer reçu:', {
-        id: messageToEdit?.id,
-        text: messageToEdit?.text,
-        message: messageToEdit?.message,
-        details: messageToEdit?.details,
-        type: messageToEdit?.type,
-        allProps: messageToEdit
-      });
 
       if (!messageToEdit || !messageToEdit.id) {
         console.error('[ChatWindow] Message invalide pour édition:', messageToEdit);
@@ -376,13 +334,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           base64: messageToEdit.base64
         } : null
       };
-
-      console.log('[ChatWindow] Message préparé pour édition:', {
-        id: messageToEditWithDetails.id,
-        text: messageToEditWithDetails.text,
-        type: messageToEditWithDetails.type,
-        allProps: messageToEditWithDetails
-      });
 
       setEditingMessage(messageToEditWithDetails);
     } catch (error) {
@@ -570,9 +521,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
   },
-  sendButton: {
-    padding: 10,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -582,10 +530,6 @@ const styles = StyleSheet.create({
   },
   loadingIcon: {
     marginBottom: 10,
-  },
-  loadingText: {
-    color: COLORS.gray300,
-    fontSize: SIZES.fonts.text,
   },
   emptyContainer: {
     flex: 1,
@@ -603,26 +547,5 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     padding: 10,
-  },
-  sendingMessageContainer: {
-    marginVertical: 3,
-    maxWidth: '70%',
-    alignSelf: 'flex-end',
-  },
-  sendingMessage: {
-    opacity: 0.7,
-  },
-  sendingMessageText: {
-    marginRight: 24, // Espace pour le spinner
-  },
-  sendingSpinner: {
-    position: 'absolute',
-    right: 8,
-    bottom: 8,
-  },
-  spinningIcon: {
-    opacity: 0.7,
-    transform: [{ rotate: '0deg' }],
-    animation: 'spin 1s linear infinite',
-  },
+  }
 });
