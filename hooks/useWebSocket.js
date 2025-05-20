@@ -34,6 +34,8 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
     const RECONNECT_DELAY = 3000;
     const connectionTimeout = useRef(null);
 
+    const processedMessageIds = useRef(new Set());
+
     /**
      * @description Cleanup the WebSocket connection
      */
@@ -114,57 +116,96 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
      * @description Handle the notification message and mark channels as unread if needed
      * @param {Object} data - The parsed message data
      */
-    const handleNotificationMessage = async (data) => {
-        if (onMessage) {
-            onMessage(data);
-        }
-
-        // We handle the notification message
+    const handleWebSocketMessage = useCallback(async (data) => {
         try {
-            if (data.notification && data.notification.type === 'chat' && data.notification.message) {
-                const notifMessage = data.notification.message;
+            const messageId = data.message?.id || data.notification?.message?.id;
 
-                let channelId = notifMessage.channelId;
-                if (!channelId && data.notification.filters && data.notification.filters.values) {
-                    channelId = data.notification.filters.values.channel;
-                }
-
-                if (channelId && typeof channelId === 'string') {
-                    channelId = channelId.replace('channel_', '');
-                }
-
-                // We check if the message is own
-                const isOwnMessage = credentials && notifMessage.login === credentials.login;
-
-                // If the message is not own and the channel id is not the active channel id, we mark the channel as unread
-                if (!isOwnMessage && channelId && channelId !== activeChannelId) {
-                    markChannelAsUnread(channelId);
-                }
+            // Vérification des doublons
+            if (messageId && processedMessageIds.current.has(messageId)) {
+                return;
+            }
+            if (messageId) {
+                processedMessageIds.current.add(messageId);
             }
 
-            if (data.message && data.message.type === 'messages' && Array.isArray(data.message.messages)) {
-                // We check if there are new messages
-                const hasNewMessages = data.message.messages.some(msg =>
-                    credentials && msg.login !== credentials.login
-                );
-
-                let channelId = null;
-                if (data.filters && data.filters.values) {
-                    channelId = data.filters.values.channel;
-                }
-
-                if (channelId && typeof channelId === 'string') {
-                    channelId = channelId.replace('channel_', '');
-                }
-
-                if (hasNewMessages && channelId && channelId !== activeChannelId) {
-                    markChannelAsUnread(channelId);
-                }
+            // Extraction et validation du message
+            let messageContent = null;
+            if (data.notification?.type === 'chat' && data.notification.message) {
+                messageContent = data.notification.message;
+            } else if (data.message) {
+                messageContent = data.message;
             }
+
+            if (!messageContent) return;
+
+            // Vérification du canal
+            const channelId = data.filters?.values?.channel || data.notification?.filters?.values?.channel;
+            const cleanChannelId = channelId?.toString()?.replace('channel_', '');
+            const cleanActiveChannel = activeChannel.current?.toString()?.replace('channel_', '');
+
+            // Gestion des messages pour d'autres canaux
+            if (cleanChannelId !== cleanActiveChannel) {
+                if (!messageContent.isOwnMessage && cleanChannelId !== activeChannelId) {
+                    markChannelAsUnread(cleanChannelId);
+                }
+                return;
+            }
+
+            // Enrichissement du message
+            const enrichedMessage = {
+                ...messageContent,
+                channelId: cleanChannelId,
+                isOwnMessage: credentials?.login === messageContent.login,
+                type: messageContent.type || 'text',
+                text: messageContent.text || messageContent.message || messageContent.details || '',
+                details: messageContent.details || messageContent.text || messageContent.message || '',
+                message: messageContent.message || messageContent.text || messageContent.details || '',
+                fileType: messageContent.fileType || 'none',
+                fileName: messageContent.fileName,
+                fileSize: messageContent.fileSize,
+                base64: messageContent.base64,
+                uri: messageContent.uri
+            };
+
+            // Gestion des notifications sonores
+            if (!enrichedMessage.isOwnMessage) {
+                await playNotificationSound(enrichedMessage, null, credentials);
+            }
+
+            // Formatage des messages
+            const formatMessages = (messages) => {
+                if (Array.isArray(messages)) {
+                    return messages
+                        .filter(msg => !processedMessageIds.current.has(msg.id))
+                        .map(msg => {
+                            processedMessageIds.current.add(msg.id);
+                            return formatMessage(msg, credentials, t);
+                        });
+                }
+                return [formatMessage(enrichedMessage, credentials, t)];
+            };
+
+            // Préparation des données formatées
+            const formattedData = {
+                type: data.type || 'message',
+                channelId: cleanChannelId,
+                messages: formatMessages(
+                    messageContent.type === 'messages' ? messageContent.messages : enrichedMessage
+                )
+            };
+
+            // Appel du callback avec les données formatées
+            if (onMessage) {
+                onMessage(formattedData);
+            }
+
         } catch (error) {
-            console.error('[WebSocket] Error while processing the message for unread channels:', error);
+            console.error('[WebSocket] Error processing message:', error);
+            if (onError) {
+                onError(error);
+            }
         }
-    };
+    }, [credentials, t, markChannelAsUnread, activeChannelId, onMessage, onError]);
 
     // Connect to the WebSocket server
     const connect = useCallback(async () => {
@@ -260,21 +301,19 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 try {
                     const data = JSON.parse(event.data);
 
-                    // If the message is a refresh content, we refresh the messages
                     if (data.type === 'refreshcontent') {
                         refreshMessages();
                         return;
                     }
 
                     if (data && typeof data === 'object') {
-                        if (data.message && data.message.type === 'messages') {
-                            handleNotificationMessage(data);
-                        } else if (data.type === 'notification') {
-                            handleNotificationMessage(data);
-                        }
+                        handleWebSocketMessage(data);
                     }
                 } catch (error) {
-                    console.error('[WebSocket] Error while processing the message:', error);
+                    console.error('[WebSocket] Error parsing message:', error);
+                    if (onError) {
+                        onError(error);
+                    }
                 }
             };
 
@@ -302,7 +341,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 }, RECONNECT_DELAY);
             }
         }
-    }, [cleanup, sendSubscription, t]);
+    }, [cleanup, sendSubscription, t, handleWebSocketMessage]);
 
     // Cleanup when the component is unmounted
     useEffect(() => {
@@ -446,9 +485,49 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         }
     };
 
+    // Fonction utilitaire pour formater les messages
+    const formatMessage = (msg, credentials, t) => {
+        const messageText = msg.text || msg.message || msg.details || '';
+        const isOwnMessageByLogin = msg.login === credentials?.login;
+
+        // Calcul de la taille du fichier si nécessaire
+        let fileSize = msg.fileSize;
+        if (msg.type === 'file' && !fileSize && msg.base64) {
+            fileSize = calculateFileSize(msg.base64);
+        }
+
+        return {
+            id: msg.id?.toString() || Date.now().toString(),
+            type: msg.type || 'text',
+            text: messageText,
+            details: msg.details || messageText,
+            message: msg.message || messageText,
+            savedTimestamp: msg.savedTimestamp || Date.now().toString(),
+            fileType: msg.fileType || 'none',
+            login: msg.login || 'unknown',
+            isOwnMessage: isOwnMessageByLogin,
+            isUnread: false,
+            username: isOwnMessageByLogin ? t('messages.Me') : (msg.login || t('messages.unknownUser')),
+            base64: msg.base64,
+            fileSize: fileSize,
+            fileName: msg.fileName,
+            uri: msg.uri
+        };
+    };
+
+    const calculateFileSize = (base64) => {
+        if (!base64) return 0;
+        const base64Length = base64.length;
+        const paddingLength = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0;
+        return Math.floor(((base64Length - paddingLength) * 3) / 4);
+    };
+
     return {
         sendMessage,
         closeConnection: cleanup,
-        isConnected
+        isConnected,
+        handleWebSocketMessage,
+        formatMessage: (msg) => formatMessage(msg, credentials, t),
+        calculateFileSize
     };
 };

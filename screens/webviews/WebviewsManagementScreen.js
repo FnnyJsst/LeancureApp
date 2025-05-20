@@ -591,7 +591,6 @@ export default function WebviewsManagementScreen({
       {/* Custom Alert */}
       <CustomAlert
         visible={alertState.visible}
-        title={alertState.title}
         message={alertState.message}
         type={alertState.type}
         onClose={handleCloseAlert}

@@ -113,7 +113,6 @@ export default function PasswordCheckModal({ visible, onClose, onSubmit, isFocus
       </Modal>
       <CustomAlert
         visible={alertVisible}
-        title={alertConfig.title}
         message={alertConfig.message}
         type={alertConfig.type}
         onClose={() => setAlertVisible(false)}

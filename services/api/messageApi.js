@@ -112,6 +112,9 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       messageContent.fileName :
       (typeof messageContent.message === 'string' ? messageContent.message.substring(0, 50) : 'Message');
 
+    // We get the message text
+    const messageText = messageContent.message || messageContent.text || '';
+
     // If the message content is a file, we get the file type
     let fileType = isFile ? messageContent.fileType : null;
     if (fileType === 'application/pdf') {
@@ -131,7 +134,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
           'add': {
             'channelid': parseInt(channelId, 10),
             'title': messageTitle,
-            'details': isFile ? messageContent.messageText : messageContent.message,
+            'details': messageText,
             'enddatets': timestamp + 99999,
             'file': isFile ? {
               'base64': messageContent.base64,
@@ -164,7 +167,8 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       message: {
         id: timestamp.toString(),
         title: messageTitle,
-        message: isFile ? messageContent.messageText : messageContent.message,
+        message: messageText,
+        details: messageText,
         savedTimestamp: timestamp,
         endTimestamp: timestamp + 99999,
         fileType: isFile ? fileType : 'none',
@@ -172,15 +176,28 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
         isOwnMessage: true,
         isUnread: false,
         username: t('messages.me'),
+        type: isFile ? 'file' : 'text',
         ...(isFile && {
-          type: 'file',
           fileName: messageContent.fileName,
           fileSize: messageContent.fileSize ? parseInt(messageContent.fileSize, 10) : 0,
           fileType: fileType,
           base64: messageContent.base64,
-        }),
-      },
+          uri: messageContent.uri
+        })
+      }
     };
+
+    // Si c'est un fichier, on s'assure que toutes les propriétés sont préservées
+    if (isFile) {
+      messageData.message = {
+        ...messageData.message,
+        ...messageContent,
+        type: 'file',
+        message: messageText,
+        details: messageText,
+        text: messageText
+      };
+    }
 
     return messageData;
   } catch (error) {

@@ -188,12 +188,22 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
       // If the message is not being edited, we send the message
       if (selectedFile && !selectedFile.readOnly) {
         onSendMessage({
-          ...selectedFile,
-          messageText: message.trim() || null
+          type: 'file',
+          fileName: selectedFile.fileName,
+          fileType: selectedFile.fileType,
+          fileSize: selectedFile.fileSize,
+          base64: selectedFile.base64,
+          uri: selectedFile.uri,
+          text: message.trim() || null,
+          message: message.trim() || null,
+          details: message.trim() || null
         });
       } else {
         onSendMessage({
-          text: message.trim()
+          type: 'text',
+          text: message.trim(),
+          message: message.trim(),
+          details: message.trim()
         });
       }
     }

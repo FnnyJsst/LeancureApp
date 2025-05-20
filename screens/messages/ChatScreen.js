@@ -49,25 +49,23 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     }
   }, [selectedChannel, updateActiveChannel]);
 
-  // Handle WebSocket messages with memoization
-  const handleWebSocketMessage = useCallback((data) => {
-    console.log('[ChatScreen] WebSocket message received:', data.message?.type);
-
-    if (data.message?.type === 'messages') {
-      const newMessages = data.message.messages;
-      setChannelMessages(prevMessages => {
-        const existingMessageIds = new Set(prevMessages.map(msg => msg.id));
-        const uniqueNewMessages = newMessages.filter(msg => !existingMessageIds.has(msg.id));
-        console.log('[ChatScreen] New messages from WebSocket:', uniqueNewMessages.length);
-        return uniqueNewMessages.length > 0 ? [...prevMessages, ...uniqueNewMessages] : prevMessages;
-      });
+  // Utilisation du hook useWebSocket centralisé
+  const { handleWebSocketMessage } = useWebSocket({
+    channels: selectedChannel ? [`channel_${selectedChannel.id}`] : [],
+    onMessage: (data) => {
+      if (data.type === 'messages' && Array.isArray(data.messages)) {
+        setChannelMessages(prevMessages => {
+          const existingMessageIds = new Set(prevMessages.map(msg => msg.id));
+          const uniqueNewMessages = data.messages.filter(msg => !existingMessageIds.has(msg.id));
+          return uniqueNewMessages.length > 0 ? [...prevMessages, ...uniqueNewMessages] : prevMessages;
+        });
+      }
+    },
+    onError: (error) => {
+      console.error('[ChatScreen] WebSocket error:', error);
+      setAlertMessage(t('errors.websocketError'));
+      setShowAlert(true);
     }
-  }, []);
-
-  // Initialize the WebSocket
-  const { closeConnection } = useWebSocket({
-    onMessage: handleWebSocketMessage,
-    channels: selectedChannel ? [`channel_${selectedChannel.id}`] : []
   });
 
   // Memoize the refreshMessages function for initial load only
@@ -86,7 +84,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
     try {
       setIsLoadingMessages(true);
-      // On garde les anciens messages pendant le chargement
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       if (!credentialsStr) {
         console.log('[ChatScreen] No credentials found');
@@ -100,24 +97,13 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       const messages = await fetchChannelMessages(selectedChannel.id, credentials);
       console.log('[ChatScreen] Initial messages loaded:', messages.length);
 
-      // Filter out messages with file errors
-      const validMessages = messages.filter(msg => {
-        if (msg.type === 'file' && !msg.base64) {
-          console.log('[ChatScreen] Skipping invalid file message:', msg.id);
-          return false;
-        }
-        return true;
-      });
-
-      // On met à jour les messages une seule fois avec les nouveaux messages
-      setChannelMessages(validMessages);
-      // Mark this channel as loaded
+      // Les messages sont déjà formatés par le hook useWebSocket
+      setChannelMessages(messages);
       hasInitialLoad.current[selectedChannel.id] = true;
     } catch (error) {
       console.error('[ChatScreen] Error loading initial messages:', error);
       setAlertMessage(t('error.errorRefreshingMessages'));
       setShowAlert(true);
-      // En cas d'erreur, on vide les messages
       setChannelMessages([]);
     } finally {
       setIsLoadingMessages(false);
@@ -132,15 +118,6 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
     console.log('[ChatScreen] Checking if initial load needed for channel:', channelId);
     loadInitialMessages();
   }, [selectedChannel?.id, loadInitialMessages]);
-
-  // Effect to clean the WebSocket connection
-  useEffect(() => {
-    return () => {
-      if (closeConnection) {
-        closeConnection();
-      }
-    };
-  }, [closeConnection]);
 
   // Toggle the sidebar menu
   const toggleMenu = () => {

@@ -13,6 +13,12 @@ export default {
     loading: "Chargement..."
   },
 
+  messages: {
+    loadingMessages: "Chargement des messages...",
+    noMessages: "Il n'y a pas encore de messages dans ce canal",
+    selectChannel: "Sélectionnez un canal pour commencer à discuter",
+  },
+
   alerts: {
     information: "Information",
     allChannelsAlreadyImported: "Toutes les chaînes sont déjà importées",
