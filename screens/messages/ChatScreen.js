@@ -86,9 +86,12 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
 
     try {
       setIsLoadingMessages(true);
+      // On garde les anciens messages pendant le chargement
       const credentialsStr = await SecureStore.getItemAsync('userCredentials');
       if (!credentialsStr) {
         console.log('[ChatScreen] No credentials found');
+        setAlertMessage(t('error.noCredentials'));
+        setShowAlert(true);
         return;
       }
 
@@ -106,6 +109,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         return true;
       });
 
+      // On met à jour les messages une seule fois avec les nouveaux messages
       setChannelMessages(validMessages);
       // Mark this channel as loaded
       hasInitialLoad.current[selectedChannel.id] = true;
@@ -113,6 +117,8 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       console.error('[ChatScreen] Error loading initial messages:', error);
       setAlertMessage(t('error.errorRefreshingMessages'));
       setShowAlert(true);
+      // En cas d'erreur, on vide les messages
+      setChannelMessages([]);
     } finally {
       setIsLoadingMessages(false);
     }
@@ -158,14 +164,14 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
         return;
       }
 
-      // Clear messages before changing channel
-      setChannelMessages([]);
-
-      // We update the selected channel
+      // On ne vide plus les messages ici, on attend le chargement initial
       setSelectedChannel({
         ...channel,
         id: channel.id.toString()
       });
+
+      // On réinitialise le flag de chargement initial pour forcer un nouveau chargement
+      hasInitialLoad.current[channel.id] = false;
     } catch (error) {
       console.error('[ChatScreen] Error while selecting the channel:', error);
     }
@@ -226,6 +232,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
           onInputFocusChange={handleInputFocusChange}
           onEditMessage={handleEditMessage}
           editingMessage={editingMessage}
+          isLoading={isLoadingMessages}
         />
       </View>
       <CustomAlert

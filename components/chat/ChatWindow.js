@@ -23,8 +23,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
  * @param {Object} props.channel - The channel to display
  * @param {Object} props.messages - The messages to display
  * @param {Function} props.onInputFocusChange - The function to call when the input focus changes
+ * @param {boolean} props.isLoading - Whether the messages are being loaded
  */
-export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange, testID }) {
+export default function ChatWindow({ channel, messages: channelMessages, onInputFocusChange, isLoading, testID }) {
 
   const { t } = useTranslation();
   const { isSmartphone } = useDeviceType();
@@ -54,7 +55,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
   const [messages, setMessages] = useState([]);
   const [credentials, setCredentials] = useState(null);
   const [userRights, setUserRights] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [editingMessage, setEditingMessage] = useState(null);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
@@ -731,98 +731,51 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   return (
     <View style={styles.container}>
-      {channel ? (
-        <>
-          <ScrollView
-            ref={scrollViewRef}
-            style={styles.messagesContainer}
-            testID="messages-container"
-            onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
-          >
-            {(() => {
-              return validMessages.reduce((acc, message, index) => {
-                // If the message is not valid, we return the accumulator
-                if (!message || (!message.text && !message.message && message.type !== 'file')) {
-                  return acc;
-                }
-
-                const currentDate = formatDate(message.savedTimestamp);
-                const prevMessage = validMessages[index - 1];
-                const prevDate = prevMessage ? formatDate(prevMessage.savedTimestamp) : null;
-
-                if (currentDate !== prevDate) {
-                  acc.push(
-                    <DateBanner
-                      key={`date-${currentDate}-${index}-${message.id}`}
-                      date={currentDate}
-                    />
-                  );
-                }
-
-                acc.push(
-                  <ChatMessage
-                    key={`msg-${message.id || index}-${index}`}
-                    message={{
-                      ...message,
-                      text: message.text || message.message || '',
-                    }}
-                    isOwnMessage={message.isOwnMessage}
-                    onFileClick={openDocumentPreviewModal}
-                    onDeleteMessage={handleDeleteMessage}
-                    onEditMessage={handleEditMessage}
-                    canDelete={userRights === "3"}
-                    userRights={userRights}
-                    isFileMessage={message.type === 'file'}
-                    testID={`message-${message.id}`}
-                  />
-                );
-
-                return acc;
-              }, []);
-            })()}
-          </ScrollView>
-
-          <View style={styles.inputContainer}>
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel="send"
-              testID="send-button"
-              onPress={sendMessage}
-              style={styles.sendButton}
-            >
-              {/* <Ionicons name="send" size={24} color={COLORS.primary} /> */}
-            </TouchableOpacity>
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContent}
+        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+      >
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <Ionicons name="sync-outline" size={24} color={COLORS.gray300} style={styles.loadingIcon} />
+            <Text style={styles.loadingText}>{t('messages.loadingMessages')}</Text>
           </View>
-
-          <InputChatWindow
-            onSendMessage={sendMessage}
-            onFocusChange={onInputFocusChange}
-            editingMessage={editingMessage}
-            testID="chat-input"
-          />
-
-          <DocumentPreviewModal
-            visible={isDocumentPreviewModalVisible}
-            onClose={closeDocumentPreviewModal}
-            fileName={selectedFileName}
-            fileSize={selectedFileSize}
-            fileType={selectedFileType}
-            base64={selectedBase64}
-            messageId={selectedMessageId}
-            channelId={channel.id}
-          />
-        </>
-      ) : (
-        <View style={styles.noChannelContainer}>
-          <Text style={[
-            styles.noChannelText,
-            isSmartphone && styles.noChannelTextSmartphone,
-          ]}>
-            {t('screens.selectChannel')}
-          </Text>
-        </View>
-      )}
-
+        ) : messages.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>{t('messages.noMessages')}</Text>
+          </View>
+        ) : (
+          validMessages.map((message, index) => (
+            <ChatMessage
+              key={message.id}
+              message={message}
+              isOwnMessage={message.isOwnMessage}
+              onFileClick={openDocumentPreviewModal}
+              onDeleteMessage={handleDeleteMessage}
+              onEditMessage={handleEditMessage}
+              userRights={userRights}
+            />
+          ))
+        )}
+      </ScrollView>
+      <InputChatWindow
+        onSendMessage={sendMessage}
+        onFocusChange={onInputFocusChange}
+        editingMessage={editingMessage}
+        testID={testID}
+      />
+      <DocumentPreviewModal
+        visible={isDocumentPreviewModalVisible}
+        onClose={closeDocumentPreviewModal}
+        fileName={selectedFileName}
+        fileSize={selectedFileSize}
+        fileType={selectedFileType}
+        base64={selectedBase64}
+        messageId={selectedMessageId}
+        channelId={channel.id}
+      />
       <CustomAlert
         visible={showAlert}
         message={alertMessage}
@@ -861,6 +814,37 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   sendButton: {
+    padding: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    minHeight: 200,
+  },
+  loadingIcon: {
+    marginBottom: 10,
+  },
+  loadingText: {
+    color: COLORS.gray300,
+    fontSize: SIZES.fonts.text,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    minHeight: 200,
+  },
+  emptyText: {
+    color: COLORS.gray300,
+    fontSize: SIZES.fonts.text,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollViewContent: {
     padding: 10,
   },
 });
