@@ -139,28 +139,68 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
   try {
     // If the message is a file, we display the file preview
     if (message.type === 'file') {
-      const isPDF = message.fileType?.toLowerCase().includes('pdf');
+      const normalizeFileType = (type) => {
+        if (!type) return '';
+        const lowerType = type.toLowerCase();
+        if (lowerType.includes('pdf') || lowerType.includes('application/pdf')) return 'PDF';
+        if (lowerType.includes('csv')) return 'CSV';
+        if (lowerType.includes('image/') || lowerType.includes('jpeg') || lowerType.includes('jpg') || lowerType.includes('png')) {
+          return 'IMAGE';
+        }
+        return type.toUpperCase();
+      };
+
+      const isPDF = message.fileType?.toLowerCase().includes('pdf') || message.fileType?.toLowerCase().includes('application/pdf');
       const isCSV = message.fileType?.toLowerCase().includes('csv');
       const isImage = message.fileType?.toLowerCase().includes('image/') ||
                   message.fileType?.toLowerCase().includes('jpeg') ||
                   message.fileType?.toLowerCase().includes('jpg') ||
                   message.fileType?.toLowerCase().includes('png');
 
-      // Calcul de la taille du fichier
+      const displayFileType = normalizeFileType(message.fileType);
+
+      // Calculate the file size
       let fileSizeInBytes = 0;
 
-      // Si on a une taille stockée valide, on l'utilise
-      if (message.fileSize && !isNaN(parseInt(message.fileSize, 10))) {
-        fileSizeInBytes = parseInt(message.fileSize, 10);
+      // If we have a file size
+      if (message.fileSize) {
+        // If it's a string containing a unit (ex: "6.8 Ko")
+        if (typeof message.fileSize === 'string' && message.fileSize.match(/[\d.]+\s*[KMG]o|[B]/i)) {
+          fileSizeInBytes = formatFileSize(message.fileSize, { convertToBytes: true });
+        }
+        // If it's a number or a numeric string
+        else if (!isNaN(parseFloat(message.fileSize))) {
+          fileSizeInBytes = parseFloat(message.fileSize);
+        }
       }
-      // Sinon, si on a un base64, on calcule la taille
+      // If we have a base64, we calculate the size
       else if (message.base64) {
         const base64Length = message.base64.length;
-        // On enlève les caractères de padding (=) à la fin
+        // We remove the padding (=) at the end
         const paddingLength = message.base64.endsWith('==') ? 2 : message.base64.endsWith('=') ? 1 : 0;
-        // Calcul plus précis de la taille
+        // More precise calculation of the size
         fileSizeInBytes = Math.floor(((base64Length - paddingLength) * 3) / 4);
+        console.log('[ChatMessage] Taille du fichier calculée depuis base64:', {
+          base64Length,
+          paddingLength,
+          calculatedSize: fileSizeInBytes,
+          fileName: message.fileName
+        });
+      } else {
+        console.log('[ChatMessage] Impossible de calculer la taille du fichier:', {
+          hasFileSize: !!message.fileSize,
+          hasBase64: !!message.base64,
+          fileName: message.fileName,
+          messageType: message.type,
+          allProps: message
+        });
       }
+
+      const formattedSize = formatFileSize(fileSizeInBytes, {
+        startWithBytes: false,
+        precision: 1,
+        defaultUnit: 'Ko'
+      });
 
       const messageContent = (
         <TouchableOpacity
@@ -171,22 +211,22 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
             styles.messageContainer,
             isOwnMessage ? styles.ownMessage : styles.otherMessage,
             styles.fileMessageContainer,
-            isOwnMessage && styles.ownFileMessageContainer,
+            isOwnMessage && message.text && message.text !== message.fileName && styles.ownFileMessageContainer,
           ]}
         >
           <View
             style={[
               styles.fileContainer,
-              (isPDF || isCSV) && message.text && message.text !== message.fileName ? [
-                styles.darkContainer,
-                isOwnMessage && styles.ownDarkContainer
-              ] : null
+              (isPDF || isCSV) && styles.darkContainer,
+              (isPDF || isCSV) && !message.text && styles.standaloneFileContainer,
+              (isPDF || isCSV) && isOwnMessage && styles.ownDarkContainer
             ]}
           >
             {(isPDF || isCSV) && (
               <View style={[
                 styles.pdfPreviewContainer,
-                message.text && message.text !== message.fileName && styles.pdfPreviewWithText
+                message.text && message.text !== message.fileName && styles.pdfPreviewWithText,
+                !message.text && styles.standaloneFilePreview
               ]}>
                 <View style={styles.fileHeader}>
                   <Ionicons name="document-outline" size={isSmartphone ? 20 : 30} color={COLORS.white} />
@@ -195,11 +235,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                       {message.fileName || (isPDF ? 'PDF' : 'CSV')}
                     </Text>
                     <Text style={styles.fileSize}>
-                    {message.fileType?.toUpperCase() || (isPDF ? 'PDF' : 'CSV')} • {formatFileSize(fileSizeInBytes, {
-                      startWithBytes: false,
-                      precision: 1,
-                      defaultUnit: 'Ko'
-                    })}
+                    {displayFileType} • {formattedSize}
                     </Text>
                   </View>
                 </View>
@@ -242,11 +278,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
                       {message.fileName || 'Image'}
                     </Text>
                     <Text style={styles.fileSize}>
-                    {message.fileType?.toUpperCase() || 'IMAGE'} • {formatFileSize(fileSizeInBytes, {
-                      startWithBytes: false,
-                      precision: 1,
-                      defaultUnit: 'Ko'
-                    })}
+                    {displayFileType} • {formattedSize}
                     </Text>
                   </View>
                 </View>
@@ -482,6 +514,16 @@ const styles = StyleSheet.create({
   },
   ownDarkContainer: {
     backgroundColor: COLORS.darkOrange,
+  },
+  standaloneFileContainer: {
+    backgroundColor: COLORS.darkOrange,
+    borderRadius: SIZES.borderRadius.xLarge,
+    padding: 12,
+    marginBottom: 0,
+    marginHorizontal: 0,
+  },
+  standaloneFilePreview: {
+    // padding: 4,
   },
   messageContentWrapper: {
     position: 'relative',

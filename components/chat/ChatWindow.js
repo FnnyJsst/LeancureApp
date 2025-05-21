@@ -154,7 +154,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
    */
   const sendMessage = useCallback(async (messageData) => {
     try {
-      console.log('[ChatWindow] Début envoi message:', { messageData });
       const currentTime = Date.now();
       recordSentMessage(currentTime);
 
@@ -222,7 +221,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         }
       } else {
         const messageText = typeof messageData === 'object' ? messageData.text : messageData;
-        console.log('[ChatWindow] Validation message texte:', { messageText });
         if (!messageText || messageText.trim() === '') {
           console.error('[ChatWindow] Message vide');
           setAlertMessage(t('messages.errors.emptyMessage'));
@@ -403,6 +401,19 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     setSelectedMessageId(null);
   };
 
+  const handleFileClick = (message) => {
+    if (!message) return;
+
+    openDocumentPreviewModal(
+      null, // fileUrl n'est plus utilisé
+      message.fileName,
+      message.fileSize,
+      message.fileType,
+      message.base64,
+      message.id
+    );
+  };
+
   // Vérification de sécurité pour le channel
   if (!channel) {
     return (
@@ -459,7 +470,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             key={message.id}
             message={message}
             isOwnMessage={message.isOwnMessage}
-            onFileClick={openDocumentPreviewModal}
+            onFileClick={handleFileClick}
             onDeleteMessage={handleDeleteMessage}
             onEditMessage={handleEditMessage}
             userRights={userRights}

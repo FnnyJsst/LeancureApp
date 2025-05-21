@@ -9,33 +9,58 @@ export const formatFileSize = (bytes, options = {}) => {
   const {
     startWithBytes = false,  // If we want to start with bytes
     precision = 1,           // Number of decimals
-    defaultUnit = 'Ko'       // Default unit
+    defaultUnit = 'Ko',      // Default unit
+    convertToBytes = false   // If true, convert formatted size back to bytes
   } = options;
 
-  // If the value is a string, try to convert it to a number
+  // Si la valeur est une chaîne qui contient déjà une unité (ex: "6.8 Ko")
   if (typeof bytes === 'string') {
-    bytes = parseFloat(bytes);
+    const match = bytes.match(/^([\d.]+)\s*([KMG]o|[B])$/i);
+    if (match) {
+      const [, size, unit] = match;
+      // Conversion en bytes selon l'unité
+      const multipliers = {
+        'B': 1,
+        'Ko': 1024,
+        'Mo': 1024 * 1024,
+        'Go': 1024 * 1024 * 1024
+      };
+      bytes = parseFloat(size) * multipliers[unit];
+      // Si on veut juste la conversion en bytes, on retourne directement
+      if (convertToBytes) {
+        return bytes;
+      }
+    } else {
+      // Si pas d'unité, on essaie juste de convertir en nombre
+      bytes = parseFloat(bytes);
+    }
   }
+
   // If the value is not a valid number
   if (!bytes || isNaN(bytes) || bytes === 0) {
-    return '0 ' + defaultUnit;
+    return convertToBytes ? 0 : '0 ' + defaultUnit;
+  }
+
+  // Si on veut juste la conversion en bytes, on retourne directement
+  if (convertToBytes) {
+    return bytes;
   }
 
   const units = startWithBytes ? ['B', 'Ko', 'Mo', 'Go'] : ['Ko', 'Mo', 'Go'];
   let size = startWithBytes ? bytes : bytes / 1024;
   let unitIndex = startWithBytes ? 0 : 0;
 
-  // For very small files
-  if (size < 0.1) {
-    return '0.1 ' + units[unitIndex];
-  }
   // Conversion to the higher units if necessary
   while (size >= 1024 && unitIndex < units.length - 1) {
     size /= 1024;
     unitIndex++;
   }
-  // Formatting the result
-  if (size < 10) {
+
+  // Formatting the result with appropriate precision
+  if (size < 1) {
+    // Pour les très petits fichiers, on affiche plus de décimales
+    return `${size.toFixed(2)} ${units[unitIndex]}`;
+  } else if (size < 10) {
     return `${size.toFixed(precision)} ${units[unitIndex]}`;
   }
 
