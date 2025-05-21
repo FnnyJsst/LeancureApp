@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES, FONTS } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
@@ -71,6 +71,7 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
   const { t } = useTranslation();
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
   /**
    * @function pickDocument
@@ -170,47 +171,51 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
    * @function handleSend
    * @description A function to handle the send of the message
    */
-  const handleSend = () => {
+  const handleSend = async () => {
     // If the message is empty and there is no file, we return
     if (!message.trim() && !selectedFile) return;
 
-    // If the message is being edited, we send the edited message
-    if (isEditing && editingMessage) {
-
-      onSendMessage({
-        text: message.trim(),
-        isEditing: true,
-        messageId: editingMessage.id,
-        type: editingMessage.type,
-        fileInfo: editingMessage.fileInfo
-      });
-    } else {
-      // If the message is not being edited, we send the message
-      if (selectedFile && !selectedFile.readOnly) {
-        onSendMessage({
-          type: 'file',
-          fileName: selectedFile.fileName,
-          fileType: selectedFile.fileType,
-          fileSize: selectedFile.fileSize,
-          base64: selectedFile.base64,
-          uri: selectedFile.uri,
-          text: message.trim() || null,
-          message: message.trim() || null,
-          details: message.trim() || null
+    setIsSending(true);
+    try {
+      // If the message is being edited, we send the edited message
+      if (isEditing && editingMessage) {
+        await onSendMessage({
+          text: message.trim(),
+          isEditing: true,
+          messageId: editingMessage.id,
+          type: editingMessage.type,
+          fileInfo: editingMessage.fileInfo
         });
       } else {
-        onSendMessage({
-          type: 'text',
-          text: message.trim(),
-          message: message.trim(),
-          details: message.trim()
-        });
+        // If the message is not being edited, we send the message
+        if (selectedFile && !selectedFile.readOnly) {
+          await onSendMessage({
+            type: 'file',
+            fileName: selectedFile.fileName,
+            fileType: selectedFile.fileType,
+            fileSize: selectedFile.fileSize,
+            base64: selectedFile.base64,
+            uri: selectedFile.uri,
+            text: message.trim() || null,
+            message: message.trim() || null,
+            details: message.trim() || null
+          });
+        } else {
+          await onSendMessage({
+            type: 'text',
+            text: message.trim(),
+            message: message.trim(),
+            details: message.trim()
+          });
+        }
       }
+      // We reset the input
+      setMessage('');
+      setSelectedFile(null);
+      setIsEditing(false);
+    } finally {
+      setIsSending(false);
     }
-    // We reset the input
-    setMessage('');
-    setSelectedFile(null);
-    setIsEditing(false);
   };
 
   /**
@@ -298,15 +303,21 @@ export default function InputChatWindow({ onSendMessage, onFocusChange, editingM
             styles.sendButton,
             isSmartphone && styles.smartphoneSendButton,
             (message.trim() || selectedFile) && styles.sendButtonActive,
+            isSending && styles.sendButtonSending
           ]}
           onPress={handleSend}
+          disabled={isSending}
         >
-          <Ionicons
-            name="send-outline"
-            size={isSmartphone ? 18 : 24}
-            color={(message.trim() || selectedFile) ? COLORS.orange : COLORS.gray300}
-            style={styles.sendIcon}
-          />
+          {isSending ? (
+            <ActivityIndicator size="small" color={COLORS.orange} />
+          ) : (
+            <Ionicons
+              name="send-outline"
+              size={isSmartphone ? 18 : 24}
+              color={(message.trim() || selectedFile) ? COLORS.orange : COLORS.gray300}
+              style={styles.sendIcon}
+            />
+          )}
         </TouchableOpacity>
       </View>
 
@@ -462,5 +473,8 @@ const styles = StyleSheet.create({
   removeButton: {
     alignSelf: 'center',
     marginRight: 5,
+  },
+  sendButtonSending: {
+    backgroundColor: COLORS.charcoal,
   },
 });

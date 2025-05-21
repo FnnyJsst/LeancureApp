@@ -122,16 +122,6 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
       }
 
       if (onEditMessage) {
-        console.log('[ChatMessage] Message à éditer:', {
-          id: message.id,
-          text: message.text,
-          message: message.message,
-          details: message.details,
-          type: message.type,
-          allProps: message
-        });
-
-        // On passe le message complet
         onEditMessage(message);
       } else {
         handleMessageError(
@@ -272,7 +262,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
       );
 
       return (
-        <View style={styles.messageWrapper(isOwnMessage)}>
+        <View style={[
+          styles.messageWrapper(isOwnMessage),
+          isSmartphone && styles.messageWrapperSmartphone
+        ]}>
           {renderMenu()}
           <View style={[
             styles.messageHeader,
@@ -285,7 +278,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
             <Text style={styles.timestamp}>{messageTime}</Text>
           </View>
 
-          <View style={styles.messageContentWrapper}>
+          <View style={[
+            styles.messageContentWrapper,
+            isSmartphone && styles.messageContentWrapperSmartphone
+          ]}>
             {messageContent}
           </View>
         </View>
@@ -295,7 +291,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
       const messageText = message.details || message.text || message.message || '';
 
       return (
-        <View style={styles.messageWrapper(isOwnMessage)}>
+        <View style={[
+          styles.messageWrapper(isOwnMessage),
+          isSmartphone && styles.messageWrapperSmartphone
+        ]}>
           {renderMenu()}
           <View style={[
             styles.messageHeader,
@@ -308,7 +307,10 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
             <Text style={styles.timestamp}>{messageTime}</Text>
           </View>
 
-          <View style={styles.messageContentWrapper}>
+          <View style={[
+            styles.messageContentWrapper,
+            isSmartphone && styles.messageContentWrapperSmartphone
+          ]}>
             <TouchableOpacity
               onLongPress={handleLongPress}
               delayLongPress={500}
@@ -338,6 +340,9 @@ const styles = StyleSheet.create({
     maxWidth: '70%',
     alignSelf: isOwnMessage ? 'flex-end' : 'flex-start',
   }),
+  messageWrapperSmartphone: {
+    maxWidth: '80%',
+  },
   messageHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -481,6 +486,9 @@ const styles = StyleSheet.create({
   messageContentWrapper: {
     position: 'relative',
     width: '100%',
+  },
+  messageContentWrapperSmartphone: {
+    maxWidth: '100%',
   },
   menuMessageContainer: {
     position: 'absolute',
