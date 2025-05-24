@@ -211,7 +211,7 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
             styles.messageContainer,
             isOwnMessage ? styles.ownMessage : styles.otherMessage,
             styles.fileMessageContainer,
-            isOwnMessage && message.text && message.text !== message.fileName && styles.ownFileMessageContainer,
+            isOwnMessage && styles.ownFileMessageContainer,
           ]}
         >
           <View
@@ -219,7 +219,8 @@ export default function ChatMessage({ message, isOwnMessage, onFileClick, onDele
               styles.fileContainer,
               (isPDF || isCSV) && styles.darkContainer,
               (isPDF || isCSV) && !message.text && styles.standaloneFileContainer,
-              (isPDF || isCSV) && isOwnMessage && styles.ownDarkContainer
+              (isPDF || isCSV) && isOwnMessage && styles.ownDarkContainer,
+              (isPDF || isCSV) && !isOwnMessage && styles.otherDarkContainer
             ]}
           >
             {(isPDF || isCSV) && (
@@ -514,6 +515,9 @@ const styles = StyleSheet.create({
   },
   ownDarkContainer: {
     backgroundColor: COLORS.darkOrange,
+  },
+  otherDarkContainer: {
+    backgroundColor: COLORS.gray900,
   },
   standaloneFileContainer: {
     backgroundColor: COLORS.darkOrange,

@@ -174,18 +174,22 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         setCredentials(userCredentials);
       }
 
+      // Récupération du nom d'affichage de l'utilisateur
+      const displayName = await SecureStore.getItemAsync('userDisplayName');
+      const username = displayName || userCredentials.username || userCredentials.login;
+
       const sendTimestamp = Date.now();
       const isEditing = messageData.isEditing === true && messageData.messageId;
 
       // If the message is being edited
       if (isEditing) {
         try {
-
           const response = await editMessageApi(messageData.messageId, {
             channelid: parseInt(channel.id, 10),
             text: messageData.text,
             type: messageData.type,
-            fileInfo: messageData.fileInfo
+            fileInfo: messageData.fileInfo,
+            username: username
           }, userCredentials);
 
           if (response.status === "ok") {
@@ -193,7 +197,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             setMessages(prevMessages =>
               prevMessages.map(msg =>
                 msg.id === messageData.messageId
-                  ? { ...msg, text: messageData.text, details: messageData.text }
+                  ? { ...msg, text: messageData.text, details: messageData.text, username: username }
                   : msg
               )
             );
@@ -234,6 +238,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         ...messageData,
         type: messageData.type || 'text',
         login: userCredentials.login,
+        username: messageData.type === 'file' ? 'Moi' : (userCredentials.username || userCredentials.login),
         isOwnMessage: true,
         sendTimestamp,
         message: typeof messageData === 'object' ? messageData.text : messageData,
@@ -252,7 +257,8 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         const formattedMessage = {
           ...messageToSend,
           id: response.id,
-          savedTimestamp: Date.now().toString()
+          savedTimestamp: Date.now().toString(),
+          username: messageData.type === 'file' ? 'Moi' : (userCredentials.username || userCredentials.login)
         };
 
         setMessages(prevMessages => [...prevMessages, formattedMessage]);
