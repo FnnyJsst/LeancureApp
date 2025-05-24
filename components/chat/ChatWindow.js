@@ -443,16 +443,15 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.orange} />
-      </View>
-    );
-  }
-
-  if (validMessages.length === 0) {
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>{t('messages.noMessages')}</Text>
+      <View style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.orange} />
+        </View>
+        <InputChatWindow
+          onSendMessage={sendMessage}
+          onFocusChange={onInputFocusChange}
+          editingMessage={editingMessage}
+        />
       </View>
     );
   }
@@ -461,40 +460,50 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     <View style={styles.container}>
       <ScrollView
         ref={scrollViewRef}
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollViewContent}
+        style={styles.messagesContainer}
         onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
       >
-        {validMessages.map((message) => (
-          <ChatMessage
-            key={message.id}
-            message={message}
-            isOwnMessage={message.isOwnMessage}
-            onFileClick={handleFileClick}
-            onDeleteMessage={handleDeleteMessage}
-            onEditMessage={handleEditMessage}
-            userRights={userRights}
-          />
-        ))}
+        {validMessages.length > 0 ? (
+          validMessages.reduce((acc, message, index) => {
+            acc.push(
+              <ChatMessage
+                key={message.id}
+                message={message}
+                isOwnMessage={message.isOwnMessage}
+                onFileClick={handleFileClick}
+                onDeleteMessage={handleDeleteMessage}
+                onEditMessage={handleEditMessage}
+                userRights={userRights}
+              />
+            );
+            return acc;
+          }, [])
+        ) : (
+          <View style={styles.noMessagesContainer}>
+            <Text style={styles.noMessagesText}>
+              {t('messages.noMessages')}
+            </Text>
+          </View>
+        )}
       </ScrollView>
+
       <InputChatWindow
         onSendMessage={sendMessage}
         onFocusChange={onInputFocusChange}
         editingMessage={editingMessage}
-        testID={testID}
       />
-      {channel && (
-        <DocumentPreviewModal
-          visible={isDocumentPreviewModalVisible}
-          onClose={closeDocumentPreviewModal}
-          fileName={selectedFileName}
-          fileSize={selectedFileSize}
-          fileType={selectedFileType}
-          base64={selectedBase64}
-          messageId={selectedMessageId}
-          channelId={channel.id}
-        />
-      )}
+
+      <DocumentPreviewModal
+        visible={isDocumentPreviewModalVisible}
+        onClose={closeDocumentPreviewModal}
+        fileName={selectedFileName}
+        fileSize={selectedFileSize}
+        fileType={selectedFileType}
+        base64={selectedBase64}
+        messageId={selectedMessageId}
+        channelId={channel.id}
+      />
+
       <CustomAlert
         visible={showAlert}
         message={alertMessage}
@@ -558,5 +567,16 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     padding: 10,
-  }
+  },
+  noMessagesContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 50,
+  },
+  noMessagesText: {
+    color: COLORS.gray600,
+    fontSize: SIZES.fonts.subtitleTablet,
+    textAlign: 'center',
+  },
 });
