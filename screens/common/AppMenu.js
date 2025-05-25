@@ -11,6 +11,7 @@ import * as SecureStore from 'expo-secure-store';
 import HideMessagesModal from '../../components/modals/common/HideMessagesModal';
 import { useTranslation } from 'react-i18next';
 import CustomAlert from '../../components/modals/webviews/CustomAlert';
+import { FONTS } from '../../constants/style';
 
 /**
  * @function AppMenu Component
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
   title: {
     color: COLORS.white,
     fontSize: SIZES.fonts.headerTablet,
-    fontWeight: SIZES.fontWeight.semibold,
+    fontFamily: FONTS.medium,
     paddingVertical: 30,
   },
   titleSmartphone: {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SIZES } from '../../constants/style';
+import { COLORS, SIZES, FONTS } from '../../constants/style';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { Text } from '../text/CustomText';
 
@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
   label: {
     color: COLORS.gray300,
     fontSize: SIZES.fonts.subtitleTablet,
+    fontWeight: SIZES.fontWeight.regular,
   },
   labelSmartphone: {
     fontSize: SIZES.fonts.textSmartphone,

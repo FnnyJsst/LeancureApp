@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: SIZES.fonts.subtitleTablet,
-    color: COLORS.gray300,
+    color: COLORS.white,
     fontFamily: FONTS.medium,
   },
   titleSmartphone: {
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
       ios: 'System',
     }),
     fontSize: SIZES.fonts.textTablet,
-    color: COLORS.gray600,
+    color: COLORS.gray300,
     marginTop: 2,
   },
   descriptionSmartphone: {

@@ -4,7 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import InputLogin from '../../../components/inputs/InputLogin';
 import CheckBox from '../../../components/inputs/CheckBox';
 import SimplifiedLogin from './SimplifiedLogin';
-import { COLORS, SIZES } from '../../../constants/style';
+import { COLORS, SIZES, FONTS } from '../../../constants/style';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SCREENS } from '../../../constants/screens';
 import { loginApi, checkRefreshToken } from '../../../services/api/authApi';
@@ -578,7 +578,7 @@ const styles = StyleSheet.create({
     title: {
         color: COLORS.white,
         fontSize: SIZES.fonts.headerTablet,
-        fontWeight: SIZES.fontWeight.semibold,
+        fontFamily: FONTS.medium,
         textAlign: 'center',
         marginBottom: 10,
     },
@@ -594,7 +594,7 @@ const styles = StyleSheet.create({
     subtitle: {
         color: COLORS.gray300,
         fontSize: SIZES.fonts.subtitleTablet,
-        fontWeight: SIZES.fontWeight.regular,
+        fontFamily: FONTS.medium,
         textAlign: 'center',
         marginBottom: 20,
     },
@@ -632,9 +632,9 @@ const styles = StyleSheet.create({
         gap: 5,
     },
     inputTitle: {
-        color: COLORS.gray300,
+        color: COLORS.white,
         fontSize: SIZES.fonts.subtitleTablet,
-        fontWeight: SIZES.fontWeight.regular,
+        fontFamily: FONTS.regular,
         marginLeft: 10,
     },
     inputTitleSmartphone: {

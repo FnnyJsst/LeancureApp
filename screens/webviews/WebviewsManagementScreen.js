@@ -629,11 +629,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginLeft: 30,
   },
-  header: {
-    color: COLORS.white,
-    fontSize: SIZES.fonts.headerTablet,
-    fontWeight: SIZES.fontWeight.semibold,
-  },
   channelsContainer: {
     marginTop: 10,
     alignItems: 'center',

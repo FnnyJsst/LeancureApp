@@ -215,7 +215,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         return;
       }
 
-      // Validation du message
+      // Validation of the message
       if (messageData.type === 'file') {
         if (!messageData.base64) {
           console.error('[ChatWindow] Fichier invalide: pas de base64');

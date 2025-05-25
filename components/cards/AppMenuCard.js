@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { COLORS, SIZES } from '../../constants/style';
+import { COLORS, SIZES, FONTS } from '../../constants/style';
 import { Text } from '../text/CustomText';
 
 /**
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     width: 350,
     height: 150,
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: COLORS.borderColor,
   },
   cardSmartphone: {
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   title: {
     color: COLORS.white,
     fontSize: SIZES.fonts.titleTablet,
-    fontWeight: SIZES.fontWeight.medium,
+    fontFamily: FONTS.medium,
     textAlign: 'center',
   },
   titleSmartphone: {

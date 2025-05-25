@@ -40,6 +40,7 @@ export default function App({ testID, initialScreen }) {
   const [fontsLoaded] = useFonts({
     'Raleway-Regular': require('./assets/fonts/raleway.regular.ttf'),
     'Raleway-Medium': require('./assets/fonts/raleway.medium.ttf'),
+    'Raleway-SemiBold': require('./assets/fonts/raleway.semibold.ttf'),
   });
 
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);

@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   text: {
-    color: COLORS.gray600,
+    color: COLORS.gray300,
     fontSize: SIZES.fonts.textTablet,
     fontWeight: SIZES.fontWeight.regular,
   },
@@ -528,7 +528,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   title: {
-    color: COLORS.gray300,
+    color: COLORS.white,
     fontFamily: FONTS.medium,
     fontSize: SIZES.fonts.smallTextTablet,
   },

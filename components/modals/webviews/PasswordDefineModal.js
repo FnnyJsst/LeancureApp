@@ -168,7 +168,7 @@ export default function PasswordDefineModal({ visible, onClose, onSubmitPassword
                 width={isSmartphone ? '20%' : '22%'}
               />
               <Button
-                title="Close"
+                title={t('buttons.close')}
                 backgroundColor={COLORS.gray650}
                 color={COLORS.white}
                 onPress={handleClose}

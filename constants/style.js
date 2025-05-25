@@ -1,6 +1,7 @@
 export const FONTS = {
   regular: 'Raleway-Regular',  // 400
   medium: 'Raleway-Medium',    // 500
+  semiBold: 'Raleway-SemiBold', // 600
 };
 
 export const SIZES = {
@@ -41,7 +42,7 @@ export const COLORS = {
   darkOrange: '#a32f05',
 
   // Color of the login forms and modals
-  charcoal: '#271E1E',
+  charcoal: '#1E1717',
 
   // Dark grays (from darkest to lightest)
   gray950: '#111111',
