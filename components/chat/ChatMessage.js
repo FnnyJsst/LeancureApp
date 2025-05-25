@@ -442,16 +442,16 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.medium,
-    maxWidth: 220,
+    maxWidth: 180,
   },
   pictureName: {
     color: COLORS.white,
     fontSize: SIZES.fonts.textSmartphone,
     fontWeight: SIZES.fontWeight.medium,
-    maxWidth: 150,
+    maxWidth: 120,
   },
   pictureNameLowResTablet: {
-    maxWidth: 160,
+    maxWidth: 140,
   },
   fileSize: {
     color: COLORS.gray300,
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   imagePreviewContainer: {
-    width: 200,
+    width: 180,
     borderRadius: SIZES.borderRadius.medium,
     overflow: 'hidden',
     position: 'relative',
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   imagePreviewContainerLowResTablet: {
-    width: 180,
+    width: 160,
   },
   imageFileHeader: {
     flexDirection: 'row',
@@ -498,6 +498,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray850,
     width: '100%',
     minWidth: 50,
+    maxWidth: 210,
     marginBottom: 10,
     marginTop: 4,
     borderRadius: SIZES.borderRadius.xLarge,
