@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
   },
   standaloneFileContainer: {
     backgroundColor: COLORS.darkOrange,
-    borderRadius: SIZES.borderRadius.xLarge,
+    borderRadius: SIZES.borderRadius.medium,
     padding: 12,
     marginBottom: 0,
     marginHorizontal: 0,

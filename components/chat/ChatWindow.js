@@ -32,7 +32,13 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       if (data.type === 'messages' && Array.isArray(data.messages)) {
         setMessages(prevMessages => {
           const existingMessageIds = new Set(prevMessages.map(msg => msg.id));
-          const uniqueNewMessages = data.messages.filter(msg => !existingMessageIds.has(msg.id));
+          const uniqueNewMessages = data.messages.filter(msg => {
+            // Ne pas ajouter les messages qui sont déjà en cours d'envoi
+            if (sendingMessage && msg.id === sendingMessage.id) {
+              return false;
+            }
+            return !existingMessageIds.has(msg.id);
+          });
           return uniqueNewMessages.length > 0 ? [...prevMessages, ...uniqueNewMessages] : prevMessages;
         });
       }
@@ -176,7 +182,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       // Récupération du nom d'affichage de l'utilisateur
       const displayName = await SecureStore.getItemAsync('userDisplayName');
-      const username = displayName || userCredentials.username || userCredentials.login;
+      const username = displayName || 'Moi';
 
       const sendTimestamp = Date.now();
       const isEditing = messageData.isEditing === true && messageData.messageId;
@@ -238,7 +244,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         ...messageData,
         type: messageData.type || 'text',
         login: userCredentials.login,
-        username: messageData.type === 'file' ? 'Moi' : (userCredentials.username || userCredentials.login),
+        username: username,
         isOwnMessage: true,
         sendTimestamp,
         message: typeof messageData === 'object' ? messageData.text : messageData,
@@ -246,10 +252,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         details: typeof messageData === 'object' ? messageData.text : messageData,
       };
 
-      setSendingMessage({
-        ...messageToSend,
-        sendTimestamp: sendTimestamp.toString()
-      });
       // Send the message to the server
       const response = await sendMessageApi(channel.id, messageToSend, userCredentials);
       if (response.status === 'ok' && response.id) {
@@ -258,10 +260,19 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           ...messageToSend,
           id: response.id,
           savedTimestamp: Date.now().toString(),
-          username: messageData.type === 'file' ? 'Moi' : (userCredentials.username || userCredentials.login)
+          username: username
         };
 
+        // Mettre à jour l'état local immédiatement
         setMessages(prevMessages => [...prevMessages, formattedMessage]);
+
+        // Marquer le message comme en cours d'envoi pour éviter les doublons
+        setSendingMessage(formattedMessage);
+
+        // Attendre un court instant avant de réinitialiser sendingMessage
+        setTimeout(() => {
+          setSendingMessage(null);
+        }, 1000);
       } else {
         console.error('[ChatWindow] Échec envoi message:', response);
         setAlertMessage(t('messages.errors.sendFailed'));
@@ -271,8 +282,6 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       console.error('[ChatWindow] Erreur lors de l\'envoi du message:', error);
       setAlertMessage(t('messages.errors.sendFailed'));
       setShowAlert(true);
-    } finally {
-      setSendingMessage(null);
     }
   }, [channel, credentials, t, recordSentMessage]);
 
@@ -486,7 +495,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           }, [])
         ) : (
           <View style={styles.noMessagesContainer}>
-            <Text style={styles.noMessagesText}>
+            <Text style={[styles.noMessagesText, isSmartphone && styles.noMessagesTextSmartphone]}>
               {t('messages.noMessages')}
             </Text>
           </View>
@@ -534,6 +543,7 @@ const styles = StyleSheet.create({
     color: COLORS.gray600,
     fontSize: SIZES.fonts.subtitleTablet,
   },
+
   noChannelTextSmartphone: {
     fontSize: SIZES.fonts.subtitleSmartphone,
   },
@@ -582,7 +592,10 @@ const styles = StyleSheet.create({
   },
   noMessagesText: {
     color: COLORS.gray600,
-    fontSize: SIZES.fonts.subtitleTablet,
+    fontSize: SIZES.fonts.textTablet,
     textAlign: 'center',
+  },
+  noMessagesTextSmartphone: {
+    fontSize: SIZES.fonts.textSmartphone,
   },
 });
