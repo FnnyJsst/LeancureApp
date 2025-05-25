@@ -371,7 +371,7 @@ export default function Login({ onNavigate }) {
                 setIsSimplifiedLogin(false);
             }
         } catch (error) {
-            handleLoginError(error, 'login.simplified');
+            console.error('[Login] Error while handling the simplified login:', error);
         } finally {
             setIsLoading(false);
         }

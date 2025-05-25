@@ -3,7 +3,6 @@ export default {
   screens: {
     enterSettings: "Veuillez entrer dans les paramètres pour importer des chaînes",
     useButton: "Utilisez le bouton en haut à droite pour importer des chaînes",
-    selectChannel: "Sélectionnez un canal pour commencer à discuter",
   },
 
   sidebar: {
@@ -16,7 +15,7 @@ export default {
   messages: {
     loadingMessages: "Chargement des messages...",
     noMessages: "Il n'y a pas encore de messages dans ce canal",
-    selectChannel: "Sélectionnez un canal pour commencer à discuter",
+    selectChannel: "Sélectionnez un canal pour discuter",
     typeMessage: "Tapez votre message ici...",
     me: "Moi",
     groupWithoutName: "Groupe sans nom",

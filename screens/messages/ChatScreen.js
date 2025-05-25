@@ -94,7 +94,7 @@ export default function ChatScreen({ onNavigate, isExpanded, setIsExpanded, hand
       hasInitialLoad.current[selectedChannel.id] = true;
     } catch (error) {
       console.error('[ChatScreen] Error loading initial messages:', error);
-      setAlertMessage(t('error.errorRefreshingMessages'));
+      setAlertMessage(t('errors.errorRefreshingMessages'));
       setShowAlert(true);
       setChannelMessages([]);
     } finally {
