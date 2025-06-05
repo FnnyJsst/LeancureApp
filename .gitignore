@@ -13,6 +13,7 @@ leancure-app-firebase-adminsdk.json.json
 
 # Tests
 coverage/
+.html
 
 # Env files
 .env
