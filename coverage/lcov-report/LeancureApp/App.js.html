@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/195</span>
+                <span class='fraction'>0/194</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/193</span>
+                <span class='fraction'>0/192</span>
             </div>
         
             
@@ -720,13 +720,7 @@
 <a name='L655'></a><a href='#L655'>655</a>
 <a name='L656'></a><a href='#L656'>656</a>
 <a name='L657'></a><a href='#L657'>657</a>
-<a name='L658'></a><a href='#L658'>658</a>
-<a name='L659'></a><a href='#L659'>659</a>
-<a name='L660'></a><a href='#L660'>660</a>
-<a name='L661'></a><a href='#L661'>661</a>
-<a name='L662'></a><a href='#L662'>662</a>
-<a name='L663'></a><a href='#L663'>663</a>
-<a name='L664'></a><a href='#L664'>664</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L658'></a><a href='#L658'>658</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -770,11 +764,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -786,7 +775,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1429,13 +1417,8 @@ export default function <span class="fstat-no" title="function not covered" >App
 &nbsp;
   // Fonts
   const [fontsLoaded] = <span class="cstat-no" title="statement not covered" >useFonts({</span>
-    'Raleway-Thin': require('./assets/fonts/raleway.thin.ttf'),
-    'Raleway-Light': require('./assets/fonts/raleway.light.ttf'),
     'Raleway-Regular': require('./assets/fonts/raleway.regular.ttf'),
     'Raleway-Medium': require('./assets/fonts/raleway.medium.ttf'),
-    'Raleway-SemiBold': require('./assets/fonts/raleway.semibold.ttf'),
-    'Raleway-Bold': require('./assets/fonts/raleway.bold.ttf'),
-    'Raleway-ExtraBold': require('./assets/fonts/raleway.extrabold.ttf'),
   });
 &nbsp;
   const [isI18nInitialized, setIsI18nInitialized] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
@@ -1450,7 +1433,6 @@ export default function <span class="fstat-no" title="function not covered" >App
 &nbsp;
   // Hooks
   const { navigate } = <span class="cstat-no" title="statement not covered" >useNavigation(setCurrentScreen);</span>
-  const { t } = <span class="cstat-no" title="statement not covered" >useTranslation();</span>
   const { timeoutInterval, handleTimeoutSelection, loadTimeoutInterval } = <span class="cstat-no" title="statement not covered" >useTimeout();</span>
 &nbsp;
   const {
@@ -1721,7 +1703,7 @@ export default function <span class="fstat-no" title="function not covered" >App
 <span class="cstat-no" title="statement not covered" >      navigate(SCREENS.LOGIN);</span>
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('[App] Error while logging out:', error);</span>
-<span class="cstat-no" title="statement not covered" >      throw error;</span>
+<span class="cstat-no" title="statement not covered" >      return;</span>
     }
   };
 &nbsp;
@@ -1764,9 +1746,9 @@ export default function <span class="fstat-no" title="function not covered" >App
     // Configuration of notifications
     const setupNotifications = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
-        const token = <span class="cstat-no" title="statement not covered" >await registerForPushNotificationsAsync();</span>
+<span class="cstat-no" title="statement not covered" >        await registerForPushNotificationsAsync();</span>
         // Get the permissions status
-        const { status } = <span class="cstat-no" title="statement not covered" >await Notifications.getPermissionsAsync();</span>
+<span class="cstat-no" title="statement not covered" >        await Notifications.getPermissionsAsync();</span>
       } catch (error) {
 <span class="cstat-no" title="statement not covered" >        console.error('[App] Error while setting up notifications:', error);</span>
       }
@@ -2059,7 +2041,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-16T09:02:55.297Z
+                at 2025-06-08T10:50:21.982Z
             </div>
         <script src="../prettify.js"></script>
         <script>

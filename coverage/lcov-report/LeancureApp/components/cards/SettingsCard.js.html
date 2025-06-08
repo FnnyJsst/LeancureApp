@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/9</span>
+                <span class='fraction'>0/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -175,11 +175,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -209,7 +207,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -269,11 +269,11 @@ import { Text } from '../text/CustomText';
  * @param {Function} props.onPress - The function to call when the card is pressed
  * @param {string} props.iconBackgroundColor - The background color of the icon
  */
-export default function SettingsCard({ icon, title, description, onPress, iconBackgroundColor = COLORS.borderColor, testID }) {
+export default function <span class="fstat-no" title="function not covered" >SettingsCard(</span>{ icon, title, description, onPress, iconBackgroundColor = <span class="branch-0 cbranch-no" title="branch not covered" >COLORS.borderColor,</span> testID }) {
 &nbsp;
-  const { isSmartphone } = useDeviceType();
+  const { isSmartphone } = <span class="cstat-no" title="statement not covered" >useDeviceType();</span>
 &nbsp;
-  return (
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;TouchableOpacity
       style={styles.container}
       onPress={onPress}
@@ -285,7 +285,7 @@ export default function SettingsCard({ icon, title, description, onPress, iconBa
       &lt;View style={styles.content}&gt;
         &lt;View style={[
           styles.iconContainer,
-          isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.iconContainerSmartphone,</span>
+          isSmartphone &amp;&amp; styles.iconContainerSmartphone,
           iconBackgroundColor &amp;&amp; { backgroundColor: iconBackgroundColor },
         ]}&gt;
           {icon}
@@ -293,11 +293,11 @@ export default function SettingsCard({ icon, title, description, onPress, iconBa
         &lt;View style={styles.textContainer}&gt;
           &lt;Text style={[
             styles.title,
-            isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.titleSmartphone,</span>
+            isSmartphone &amp;&amp; styles.titleSmartphone,
           ]}&gt;{title}&lt;/Text&gt;
           &lt;Text style={[
             styles.description,
-            isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.descriptionSmartphone,</span>
+            isSmartphone &amp;&amp; styles.descriptionSmartphone,
           ]}&gt;{description}&lt;/Text&gt;
         &lt;/View&gt;
       &lt;/View&gt;
@@ -305,7 +305,7 @@ export default function SettingsCard({ icon, title, description, onPress, iconBa
   );
 }
 &nbsp;
-const styles = StyleSheet.create({
+const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-16T09:02:55.297Z
+                at 2025-06-08T10:50:21.982Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

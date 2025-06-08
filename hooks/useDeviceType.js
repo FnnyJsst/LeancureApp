@@ -3,15 +3,13 @@ import { useWindowDimensions, PixelRatio } from 'react-native';
 /**
  * Custom hook to determine the device type and orientation
  * @returns {Object} - An object containing the device type and orientation
- *
- * @example
- * const { isTablet, isSmartphone, isLandscape, isSmartphoneLandscape, isSmartphonePortrait } = useDeviceType();
+ * @example - const { isTablet, isSmartphone, isLandscape, isSmartphoneLandscape, isSmartphonePortrait } = useDeviceType();
  */
 export const useDeviceType = () => {
   const { width, height } = useWindowDimensions();
   const pixelDensity = PixelRatio.get();
 
-  // Calcul des dimensions en pouces
+  // Calcul des dimensions en poucesb
   const widthInches = width / (PixelRatio.get() * 160);
   const heightInches = height / (PixelRatio.get() * 160);
   const diagonalInches = Math.sqrt(Math.pow(widthInches, 2) + Math.pow(heightInches, 2));

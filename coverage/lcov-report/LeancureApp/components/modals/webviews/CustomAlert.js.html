@@ -185,14 +185,7 @@
 <a name='L120'></a><a href='#L120'>120</a>
 <a name='L121'></a><a href='#L121'>121</a>
 <a name='L122'></a><a href='#L122'>122</a>
-<a name='L123'></a><a href='#L123'>123</a>
-<a name='L124'></a><a href='#L124'>124</a>
-<a name='L125'></a><a href='#L125'>125</a>
-<a name='L126'></a><a href='#L126'>126</a>
-<a name='L127'></a><a href='#L127'>127</a>
-<a name='L128'></a><a href='#L128'>128</a>
-<a name='L129'></a><a href='#L129'>129</a>
-<a name='L130'></a><a href='#L130'>130</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L123'></a><a href='#L123'>123</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -201,7 +194,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -216,12 +209,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">112x</span>
+<span class="cline-any cline-yes">24x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">112x</span>
+<span class="cline-any cline-yes">24x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">112x</span>
+<span class="cline-any cline-yes">24x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -266,24 +259,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -324,11 +310,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from 'react';
 import { Modal, View, StyleSheet } from 'react-native';
 import Button from '../../../components/buttons/Button';
-import TitleModal from '../../../components/text/TitleModal';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import { SIZES,COLORS } from '../../../constants/style';
 import { Text } from '../../text/CustomText';
 import { useTranslation } from 'react-i18next';
+import { MODAL_STYLES } from '../../../constants/style';
 &nbsp;
 let showAlert = null;
 &nbsp;
@@ -342,7 +328,7 @@ let showAlert = null;
  * @param {Function} props.onConfirm - The function to call when the alert is confirmed
  * @param {string} props.type - The type of the alert
  */
-export default function CustomAlert({ visible, title, message, onClose, onConfirm, type = <span class="branch-0 cbranch-no" title="branch not covered" >'error',</span> testID }) {
+export default function CustomAlert({ visible, message, onClose, onConfirm, type = <span class="branch-0 cbranch-no" title="branch not covered" >'error',</span> testID }) {
 &nbsp;
   // We get the device type
   const { isSmartphone, isSmartphonePortrait, isLandscape, isTabletPortrait, isLowResTabletPortrait, isLowResTabletLandscape } = useDeviceType();
@@ -358,20 +344,19 @@ export default function CustomAlert({ visible, title, message, onClose, onConfir
       statusBarTranslucent={true}
       testID="custom-alert"
     &gt;
-      &lt;View style={styles.modalContainer}&gt;
+      &lt;View style={MODAL_STYLES.modalContainer}&gt;
         &lt;View style={[
           styles.modalContent,
           isSmartphonePortrait &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentSmartphonePortrait,</span>
           isLandscape &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentLandscape,</span>
-          isTabletPortrait &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentTabletPortrait,</span>
+          isTabletPortrait &amp;&amp; styles.modalContentTabletPortrait,
           isLowResTabletPortrait &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentLowResTabletPortrait,</span>
           isLowResTabletLandscape &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.modalContentLowResTabletLandscape,</span>
         ]}&gt;
-          &lt;TitleModal title={title} /&gt;
           &lt;Text style={[styles.message, isSmartphone &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >styles.messageSmartphone]</span>}&gt;{message}&lt;/Text&gt;
           &lt;View style={styles.buttonContainer}&gt;
             {type === 'success' ? (
-              &lt;Button
+<span class="branch-0 cbranch-no" title="branch not covered" >              &lt;Button</span>
                 title="OK"
                 backgroundColor={COLORS.orange}
                 color={COLORS.white}
@@ -407,17 +392,11 @@ CustomAlert.setShowAlert = <span class="fstat-no" title="function not covered" >
 };
 &nbsp;
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 1)',
-  },
   modalContent: {
     width: '60%',
     padding: 20,
     backgroundColor: COLORS.gray850,
-    borderRadius: SIZES.borderRadius.xLarge,
+    borderRadius: SIZES.borderRadius.xxLarge,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
   },
@@ -428,10 +407,10 @@ const styles = StyleSheet.create({
     width: '40%',
   },
   modalContentLowResTabletPortrait: {
-    width: '80%',
+    width: '70%',
   },
   modalContentLowResTabletLandscape: {
-    width: '50%',
+    width: '45%',
   },
   modalContentSmartphonePortrait: {
     width: '80%',
@@ -457,7 +436,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-16T09:02:55.297Z
+                at 2025-06-08T10:50:21.982Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

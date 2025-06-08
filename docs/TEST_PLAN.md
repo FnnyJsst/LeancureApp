@@ -1,91 +1,88 @@
-# Plan de Test - LeancureApp
+# Test Plan - LeancureApp
 
 ## Introduction
 
-Ce document définit la stratégie et l'approche des tests pour l'application LeancureApp, en mettant l'accent sur la sécurité des données sensibles.
+This document defines the strategy and approach for testing the LeancureApp application, with an emphasis on the security of sensitive data.
 
-## Composants Critiques
+## Critical Components
 
-### 1. Authentification
+### 1. Authentication
 - `Login.js`
 - `authApi.js`
 - `useCredentials.js`
 
-Tests prioritaires :
-- Validation des credentials
-- Stockage sécurisé
-- Gestion des tokens
-- Nettoyage des données
+Priority Tests:
+- Credential validation
+- Secure storage
+- Token management
+- Data cleanup
 
 ### 2. Messages
 - `ChatWindow.js`
 - `ChatScreen.js`
 - `useWebSocket.js`
 
-Tests prioritaires :
-- Chiffrement des messages
-- Gestion des pièces jointes
-- Contrôle d'accès
-- WebSocket sécurisé
+Priority Tests:
+- Message encryption
+- Attachment handling
+- Access control
+- Secure WebSocket
 
 ### 3. Documents
 - `DocumentPreviewModal.js`
 
-Tests prioritaires :
-- Protection des fichiers
-- Validation des types
-- Nettoyage des données temporaires
+Priority Tests:
+- File protection
+- Type validation
+- Temporary data cleanup
 
-## Environnement de Test
+## Test Environment
 
 ### Configuration
-L'environnement de test est configuré dans :
+The test environment is configured in:
 - `jest.config.js`
 - `jest.setup.js`
 
-### Outils
+### Tools
 - Jest
 - React Native Testing Library
-- Mocks personnalisés
-- Utilitaires de test de sécurité
+- Custom mocks
+- Security testing utilities
 
-## Stratégie de Test
+## Test Strategy
 
-### Types de Tests
-1. Tests Unitaires
-2. Tests d'Intégration
+### Types of Tests
+1. Unit Tests
+2. Integration Tests
 
-### Priorités
-1. CRITIQUE : Authentification, Stockage sécurisé
-2. HAUTE : Validation, Messages
-3. MOYENNE : UI/UX, Navigation
+### Priorities
+1. CRITICAL: Authentication, Secure Storage
+2. HIGH: Validation, Messages
+3. MEDIUM: UI/UX, Navigation
 
-## Exécution des Tests
+## Test Execution
 
-### Commandes
+### Commands
 
-# Exécuter tous les tests
+# Run all tests
 npm test
 
-# Exécuter les tests de sécurité
-npm test security
-
-# Vérifier la couverture
+# Check coverage
 npm test -- --coverage
 
 ### Maintenance
-- Mettre à jour les mocks si nécessaire
-- Maintenir les données de test à jour
-- Vérifier régulièrement la couverture
+- Update mocks as needed
+- Keep test data up to date
+- Regularly check coverage
 
-## Critères de Réussite
+## Success Criteria
 
-### Généraux
-- Couverture > 80%
-- Tests critiques passent
-- Pas de fuite de données
+### General
+- Coverage > 80%
+- Critical tests pass
+- No data leaks
 
-### Spécifiques
-- Chiffrement vérifié
-- Tokens sécurisés
-- Nettoyage complet 
+### Specific
+- Encryption verified
+- Secure tokens
+- Complete cleanup

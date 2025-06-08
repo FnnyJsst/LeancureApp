@@ -439,6 +439,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
      * @returns {boolean} - True if the message is sent, false otherwise
      */
     const sendMessage = async (message) => {
+        // If the WebSocket is not connected, we return false
         if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
             const stateError = {
                 message: 'WebSocket non connecté',
@@ -455,8 +456,10 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 return false;
             }
 
+            // We get the clean channel id by removing the 'channel_' prefix
             const cleanChannelId = activeChannel.current?.replace('channel_', '');
 
+            // We create the message data to send to the WebSocket server
             const messageData = {
                 "sender": "client",
                 "cmd": [

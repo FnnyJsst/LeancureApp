@@ -23,7 +23,7 @@ export default function ButtonWithSpinner({ isLoading, title, testID, ...props }
       title={
         isLoading ? (
           <View style={styles.button}>
-            <ActivityIndicator size="small" color={COLORS.white} />
+            <ActivityIndicator size="small" color={COLORS.white} testID="spinner" />
             <Text style={[styles.buttonText, isSmartphone && styles.buttonTextSmartphone]}>{t('buttons.connecting')}</Text>
           </View>
         ) : (
