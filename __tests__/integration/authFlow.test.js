@@ -238,3 +238,148 @@ describe('Login Component Loading States', () => {
     }, { timeout: 5000 });
   });
 });
+
+describe('Stockage sécurisé des credentials', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    SecureStore.getItemAsync.mockResolvedValue(null);
+    SecureStore.setItemAsync.mockResolvedValue(undefined);
+    SecureStore.deleteItemAsync.mockResolvedValue(undefined);
+  });
+
+  it('devrait stocker les credentials de manière sécurisée avec le bon format', async () => {
+    const contractNumber = 'contract123';
+    const login = 'testuser';
+    const password = 'password123';
+    const mockNavigate = jest.fn();
+
+    loginApi.mockResolvedValueOnce({
+      success: true,
+      status: 200,
+      accountApiKey: 'api-key-123',
+      refreshToken: 'refresh-token-123',
+      accessToken: 'access-token-123',
+      rights: 'admin_rights'
+    });
+
+    fetchUserChannels.mockResolvedValueOnce({
+      status: 'ok',
+      channels: []
+    });
+
+    const { getByTestId } = render(<Login onNavigate={mockNavigate} />);
+
+    // Attendre que le composant soit complètement chargé
+    await waitFor(() => {
+      expect(getByTestId('login-screen')).toBeTruthy();
+    });
+
+    // Remplir et soumettre le formulaire
+    fireEvent.changeText(getByTestId('contract-number-input'), contractNumber);
+    fireEvent.changeText(getByTestId('username-input'), login);
+    fireEvent.changeText(getByTestId('password-input'), password);
+    fireEvent.press(getByTestId('submit-button'));
+
+    // Vérifier le format des données stockées
+    await waitFor(() => {
+      // Vérifier que les credentials sont stockés avec le bon format
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+        'userCredentials',
+        expect.stringMatching(/^{"contractNumber":"contract123","login":"testuser","password":"[a-f0-9]{64}","accountApiKey":"api-key-123","refreshToken":"refresh-token-123","accessToken":"access-token-123"}$/)
+      );
+    });
+  });
+
+  it('devrait gérer les erreurs de stockage sécurisé', async () => {
+    const mockNavigate = jest.fn();
+    const mockError = new Error('Erreur de stockage');
+    
+    // Simuler une erreur de stockage
+    SecureStore.setItemAsync.mockRejectedValueOnce(mockError);
+
+    loginApi.mockResolvedValueOnce({
+      success: true,
+      status: 200,
+      accountApiKey: 'api-key-123',
+      refreshToken: 'refresh-token-123',
+      accessToken: 'access-token-123'
+    });
+
+    const { getByTestId, getByText } = render(<Login onNavigate={mockNavigate} />);
+
+    // Attendre que le composant soit complètement chargé
+    await waitFor(() => {
+      expect(getByTestId('login-screen')).toBeTruthy();
+    });
+
+    // Remplir et soumettre le formulaire
+    fireEvent.changeText(getByTestId('contract-number-input'), 'contract123');
+    fireEvent.changeText(getByTestId('username-input'), 'testuser');
+    fireEvent.changeText(getByTestId('password-input'), 'password123');
+    fireEvent.press(getByTestId('submit-button'));
+
+    // Vérifier que l'erreur est affichée
+    await waitFor(() => {
+      expect(getByTestId('custom-alert')).toBeTruthy();
+    });
+  });
+
+  it('devrait sauvegarder les credentials pour la connexion simplifiée', async () => {
+    const mockNavigate = jest.fn();
+    const { getByTestId } = render(<Login onNavigate={mockNavigate} />);
+
+    // Attendre que le composant soit complètement chargé
+    await waitFor(() => {
+      expect(getByTestId('login-screen')).toBeTruthy();
+    });
+
+    // Remplir le formulaire
+    fireEvent.changeText(getByTestId('contract-number-input'), 'contract123');
+    fireEvent.changeText(getByTestId('username-input'), 'testuser');
+    fireEvent.changeText(getByTestId('password-input'), 'password123');
+    
+    // Cocher la case "Se souvenir de moi"
+    fireEvent.press(getByTestId('remember-me-checkbox'));
+
+    // Simuler une connexion réussie
+    loginApi.mockResolvedValueOnce({
+      success: true,
+      status: 200,
+      accountApiKey: 'api-key-123',
+      refreshToken: 'refresh-token-123',
+      accessToken: 'access-token-123'
+    });
+
+    fetchUserChannels.mockResolvedValueOnce({
+      status: 'ok',
+      channels: []
+    });
+
+    // Soumettre le formulaire
+    fireEvent.press(getByTestId('submit-button'));
+
+    // Vérifier que les informations de connexion sont sauvegardées
+    await waitFor(() => {
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+        'savedLoginInfo',
+        expect.stringMatching(/^{"contractNumber":"contract123","login":"testuser","password":"password123","wasChecked":true}$/)
+      );
+    });
+  });
+
+  it('devrait nettoyer les credentials lors du retour au menu', async () => {
+    const mockNavigate = jest.fn();
+    const { getByTestId } = render(<Login onNavigate={mockNavigate} />);
+
+    // Attendre que le composant soit complètement chargé
+    await waitFor(() => {
+      expect(getByTestId('login-screen')).toBeTruthy();
+    });
+
+    // Cliquer sur le bouton de retour
+    fireEvent.press(getByTestId('login-back-button'));
+
+    // Vérifier que la navigation est appelée
+    expect(mockNavigate).toHaveBeenCalledWith('APP_MENU');
+  });
+});
