@@ -1,0 +1,7 @@
+# Ignore les fichiers générés automatiquement
+coverage/ linguist-vendored
+web-build/ linguist-vendored
+dist/ linguist-vendored
+.expo/ linguist-vendored
+*.test.js linguist-generated
+*.spec.js linguist-generated
