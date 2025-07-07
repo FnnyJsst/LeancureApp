@@ -15,7 +15,7 @@ i18n
       en: { translation: en },
       fr: { translation: fr }
     },
-    lng: Localization.locale.split('-')[0] || 'en',
+    lng: (Localization.locale && Localization.locale.split('-')[0]) || 'en',
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false

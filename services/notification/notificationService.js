@@ -281,7 +281,7 @@ export const synchronizeTokenWithAPI = async (token) => {
     const { contractNumber, accountApiKey, accessToken } = JSON.parse(credentials);
 
     // We build the request
-    const requestBody = createApiRequest({
+    const requestBody = await createApiRequest({
       "amaiia_msg_srv": {
         "notifications": {
           "synchronize": {
@@ -390,7 +390,7 @@ export const removeNotificationToken = async () => {
     }
 
     // We build the request
-    const requestBody = createApiRequest({
+    const requestBody = await createApiRequest({
       "amaiia_msg_srv": {
         "notifications": {
           "synchronize": {

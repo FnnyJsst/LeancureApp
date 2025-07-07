@@ -27,7 +27,9 @@ module.exports = function (api) {
             '@errors': './errors',
             '@models': './models',
             '@interfaces': './interfaces',
-            '@enums': './enums'
+            '@enums': './enums',
+            // Polyfills pour les modules Node.js
+            'buffer': '@craftzdog/react-native-buffer'
           }
         }
       ],

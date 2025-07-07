@@ -1,15 +1,17 @@
-import CryptoJS from 'crypto-js';
+import * as Crypto from 'expo-crypto';
 /**
  * Create an API request object
  * @param {string} saltPath - The salt path, ex : "amaiia_msg_srv/message/add/1713024000000/"
  * @param {string} contractNumber - The contract number
  * @returns {Object} - The API request object
  */
-export const createSignature = (saltPath, contractNumber) => {
+export const createSignature = async (saltPath, contractNumber) => {
   //We use the saltPath and the contractNumber to create a signature
-  const hash = CryptoJS.HmacSHA256(saltPath, contractNumber);
-  //We convert the hash to a hexadecimal string using the CryptoJS library
-  const signature = hash.toString(CryptoJS.enc.Hex);
+  const signature = await Crypto.digestStringAsync(
+    Crypto.CryptoDigestAlgorithm.SHA256,
+    saltPath + contractNumber,
+    { encoding: Crypto.CryptoEncoding.HEX }
+  );
   return signature;
 };
 
@@ -21,10 +23,10 @@ export const createSignature = (saltPath, contractNumber) => {
  * @param {string} accessToken - The access token
  * @returns {Object} - The API request object
  */
-export const createApiRequest = (cmd, contractNumber, accessToken = '') => {
+export const createApiRequest = async (cmd, contractNumber, accessToken = '') => {
   const timestamp = Date.now();
   const saltPath = getSaltPath(cmd, timestamp);
-  const signature = createSignature(saltPath, contractNumber);
+  const signature = await createSignature(saltPath, contractNumber);
 
   return {
     'api-version': '2',

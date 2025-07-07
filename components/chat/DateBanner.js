@@ -20,7 +20,7 @@ export default function DateBanner({ date }) {
   const { t } = useTranslation();
 
   // We get the system language
-  const locale = Localization.locale.split('-')[0] === 'fr' ? fr : enUS;
+  const locale = (Localization.locale && Localization.locale.split('-')[0] === 'fr') ? fr : enUS;
 
   // We check if the date is a special date
   if (date === t('dateTime.today') || date === 'Aujourd\'hui' || date === 'Today') {

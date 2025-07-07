@@ -5,6 +5,7 @@
     "version": "2.0.0",
     "orientation": "default",
     "userInterfaceStyle": "light",
+    "jsEngine": "hermes",
     "splash": {
       "backgroundColor": "#000000"
     },
@@ -46,6 +47,7 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "jsEngine": "hermes",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
         "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos"
@@ -53,10 +55,10 @@
     },
     "android": {
       "package": "com.leancure.app.v2",
+      "jsEngine": "hermes",
       "adaptiveIcon": {
         "backgroundColor": "#e5e5e5"
       },
-      "targetSdkVersion": 35,
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",

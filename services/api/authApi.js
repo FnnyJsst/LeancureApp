@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ENV } from '../../config/env';
 import { createApiRequest } from './baseApi';
 import * as SecureStore from 'expo-secure-store';
-import CryptoJS from 'crypto-js';
+import * as Crypto from 'expo-crypto';
 import { CustomAlert } from '../../components/modals/webviews/CustomAlert';
 import { t } from '../../i18n/index';
 
@@ -10,10 +10,14 @@ import { t } from '../../i18n/index';
  * @function hashPassword
  * @description Hashes a password using SHA-256
  * @param {string} password - The password to hash
- * @returns {string} The hashed password
+ * @returns {Promise<string>} The hashed password
  */
-export const hashPassword = (password) => {
-  return CryptoJS.SHA256(password).toString();
+export const hashPassword = async (password) => {
+  return await Crypto.digestStringAsync(
+    Crypto.CryptoDigestAlgorithm.SHA256,
+    password,
+    { encoding: Crypto.CryptoEncoding.HEX }
+  );
 };
 
 /**
@@ -28,7 +32,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
   try {
 
     // We create the request data
-    const requestData = createApiRequest({
+    const requestData = await createApiRequest({
       'accounts': {
         'loginmsg': {
           'get': {
@@ -76,7 +80,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     const channelsResponse = await axios({
       method: 'POST',
       url: await ENV.API_URL(),
-      data: createApiRequest({
+      data: await createApiRequest({
         'amaiia_msg_srv': {
           'client': {
             'get_account_links': {

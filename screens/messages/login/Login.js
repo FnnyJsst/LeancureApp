@@ -18,7 +18,7 @@ import * as Notifications from 'expo-notifications';
 import { ENV } from '../../../config/env';
 import { synchronizeTokenWithAPI } from '../../../services/notification/notificationService';
 import CustomAlert from '../../../components/modals/webviews/CustomAlert';
-import CryptoJS from 'crypto-js';
+import * as Crypto from 'expo-crypto';
 
 /**
  * @component Login
@@ -60,12 +60,16 @@ export default function Login({ onNavigate }) {
      * @function hashPassword
      * @description Hash a password using SHA-256
      * @param {string} password - The password to hash
-     * @returns {string} - The SHA-256 hash of the password
+     * @returns {Promise<string>} - The SHA-256 hash of the password
      */
-    const hashPassword = (password) => {
+    const hashPassword = async (password) => {
         try {
             // Create the SHA-256 hash
-            const hashedPassword = CryptoJS.SHA256(password).toString();
+            const hashedPassword = await Crypto.digestStringAsync(
+                Crypto.CryptoDigestAlgorithm.SHA256,
+                password,
+                { encoding: Crypto.CryptoEncoding.HEX }
+            );
             return hashedPassword;
         } catch (error) {
             console.error('[Encryption] Error while hashing the password:', error);
@@ -128,7 +132,7 @@ export default function Login({ onNavigate }) {
                 const credentials = {
                     contractNumber,
                     login,
-                    password: hashPassword(password),
+                    password: await hashPassword(password),
                     accountApiKey: loginResponse.accountApiKey,
                     refreshToken: loginResponse.refreshToken,
                     accessToken: loginResponse.accessToken
@@ -224,7 +228,7 @@ export default function Login({ onNavigate }) {
                     const credentials = {
                         contractNumber,
                         login,
-                        password: hashPassword(password),
+                        password: await hashPassword(password),
                         accountApiKey: retryLoginResponse.accountApiKey,
                         refreshToken: refreshTokenResponse.data.refresh_token,
                         accessToken: retryLoginResponse.accessToken
@@ -315,7 +319,7 @@ export default function Login({ onNavigate }) {
                     const credentials = {
                         contractNumber,
                         login,
-                        password: hashPassword(password),
+                        password: await hashPassword(password),
                         accountApiKey: loginResponse.accountApiKey,
                         refreshToken: loginResponse.refreshToken,
                         accessToken: loginResponse.accessToken

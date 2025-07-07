@@ -92,7 +92,7 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
   const parseCSV = (base64Content) => {
     try {
       // Decode the base64 content to text
-      const decodedContent = Buffer.from(base64Content, 'base64').toString('utf8');
+      const decodedContent = atob(base64Content);
       // Split into lines
       const lines = decodedContent.split('\n');
 

@@ -19,7 +19,7 @@ export const fetchUserChannels = async (contractNumber, login, password, accessT
   try {
 
     // We create the body of the request
-    const body = createApiRequest({
+    const body = await createApiRequest({
       'amaiia_msg_srv': {
         'client': {
           'get_account_links': {
@@ -128,7 +128,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
     }
 
     // We create the body of the request
-    const body = createApiRequest({
+    const body = await createApiRequest({
       'amaiia_msg_srv': {
         'message': {
           'add': {
@@ -233,7 +233,7 @@ export const deleteMessageApi = async (messageId, userCredentials) => {
   try {
 
     // We create the body of the request
-    const body = createApiRequest({
+    const body = await createApiRequest({
       'amaiia_msg_srv': {
         'message': {
           'delete': {
@@ -273,7 +273,7 @@ export const fetchChannelMessages = async (channelId, userCredentials) => {
   try {
 
     // We create the body of the request
-    const body = createApiRequest({
+    const body = await createApiRequest({
       'amaiia_msg_srv': {
         'client': {
           'get_account_links': {
@@ -367,10 +367,10 @@ export const fetchMessageFile = async (messageId, msg, userCredentials) => {
     const timestamp = Date.now();
     // We create the salt path and the signature
     const saltPath = `amaiia_msg_srv/message/get_base64/${timestamp}/`;
-    const signature = createSignature(saltPath, userCredentials.contractNumber);
+    const signature = await createSignature(saltPath, userCredentials.contractNumber);
 
     // We create the body of the request
-    const body = createApiRequest({
+    const body = await createApiRequest({
       'amaiia_msg_srv': {
         'message': {
           'get_base64': {
@@ -421,7 +421,7 @@ export const editMessageApi = async (messageId, messageContent, userCredentials)
     const messageText = messageContent.text || '';
 
     // We create the body of the request for the message edit
-    const body = createApiRequest({
+    const body = await createApiRequest({
       'amaiia_msg_srv': {
         'message': {
           'edit': {
