@@ -19,7 +19,7 @@ export default function GradientBackground({ children }) {
         '#151313',  // Very subtle transition
         '#131212',  // Very subtle transition
       ]}
-      locations={[0, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 1]}
+      locations={[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1]}
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.5, y: 1.2 }}
       style={styles.container}

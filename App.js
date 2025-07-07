@@ -252,10 +252,6 @@ export default function App({ testID, initialScreen }) {
   useEffect(() => {
     if (!appInitialized) return;
 
-    /**
-     * @function handleMessagesHiddenChange
-     * @description Handles the change of the messages hidden state
-     */
     const handleMessagesHiddenChange = async () => {
       // If the value has not changed, we return
       if (isMessagesHiddenRef.current === isMessagesHidden) return;
