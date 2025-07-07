@@ -7,7 +7,7 @@ import fr from './translations/fr';
 
 const LANG_STORAGE_KEY = 'user_language';
 
-// Initialisation synchrone immédiate
+// Immediate synchronous initialization
 i18n
   .use(initReactI18next)
   .init({
@@ -43,7 +43,7 @@ const getStoredLanguage = async () => {
   }
 };
 
-// Cette fonction charge maintenant uniquement la langue stockée
+// This function now only loads the stored language
 export const initI18n = async () => {
   try {
     const storedLang = await getStoredLanguage();

@@ -33,7 +33,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
         setMessages(prevMessages => {
           const existingMessageIds = new Set(prevMessages.map(msg => msg.id));
           const uniqueNewMessages = data.messages.filter(msg => {
-            // Ne pas ajouter les messages qui sont déjà en cours d'envoi
+            // Do not add messages that are already being sent
             if (sendingMessage && msg.id === sendingMessage.id) {
               return false;
             }
@@ -164,25 +164,26 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       recordSentMessage(currentTime);
 
       if (!channel) {
-        console.error('[ChatWindow] Pas de canal sélectionné');
+        console.error('[ChatWindow] No channel selected');
         return;
       }
 
-      // Récupération des credentials si nécessaire
+      // Do not add messages that are already being sent
+      // Retrieve credentials if necessary
       let userCredentials = credentials;
       if (!userCredentials) {
         const credentialsStr = await SecureStore.getItemAsync('userCredentials');
         if (!credentialsStr) {
-          console.error('[ChatWindow] Pas de credentials trouvés');
+          console.error('[ChatWindow] No credentials found');
           return;
         }
         userCredentials = JSON.parse(credentialsStr);
         setCredentials(userCredentials);
       }
 
-      // Récupération du nom d'affichage de l'utilisateur
+      // Retrieve the user's display name
       const displayName = await SecureStore.getItemAsync('userDisplayName');
-      const username = displayName || 'Moi';
+      const username = displayName || 'Me';
 
       const sendTimestamp = Date.now();
       const isEditing = messageData.isEditing === true && messageData.messageId;
@@ -214,7 +215,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
             setShowAlert(true);
           }
         } catch (editError) {
-          console.error('[ChatWindow] Erreur lors de l\'édition du message:', editError);
+          console.error('[ChatWindow] Error while editing the message:', editError);
           setAlertMessage(t('messages.errors.editFailed'));
           setShowAlert(true);
         }
@@ -224,7 +225,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       // Validation of the message
       if (messageData.type === 'file') {
         if (!messageData.base64) {
-          console.error('[ChatWindow] Fichier invalide: pas de base64');
+          console.error('[ChatWindow] Invalid file: no base64');
           setAlertMessage(t('messages.errors.invalidFile'));
           setShowAlert(true);
           return;
@@ -232,7 +233,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
       } else {
         const messageText = typeof messageData === 'object' ? messageData.text : messageData;
         if (!messageText || messageText.trim() === '') {
-          console.error('[ChatWindow] Message vide');
+          console.error('[ChatWindow] Empty message');
           setAlertMessage(t('messages.errors.emptyMessage'));
           setShowAlert(true);
           return;
@@ -263,23 +264,23 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
           username: username
         };
 
-        // Mettre à jour l'état local immédiatement
+        // Immediately update local state
         setMessages(prevMessages => [...prevMessages, formattedMessage]);
 
-        // Marquer le message comme en cours d'envoi pour éviter les doublons
+        // Mark the message as being sent to avoid duplicates
         setSendingMessage(formattedMessage);
 
-        // Attendre un court instant avant de réinitialiser sendingMessage
+        // Wait a short moment before resetting sendingMessage
         setTimeout(() => {
           setSendingMessage(null);
         }, 1000);
       } else {
-        console.error('[ChatWindow] Échec envoi message:', response);
+        console.error('[ChatWindow] Failed to send message:', response);
         setAlertMessage(t('messages.errors.sendFailed'));
         setShowAlert(true);
       }
     } catch (error) {
-      console.error('[ChatWindow] Erreur lors de l\'envoi du message:', error);
+      console.error('[ChatWindow] Error while sending the message:', error);
       setAlertMessage(t('messages.errors.sendFailed'));
       setShowAlert(true);
     }
@@ -329,13 +330,13 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     try {
 
       if (!messageToEdit || !messageToEdit.id) {
-        console.error('[ChatWindow] Message invalide pour édition:', messageToEdit);
+        console.error('[ChatWindow] Invalid message for editing:', messageToEdit);
         setAlertMessage(t('messages.errors.invalidMessageEdit'));
         setShowAlert(true);
         return;
       }
 
-      // On s'assure de passer toutes les propriétés nécessaires
+      // Ensure all necessary properties are passed
       const messageToEditWithDetails = {
         ...messageToEdit,
         text: messageToEdit.text || messageToEdit.message || messageToEdit.details || '',
@@ -350,7 +351,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
 
       setEditingMessage(messageToEditWithDetails);
     } catch (error) {
-      console.error('[ChatWindow] Erreur lors de la préparation du message à éditer:', error);
+      console.error('[ChatWindow] Error while preparing the message for editing:', error);
       setAlertMessage(t('messages.errors.editFailed'));
       setShowAlert(true);
     }
@@ -420,7 +421,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     if (!message) return;
 
     openDocumentPreviewModal(
-      null, // fileUrl n'est plus utilisé
+      null, // fileUrl is no longer used
       message.fileName,
       message.fileSize,
       message.fileType,
@@ -429,7 +430,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     );
   };
 
-  // Vérification de sécurité pour le channel
+  // Security check for the channel
   if (!channel) {
     return (
       <View style={styles.container}>
@@ -442,7 +443,7 @@ export default function ChatWindow({ channel, messages: channelMessages, onInput
     );
   }
 
-  // Vérification de sécurité pour les messages
+  // Security check for messages
   const validMessages = messages.filter(message => {
     if (!message || !message.id) {
       return false;

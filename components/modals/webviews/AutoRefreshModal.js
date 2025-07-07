@@ -84,7 +84,7 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
     onClose();
   }, [onClose]);
 
-  // Mémoiser le rendu des items
+  // Memoize the rendering of items
   const renderItem = useCallback(({ item }) => (
     <RadioItem
       item={item}
@@ -94,10 +94,10 @@ const AutoRefreshModal = ({ visible, onClose, onSelectOption, currentOption, tes
     />
   ), [selectedOption, handleSelect, isSmartphone]);
 
-  // Mémoiser le keyExtractor
+  // Memoize the keyExtractor
   const keyExtractor = useCallback((item) => item.value, []);
 
-  // Mémoiser les styles de la FlatList
+  // Memoize the styles of the FlatList
   const contentContainerStyle = React.useMemo(() => [
     styles.optionsContainer,
     isSmartphone && styles.optionsContainerSmartphone,

@@ -13,12 +13,12 @@ export const formatFileSize = (bytes, options = {}) => {
     convertToBytes = false   // If true, convert formatted size back to bytes
   } = options;
 
-  // Si la valeur est une chaîne qui contient déjà une unité (ex: "6.8 Ko")
+  // If the value is a string that already contains a unit (e.g. "6.8 Ko")
   if (typeof bytes === 'string') {
     const match = bytes.match(/^([\d.]+)\s*([KMG]o|[B])$/i);
     if (match) {
       const [, size, unit] = match;
-      // Conversion en bytes selon l'unité
+      // Conversion to bytes according to the unit
       const multipliers = {
         'B': 1,
         'Ko': 1024,
@@ -26,12 +26,12 @@ export const formatFileSize = (bytes, options = {}) => {
         'Go': 1024 * 1024 * 1024
       };
       bytes = parseFloat(size) * multipliers[unit];
-      // Si on veut juste la conversion en bytes, on retourne directement
+      // If we just want the conversion to bytes, we return directly
       if (convertToBytes) {
         return bytes;
       }
     } else {
-      // Si pas d'unité, on essaie juste de convertir en nombre
+      // If no unit, we just try to convert to a number
       bytes = parseFloat(bytes);
     }
   }
@@ -41,7 +41,7 @@ export const formatFileSize = (bytes, options = {}) => {
     return convertToBytes ? 0 : '0 ' + defaultUnit;
   }
 
-  // Si on veut juste la conversion en bytes, on retourne directement
+  // If we just want the conversion to bytes, we return directly
   if (convertToBytes) {
     return bytes;
   }
@@ -58,7 +58,7 @@ export const formatFileSize = (bytes, options = {}) => {
 
   // Formatting the result with appropriate precision
   if (size < 1) {
-    // Pour les très petits fichiers, on affiche plus de décimales
+    // For very small files, we display more decimals
     return `${size.toFixed(2)} ${units[unitIndex]}`;
   } else if (size < 10) {
     return `${size.toFixed(precision)} ${units[unitIndex]}`;

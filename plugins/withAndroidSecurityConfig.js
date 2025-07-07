@@ -20,15 +20,15 @@ const networkSecurityConfig = `<?xml version="1.0" encoding="utf-8"?>
 module.exports = function withAndroidSecurityConfig(config) {
   return withAndroidManifest(config, async (config) => {
     try {
-      // Créer le dossier xml s'il n'existe pas
+      // Create the xml folder if it does not exist
       const xmlPath = path.join(config.modRequest.platformProjectRoot, 'app', 'src', 'main', 'res', 'xml');
       await fs.promises.mkdir(xmlPath, { recursive: true });
 
-      // Écrire le fichier de configuration
+      // Write the configuration file
       const configPath = path.join(xmlPath, 'network_security_config.xml');
       await fs.promises.writeFile(configPath, networkSecurityConfig);
 
-      // Modifier le manifest
+      // Modify the manifest
       const androidManifest = config.modResults;
       if (!androidManifest.manifest) {
         androidManifest.manifest = { application: [{ $: {} }] };
@@ -39,18 +39,18 @@ module.exports = function withAndroidSecurityConfig(config) {
         androidManifest.manifest.application = [{ $: {} }];
       }
 
-      // S'assurer que l'objet $ existe
+      // Ensure the $ object exists
       if (!androidManifest.manifest.application[0].$) {
         androidManifest.manifest.application[0].$ = {};
       }
 
-      // Ajouter les attributs de sécurité
+      // Add security attributes
       androidManifest.manifest.application[0].$['android:usesCleartextTraffic'] = 'true';
       androidManifest.manifest.application[0].$['android:networkSecurityConfig'] = '@xml/network_security_config';
 
       return config;
     } catch (e) {
-      console.error("Erreur dans le plugin Android Security Config:", e);
+      console.error("Error in Android Security Config plugin:", e);
       throw e;
     }
   });

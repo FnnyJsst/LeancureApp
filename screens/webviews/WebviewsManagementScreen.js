@@ -26,7 +26,7 @@ import CustomAlert from '../../components/modals/webviews/CustomAlert';
  * @param {Function} onImport - A function to import channels
  */
 
-// Composant WebviewItem mémorisé
+// Memoized WebviewItem component
 const WebviewItem = memo(({
   channel,
   index,
@@ -438,7 +438,7 @@ export default function WebviewsManagementScreen({
       // Set and save the updated channels
       setSelectedWebviews(updatedWebviews);
       await saveSelectedWebviews(updatedWebviews);
-      // Fermer le modal d'édition
+      // Close the edit modal
       handleCloseModal('edit');
     } catch (error) {
       console.error('[WebviewsManagement] Error while editing the webview:', error);
@@ -464,10 +464,10 @@ export default function WebviewsManagementScreen({
         updatedWebviews[index - 1] = updatedWebviews[index];
         updatedWebviews[index] = temp;
 
-        // Mettre à jour l'état local immédiatement
+        // Immediately update local state
         setSelectedWebviews(updatedWebviews);
 
-        // Sauvegarder uniquement les données essentielles avec une taille limitée
+        // Save only essential data with a limited size
         const simplifiedWebviews = updatedWebviews.map(webview => ({
           href: (webview.href || '').substring(0, 100),
           title: (webview.title || '').substring(0, 50)
@@ -493,10 +493,10 @@ export default function WebviewsManagementScreen({
         updatedWebviews[index + 1] = updatedWebviews[index];
         updatedWebviews[index] = temp;
 
-        // Mettre à jour l'état local immédiatement
+        // Immediately update local state
         setSelectedWebviews(updatedWebviews);
 
-        // Sauvegarder uniquement les données essentielles avec une taille limitée
+        // Save only essential data with a limited size
         const simplifiedWebviews = updatedWebviews.map(webview => ({
           href: (webview.href || '').substring(0, 100),
           title: (webview.title || '').substring(0, 50)

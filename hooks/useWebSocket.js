@@ -119,7 +119,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         try {
             const messageId = data.message?.id || data.notification?.message?.id;
 
-            // Vérification des doublons
+            // Duplicate check
             if (messageId && processedMessageIds.current.has(messageId)) {
                 return;
             }
@@ -127,7 +127,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
                 processedMessageIds.current.add(messageId);
             }
 
-            // Extraction et validation du message
+            // Extraction and validation of the message
             let messageContent = null;
             if (data.notification?.type === 'chat' && data.notification.message) {
                 messageContent = data.notification.message;
@@ -492,7 +492,7 @@ export const useWebSocket = ({ onMessage, onError, channels = [] }) => {
         const messageText = msg.text || msg.message || msg.details || '';
         const isOwnMessageByLogin = msg.login === credentials?.login;
 
-        // Calcul de la taille du fichier si nécessaire
+        // Calculate file size if necessary
         let fileSize = msg.fileSize;
         if (msg.type === 'file' && !fileSize && msg.base64) {
             fileSize = calculateFileSize(msg.base64);

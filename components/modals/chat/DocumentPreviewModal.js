@@ -296,23 +296,23 @@ export default function DocumentPreviewModal({ visible, onClose, fileName, fileS
                           pdf.getPage(1).then(function(page) {
                             const canvas = document.createElement('canvas');
                             const context = canvas.getContext('2d', { alpha: false });
-                            const viewport = page.getViewport({ scale: 2.0 }); // Augmentation de la résolution
+                            const viewport = page.getViewport({ scale: 2.0 }); // Increase resolution
 
-                            // On utilise un pixel ratio plus élevé pour les écrans haute densité
+                            // Use a higher pixel ratio for high-density screens
                             const pixelRatio = window.devicePixelRatio || 1;
 
                             canvas.width = viewport.width * pixelRatio;
                             canvas.height = viewport.height * pixelRatio;
 
-                            // On ajuste la taille d'affichage du canvas
+                            // Adjust the canvas display size
                             canvas.style.width = viewport.width + 'px';
                             canvas.style.height = viewport.height + 'px';
 
-                            // Configuration du contexte pour une meilleure qualité
+                            // Context configuration for better quality
                             context.imageSmoothingEnabled = true;
                             context.imageSmoothingQuality = 'high';
 
-                            // Mise à l'échelle du contexte pour les écrans haute densité
+                            // Scale the context for high-density screens
                             context.scale(pixelRatio, pixelRatio);
 
                             const renderContext = {

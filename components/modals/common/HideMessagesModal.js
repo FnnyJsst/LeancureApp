@@ -95,7 +95,7 @@ export default function HideMessagesModal({ visible, onClose, onToggleHideMessag
         </View>
       </Modal>
 
-      {/* Déplacer CustomAlert en dehors de la Modal principale */}
+      {/* Move CustomAlert outside the main Modal */}
       <CustomAlert
         visible={showSuccessAlert}
         message={alertMessage}

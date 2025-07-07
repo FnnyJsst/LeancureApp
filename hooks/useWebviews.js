@@ -97,7 +97,7 @@ export function useWebviews(setCurrentScreen) {
   const saveSelectedWebviews = async (webviews) => {
     try {
       const webviewsToSave = webviews || [];
-      // Ne sauvegarder que les données essentielles et limiter la taille
+      // Only save essential data and limit the size
       const simplifiedWebviews = webviewsToSave.map(webview => ({
         href: webview.href?.substring(0, 200) || '', // Limiter la taille de l'URL
         title: webview.title?.substring(0, 100) || '' // Limiter la taille du titre
@@ -189,7 +189,7 @@ export function useWebviews(setCurrentScreen) {
   useEffect(() => {
     if (refreshInterval) {
       const interval = setInterval(() => {
-        // Logique de rafraîchissement
+        // Refresh logic
       }, refreshInterval);
       return () => clearInterval(interval);
     }

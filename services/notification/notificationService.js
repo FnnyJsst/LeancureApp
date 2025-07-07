@@ -344,7 +344,7 @@ export const removeNotificationToken = async () => {
     // We get the credentials
     const credentials = await SecureStore.getItemAsync('userCredentials');
     if (!credentials) {
-      console.error('[Notification] Pas de credentials trouvés pour la suppression du token');
+      console.error('[Notification] No credentials found for token deletion');
       return false;
     }
 
@@ -352,19 +352,19 @@ export const removeNotificationToken = async () => {
     let parsedCredentials;
     try {
       parsedCredentials = JSON.parse(credentials);
-      console.log('[Notification] Credentials parsés avec succès:', {
+      console.log('[Notification] Credentials parsed successfully:', {
         hasAccountApiKey: !!parsedCredentials.accountApiKey,
         hasContractNumber: !!parsedCredentials.contractNumber,
         hasAccessToken: !!parsedCredentials.accessToken
       });
     } catch (error) {
-      console.error('[Notification] Erreur lors du parsing des credentials:', error);
+      console.error('[Notification] Error parsing credentials:', error);
       return false;
     }
 
-    // Vérification des champs requis
+    // Required fields verification
     if (!parsedCredentials.accountApiKey || !parsedCredentials.contractNumber || !parsedCredentials.accessToken) {
-      console.error('[Notification] Credentials invalides pour la suppression du token:', {
+      console.error('[Notification] Invalid credentials for token deletion:', {
         hasAccountApiKey: !!parsedCredentials.accountApiKey,
         hasContractNumber: !!parsedCredentials.contractNumber,
         hasAccessToken: !!parsedCredentials.accessToken
@@ -379,13 +379,13 @@ export const removeNotificationToken = async () => {
         projectId: ENV.EXPO_PROJECT_ID,
       });
       currentToken = tokenData.data;
-      console.log('[Notification] Token récupéré avec succès:', currentToken?.substring(0, 10) + '...');
+      console.log('[Notification] Token retrieved successfully:', currentToken?.substring(0, 10) + '...');
     } catch (error) {
-      console.error('[Notification] Erreur lors de la récupération du token:', error);
+      console.error('[Notification] Error retrieving token:', error);
     }
 
     if (!currentToken) {
-      console.error('[Notification] Aucun token trouvé pour la suppression');
+      console.error('[Notification] No token found for deletion');
       return false;
     }
 
@@ -418,16 +418,16 @@ export const removeNotificationToken = async () => {
     for (const key of possibleTokenKeys) {
       try {
         await SecureStore.deleteItemAsync(key);
-        console.log('[Notification] Token local supprimé:', key);
+        console.log('[Notification] Token local deleted:', key);
       } catch (error) {
-        console.error('[Notification] Erreur lors de la suppression du token local:', { key, error });
+        console.error('[Notification] Error deleting local token:', { key, error });
       }
     }
 
     const success = response.status === 200 && response.data?.cmd?.[0]?.amaiia_msg_srv?.notifications?.synchronize?.status === 'ok';
     return success;
   } catch (error) {
-    console.error('[Notification] Erreur lors de la suppression du token:', error);
+    console.error('[Notification] Error deleting token:', error);
     return false;
   }
 };

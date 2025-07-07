@@ -187,7 +187,7 @@ export const sendMessageApi = async (channelId, messageContent, userCredentials)
       }
     };
 
-    // Si c'est un fichier, on s'assure que toutes les propriétés sont préservées
+    // If it's a file, ensure all properties are preserved
     if (isFile) {
       messageData.message = {
         ...messageData.message,

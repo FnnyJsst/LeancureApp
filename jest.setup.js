@@ -1,23 +1,23 @@
 import '@testing-library/jest-native/extend-expect';
 import 'react-native-gesture-handler/jestSetup';
 
-// Mock pour react-native/Libraries/Animated/NativeAnimatedHelper
+// Mock for react-native/Libraries/Animated/NativeAnimatedHelper
 jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 
-// Mock pour expo-secure-store
+// Mock for expo-secure-store
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(),
   setItemAsync: jest.fn(),
   deleteItemAsync: jest.fn(),
 }));
 
-// Mock pour @expo/vector-icons
+// Mock for @expo/vector-icons
 jest.mock('@expo/vector-icons', () => ({
   Ionicons: 'Ionicons',
   createIconSet: () => 'Icon',
 }));
 
-// Mock pour expo-constants
+// Mock for expo-constants
 jest.mock('expo-constants', () => ({
   default: {
     expoConfig: {
@@ -30,7 +30,7 @@ jest.mock('expo-constants', () => ({
   },
 }));
 
-// Mock pour expo-localization
+// Mock for expo-localization
 jest.mock('expo-localization', () => ({
   locale: 'fr-FR',
   locales: ['fr-FR', 'en-US'],
@@ -41,7 +41,7 @@ jest.mock('expo-localization', () => ({
   region: 'FR',
 }));
 
-// Mock pour expo-screen-orientation
+// Mock for expo-screen-orientation
 jest.mock('expo-screen-orientation', () => ({
   lockAsync: jest.fn(),
   unlockAsync: jest.fn(),
@@ -61,12 +61,12 @@ jest.mock('expo-screen-orientation', () => ({
   },
 }));
 
-// Mock pour expo-linear-gradient
+// Mock for expo-linear-gradient
 jest.mock('expo-linear-gradient', () => ({
   LinearGradient: 'LinearGradient',
 }));
 
-// Mock pour expo-modules-core
+// Mock for expo-modules-core
 jest.mock('expo-modules-core', () => ({
   requireNativeViewManager: jest.fn(),
   requireNativeModule: jest.fn(),
@@ -76,7 +76,7 @@ jest.mock('expo-modules-core', () => ({
   },
 }));
 
-// Mock pour expo-font
+// Mock for expo-font
 jest.mock('expo-font', () => ({
   isLoaded: jest.fn(() => true),
   loadAsync: jest.fn(),
@@ -96,7 +96,7 @@ global.testEnvironment = {
   mockUserRights: '2',
 };
 
-// Mock pour Buffer qui est utilisé dans DocumentPreviewModal
+// Mock for Buffer used in DocumentPreviewModal
 jest.mock('buffer', () => ({
   Buffer: {
     from: jest.fn((content, encoding) => ({
@@ -105,7 +105,7 @@ jest.mock('buffer', () => ({
   }
 }));
 
-// Mock pour react-native-webview
+// Mock for react-native-webview
 jest.mock('react-native-webview', () => {
   const React = require('react');
   const { View } = require('react-native');
@@ -117,7 +117,7 @@ jest.mock('react-native-webview', () => {
   };
 });
 
-// Mock amélioré pour expo-secure-store avec encryption
+// Improved mock for expo-secure-store with encryption
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(async (key) => {
     const store = global.testEnvironment.mockSecureStore;
