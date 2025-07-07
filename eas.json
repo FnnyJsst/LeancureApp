@@ -23,6 +23,8 @@
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease",
+        "compileSdkVersion": 35,
+        "targetSdkVersion": 35,
         "env": {
           "ANDROID_NDK_HOME": "/opt/android/ndk/25c"
         }
@@ -41,6 +43,8 @@
       "android": {
         "buildType": "apk",
         "credentialsSource": "remote",
+        "compileSdkVersion": 35,
+        "targetSdkVersion": 35,
         "env": {
           "ANDROID_NDK_HOME": "/opt/android/ndk/25c"
         }

@@ -9,7 +9,7 @@ export const useDeviceType = () => {
   const { width, height } = useWindowDimensions();
   const pixelDensity = PixelRatio.get();
 
-  // Calcul des dimensions en poucesb
+  // Calcul des dimensions en pouces
   const widthInches = width / (PixelRatio.get() * 160);
   const heightInches = height / (PixelRatio.get() * 160);
   const diagonalInches = Math.sqrt(Math.pow(widthInches, 2) + Math.pow(heightInches, 2));
