@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES, FONTS } from '../../constants/style';
 import { Ionicons, FontAwesome, MaterialIcons, Feather } from '@expo/vector-icons';
@@ -26,18 +26,81 @@ export default function InputLogin({
 
     const { isSmartphone } = useDeviceType();
     const [showPassword, setShowPassword] = useState(false);
-    const [isFocused, setIsFocused] = useState(false);
+    const [iconColor, setIconColor] = useState(COLORS.gray600); // État simple pour la couleur de l'icône
+
+    // Utiliser des refs pour éviter les re-renders et cycle de focus
+    const containerRef = useRef(null);
+    const renderCountRef = useRef(0);
+    const lastDeviceTypeRef = useRef(isSmartphone);
+
+    // Log seulement les changements significatifs, pas à chaque render
+    useEffect(() => {
+        renderCountRef.current += 1;
+        // Log seulement les 3 premiers renders pour éviter le spam
+        if (renderCountRef.current <= 3) {
+            console.log(`[InputLogin-${testID}] Rendered (${renderCountRef.current})`);
+        }
+    });
+
+    // Log seulement si le device type change vraiment
+    useEffect(() => {
+        if (lastDeviceTypeRef.current !== isSmartphone) {
+            console.log(`[InputLogin-${testID}] Device type changed:`, { isSmartphone });
+            lastDeviceTypeRef.current = isSmartphone;
+        }
+    }, [isSmartphone, testID]);
+
+    // Callbacks qui modifient directement le style du container et l'état de l'icône
+    const handleFocus = useCallback(() => {
+        console.log(`[InputLogin-${testID}] Input focused - DIRECT STYLE`);
+
+        // Modifier directement le style du container via ref
+        if (containerRef.current) {
+            containerRef.current.setNativeProps({
+                style: [
+                    styles.inputContainer,
+                    isSmartphone && styles.inputContainerSmartphone,
+                    styles.inputContainerFocused, // Ajouter le style focus
+                ]
+            });
+        }
+
+        // Changer la couleur de l'icône via état
+        setIconColor(COLORS.orange);
+    }, [testID, isSmartphone]);
+
+    const handleBlur = useCallback(() => {
+        console.log(`[InputLogin-${testID}] Input blurred - DIRECT STYLE`);
+
+        // Remettre le style normal via ref
+        if (containerRef.current) {
+            containerRef.current.setNativeProps({
+                style: [
+                    styles.inputContainer,
+                    isSmartphone && styles.inputContainerSmartphone,
+                    // Ne pas ajouter le style focus
+                ]
+            });
+        }
+
+        // Remettre la couleur normale de l'icône via état
+        setIconColor(COLORS.gray600);
+    }, [testID, isSmartphone]);
+
+    const handlePasswordToggle = useCallback(() => {
+        console.log(`[InputLogin-${testID}] Password toggled:`, { showPassword: !showPassword });
+        setShowPassword(!showPassword);
+    }, [showPassword, testID]);
 
     /**
      * @function renderIcon
-     * @description A function to render the icon
-     * @returns {React.ReactNode} The icon
+     * @description A function to render the icon - version stable avec état pour couleur
      */
-    const renderIcon = () => {
+    const renderIcon = useMemo(() => {
         const iconProps = {
             name: iconName,
             size: 20,
-            color: isFocused ? COLORS.orange : COLORS.gray600,
+            color: iconColor,
             style: styles.icon,
         };
 
@@ -53,37 +116,56 @@ export default function InputLogin({
             default:
                 return <Ionicons {...iconProps} />;
         }
-    };
+    }, [iconName, iconLibrary, iconColor]);
+
+    // Styles stables - sans état focus
+    const containerStyle = useMemo(() => {
+        return [
+            styles.inputContainer,
+            isSmartphone && styles.inputContainerSmartphone,
+        ];
+    }, [isSmartphone]);
+
+    const inputStyle = useMemo(() => {
+        return [
+            styles.input,
+            isSmartphone && styles.inputSmartphone,
+        ];
+    }, [isSmartphone]);
+
+    // Props stables pour TextInput
+    const textInputProps = useMemo(() => ({
+        style: inputStyle,
+        placeholder,
+        value,
+        onChangeText,
+        secureTextEntry: secureTextEntry && !showPassword,
+        placeholderTextColor: COLORS.gray600,
+        onFocus: handleFocus,
+        onBlur: handleBlur,
+        testID,
+        // Props pour stabiliser le comportement
+        autoCorrect: false,
+        autoCapitalize: 'none',
+        editable: true,
+        selectTextOnFocus: false,
+        autoFocus: false,
+    }), [inputStyle, placeholder, value, onChangeText, secureTextEntry, showPassword, handleFocus, handleBlur, testID]);
 
     return (
         <View
-            style={[
-                styles.inputContainer,
-                isSmartphone && styles.inputContainerSmartphone,
-                isFocused && styles.inputContainerFocused,
-            ]}
+            ref={containerRef}
+            style={containerStyle}
             testID="input-container"
         >
-            {renderIcon()}
-            <TextInput
-                style={[
-                    styles.input,
-                    isSmartphone && styles.inputSmartphone,
-                ]}
-                placeholder={placeholder}
-                value={value}
-                onChangeText={onChangeText}
-                secureTextEntry={secureTextEntry && !showPassword}
-                placeholderTextColor={COLORS.gray600}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                testID={testID}
-            />
+            {renderIcon}
+            <TextInput {...textInputProps} />
             {secureTextEntry && (
                 <TouchableOpacity
-                    onPress={() => setShowPassword(!showPassword)}
+                    onPress={handlePasswordToggle}
                     style={styles.eyeIcon}
                     testID="eye-button"
+                    activeOpacity={0.7}
                 >
                     <Ionicons
                         name={showPassword ? 'eye-outline' : 'eye-off-outline'}
@@ -105,7 +187,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderWidth: 1,
         borderColor: 'transparent',
-        transition: 'all 0.3s ease',
     },
     inputContainerSmartphone: {
         width: '98%',

@@ -42,6 +42,46 @@ export default function Login({ onNavigate }) {
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
 
+    // Logs de diagnostic
+    useEffect(() => {
+        console.log('[Login] Component rendered');
+    });
+
+    useEffect(() => {
+        console.log('[Login] Device type changed:', {
+            isSmartphone,
+            isLandscape,
+            isSmartphoneLandscape
+        });
+    }, [isSmartphone, isLandscape, isSmartphoneLandscape]);
+
+    useEffect(() => {
+        if (isLoading || showAlert) {
+            console.log('[Login] State changed:', {
+                isLoading,
+                isInitialLoading,
+                isSimplifiedLogin,
+                showAlert
+            });
+        }
+    }, [isLoading, isInitialLoading, isSimplifiedLogin, showAlert]);
+
+    const handleContractNumberChange = useCallback((text) => {
+        setContractNumber(text);
+    }, []);
+
+    const handleLoginChange = useCallback((text) => {
+        setLogin(text);
+    }, []);
+
+    const handlePasswordChange = useCallback((text) => {
+        setPassword(text);
+    }, []);
+
+    const handleCheckboxChange = useCallback(() => {
+        setIsChecked(!isChecked);
+    }, [isChecked]);
+
     /**
      * @function validateInputs
      * @description Validate the inputs of the login form
@@ -475,7 +515,7 @@ export default function Login({ onNavigate }) {
                                                     <InputLogin
                                                         placeholder={t('auth.contractNumber')}
                                                         value={contractNumber}
-                                                        onChangeText={setContractNumber}
+                                                        onChangeText={handleContractNumberChange}
                                                         iconName="business-outline"
                                                         testID="contract-number-input"
                                                     />
@@ -494,7 +534,7 @@ export default function Login({ onNavigate }) {
                                                     <InputLogin
                                                         placeholder={t('auth.login')}
                                                         value={login}
-                                                        onChangeText={setLogin}
+                                                        onChangeText={handleLoginChange}
                                                         iconName="person-outline"
                                                         testID="username-input"
                                                     />
@@ -512,7 +552,7 @@ export default function Login({ onNavigate }) {
                                                     <InputLogin
                                                         placeholder={t('auth.password')}
                                                         value={password}
-                                                        onChangeText={setPassword}
+                                                        onChangeText={handlePasswordChange}
                                                         secureTextEntry
                                                         iconName="lock-closed-outline"
                                                         testID="password-input"
@@ -523,7 +563,7 @@ export default function Login({ onNavigate }) {
                                             <View style={styles.checkboxContainer}>
                                                 <CheckBox
                                                     checked={isChecked}
-                                                    onPress={() => setIsChecked(!isChecked)}
+                                                    onPress={handleCheckboxChange}
                                                     label={t('auth.rememberMe')}
                                                     testID="remember-me-checkbox"
                                                 />
