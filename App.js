@@ -21,19 +21,13 @@ import { useFonts } from 'expo-font';
 import CommonSettings from './screens/common/CommonSettings';
 import { useTimeout } from './hooks/useTimeout';
 import ErrorBoundary from './components/ErrorBoundary';
-import { Ionicons } from '@expo/vector-icons';
 import { initI18n } from './i18n';
-import { useTranslation } from 'react-i18next';
 import { registerForPushNotificationsAsync, shouldDisplayNotification, removeNotificationToken, setupConnectionMonitor } from './services/notification/notificationService';
 import * as Notifications from 'expo-notifications';
 import { cleanSecureStoreKeys } from './utils/secureStore';
 import './config/firebase';
 import { NotificationProvider } from './services/notification/notificationContext';
 
-/**
- * @component App
- * @description The main component of the app
- */
 export default function App({ testID, initialScreen }) {
 
   // Fonts
@@ -55,7 +49,7 @@ export default function App({ testID, initialScreen }) {
 
   // Hooks
   const { navigate } = useNavigation(setCurrentScreen);
-  const { timeoutInterval, handleTimeoutSelection, loadTimeoutInterval } = useTimeout();
+  const { loadTimeoutInterval } = useTimeout();
 
   const {
     channels: webviewChannels,
@@ -630,20 +624,21 @@ export default function App({ testID, initialScreen }) {
       <NotificationProvider>
         <View style={styles.container} testID={testID || "app-root"}>
           {renderWebviewScreen()}
-          <PasswordDefineModal
-            visible={isPasswordDefineModalVisible}
-            onClose={closePasswordDefineModal}
-            onSubmitPassword={handlePasswordSubmit}
-            onDisablePassword={disablePassword}
-          />
-          <PasswordCheckModal
-            visible={passwordCheckModalVisible}
-            onClose={() => setPasswordCheckModalVisible(false)}
-            onSubmit={handlePasswordCheck}
-          />
-          <View accessible={true} testID="settings-button">
-            <Ionicons />
-          </View>
+          {PasswordDefineModal &&
+            <PasswordDefineModal
+              visible={isPasswordDefineModalVisible}
+              onClose={closePasswordDefineModal}
+              onSubmitPassword={handlePasswordSubmit}
+              onDisablePassword={disablePassword}
+            />
+          }
+          {PasswordCheckModal &&
+            <PasswordCheckModal
+              visible={passwordCheckModalVisible}
+              onClose={() => setPasswordCheckModalVisible(false)}
+              onSubmit={handlePasswordCheck}
+            />
+          }
         </View>
       </NotificationProvider>
     </ErrorBoundary>
