@@ -41,7 +41,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
           },
         },
       },
-    }, contractNumber, accessToken);
+    }, contractNumber, accessToken, login);
 
     // We get the API URL and check if it ends with /ic.php
     let apiUrl = await ENV.API_URL();
@@ -64,6 +64,14 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       maxRedirects: 0,
     });
 
+    // Vérifier s'il y a une erreur dans la réponse
+    if (loginResponse.data?.error || loginResponse.data?.status === 'error') {
+      throw new Error(loginResponse.data?.error || 'Server error');
+    }
+
+    if (!loginResponse.data?.cmd || loginResponse.data.cmd.length === 0) {
+      throw new Error('Invalid response structure');
+    }
 
     const accountsData = loginResponse.data.cmd[0].accounts;
 
@@ -72,6 +80,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     }
 
     const userData = accountsData.loginmsg.get.data;
+
     const accountApiKey = userData.accountapikey;
     const refreshToken = userData.refresh_token;
     const accessToken = userData.access_token;
@@ -93,7 +102,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
             },
           },
         },
-      }, contractNumber, accessToken),
+      }, contractNumber, accessToken, login),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -106,6 +115,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
 
     if (groupsData && groupsData['4']) {
       userRights = groupsData['4'].rights;
+    } else {
     }
 
     // We save the credentials with the rights in the secure storage
@@ -122,7 +132,7 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
     await saveCredentials(credentials);
 
     // We return the credentials
-    return {
+    const result = {
       status: loginResponse.status,
       accountApiKey: accountApiKey,
       refreshToken: refreshToken,
@@ -132,6 +142,8 @@ export const loginApi = async (contractNumber, login, password, accessToken = ''
       rights: userRights,
       success: true,
     };
+
+    return result;
 
   } catch (error) {
     CustomAlert.show({

@@ -42,30 +42,6 @@ export default function Login({ onNavigate }) {
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
 
-    // Logs de diagnostic
-    useEffect(() => {
-        console.log('[Login] Component rendered');
-    });
-
-    useEffect(() => {
-        console.log('[Login] Device type changed:', {
-            isSmartphone,
-            isLandscape,
-            isSmartphoneLandscape
-        });
-    }, [isSmartphone, isLandscape, isSmartphoneLandscape]);
-
-    useEffect(() => {
-        if (isLoading || showAlert) {
-            console.log('[Login] State changed:', {
-                isLoading,
-                isInitialLoading,
-                isSimplifiedLogin,
-                showAlert
-            });
-        }
-    }, [isLoading, isInitialLoading, isSimplifiedLogin, showAlert]);
-
     const handleContractNumberChange = useCallback((text) => {
         setContractNumber(text);
     }, []);
@@ -219,14 +195,18 @@ export default function Login({ onNavigate }) {
                             } catch (error) {
                                 console.error('[Login] Error generating notification token:', error);
                             }
+                        } else {
+                            console.log('[Login] Notification permissions not granted:', finalStatus);
                         }
 
                         onNavigate(SCREENS.CHAT);
                     } catch (error) {
+                        console.error('[Login] Error in notification handling:', error);
                         setAlertMessage(t('errors.technicalError'));
                         setShowAlert(true);
                     }
                 } else {
+                    console.error('[Login] Error loading channels:', channelsResponse);
                     setAlertMessage(t('errors.errorLoadingChannels'));
                     setShowAlert(true);
                 }

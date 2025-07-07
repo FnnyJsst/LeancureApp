@@ -21,9 +21,10 @@ export const createSignature = async (saltPath, contractNumber) => {
  * @param {Object} cmd - The command object
  * @param {string} contractNumber - The contract number
  * @param {string} accessToken - The access token
+ * @param {string} clientLogin - The client login (defaults to 'admin' for backward compatibility)
  * @returns {Object} - The API request object
  */
-export const createApiRequest = async (cmd, contractNumber, accessToken = '') => {
+export const createApiRequest = async (cmd, contractNumber, accessToken = '', clientLogin = 'admin') => {
   const timestamp = Date.now();
   const saltPath = getSaltPath(cmd, timestamp);
   const signature = await createSignature(saltPath, contractNumber);
@@ -35,8 +36,8 @@ export const createApiRequest = async (cmd, contractNumber, accessToken = '') =>
     'api-signature-hash': 'sha256',
     'api-signature-timestamp': timestamp,
     'client-type': 'mobile',
-    'client-login': 'admin',
-    'client-token': '',
+    'client-login': clientLogin,
+    'client-token': accessToken,
     'client-token-validity': '1m',
     cmd: [cmd],
   };
