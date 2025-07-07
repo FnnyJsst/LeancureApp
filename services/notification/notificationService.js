@@ -344,8 +344,7 @@ export const removeNotificationToken = async () => {
     // We get the credentials
     const credentials = await SecureStore.getItemAsync('userCredentials');
     if (!credentials) {
-      console.error('[Notification] No credentials found for token deletion');
-      return false;
+      return true; // This is normal when user is not logged in
     }
 
     // Parse credentials
@@ -364,12 +363,12 @@ export const removeNotificationToken = async () => {
 
     // Required fields verification
     if (!parsedCredentials.accountApiKey || !parsedCredentials.contractNumber || !parsedCredentials.accessToken) {
-      console.error('[Notification] Invalid credentials for token deletion:', {
+      console.log('[Notification] Invalid credentials - no token deletion needed:', {
         hasAccountApiKey: !!parsedCredentials.accountApiKey,
         hasContractNumber: !!parsedCredentials.contractNumber,
         hasAccessToken: !!parsedCredentials.accessToken
       });
-      return false;
+      return true; // This is normal when credentials are incomplete
     }
 
     // We get the current token
@@ -385,8 +384,8 @@ export const removeNotificationToken = async () => {
     }
 
     if (!currentToken) {
-      console.error('[Notification] No token found for deletion');
-      return false;
+      console.log('[Notification] No token found - no deletion needed');
+      return true; // This is normal when there's no token to delete
     }
 
     // We build the request
