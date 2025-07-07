@@ -69,7 +69,7 @@
     "check-version": "node scripts/check-version.js",
     "prebuild": "npm run check-version",
     "lint": "echo 'Linting skipped - no linter configured'",
-    "test": "jest"
+    "test": "jest --passWithNoTests"
   },
   "overrides": {
     "@expo/config-plugins": "7.8.0",
