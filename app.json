@@ -9,27 +9,63 @@
       "backgroundColor": "#000000"
     },
     "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "L'application souhaite accéder à vos photos."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/logo-white.png",
+          "color": "#ffffff",
+          "sounds": [],
+          "mode": "default",
+          "androidMode": "default",
+          "androidCollapsedTitle": "Nouvelle notification",
+          "firebaseCloudMessaging": {
+            "enabled": true
+          }
+        }
+      ],
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
+      ],
       "expo-secure-store",
       "expo-font",
+      "expo-file-system",
+      "expo-media-library",
       "expo-localization",
       [
         "./plugins/withAndroidSecurityConfig"
       ]
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "jsEngine": "hermes",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
+        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos"
+      }
     },
     "android": {
-      "package": "com.leancure.app.v1",
+      "package": "com.leancure.app.v2",
+      "jsEngine": "hermes",
       "adaptiveIcon": {
         "backgroundColor": "#e5e5e5"
       },
       "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
-        "INTERNET"
-      ]
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "googleServicesFile": ".secrets/google-services.json"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -49,8 +85,5 @@
       "barStyle": "light-content"
     },
     "developmentClient": {}
-  },
-  "resolutions": {
-    "@expo/config-plugins": "7.8.0"
   }
 }

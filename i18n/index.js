@@ -7,17 +7,15 @@ import fr from './translations/fr';
 
 const LANG_STORAGE_KEY = 'user_language';
 
-// Available languages
-const resources = {
-  en: { translation: en },
-  fr: { translation: fr }
-};
-
+// Immediate synchronous initialization
 i18n
   .use(initReactI18next)
   .init({
-    resources,
-    lng: Localization.locale.split('-')[0] || 'en',
+    resources: {
+      en: { translation: en },
+      fr: { translation: fr }
+    },
+    lng: (Localization.locale && Localization.locale.split('-')[0]) || 'en',
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false
@@ -45,22 +43,18 @@ const getStoredLanguage = async () => {
   }
 };
 
-/**
- * @function initI18n
- * @description Initialize the i18n instance
- * @returns {Promise<i18n>} The i18n instance
- */
+// This function now only loads the stored language
 export const initI18n = async () => {
   try {
     const storedLang = await getStoredLanguage();
     if (storedLang) {
       await i18n.changeLanguage(storedLang);
     }
-
+    return i18n;
   } catch (error) {
-    console.error('Error loading language:', error);
+    console.error('Error loading stored language:', error);
+    return i18n;
   }
-  return i18n;
 };
 
 export default i18n;
