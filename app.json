@@ -15,20 +15,7 @@
           "photosPermission": "L'application souhaite accéder à vos photos."
         }
       ],
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/logo-white.png",
-          "color": "#ffffff",
-          "sounds": [],
-          "mode": "default",
-          "androidMode": "default",
-          "androidCollapsedTitle": "Nouvelle notification",
-          "firebaseCloudMessaging": {
-            "enabled": true
-          }
-        }
-      ],
+      "expo-notifications",
       [
         "expo-document-picker",
         {
@@ -53,19 +40,16 @@
       }
     },
     "android": {
-      "package": "com.leancure.app.v2",
+      "package": "com.leancure.app.v1",
       "jsEngine": "hermes",
       "adaptiveIcon": {
         "backgroundColor": "#e5e5e5"
       },
+      "targetSdkVersion": 34,
+      "minSdkVersion": 24,
       "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.INTERNET",
-        "android.permission.RECORD_AUDIO"
-      ],
-      "googleServicesFile": ".secrets/google-services.json"
+        "android.permission.INTERNET"
+      ]
     },
     "assetBundlePatterns": [
       "**/*"
