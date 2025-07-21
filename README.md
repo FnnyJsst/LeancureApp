@@ -1,104 +1,68 @@
-# Leancure View Application
+# LeancureApp
 
-## Description and Features:
+Application React Native pour Leancure.
 
-Mobile application developed with React Native and Expo consisting of two parts:
 
-1/ Webviews:
+## Structure du Projet
 
-The webview part is used to duplicate views from the Leancure software so the operators on the production lines can interact with it. 
+Le dossier v1 contient la première version de l'application. Elle est une réplique de l'ancienne application Android
 
-Features:
-- Import, view, modify, delete webviews
-- Choose when to refresh them
-- "Read-only" mode available to view webviews without modifying them
-- Password protection for webviews settings
+src/
+├── components/    # Composants réutilisables
+├── screens/       # Vues
+├── constants/     # Constantes pour les styles et les vues
+├── hooks/         # Hooks permettant notamment de gérer les formats d'écran et la navigation
+├── i18n/          # Traductions
+├── assets/        # Images et polices
+├── plugins/		# Contient withAndroidSecurityConfig.js, qui permet de d'utiliser des URL en HTTP malgré les limitations d'Android
+├── docs/        	# Contient DEPLOYMENT.md, qui explique la procédure pour déployer l'application
+└── App.js			# Point d'entrée de l'application
 
-2/ Chat:
 
-The other part of the app is a messaging service allowing users to send text messages, images and files.
+## Fichiers de Configuration
 
-- Secure authentication
-- Simplified login form
-- Communication through a chat system with public and private groups and channels
-- Send text messages, PDFs, images, CSV files
-- Edit and delete a message
-- Push notifications
+- app.json : Fichier de configuration principal pour l'application, il contient notamment les versions et permissions requises
+- babel.config.js : Configure le transpileur Babel qui convertit le code JavaScript moderne en version compatible avec tous les environnements.
+- eas.json : Fichier de configuration pour Expo Application Services. Il gère les builds et la configuration des différents environnements (development, preview, production)
+- metro.config.js : Configure Metro, le bundler JavaScript de React Native.
+- package.json : Définit les dépendances du projet
+- package-lock.json : Verrouille les versions exactes des dépendances pour garantir des installations cohérentes entre les développeurs.
+- polyfills.js : Ajoute le support de fonctionnalités JavaScript modernes sur les anciennes versions de navigateurs/environnements, nécessaire depuis la dernière mise-à-jour Android
+
+
+## Prérequis
+
+- Node.js
+- npm ou yarn, 
+- Expo : npm install -g expo
+- Expo CLI, l'interface en ligne de commande d'Expo : npm install -g expo-cli
+- L'Application Expo Go installée sur un smartphone ou une tablette
+- La création d'un compte Expo pour Leancure, transférer l'application sur ce compte : 
+# Se connecter avec le compte entreprise 
+npx expo login --username compte-entreprise@domaine.com
+
+# Transférer le projet
+npx eas project:transfer --project-id [ID_DU_PROJET] --target-account [COMPTE_ENTREPRISE]
+
 
 ## Installation
-- Install dependencies: `npm install`
-- Launch in development: `npx expo start`
 
-## Prerequisites
-- Node.js (version 14 or higher)
-- npm or yarn
-- Expo CLI
-- An iOS/Android emulator or a physical device for testing
+Installer les dépendances : npm install ou yarn install
 
-## Configuration
-1. Create a `.env` at the root of the project
-2. Copy les environement variables from `.env.example`
-3. Fill values for:
-   - API_URL (URL of the API)
-   - WS_URL (URL of the Websocket server)
 
-## Scripts disponibles
-- `npm start` : Starts the application in development mode
-- `npm test` : Starts the tests
-- `npm run lint` : Checks the quality of the code with Eslint
+## Options de Lancement
 
-## Troubleshooting
-Common problems ans solutions
-- Si the app doesn't start, try cleaning the cache : `npx expo start -c`
-- For dependency problems : `rm -rf node_modules && npm install`
-- En cas d'erreur de build : `npx expo prebuild --clean`
+### OPTION 1 : Expo Go (Si pas de build de développement)
 
-## Project Structure:
-├── assets/ # Fonts, images and other ressources
-├── components/ # Reusable components
-├── config/ # .env file
-├── constants/ # Constants and configuration for screens and styles
-├── i18n/ # Translation files
-├── screens/ # Application screens
-├── services/ # Services (API, notifications, websocket...)
-├── hooks/ # Custom hooks
-└── utils/ # Error and encryption related functions
+1. Lancer la commande : npx expo start --go
+2. Scanner le QR Code généré depuis l'application Expo Go
 
-## Main Hooks
-- `useDeviceType`: Device type detection
-- `useNavigation`: Application navigation
-- `useTimeout`: Application timeout management
-- `useWebSocket`: WebSocket connection
-- `useWebviews`: Webviews management
-- `useWebviewsPassword`: Password management
 
-## Technologies Used
-- React Native
-- Expo
-- SecureStore
-- React Navigation
-- Expo FileSystem
-- Expo Notifications
+### OPTION 2 Development Build (Pour tester l'application en conditions réelles)
 
-## Security
-- Secure credentials storage with SecureStore
-- Password protection for settings
-- Read-only mode for webviews
+1. Créer un build développement (cf docs.DEPLYMENT.md)
+2. Installer l'APK créée sur un smartphone ou une tablette physique (pas d'émulateur)
+3. lancer la commande : npx expo start --dev-client
+4. Scanner le QR Code ou lancer l'APK
+En cas de changement dans les dépendances, un nouveau build développement doit être créé
 
-## Contribution
-1. Fork the project
-2. Create a branch (`git checkout -b feature/new-feature`)
-3. Commit changes (`git commit -m 'Add new feature'`)
-4. Push to branch (`git push origin feature/new-feature`)
-5. Create Pull Request
-
-## Future upgrades 
-1. Automatic alerts to inform the operators of various envent hapening in the factory (machine breakind down, low efficiency rate...)
-
-## Documentation 📚
-
-### Architecture
-Pour comprendre l'organisation du code et la structure du projet, consultez [l'architecture détaillée](docs/ARCHITECTURE.md).
-
-### Déploiement
-Pour les instructions détaillées de déploiement Android, consultez [la procédure de déploiement](docs/DEPLOYMENT.md).
